@@ -36,7 +36,7 @@ export type CanvasMachineEvents =
     };
 
 export const canvasMachine =
-  /** @xstate-layout N4IgpgJg5mDOIC5QGMCGA7Abq2ACAtqsgBYCW6YAdKRADZgDEAIgEoCCA6gPoDKAKmxZ8A2gAYAuolAAHAPaxSAF1Kz0UkAA9EAZgCMAFkoAmAKyjzAdl0ntoiwA4L+gDQgAnonu7K+gJz--I3t7bV8LEwBfCNc0LBwCIjIKajpGAGEACTYAOQBxAFEufIAZfIBZfOy+XiyABXyxSSQQOQVlVXUtBAA2CwtKXQtu3SN9USNw7pDXDwQ9bsoTcN1dXxXwid8omIxsPEIScioIACdUAHdyKAYS8sq+SgBVWqY2PgaJdValFTVmrv0RhmiCMI0Wdnsonm3VEa3s2xAsT2CUOyVOFyuN1KFSqlCYt3ejS+8h+HX+IP02kofW0lJs2kcvm6JmBcyClD0oxCw1E3V8gP0CKR8QOSWOZ0u6GutxxD2er3eRWyTCJzW+7T+oC6oypNLp2gZFiZLPciEG-V8NnWQXsvgmRqi0RA6FkEDg6mF+0SR2JbV+nUQAFpuqzg5RzOZVisTPaTDYhbsRd7kjR6L7SZrNIh9A5KN1umMjP59PYjHyDayjHYOaXIdoy0ycwyE3EvajxRipemNQGEF4fFbdF5NsE46ztL1KPZero+SWHCYQo6IkA */
+  /** @xstate-layout N4IgpgJg5mDOIC5QGMCGA7Abq2ACAtqsgBYCW6YAdKRADZgDEAIgEoCCA6gPoDKAKmxZ8A2gAYAuolAAHAPaxSAF1Kz0UkAA9EAJm0B2SgDYAnIcMAWQwGZto41YAcxgKwAaEAE9EARnOU9lg7eot5W5sbaztbaAL4x7mhYOAREZBTUdIwAwgASbAByAOIAolzFADLFALLF+Xy8eQAKxWKSSCByCsqq6loIhtpW-pbG5qGi2uHehu5e-caUzjYRDmMOA+aiDnEJGNh4hCTkVBAATqgA7uRQDBXVtXyUAKqNTGx8LRLqnUoqau19AC0xm8lG8ejCzj0olEYSsIVmOgcBmszmm5nMenW4W28RAiX2KSO6TOl2ut0qNTqlCYdw+rW+8l+PQBOnMQz0EPM+l0Sz0ZgciIQ4IMLisvm8+mMowCVh2+L2yUOaRO5yu6Budypjxebw+ZXyTAZ7R+3X+oD6kw5XJ5kSs-MMgs8iBsDko4sium8Dishj0zjiePQsggcHUBKVqWOjK6f16iEBoQW4Mh0Nh7IRzoQgL02n8S28EQiUTszlxuySByj6Ro9BjzPNmkQzl0Rm0Dic9gc7bRQu000o9nbGd8S27hnlEarxNVZI19bN8YQQUo5gL4rMZlszjcWccoLhnNC3mm4IDgaAA */
   createMachine(
     {
       id: "canvas machine",
@@ -66,13 +66,13 @@ export const canvasMachine =
           on: {
             DRAW_START: {
               target: "drawing",
-              actions: "addElement",
+              actions: ["unselectElements", "addElement", "draw"],
             },
 
             CHANGE_ELEMENT_SHAPE: {
               target: "idle",
               internal: true,
-              actions: "changeElementShape",
+              actions: ["changeElementShape", "unselectElements", "draw"],
             },
           },
 
@@ -163,6 +163,18 @@ export const canvasMachine =
         changeElementShape: assign((_, { elementShape }) => {
           return {
             elementShape,
+          };
+        }),
+        unselectElements: assign((context) => {
+          context.elements.forEach((element) => {
+            element.ref.send("UNSELECT");
+          });
+
+          return {
+            elements: context.elements.map((element) => ({
+              ...element,
+              isSelected: false,
+            })),
           };
         }),
       },

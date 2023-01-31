@@ -28,10 +28,13 @@ type ElementMachineEvents =
       type: "UPDATE_END";
       event: Parameters<MouseEventHandler<HTMLCanvasElement>>[0];
       canvasElement: HTMLCanvasElement;
+    }
+  | {
+      type: "UNSELECT";
     };
 
 export const createElementMachine = (visualizerElement: VisualizerElement) =>
-  /** @xstate-layout N4IgpgJg5mDOIC5RgDZgLZgHYBcAE6AhgMYAWAllmAHTkRoDEAqgAoAiAggCoCiA2gAYAuolAAHAPaxyOchKyiQAD0QBaAIwCAbNXUAmTQE4AzAHYArABoQAT0TqT1AevWm9xkwBZD5gBwDTAF9A61QMbHwiMkoaOkY2HgAZHl5BESQQSWlZeUUVBE89J3MA330rW0RjdU9qPXNTMtMtX28-AODQtExcAhIKKlp6MGZ2bh4AfR4AOTY0xSyZOQUM-JdDak9zQ1bTdWNPb2rTazsEU1rDdV89LXrzc09jeuCQkCwJCDhFMJ7I-piCykS1yqzU6keugMAhMFlO4KKflcBwEW1820MAmMnXA3QifWigziYCB2WWeUQDWoWmc5juFTODlMTi0Wk8LiebX8QTev3xUQGNC+aBwkFJIJWoHyJV0NIh9PhBVu1BMxm2vi8Pm5r0CQA */
+  /** @xstate-layout N4IgpgJg5mDOIC5RgDZgLZgHYBcAE6AhgMYAWAllmAHTkRoDEAqgAoAiAggCoCiA2gAYAuolAAHAPaxyOchKyiQAD0QBaAIwCAbNXUAmTQE4AzAHYArABoQAT0TqT1AevWm9xkwBZD5gBwDTAF9A61QMbHwiMkoaOkY2HgAZHl5BESQQSWlZeUUVBE89J3MA330rW0RjdU9qPXNTMtMtX28-AODQtExcAhIKKlp6MGZ2bh4AfR4AOTY0xSyZOQUM-JdDak9zQ1bTdWNPb2rTazsEU1rDdV89LXrzc09jes7wboi+6MG4kaZpgGUkjwAMJceYZRY5FagfKqDzULSFLSmYxlLQCczqFqnRCmDaGTy+B6+MzmW7mLTGYIhEBYCQQOCKMI9SL9GILKRLXKrNTqR66AwCEwWHEIDRFPyuUmPfQeLTqV7Mj5RAaxYYc7LLPKIBoI5wU+qihymJxaREuJ5tfxBGlK3oqmLUBloHCQDVc6HKHUCXTovl3CpnJHUEzGba+Lw+a3UwJAA */
   createMachine(
     {
       id: "element machine",
@@ -68,11 +71,18 @@ export const createElementMachine = (visualizerElement: VisualizerElement) =>
               internal: true,
               actions: [
                 "update",
+                "select",
                 sendParent((context) => ({
                   type: "ELEMENT.UPDATE_END",
                   updatedElement: context,
                 })),
               ],
+            },
+
+            UNSELECT: {
+              target: "idle",
+              internal: true,
+              actions: "unselect",
             },
           },
         },
@@ -103,6 +113,12 @@ export const createElementMachine = (visualizerElement: VisualizerElement) =>
             width,
             height,
           };
+        }),
+        select: assign({
+          isSelected: true,
+        }),
+        unselect: assign({
+          isSelected: false,
         }),
       },
     }

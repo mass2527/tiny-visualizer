@@ -13,6 +13,8 @@ export interface Typegen0 {
     services: never;
   };
   eventsCausingActions: {
+    select: "UPDATE_END";
+    unselect: "UNSELECT";
     update: "UPDATE" | "UPDATE_END";
   };
   eventsCausingDelays: {};

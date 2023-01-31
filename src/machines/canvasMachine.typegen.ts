@@ -16,9 +16,15 @@ export interface Typegen0 {
     addElement: "DRAW_START";
     changeElementShape: "CHANGE_ELEMENT_SHAPE";
     deleteElement: "ELEMENT.DELETE";
-    draw: "ELEMENT.DELETE" | "ELEMENT.UPDATE" | "ELEMENT.UPDATE_END";
+    draw:
+      | "CHANGE_ELEMENT_SHAPE"
+      | "DRAW_START"
+      | "ELEMENT.DELETE"
+      | "ELEMENT.UPDATE"
+      | "ELEMENT.UPDATE_END";
     generateDraw: "ELEMENT.UPDATE" | "ELEMENT.UPDATE_END";
     stopElement: "ELEMENT.DELETE";
+    unselectElements: "CHANGE_ELEMENT_SHAPE" | "DRAW_START";
     updateElement: "ELEMENT.UPDATE" | "ELEMENT.UPDATE_END";
   };
   eventsCausingDelays: {};

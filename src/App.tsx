@@ -105,6 +105,8 @@ const TOOL_OPTIONS: {
   },
 ];
 
+const MARGIN = 8;
+
 function App() {
   const windowSize = useWindowSize();
   const devicePixelRatio = useDevicePixelRatio();
@@ -139,8 +141,20 @@ function App() {
 
         ctx.clearRect(0, 0, canvasElement.width, canvasElement.height);
         context.elements.forEach((element) => {
-          invariant(element.draw);
-          element.draw();
+          if (element.draw) {
+            element.draw();
+          }
+
+          if (element.isSelected) {
+            ctx.setLineDash([8, 4]);
+            ctx.strokeRect(
+              element.x - MARGIN,
+              element.y - MARGIN,
+              element.width + MARGIN * 2,
+              element.height + MARGIN * 2
+            );
+            ctx.setLineDash([]);
+          }
         });
       },
     },
