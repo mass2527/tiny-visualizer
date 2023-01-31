@@ -14,6 +14,7 @@ export interface Typegen0 {
   };
   eventsCausingActions: {
     addElement: "DRAW_START";
+    changeElementShape: "CHANGE_ELEMENT_SHAPE";
     deleteElement: "ELEMENT.DELETE";
     draw: "ELEMENT.DELETE" | "ELEMENT.UPDATE" | "ELEMENT.UPDATE_END";
     generateDraw: "ELEMENT.UPDATE" | "ELEMENT.UPDATE_END";

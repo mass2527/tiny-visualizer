@@ -1,9 +1,17 @@
 import { useMachine } from "@xstate/react";
-import { MouseEventHandler, useEffect, useRef, useState } from "react";
+import {
+  ChangeEventHandler,
+  CSSProperties,
+  MouseEventHandler,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import invariant from "tiny-invariant";
 import { canvasMachine } from "./machines/canvasMachine";
 import { generateDraw } from "./utils";
 import { assign } from "xstate/lib/actions";
+import { VisualizerElement } from "./machines/elementMachine";
 
 function useWindowSize() {
   const [windowSize, setWindowSize] = useState({
@@ -50,6 +58,53 @@ function useDevicePixelRatio() {
   return devicePixelRatio;
 }
 
+function Radio({
+  label,
+  value,
+  checked,
+  onChange,
+  style,
+}: {
+  label: string;
+  value: string;
+  checked: boolean;
+  onChange: ChangeEventHandler<HTMLInputElement>;
+  style?: CSSProperties;
+}) {
+  return (
+    <label style={style}>
+      <input type="radio" value={value} checked={checked} onChange={onChange} />
+      {label}
+    </label>
+  );
+}
+
+const TOOL_OPTIONS: {
+  label: string;
+  value: VisualizerElement["shape"];
+}[] = [
+  {
+    label: "(1) Selection",
+    value: "selection",
+  },
+  {
+    label: "(2) Rectangle",
+    value: "rectangle",
+  },
+  {
+    label: "(3) Ellipse",
+    value: "ellipse",
+  },
+  {
+    label: "(4) Arrow",
+    value: "arrow",
+  },
+  {
+    label: "(5) Line",
+    value: "line",
+  },
+];
+
 function App() {
   const windowSize = useWindowSize();
   const devicePixelRatio = useDevicePixelRatio();
@@ -90,10 +145,40 @@ function App() {
       },
     },
   });
-  const { drawingElementId, elements } = state.context;
+  const { elementShape, drawingElementId, elements } = state.context;
   const drawingElement = elements.find(
     (element) => element.id === drawingElementId
   );
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.repeat) {
+        return;
+      }
+
+      const isHotKey = ["1", "2", "3", "4", "5"].includes(event.key);
+      if (!isHotKey) {
+        return;
+      }
+
+      const hotKeys: Record<string, VisualizerElement["shape"]> = {
+        1: "selection",
+        2: "rectangle",
+        3: "ellipse",
+        4: "arrow",
+        5: "line",
+      };
+      send({
+        type: "CHANGE_ELEMENT_SHAPE",
+        elementShape: hotKeys[event.key],
+      });
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
 
   const startDraw: MouseEventHandler<HTMLCanvasElement> = (event) => {
     const canvasElement = canvasRef.current;
@@ -138,6 +223,42 @@ function App() {
 
   return (
     <div style={{ height: "100vh", overflow: "hidden" }}>
+      <div
+        style={{
+          position: "absolute",
+          width: "100%",
+          height: "100%",
+          pointerEvents: "none",
+          padding: "16px",
+        }}
+      >
+        <header
+          style={{
+            display: "flex",
+            justifyContent: "center",
+          }}
+        >
+          {TOOL_OPTIONS.map(({ label, value }) => (
+            <Radio
+              key={value}
+              label={label}
+              value={value}
+              checked={elementShape === value}
+              onChange={(event) => {
+                send({
+                  type: "CHANGE_ELEMENT_SHAPE",
+                  elementShape: event.target
+                    .value as VisualizerElement["shape"],
+                });
+              }}
+              style={{
+                pointerEvents: "all",
+              }}
+            />
+          ))}
+        </header>
+      </div>
+
       <canvas
         ref={canvasRef}
         style={{ width: windowSize.width, height: windowSize.height }}
