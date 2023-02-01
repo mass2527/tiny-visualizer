@@ -21,14 +21,25 @@ export const calculateMousePoint = (
 
 export type Point = { x: number; y: number };
 
-export const isPointInsideOfElement = (
-  point: Point,
-  element: VisualizerElement
-) => {
+export const calculateAbsolutePoint = (element: VisualizerElement) => {
   const minX = Math.min(element.x, element.x + element.width);
   const maxX = Math.max(element.x, element.x + element.width);
   const minY = Math.min(element.y, element.y + element.height);
   const maxY = Math.max(element.y, element.y + element.height);
+
+  return {
+    minX,
+    maxX,
+    minY,
+    maxY,
+  };
+};
+
+export const isPointInsideOfElement = (
+  point: Point,
+  element: VisualizerElement
+) => {
+  const { minX, maxX, minY, maxY } = calculateAbsolutePoint(element);
 
   if (
     point.x >= minX &&
@@ -39,6 +50,28 @@ export const isPointInsideOfElement = (
     return true;
   }
   return false;
+};
+
+export const isIntersecting = (
+  selection: VisualizerElement,
+  element: VisualizerElement
+) => {
+  const selectionAbsolutePoint = calculateAbsolutePoint(selection);
+  const elementAbsolutePoint = calculateAbsolutePoint(element);
+
+  if (selectionAbsolutePoint.minX > elementAbsolutePoint.maxX) {
+    return false;
+  }
+  if (selectionAbsolutePoint.maxX < elementAbsolutePoint.minX) {
+    return false;
+  }
+  if (selectionAbsolutePoint.minY > elementAbsolutePoint.maxY) {
+    return false;
+  }
+  if (selectionAbsolutePoint.maxY < elementAbsolutePoint.minY) {
+    return false;
+  }
+  return true;
 };
 
 export const calculateDistance = (width: number, height: number) => {

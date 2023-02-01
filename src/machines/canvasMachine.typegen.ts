@@ -23,6 +23,8 @@ export interface Typegen0 {
       | "ELEMENT.DELETE"
       | "ELEMENT.DRAG"
       | "ELEMENT.DRAG_END"
+      | "ELEMENT.SELECT"
+      | "ELEMENT.UNSELECT"
       | "ELEMENT.UPDATE"
       | "ELEMENT.UPDATE_END";
     stopElement: "ELEMENT.DELETE";
@@ -30,8 +32,11 @@ export interface Typegen0 {
     updateElement:
       | "ELEMENT.DRAG"
       | "ELEMENT.DRAG_END"
+      | "ELEMENT.SELECT"
+      | "ELEMENT.UNSELECT"
       | "ELEMENT.UPDATE"
       | "ELEMENT.UPDATE_END";
+    updateIntersecting: "ELEMENT.UPDATE" | "ELEMENT.UPDATE_END";
   };
   eventsCausingDelays: {};
   eventsCausingGuards: {};

@@ -9,9 +9,8 @@ import {
 } from "react";
 import invariant from "tiny-invariant";
 import { canvasMachine } from "./machines/canvasMachine";
-import { calculateMousePoint, isPointInsideOfElement } from "./utils";
-import { assign } from "xstate/lib/actions";
 import { VisualizerElement } from "./machines/elementMachine";
+import { calculateMousePoint, isPointInsideOfElement } from "./utils";
 
 function useWindowSize() {
   const [windowSize, setWindowSize] = useState({

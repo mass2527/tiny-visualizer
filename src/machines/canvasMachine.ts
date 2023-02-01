@@ -1,8 +1,9 @@
-import { actions, ActorRefFrom, assign, createMachine, spawn } from "xstate";
-import { createElementMachine, VisualizerElement } from "./elementMachine";
-import { v4 as uuidv4 } from "uuid";
 import { MouseEventHandler } from "react";
-import { calculateMousePoint, Point } from "../utils";
+import invariant from "tiny-invariant";
+import { v4 as uuidv4 } from "uuid";
+import { actions, ActorRefFrom, assign, createMachine, spawn } from "xstate";
+import { calculateMousePoint, isIntersecting, Point } from "../utils";
+import { createElementMachine, VisualizerElement } from "./elementMachine";
 
 type VisualizerElementWithRef = VisualizerElement & {
   ref: ActorRefFrom<ReturnType<typeof createElementMachine>>;
@@ -50,10 +51,18 @@ export type CanvasMachineEvents =
       updatedElement: VisualizerElement;
       event: Parameters<MouseEventHandler<HTMLCanvasElement>>[0];
       canvasElement: HTMLCanvasElement;
+    }
+  | {
+      type: "ELEMENT.SELECT";
+      updatedElement: VisualizerElement;
+    }
+  | {
+      type: "ELEMENT.UNSELECT";
+      updatedElement: VisualizerElement;
     };
 
 export const canvasMachine =
-  /** @xstate-layout N4IgpgJg5mDOIC5QGMCGA7Abq2ACAtqsgBYCW6YAdKRADZgDEAIgEoCCA6gPoDKAKmxZ8A2gAYAuolAAHAPaxSAF1Kz0UkAA9EAJm0B2SgDYAnIcMAWQwGZto41YAcxgKwAaEAE9EARnOU9lg7eot5W5sbaztbaAL4x7mhYOAREZBTUdIwAwgASbAByAOIAolzFADLFALLF+Xy8eQAKxWKSSCByCsqq6loIxsYGzs76ZlbONtrebp4+elaUI8NWxuYOukGrcQkY2HiEJORUNPTM7IW8AkKt6p1KKmrtfXreDpS+zqvWwSu+7l4IBw2ShWbx6EKWUE-ZzbECJPYpQ7pCAAJ1QAHdyFAGBVqrU+JQAKqNJhsPgtCS3eT3HpPRAAWmM3ne83MznBojCVhC-x0DgM1mc3gs5j0DgsxgcsPhyQOaSoqIxWJxlRqdUoTFx5Ju7Tu3UeoD62nMCz0rP0ugmejMDl5CDBBhcoPM3n0A1FJulu1lqSOlEVmPQ2NxaoJxNJ5LK+SYOpk1P1vR0Jv85r0lqs1sMttmCBsb1BkV0ryshj0MPicO9+19yLRUCgypD+I151jHXjD0TCEMom0Rk5LtZ3Mcejt3lCzMlPfsoVEvb0XqS1aRCrrDaDKrx6tYbAutRjlN1HdphsQ9kMIKZhmmrwC1mMdqBfdB4O5WdWxbiFfQsggcHUMrLvKVJdJ2dIIPSoTGCyYTsnOXI8jm9Jpv4EzePYIQBA45i6IuCJyn6JxgCBNIGpoiBptBzhOMM4oeky3h2oY2gXmsKwOM4ogONx2FWHhPorv6aKBlAJEJuBQSUGyoKgmYZi2MMdqOMyXJmhOwpguWOxLoi8pCag9ZYmJYGngg8wXlmwQuC64rctmALBFMUkBPMnEOKILpbF+QA */
+  /** @xstate-layout N4IgpgJg5mDOIC5QGMCGA7Abq2ACAtqsgBYCW6YAdKRADZgDEAIgEoCCA6gPoDKAKmxZ8A2gAYAuolAAHAPaxSAF1Kz0UkAA9EAJgAsATkoBmXQHZdANgCMRgKwAOM0au6ANCACeiALQXjt-StTAIC9Uzt9AF9I9zQsHAIiMgpqOkYAYQAJNgA5AHEAUS4CgBkCgFkCnL5ebIAFArFJJBA5BWVVdS0EfW1DUQH9I1EDI31Le3cvBCs9SlN7R1tdK3tRQPsh6NiMbDxCEnIqGnpmdjzeASEm9TalFTUW7tNVyhcAy2dRMZcpxHsjNpjEFRC4LM4rN9bNsQHE9olDikToxShUqnxKDxUekRBJbvJ7p0nogVro3gD9L0wc5tLYLH8EOZTG8xuNxi9rNoYXCEgdklQIAAnVAAd3IUAYqMq1UoAFU6kw2HxGniWncOo9QN1vNojEZKBYFjYBpt9KZRKYGX0-OttNpHKI7ZtwaZubteUkjpQhaLxZKytKMUxUcqbmqCRquohWZR7brKaY+qYXpbPIggvrbLTbGNdPYnVZxm74vtPSkfWL0BKpei5QqlUUqkwwzIIw8owgabGjPnLBZbLYXOsGXqrJRSaILPYpxZtMFdMX4XyvRW-TWZViyjiW6020Stem6W8gifZroTLp7QzDUDzZsrNYXIsxouPYiBcLK9WA7XZTlNwU26qq27TtsSCDeLM+oWJYvQDJYpgwfotjXtY44Xs+ugrCY9ivqW77esKUBQGuP4yqwbB5Du6pgQeCAWI6BrfCs4Tnt89iptMVg2GO+jTuszjDI6roxLC7r4fyhGoMRpFouR5zFDkzbAbuoH7poiBDH4PzWIOHGfPoDIAkCzjmsMU7jKsRh4QiknIv6ckYn+AFAc0IGEpqGkIOezK2KIzprLO6wBAyyz2JQiyUtoDH2Fm07RKJ6CyBAcDqDyElHPiamedq9pjoa9jGv5CYWgy3hDBFAQPjBwSOgCIk7CWtlesiWUeR2iaGA4yEODVBjcde0XjhSsX+YsjjWaJ6XNeWn7im1kbgYV445jxFjrUFA4jstJhGMmPEPkE0JTeJM0ftJJFVgttFeeEfhTpCyErNOwyTGmMyOmOZhOH5awrEWCVAA */
   createMachine(
     {
       id: "canvas machine",
@@ -94,12 +103,24 @@ export const canvasMachine =
             CHANGE_ELEMENT_SHAPE: {
               target: "idle",
               internal: true,
-              actions: ["changeElementShape", "unselectElements", "draw"],
+              actions: ["unselectElements", "changeElementShape", "draw"],
             },
 
             DRAG_START: {
               target: "dragging",
               actions: "assignDragStartPoint",
+            },
+
+            "ELEMENT.SELECT": {
+              target: "idle",
+              internal: true,
+              actions: ["updateElement", "draw"],
+            },
+
+            "ELEMENT.UNSELECT": {
+              target: "idle",
+              internal: true,
+              actions: ["updateElement", "draw"],
             },
           },
 
@@ -113,7 +134,7 @@ export const canvasMachine =
             "ELEMENT.UPDATE": {
               target: "drawing",
               internal: true,
-              actions: ["updateElement", "draw"],
+              actions: ["updateElement", "draw", "updateIntersecting"],
             },
 
             "ELEMENT.DELETE": {
@@ -129,7 +150,20 @@ export const canvasMachine =
                 assign({
                   elementShape: "selection",
                 }),
+                "updateIntersecting",
               ],
+            },
+
+            "ELEMENT.SELECT": {
+              target: "drawing",
+              internal: true,
+              actions: ["updateElement", "draw"],
+            },
+
+            "ELEMENT.UNSELECT": {
+              target: "drawing",
+              internal: true,
+              actions: ["updateElement", "draw"],
             },
           },
         },
@@ -206,18 +240,6 @@ export const canvasMachine =
             elementShape,
           };
         }),
-        unselectElements: assign((context) => {
-          context.elements.forEach((element) => {
-            element.ref.send("UNSELECT");
-          });
-
-          return {
-            elements: context.elements.map((element) => ({
-              ...element,
-              isSelected: false,
-            })),
-          };
-        }),
         assignDragStartPoint: assign((_, { canvasElement, event }) => {
           const dragStartPoint = calculateMousePoint(canvasElement, event);
 
@@ -225,6 +247,37 @@ export const canvasMachine =
             dragStartPoint,
           };
         }),
+        unselectElements: assign((context) => {
+          context.elements.forEach((element) => {
+            element.ref.send({
+              type: "UNSELECT",
+            });
+          });
+          return {
+            elements: context.elements.map((element) => ({
+              ...element,
+              isSelected: false,
+            })),
+          };
+        }),
+        updateIntersecting: ({ elements, drawingElementId }) => {
+          const drawingElement = elements.find(
+            (element) => element.id === drawingElementId
+          );
+          invariant(drawingElement);
+
+          if (drawingElement.shape === "selection") {
+            elements
+              .filter((element) => element.shape !== "selection")
+              .forEach((element) => {
+                if (isIntersecting(drawingElement, element)) {
+                  element.ref.send("SELECT");
+                } else {
+                  element.ref.send("UNSELECT");
+                }
+              });
+          }
+        },
       },
     }
   );

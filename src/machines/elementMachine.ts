@@ -43,10 +43,13 @@ type ElementMachineEvents =
       event: Parameters<MouseEventHandler<HTMLCanvasElement>>[0];
       canvasElement: HTMLCanvasElement;
       dragStartPoint: Point;
+    }
+  | {
+      type: "SELECT";
     };
 
 export const createElementMachine = (visualizerElement: VisualizerElement) =>
-  /** @xstate-layout N4IgpgJg5mDOIC5RgDZgLZgHYBcAE6AhgMYAWAllmAHTkRoDEAqgAoAiAggCoCiA2gAYAuolAAHAPaxyOchKyiQAD0QBGAOwBmagIAcAFgCcu3ar2HDANnUAaEAE9EAJnX6dm6-oGb9L9ZYBfALtUDGx8IjJKGjpGNh4AGR5eQREkEElpWXlFFQRVQ3VqSwFDTXUAVjtHBH0Ky2onVV1KoJC0TFwCEgoqWnowZnZuHgB9HgA5NlTFTJk5BXS8gFoNVWoLXUt9SwrdCt8BS0tqtXUBagrKr01VS10nXQ9A4PAO8O6ovtjBpgmAZUSPAAwlwZuk5tlFqAVponBsDqoKgJ9HCHuoDFUHIh-NRVEinE0nHoKppDBVVG03mEupFejEBgw2AAlDgAcXB4ik8xyS0QyychUuBiexy8AglBlOCAqsuoOxcBm8VkeTipoU6ER60X6cVZbPGU05GW5UNyiF8xUsZQexNURi8hml5waljJdQK1kK5SCrywEggcEUGo+dOis1NC3NCGWPgqwv0ou2Esl+mlq3WmgM6kqukld2t6vetO13wGEayUb5CAxOgO90q0rqDXUzVarxDJa+NEDaBwkArPOhykQtyKTVK5SxNVR2iaLQqvoCQA */
+  /** @xstate-layout N4IgpgJg5mDOIC5RgDZgLZgHYBcAE6AhgMYAWAllmAHTkRoDEAqgAoAiAggCoCiA2gAYAuolAAHAPaxyOchKyiQAD0QBGAOwBmagIAcAFgCcu3ar2HDANnUAaEAE9EAJnX6dm6-oGb9L9ZYBfALtUDGx8IjJKGjpGNh4AGR5eQREkEElpWXlFFQRVQ3VqSwFDTXUAVjtHBH0Ky2onVV1KoJC0TFwCEgoqWnowZnZuHgB9HgA5NlTFTJk5BXS8gFoNVWoLXUt9SwrdCt8BS0tqtXUBagrKr01VS10nXQ9A4PAO8O6ovtjBpgmAZUSPAAwlwZuk5tlFqAVk4GncBKonBZ9GYroZTggDtR9Op1Hd7rsvJZNIY2m8wl1Ir0YgMGGwAEocADi4PEUnmOSWiGWyKKe30T2OXgEooMmIqkpxlhcBm8VkeTnJoU6ER60X6cSZzPGUzZGQ5UNyiF8xUsZQeTkRRi8GIciHODRJhjqBWshXKyveVPV3zpgKSoP1kIWxvyFQuVtUqgqPljiOFEp2jR2qP20YMyKCrywEggcEUKo+1Ois0Noe5CGWccuBiF21FYv0mOr2gETke5TKmhMpgMXspaq+tLQZayFZhDt0OgO90qmLqDXxLQqA9Vnxp1HzaBwkDHnOhykQtyKTVK5Sq9tqmm0TRX2YCQA */
   createMachine(
     {
       id: "element machine",
@@ -98,7 +101,13 @@ export const createElementMachine = (visualizerElement: VisualizerElement) =>
             UNSELECT: {
               target: "idle",
               internal: true,
-              actions: "unselect",
+              actions: [
+                "unselect",
+                sendParent((context) => ({
+                  type: "ELEMENT.UNSELECT",
+                  updatedElement: context,
+                })),
+              ],
             },
 
             DRAG: {
@@ -129,6 +138,18 @@ export const createElementMachine = (visualizerElement: VisualizerElement) =>
                   updatedElement: context,
                   canvasElement,
                   event,
+                })),
+              ],
+            },
+
+            SELECT: {
+              target: "idle",
+              internal: true,
+              actions: [
+                "select",
+                sendParent((context) => ({
+                  type: "ELEMENT.SELECT",
+                  updatedElement: context,
                 })),
               ],
             },
