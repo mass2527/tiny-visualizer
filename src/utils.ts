@@ -19,6 +19,28 @@ export const calculateMousePoint = (
   };
 };
 
+export type Point = { x: number; y: number };
+
+export const isPointInsideOfElement = (
+  point: Point,
+  element: VisualizerElement
+) => {
+  const startX = element.width >= 0 ? element.x : element.x + element.width;
+  const startY = element.height >= 0 ? element.y : element.y + element.height;
+  const endX = startX + element.width;
+  const endY = startY + element.height;
+
+  if (
+    point.x >= startX &&
+    point.x <= endX &&
+    point.y >= startY &&
+    point.y <= endY
+  ) {
+    return true;
+  }
+  return false;
+};
+
 export const calculateDistance = (width: number, height: number) => {
   return Math.sqrt(width ** 2 + height ** 2);
 };

@@ -1,7 +1,7 @@
 import { MouseEventHandler } from "react";
 
 import { assign, createMachine, sendParent } from "xstate";
-import { calculateMousePoint } from "../utils";
+import { calculateMousePoint, generateDraw, Point } from "../utils";
 import { CanvasMachineEvents } from "./canvasMachine";
 
 export type VisualizerElement = {
@@ -31,10 +31,22 @@ type ElementMachineEvents =
     }
   | {
       type: "UNSELECT";
+    }
+  | {
+      type: "DRAG";
+      event: Parameters<MouseEventHandler<HTMLCanvasElement>>[0];
+      canvasElement: HTMLCanvasElement;
+      dragStartPoint: Point;
+    }
+  | {
+      type: "DRAG_END";
+      event: Parameters<MouseEventHandler<HTMLCanvasElement>>[0];
+      canvasElement: HTMLCanvasElement;
+      dragStartPoint: Point;
     };
 
 export const createElementMachine = (visualizerElement: VisualizerElement) =>
-  /** @xstate-layout N4IgpgJg5mDOIC5RgDZgLZgHYBcAE6AhgMYAWAllmAHTkRoDEAqgAoAiAggCoCiA2gAYAuolAAHAPaxyOchKyiQAD0QBaAIwCAbNXUAmTQE4AzAHYArABoQAT0TqT1AevWm9xkwBZD5gBwDTAF9A61QMbHwiMkoaOkY2HgAZHl5BESQQSWlZeUUVBE89J3MA330rW0RjdU9qPXNTMtMtX28-AODQtExcAhIKKlp6MGZ2bh4AfR4AOTY0xSyZOQUM-JdDak9zQ1bTdWNPb2rTazsEU1rDdV89LXrzc09jes7wboi+6MG4kaZpgGUkjwAMJceYZRY5FagfKqDzULSFLSmYxlLQCczqFqnRCmDaGTy+B6+MzmW7mLTGYIhEBYCQQOCKMI9SL9GILKRLXKrNTqR66AwCEwWHEIDRFPyuUmPfQeLTqV7Mj5RAaxYYc7LLPKIBoI5wU+qihymJxaREuJ5tfxBGlK3oqmLUBloHCQDVc6HKHUCXTovl3CpnJHUEzGba+Lw+a3UwJAA */
+  /** @xstate-layout N4IgpgJg5mDOIC5RgDZgLZgHYBcAE6AhgMYAWAllmAHTkRoDEAqgAoAiAggCoCiA2gAYAuolAAHAPaxyOchKyiQAD0QBGAOwBmagIAcAFgCcu3ar2HDANnUAaEAE9EAJnX6dm6-oGb9L9ZYBfALtUDGx8IjJKGjpGNh4AGR5eQREkEElpWXlFFQRVQ3VqSwFDTXUAVjtHBH0Ky2onVV1KoJC0TFwCEgoqWnowZnZuHgB9HgA5NlTFTJk5BXS8gFoNVWoLXUt9SwrdCt8BS0tqtXUBagrKr01VS10nXQ9A4PAO8O6ovtjBpgmAZUSPAAwlwZuk5tlFqAVponBsDqoKgJ9HCHuoDFUHIh-NRVEinE0nHoKppDBVVG03mEupFejEBgw2AAlDgAcXB4ik8xyS0QyychUuBiexy8AglBlOCAqsuoOxcBm8VkeTipoU6ER60X6cVZbPGU05GW5UNyiF8xUsZQexNURi8hml5waljJdQK1kK5SCrywEggcEUGo+dOis1NC3NCGWPgqwv0ou2Esl+mlq3WmgM6kqukld2t6vetO13wGEayUb5CAxOgO90q0rqDXUzVarxDJa+NEDaBwkArPOhykQtyKTVK5SxNVR2iaLQqvoCQA */
   createMachine(
     {
       id: "element machine",
@@ -46,7 +58,9 @@ export const createElementMachine = (visualizerElement: VisualizerElement) =>
         context: {} as VisualizerElement,
         events: {} as ElementMachineEvents,
       },
-      context: visualizerElement,
+      context: {
+        ...visualizerElement,
+      },
       states: {
         idle: {
           on: {
@@ -55,6 +69,7 @@ export const createElementMachine = (visualizerElement: VisualizerElement) =>
               internal: true,
               actions: [
                 "update",
+                "updateDraw",
                 sendParent((context) => ({
                   type: "ELEMENT.UPDATE",
                   updatedElement: context,
@@ -71,6 +86,7 @@ export const createElementMachine = (visualizerElement: VisualizerElement) =>
               internal: true,
               actions: [
                 "update",
+                "updateDraw",
                 "select",
                 sendParent((context) => ({
                   type: "ELEMENT.UPDATE_END",
@@ -83,6 +99,38 @@ export const createElementMachine = (visualizerElement: VisualizerElement) =>
               target: "idle",
               internal: true,
               actions: "unselect",
+            },
+
+            DRAG: {
+              target: "idle",
+              internal: true,
+              actions: [
+                "drag",
+                "updateDraw",
+                sendParent((context, { canvasElement, event }) => {
+                  return {
+                    type: "ELEMENT.DRAG",
+                    updatedElement: context,
+                    canvasElement,
+                    event,
+                  };
+                }),
+              ],
+            },
+
+            DRAG_END: {
+              target: "idle",
+              internal: true,
+              actions: [
+                "drag",
+                "updateDraw",
+                sendParent((context, { canvasElement, event }) => ({
+                  type: "ELEMENT.DRAG_END",
+                  updatedElement: context,
+                  canvasElement,
+                  event,
+                })),
+              ],
             },
           },
         },
@@ -119,6 +167,19 @@ export const createElementMachine = (visualizerElement: VisualizerElement) =>
         }),
         unselect: assign({
           isSelected: false,
+        }),
+        drag: assign((context, { canvasElement, event, dragStartPoint }) => {
+          const currentPoint = calculateMousePoint(canvasElement, event);
+
+          return {
+            x: context.x + (currentPoint.x - dragStartPoint.x),
+            y: context.y + (currentPoint.y - dragStartPoint.y),
+          };
+        }),
+        updateDraw: assign((context, { canvasElement }) => {
+          return {
+            draw: generateDraw(context, canvasElement),
+          };
         }),
       },
     }

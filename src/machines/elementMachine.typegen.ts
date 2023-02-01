@@ -13,9 +13,11 @@ export interface Typegen0 {
     services: never;
   };
   eventsCausingActions: {
+    drag: "DRAG" | "DRAG_END";
     select: "UPDATE_END";
     unselect: "UNSELECT";
     update: "UPDATE" | "UPDATE_END";
+    updateDraw: "DRAG" | "DRAG_END" | "UPDATE" | "UPDATE_END";
   };
   eventsCausingDelays: {};
   eventsCausingGuards: {};
