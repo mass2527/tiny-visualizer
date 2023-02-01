@@ -7,23 +7,40 @@ export interface Typegen0 {
   };
   invokeSrcNameMap: {};
   missingImplementations: {
-    actions: "draw" | "generateDraw";
+    actions: "draw";
     delays: never;
     guards: never;
     services: never;
   };
   eventsCausingActions: {
     addElement: "DRAW_START";
+    assignDragStartPoint: "DRAG_START" | "ELEMENT.DRAG";
     changeElementShape: "CHANGE_ELEMENT_SHAPE";
     deleteElement: "ELEMENT.DELETE";
-    draw: "ELEMENT.DELETE" | "ELEMENT.UPDATE" | "ELEMENT.UPDATE_END";
-    generateDraw: "ELEMENT.UPDATE" | "ELEMENT.UPDATE_END";
+    draw:
+      | "CHANGE_ELEMENT_SHAPE"
+      | "DRAW_START"
+      | "ELEMENT.DELETE"
+      | "ELEMENT.DRAG"
+      | "ELEMENT.DRAG_END"
+      | "ELEMENT.SELECT"
+      | "ELEMENT.UNSELECT"
+      | "ELEMENT.UPDATE"
+      | "ELEMENT.UPDATE_END";
     stopElement: "ELEMENT.DELETE";
-    updateElement: "ELEMENT.UPDATE" | "ELEMENT.UPDATE_END";
+    unselectElements: "CHANGE_ELEMENT_SHAPE" | "DRAW_START";
+    updateElement:
+      | "ELEMENT.DRAG"
+      | "ELEMENT.DRAG_END"
+      | "ELEMENT.SELECT"
+      | "ELEMENT.UNSELECT"
+      | "ELEMENT.UPDATE"
+      | "ELEMENT.UPDATE_END";
+    updateIntersecting: "ELEMENT.UPDATE" | "ELEMENT.UPDATE_END";
   };
   eventsCausingDelays: {};
   eventsCausingGuards: {};
   eventsCausingServices: {};
-  matchesStates: "drawing" | "idle";
+  matchesStates: "dragging" | "drawing" | "idle";
   tags: never;
 }

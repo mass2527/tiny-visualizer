@@ -9,9 +9,8 @@ import {
 } from "react";
 import invariant from "tiny-invariant";
 import { canvasMachine } from "./machines/canvasMachine";
-import { generateDraw } from "./utils";
-import { assign } from "xstate/lib/actions";
 import { VisualizerElement } from "./machines/elementMachine";
+import { calculateMousePoint, isPointInsideOfElement } from "./utils";
 
 function useWindowSize() {
   const [windowSize, setWindowSize] = useState({
@@ -105,31 +104,14 @@ const TOOL_OPTIONS: {
   },
 ];
 
+const MARGIN = 8;
+
 function App() {
   const windowSize = useWindowSize();
   const devicePixelRatio = useDevicePixelRatio();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [state, send] = useMachine(canvasMachine, {
     actions: {
-      generateDraw: assign((context) => {
-        const canvasElement = canvasRef.current;
-        invariant(canvasElement);
-
-        const ctx = canvasElement.getContext("2d");
-        invariant(ctx);
-
-        return {
-          elements: context.elements.map((element) => {
-            if (element.id === context.drawingElementId) {
-              return {
-                ...element,
-                draw: generateDraw(element, canvasElement),
-              };
-            }
-            return element;
-          }),
-        };
-      }),
       draw: (context) => {
         const canvasElement = canvasRef.current;
         invariant(canvasElement);
@@ -139,16 +121,30 @@ function App() {
 
         ctx.clearRect(0, 0, canvasElement.width, canvasElement.height);
         context.elements.forEach((element) => {
-          invariant(element.draw);
-          element.draw();
+          if (element.draw) {
+            element.draw();
+          }
+
+          if (element.isSelected) {
+            ctx.setLineDash([8, 4]);
+            ctx.strokeRect(
+              element.x - MARGIN,
+              element.y - MARGIN,
+              element.width + MARGIN * 2,
+              element.height + MARGIN * 2
+            );
+            ctx.setLineDash([]);
+          }
         });
       },
     },
   });
-  const { elementShape, drawingElementId, elements } = state.context;
+  const { elementShape, drawingElementId, elements, dragStartPoint } =
+    state.context;
   const drawingElement = elements.find(
     (element) => element.id === drawingElementId
   );
+  const selectedElements = elements.filter((element) => element.isSelected);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -179,6 +175,63 @@ function App() {
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, []);
+
+  const handleMouseDown: MouseEventHandler<HTMLCanvasElement> = (event) => {
+    const canvasElement = canvasRef.current;
+    invariant(canvasElement);
+
+    const mousePoint = calculateMousePoint(canvasElement, event);
+
+    if (
+      elementShape === "selection" &&
+      selectedElements.some((selectedElement) => {
+        return isPointInsideOfElement(mousePoint, selectedElement);
+      })
+    ) {
+      startDrag(event);
+    } else {
+      startDraw(event);
+    }
+  };
+
+  const startDrag: MouseEventHandler<HTMLCanvasElement> = (event) => {
+    const canvasElement = canvasRef.current;
+    invariant(canvasElement);
+
+    send({
+      type: "DRAG_START",
+      canvasElement,
+      event,
+    });
+  };
+
+  const drag: MouseEventHandler<HTMLCanvasElement> = (event) => {
+    const canvasElement = canvasRef.current;
+    invariant(canvasElement);
+
+    selectedElements.forEach((selectedElement) => {
+      selectedElement.ref.send({
+        type: "DRAG",
+        canvasElement,
+        event,
+        dragStartPoint,
+      });
+    });
+  };
+
+  const endDrag: MouseEventHandler<HTMLCanvasElement> = (event) => {
+    const canvasElement = canvasRef.current;
+    invariant(canvasElement);
+
+    selectedElements.forEach((selectedElement) => {
+      selectedElement.ref.send({
+        type: "DRAG_END",
+        canvasElement,
+        event,
+        dragStartPoint,
+      });
+    });
+  };
 
   const startDraw: MouseEventHandler<HTMLCanvasElement> = (event) => {
     const canvasElement = canvasRef.current;
@@ -264,9 +317,21 @@ function App() {
         style={{ width: windowSize.width, height: windowSize.height }}
         width={Math.floor(windowSize.width * devicePixelRatio)}
         height={Math.floor(windowSize.height * devicePixelRatio)}
-        onMouseDown={state.matches("idle") ? startDraw : undefined}
-        onMouseMove={state.matches("drawing") ? draw : undefined}
-        onMouseUp={state.matches("drawing") ? endDraw : undefined}
+        onMouseDown={state.matches("idle") ? handleMouseDown : undefined}
+        onMouseMove={
+          state.matches("drawing")
+            ? draw
+            : state.matches("dragging")
+            ? drag
+            : undefined
+        }
+        onMouseUp={
+          state.matches("drawing")
+            ? endDraw
+            : state.matches("dragging")
+            ? endDrag
+            : undefined
+        }
       />
     </div>
   );

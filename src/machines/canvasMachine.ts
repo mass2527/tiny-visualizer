@@ -1,8 +1,9 @@
-import { actions, ActorRefFrom, assign, createMachine, spawn } from "xstate";
-import { createElementMachine, VisualizerElement } from "./elementMachine";
-import { v4 as uuidv4 } from "uuid";
 import { MouseEventHandler } from "react";
-import { calculateMousePoint } from "../utils";
+import invariant from "tiny-invariant";
+import { v4 as uuidv4 } from "uuid";
+import { actions, ActorRefFrom, assign, createMachine, spawn } from "xstate";
+import { calculateMousePoint, isIntersecting, Point } from "../utils";
+import { createElementMachine, VisualizerElement } from "./elementMachine";
 
 type VisualizerElementWithRef = VisualizerElement & {
   ref: ActorRefFrom<ReturnType<typeof createElementMachine>>;
@@ -33,10 +34,35 @@ export type CanvasMachineEvents =
   | {
       type: "CHANGE_ELEMENT_SHAPE";
       elementShape: VisualizerElement["shape"];
+    }
+  | {
+      type: "DRAG_START";
+      event: Parameters<MouseEventHandler<HTMLCanvasElement>>[0];
+      canvasElement: HTMLCanvasElement;
+    }
+  | {
+      type: "ELEMENT.DRAG";
+      updatedElement: VisualizerElement;
+      event: Parameters<MouseEventHandler<HTMLCanvasElement>>[0];
+      canvasElement: HTMLCanvasElement;
+    }
+  | {
+      type: "ELEMENT.DRAG_END";
+      updatedElement: VisualizerElement;
+      event: Parameters<MouseEventHandler<HTMLCanvasElement>>[0];
+      canvasElement: HTMLCanvasElement;
+    }
+  | {
+      type: "ELEMENT.SELECT";
+      updatedElement: VisualizerElement;
+    }
+  | {
+      type: "ELEMENT.UNSELECT";
+      updatedElement: VisualizerElement;
     };
 
 export const canvasMachine =
-  /** @xstate-layout N4IgpgJg5mDOIC5QGMCGA7Abq2ACAtqsgBYCW6YAdKRADZgDEAIgEoCCA6gPoDKAKmxZ8A2gAYAuolAAHAPaxSAF1Kz0UkAA9EAZgCMAFkoAmAKyjzAdl0ntoiwA4L+gDQgAnonu7K+gJz--I3t7bV8LEwBfCNc0LBwCIjIKajpGAGEACTYAOQBxAFEufIAZfIBZfOy+XiyABXyxSSQQOQVlVXUtBAA2CwtKXQtu3SN9USNw7pDXDwQ9bsoTcN1dXxXwid8omIxsPEIScioIACdUAHdyKAYS8sq+SgBVWqY2PgaJdValFTVmrv0RhmiCMI0Wdnsonm3VEa3s2xAsT2CUOyVOFyuN1KFSqlCYt3ejS+8h+HX+IP02kofW0lJs2kcvm6JmBcyClD0oxCw1E3V8gP0CKR8QOSWOZ0u6GutxxD2er3eRWyTCJzW+7T+oC6oypNLp2gZFiZLPciEG-V8NnWQXsvgmRqi0RA6FkEDg6mF+0SR2JbV+nUQAFpuqzg5RzOZVisTPaTDYhbsRd7kjR6L7SZrNIh9A5KN1umMjP59PYjHyDayjHYOaXIdoy0ycwyE3EvajxRipemNQGEF4fFbdF5NsE46ztL1KPZero+SWHCYQo6IkA */
+  /** @xstate-layout N4IgpgJg5mDOIC5QGMCGA7Abq2ACAtqsgBYCW6YAdKRADZgDEAIgEoCCA6gPoDKAKmxZ8A2gAYAuolAAHAPaxSAF1Kz0UkAA9EAJgAsATkoBmXQHZdANgCMRgKwAOM0au6ANCACeiALQXjt-StTAIC9Uzt9AF9I9zQsHAIiMgpqOkYAYQAJNgA5AHEAUS4CgBkCgFkCnL5ebIAFArFJJBA5BWVVdS0EfW1DUQH9I1EDI31Le3cvBCs9SlN7R1tdK3tRQPsh6NiMbDxCEnIqGnpmdjzeASEm9TalFTUW7tNVyhcAy2dRMZcpxHsjNpjEFRC4LM4rN9bNsQHE9olDikToxShUqnxKDxUekRBJbvJ7p0nogVro3gD9L0wc5tLYLH8EOZTG8xuNxi9rNoYXCEgdklQIAAnVAAd3IUAYqMq1UoAFU6kw2HxGniWncOo9QN1vNojEZKBYFjYBpt9KZRKYGX0-OttNpHKI7ZtwaZubteUkjpQhaLxZKytKMUxUcqbmqCRquohWZR7brKaY+qYXpbPIggvrbLTbGNdPYnVZxm74vtPSkfWL0BKpei5QqlUUqkwwzIIw8owgabGjPnLBZbLYXOsGXqrJRSaILPYpxZtMFdMX4XyvRW-TWZViyjiW6020Stem6W8gifZroTLp7QzDUDzZsrNYXIsxouPYiBcLK9WA7XZTlNwU26qq27TtsSCDeLM+oWJYvQDJYpgwfotjXtY44Xs+ugrCY9ivqW77esKUBQGuP4yqwbB5Du6pgQeCAWI6BrfCs4Tnt89iptMVg2GO+jTuszjDI6roxLC7r4fyhGoMRpFouR5zFDkzbAbuoH7poiBDH4PzWIOHGfPoDIAkCzjmsMU7jKsRh4QiknIv6ckYn+AFAc0IGEpqGkIOezK2KIzprLO6wBAyyz2JQiyUtoDH2Fm07RKJ6CyBAcDqDyElHPiamedq9pjoa9jGv5CYWgy3hDBFAQPjBwSOgCIk7CWtlesiWUeR2iaGA4yEODVBjcde0XjhSsX+YsjjWaJ6XNeWn7im1kbgYV445jxFjrUFA4jstJhGMmPEPkE0JTeJM0ftJJFVgttFeeEfhTpCyErNOwyTGmMyOmOZhOH5awrEWCVAA */
   createMachine(
     {
       id: "canvas machine",
@@ -51,6 +77,7 @@ export const canvasMachine =
           elementShape: VisualizerElement["shape"];
           elements: VisualizerElementWithRef[];
           drawingElementId: VisualizerElement["id"] | null;
+          dragStartPoint: Point;
         },
         events: {} as CanvasMachineEvents,
       },
@@ -59,6 +86,10 @@ export const canvasMachine =
         elementShape: "selection",
         elements: [],
         drawingElementId: null,
+        dragStartPoint: {
+          x: 0,
+          y: 0,
+        },
       },
 
       states: {
@@ -66,13 +97,30 @@ export const canvasMachine =
           on: {
             DRAW_START: {
               target: "drawing",
-              actions: "addElement",
+              actions: ["unselectElements", "addElement", "draw"],
             },
 
             CHANGE_ELEMENT_SHAPE: {
               target: "idle",
               internal: true,
-              actions: "changeElementShape",
+              actions: ["unselectElements", "changeElementShape", "draw"],
+            },
+
+            DRAG_START: {
+              target: "dragging",
+              actions: "assignDragStartPoint",
+            },
+
+            "ELEMENT.SELECT": {
+              target: "idle",
+              internal: true,
+              actions: ["updateElement", "draw"],
+            },
+
+            "ELEMENT.UNSELECT": {
+              target: "idle",
+              internal: true,
+              actions: ["updateElement", "draw"],
             },
           },
 
@@ -86,7 +134,7 @@ export const canvasMachine =
             "ELEMENT.UPDATE": {
               target: "drawing",
               internal: true,
-              actions: ["updateElement", "generateDraw", "draw"],
+              actions: ["updateElement", "draw", "updateIntersecting"],
             },
 
             "ELEMENT.DELETE": {
@@ -98,12 +146,39 @@ export const canvasMachine =
               target: "idle",
               actions: [
                 "updateElement",
-                "generateDraw",
                 "draw",
                 assign({
                   elementShape: "selection",
                 }),
+                "updateIntersecting",
               ],
+            },
+
+            "ELEMENT.SELECT": {
+              target: "drawing",
+              internal: true,
+              actions: ["updateElement", "draw"],
+            },
+
+            "ELEMENT.UNSELECT": {
+              target: "drawing",
+              internal: true,
+              actions: ["updateElement", "draw"],
+            },
+          },
+        },
+
+        dragging: {
+          on: {
+            "ELEMENT.DRAG": {
+              target: "dragging",
+              internal: true,
+              actions: ["updateElement", "draw", "assignDragStartPoint"],
+            },
+
+            "ELEMENT.DRAG_END": {
+              target: "idle",
+              actions: ["updateElement", "draw"],
             },
           },
         },
@@ -165,6 +240,44 @@ export const canvasMachine =
             elementShape,
           };
         }),
+        assignDragStartPoint: assign((_, { canvasElement, event }) => {
+          const dragStartPoint = calculateMousePoint(canvasElement, event);
+
+          return {
+            dragStartPoint,
+          };
+        }),
+        unselectElements: assign((context) => {
+          context.elements.forEach((element) => {
+            element.ref.send({
+              type: "UNSELECT",
+            });
+          });
+          return {
+            elements: context.elements.map((element) => ({
+              ...element,
+              isSelected: false,
+            })),
+          };
+        }),
+        updateIntersecting: ({ elements, drawingElementId }) => {
+          const drawingElement = elements.find(
+            (element) => element.id === drawingElementId
+          );
+          invariant(drawingElement);
+
+          if (drawingElement.shape === "selection") {
+            elements
+              .filter((element) => element.shape !== "selection")
+              .forEach((element) => {
+                if (isIntersecting(drawingElement, element)) {
+                  element.ref.send("SELECT");
+                } else {
+                  element.ref.send("UNSELECT");
+                }
+              });
+          }
+        },
       },
     }
   );
