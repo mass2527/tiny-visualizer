@@ -25,16 +25,16 @@ export const isPointInsideOfElement = (
   point: Point,
   element: VisualizerElement
 ) => {
-  const startX = element.width >= 0 ? element.x : element.x + element.width;
-  const startY = element.height >= 0 ? element.y : element.y + element.height;
-  const endX = startX + element.width;
-  const endY = startY + element.height;
+  const minX = Math.min(element.x, element.x + element.width);
+  const maxX = Math.max(element.x, element.x + element.width);
+  const minY = Math.min(element.y, element.y + element.height);
+  const maxY = Math.max(element.y, element.y + element.height);
 
   if (
-    point.x >= startX &&
-    point.x <= endX &&
-    point.y >= startY &&
-    point.y <= endY
+    point.x >= minX &&
+    point.x <= maxX &&
+    point.y >= minY &&
+    point.y <= maxY
   ) {
     return true;
   }
