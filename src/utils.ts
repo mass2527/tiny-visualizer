@@ -1,8 +1,8 @@
 import { MouseEventHandler } from "react";
 import invariant from "tiny-invariant";
-import { VisualizerElement } from "./machines/elementMachine";
 import rough from "roughjs";
 import { Drawable } from "roughjs/bin/core";
+import { VisualizerElement } from "./machines/canvasMachine";
 
 // https://stackoverflow.com/questions/17130395/real-mouse-position-in-canvas
 export const calculateMousePoint = (

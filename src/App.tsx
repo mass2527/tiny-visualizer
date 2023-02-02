@@ -4,8 +4,8 @@ import invariant from "tiny-invariant";
 import Radio from "./components/Radio";
 import { useWindowSize } from "./hooks";
 import { useDevicePixelRatio } from "./hooks/useDevicePixelRatio";
-import { canvasMachine } from "./machines/canvasMachine";
-import { VisualizerElement } from "./machines/elementMachine";
+import { canvasMachine, VisualizerElement } from "./machines/canvasMachine";
+
 import { calculateMousePoint, isPointInsideOfElement } from "./utils";
 
 const TOOL_OPTIONS: {
@@ -42,7 +42,7 @@ function App() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [state, send] = useMachine(canvasMachine, {
     actions: {
-      draw: (context) => {
+      drawElements: (context) => {
         const canvasElement = canvasRef.current;
         invariant(canvasElement);
 
@@ -139,13 +139,10 @@ function App() {
     const canvasElement = canvasRef.current;
     invariant(canvasElement);
 
-    selectedElements.forEach((selectedElement) => {
-      selectedElement.ref.send({
-        type: "DRAG",
-        canvasElement,
-        event,
-        dragStartPoint,
-      });
+    send({
+      type: "DRAG",
+      canvasElement,
+      event,
     });
   };
 
@@ -153,13 +150,10 @@ function App() {
     const canvasElement = canvasRef.current;
     invariant(canvasElement);
 
-    selectedElements.forEach((selectedElement) => {
-      selectedElement.ref.send({
-        type: "DRAG_END",
-        canvasElement,
-        event,
-        dragStartPoint,
-      });
+    send({
+      type: "DRAG_END",
+      canvasElement,
+      event,
     });
   };
 
@@ -178,10 +172,8 @@ function App() {
     const canvasElement = canvasRef.current;
     invariant(canvasElement);
 
-    invariant(drawingElement);
-
-    drawingElement.ref.send({
-      type: "UPDATE",
+    send({
+      type: "DRAW",
       event,
       canvasElement,
     });
@@ -194,10 +186,13 @@ function App() {
     invariant(drawingElement);
 
     if (drawingElement.shape === "selection") {
-      drawingElement.ref.send("DELETE");
+      send({
+        type: "DELETE_SELECTION",
+        id: drawingElement.id,
+      });
     } else {
-      drawingElement.ref.send({
-        type: "UPDATE_END",
+      send({
+        type: "DRAW_END",
         event,
         canvasElement,
       });
