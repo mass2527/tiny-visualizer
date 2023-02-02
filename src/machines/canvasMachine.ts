@@ -20,6 +20,13 @@ export type VisualizerElement = {
   draw: VoidFunction | null;
 };
 
+export type CanvasMachineContext = {
+  elementShape: VisualizerElement["shape"];
+  elements: VisualizerElement[];
+  drawingElementId: VisualizerElement["id"] | null;
+  dragStartPoint: Point | null;
+};
+
 export type CanvasMachineEvents =
   | {
       type: "DRAW_START";
@@ -61,7 +68,7 @@ export type CanvasMachineEvents =
     };
 
 export const canvasMachine =
-  /** @xstate-layout N4IgpgJg5mDOIC5QGMCGA7Abq2ACAtqsgBYCW6YAdKRADZgDEAIgEoCCA6gPoDKAKmxZ8A2gAYAuolAAHAPaxSAF1Kz0UkAA9EAJgAsATkoBmXQHZdANgCMRgKwAOM0au6ANCACeiALQXjt-StTAIC9Uzt9AF9I9zQsHAIiMgpqOkYAYQAJNgA5AHEAUS4CgBkCgFkCnL5ebIAFArFJJBA5BWVVdS0EfW1DUQH9I1EDI31Le3cvBCs9SlN7R1tdK3tRQPsh6NiMbDxCEnIqGnpmdjzeASEm9TalFTUW7tNVyhcAy2dRMZcpxHsjNpjEFRC4LM4rN9bNsQHE9olDikIAAnVAAd3IUDOnBuLTuHUeoG63gWlAG2gspn0Fm02iM9j02j+CG0LkovRMdJp2gWomCMLhCQOySoKPRmOx3CqTFxMnk906Tx0dnZogsolstheVlsRgsNOZzlM7KMwW+uhWqw1At2QqSR0oYox6CxTFKBT4RR47vSfAAkgB5HKy1rygldHQWygWXSDBxUtWibS2ZlUoG6MYmFw-Cz2Kw2+L7e1I1FQKAS1hsPIh-EPCMIXSOebmXS6iGOExuTz-amUFb2bWx2YxowF+HCh1issV87FHIyiS3MN1pU9WaUNY8mx2Ey2DXM-SHt62Cz6danykDUcxWG2ouI0WotG4MDoCCQBg15eKomIZa2dkAiCKx1W0BkrCsZkaWNfQAX0UxrF0WkjTHO0H0dUsXzfD8v3aFdfwQexbCBBY7GsaxFkbSZuwQU8jDeMiFhAkFemiG90Fkd94BaQV7xFJc8J-TQfGHMkk0palkIZJDmW8IYNyA3Nc1sECtVMVC+IdE4wAEhVCWEhBTD6SgHH0TV7BjcxAkgmiaT8RsxiI0RFko68dkLBERQw8UXV08NVzzPtdRsED9RpDUUxo+krGMDNTBeCFrH5G9eM8ydS3LXy8W-fTnj1aM83WZZVnBZzmUhVk+3McI9zWFZxg0tKS3RLD3wgPz8IMukYvVPMwvpSwgi7aYAlESgwOpKlwTTWDGonZqoFayAOqE7oINBEzxkzXrNn0KCTHZdUNWpDNFnBNjIiAA */
+  /** @xstate-layout N4IgpgJg5mDOIC5QGMCGA7Abq2ACAtqsgBYCW6YAdKRADZgDEAIgEoCCA6gPoDKAKmxZ8A2gAYAuolAAHAPaxSAF1Kz0UkAA9EAFgDs2ygE4ArAGYAjAA5t5gEzmAbA9G3TAGhABPHYYMPtxpb+lqbGhoahAL6RHmhYOAREZBTUdIwAwgASbAByAOIAolwFADIFALIFOXy82QAKBWKSSCByCsqq6loIgYaUtoaWloa2lmGiQ9oe3gi2oqKUusbz5qIRug7G5ubRsRjYeIQk5FQ09MzsebwCQk3qbUoqai3degYmFtZ2js6u04i6CaUZbGWy6XSmMbaAamXYgOIHRLHFIQABOqAA7uQoBdOHcWg8Os9QN0IeZKCEwsY3qFzP8EKZDA4jE5zHpIdTTLpbNo4QiEkdklQ0ZjsbjuFUmPiZPJHp0XohDI4jAFTLTqQ4ufTtL4KaFDLpzPpXIzrHz9gKkidKCKsegcUxSgU+EUeE70nwAJIAeRy0tasqJXUVyt8ZnV2k1unpXPJ0KZEVMokNgVs5vihytKPRUCgYtYbDy-sJT2DCH0xmB1MNkYhonMg3pDlWFNsxmMxoiompxnTiMF1pFufzl2KOSlEnugdLCoQSuZYbVWw1Wq8AJc-V0QUC2gCY0sOxi8ItmeRwvRGNwYHQEEgDGL0-lJMQdiCFMMok2VjZ7bb9OpfiBJYGxjGsviHnsGZIkKNo5leN53g+7Qzs+CCvsywyflsB4BKCxj0voCyuFYkYNoMpjaJYfaWmelC0LIqAQGKSFysSmiIKM5KmA43IuD22zhP+2hEW2HbCd+H5pke-KnjB0hgKiCiwMo9r3pOBKPmx3Toe+n7gtymwuA49IHsC8zzKYok8s4vJwugsi3vALQydBJxTshT7sQgAC0xlrj5lbhEFvhqsBOoGtRsnWmcYDuaxZZcsyqpGmqYL1ga-6Mv0omWN2kZhOYsLSSernZqK9pxUGs4bLoRgdqIu6jCMRpTP5v6UJZ7b5dYEwOIYkWleeqDDhVGkeVpAL+BSXWAhRyafoYBFZcRYxgqMrgOFJkH9lmQ2Xtet4QJVKFedsYJGFyZiiJZDjAUq-5zJQ5hAesmyWWyA0DmVUDwYdx2edpdi1esV03XddL+SmiyfKMmwBLYmyfbtdEMUxo0yuNZbQv+z2LKJoJMi4llI7R8mKaQynYv9E1oe1HKbQjHZ9UE9ImLVRoNsaWy6Eq0TREAA */
   createMachine(
     {
       id: "canvas machine",
@@ -73,12 +80,7 @@ export const canvasMachine =
       predictableActionArguments: true,
 
       schema: {
-        context: {} as {
-          elementShape: VisualizerElement["shape"];
-          elements: VisualizerElement[];
-          drawingElementId: VisualizerElement["id"] | null;
-          dragStartPoint: Point | null;
-        },
+        context: {} as CanvasMachineContext,
         events: {} as CanvasMachineEvents,
       },
 
@@ -101,8 +103,8 @@ export const canvasMachine =
             },
 
             CHANGE_ELEMENT_SHAPE: {
-              target: "idle",
-              internal: true,
+              target: "persisting",
+
               actions: [
                 "unselectElements",
                 "changeElementShape",
@@ -162,18 +164,29 @@ export const canvasMachine =
             drawingElementId: null,
           }),
 
-          always: "idle",
+          always: "persisting",
         },
 
         "drag ended": {
-          always: "idle",
+          always: "persisting",
           entry: assign({
             dragStartPoint: null,
           }),
         },
+
+        loading: {
+          always: "idle",
+          entry: "loadSavedContext",
+          exit: "drawElements",
+        },
+
+        persisting: {
+          entry: "persist",
+          always: "idle",
+        },
       },
 
-      initial: "idle",
+      initial: "loading",
     },
     {
       actions: {
@@ -303,6 +316,13 @@ export const canvasMachine =
             dragStartPoint: currentPoint,
           };
         }),
+        persist: (context) => {
+          try {
+            localStorage.setItem("context", JSON.stringify(context));
+          } catch (error) {
+            console.error(error);
+          }
+        },
       },
     }
   );

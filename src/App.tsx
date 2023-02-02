@@ -1,12 +1,21 @@
 import { useMachine } from "@xstate/react";
 import { MouseEventHandler, useEffect, useRef } from "react";
 import invariant from "tiny-invariant";
+import { assign } from "xstate";
 import Radio from "./components/Radio";
 import { useWindowSize } from "./hooks";
 import { useDevicePixelRatio } from "./hooks/useDevicePixelRatio";
-import { canvasMachine, VisualizerElement } from "./machines/canvasMachine";
+import {
+  canvasMachine,
+  CanvasMachineContext,
+  VisualizerElement,
+} from "./machines/canvasMachine";
 
-import { calculateMousePoint, isPointInsideOfElement } from "./utils";
+import {
+  calculateMousePoint,
+  generateDraw,
+  isPointInsideOfElement,
+} from "./utils";
 
 const TOOL_OPTIONS: {
   label: string;
@@ -42,6 +51,33 @@ function App() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [state, send] = useMachine(canvasMachine, {
     actions: {
+      loadSavedContext: assign(() => {
+        const canvasElement = canvasRef.current;
+        if (canvasElement === null) {
+          return {};
+        }
+
+        try {
+          const value = localStorage.getItem("context");
+          if (value === null) {
+            return {};
+          }
+
+          const context = JSON.parse(value) as CanvasMachineContext;
+          return {
+            ...context,
+            elements: context.elements.map((element) => {
+              return {
+                ...element,
+                draw: generateDraw(element, canvasElement),
+              };
+            }),
+          };
+        } catch (error) {
+          console.error(error);
+          return {};
+        }
+      }),
       drawElements: (context) => {
         const canvasElement = canvasRef.current;
         invariant(canvasElement);
@@ -69,8 +105,7 @@ function App() {
       },
     },
   });
-  const { elementShape, drawingElementId, elements, dragStartPoint } =
-    state.context;
+  const { elementShape, drawingElementId, elements } = state.context;
   const drawingElement = elements.find(
     (element) => element.id === drawingElementId
   );
