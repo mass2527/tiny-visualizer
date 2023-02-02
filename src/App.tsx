@@ -117,6 +117,10 @@ function App() {
         return;
       }
 
+      if (event.key === "Backspace") {
+        send("DELETE_SELECTED_ELEMENTS");
+      }
+
       const isHotKey = ["1", "2", "3", "4", "5"].includes(event.key);
       if (!isHotKey) {
         return;
@@ -269,6 +273,8 @@ function App() {
               }}
             />
           ))}
+
+          <pre>{JSON.stringify(state.value)}</pre>
         </header>
       </div>
 

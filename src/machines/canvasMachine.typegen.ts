@@ -19,11 +19,13 @@ export interface Typegen0 {
     assignDragStartPoint: "DRAG_START";
     changeElementShape: "CHANGE_ELEMENT_SHAPE";
     deleteElement: "DELETE_SELECTION";
+    deleteSelectedElements: "DELETE_SELECTED_ELEMENTS";
     drag: "DRAG" | "DRAG_END";
     draw: "DRAW" | "DRAW_END";
     drawElements:
       | ""
       | "CHANGE_ELEMENT_SHAPE"
+      | "DELETE_SELECTED_ELEMENTS"
       | "DELETE_SELECTION"
       | "DRAG"
       | "DRAG_END"
@@ -32,7 +34,7 @@ export interface Typegen0 {
       | "DRAW_START"
       | "xstate.stop";
     loadSavedContext: "xstate.init";
-    persist: "" | "CHANGE_ELEMENT_SHAPE";
+    persist: "" | "CHANGE_ELEMENT_SHAPE" | "DELETE_SELECTED_ELEMENTS";
     selectDrawingElement: "DRAW_END";
     unselectElements: "CHANGE_ELEMENT_SHAPE" | "DRAW_START";
     updateIntersecting: "DRAW" | "DRAW_END";

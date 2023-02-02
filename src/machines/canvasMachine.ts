@@ -65,10 +65,13 @@ export type CanvasMachineEvents =
       type: "DRAG_END";
       event: Parameters<MouseEventHandler<HTMLCanvasElement>>[0];
       canvasElement: HTMLCanvasElement;
+    }
+  | {
+      type: "DELETE_SELECTED_ELEMENTS";
     };
 
 export const canvasMachine =
-  /** @xstate-layout N4IgpgJg5mDOIC5QGMCGA7Abq2ACAtqsgBYCW6YAdKRADZgDEAIgEoCCA6gPoDKAKmxZ8A2gAYAuolAAHAPaxSAF1Kz0UkAA9EAFgDs2ygE4ArAGYAjAA5t5gEzmAbA9G3TAGhABPHYYMPtxpb+lqbGhoahAL6RHmhYOAREZBTUdIwAwgASbAByAOIAolwFADIFALIFOXy82QAKBWKSSCByCsqq6loIgYaUtoaWloa2lmGiQ9oe3gi2oqKUusbz5qIRug7G5ubRsRjYeIQk5FQ09MzsebwCQk3qbUoqai3degYmFtZ2js6u04i6CaUZbGWy6XSmMbaAamXYgOIHRLHFIQABOqAA7uQoBdOHcWg8Os9QN0IeZKCEwsY3qFzP8EKZDA4jE5zHpIdTTLpbNo4QiEkdklQ0ZjsbjuFUmPiZPJHp0XohDI4jAFTLTqQ4ufTtL4KaFDLpzPpXIzrHz9gKkidKCKsegcUxSgU+EUeE70nwAJIAeRy0tasqJXUVyt8ZnV2k1unpXPJ0KZEVMokNgVs5vihytKPRUCgYtYbDy-sJT2DCH0xmB1MNkYhonMg3pDlWFNsxmMxoiompxnTiMF1pFufzl2KOSlEnugdLCoQSuZYbVWw1Wq8AJc-V0QUC2gCY0sOxi8ItmeRwvRGNwYHQEEgDGL0-lJMQdiCFMMok2VjZ7bb9OpfiBJYGxjGsviHnsGZIkKNo5leN53g+7Qzs+CCvsywyflsB4BKCxj0voCyuFYkYNoMpjaJYfaWmelC0LIqAQGKSFysSmiIKM5KmA43IuD22zhP+2hEW2HbCd+H5pke-KnjB0hgKiCiwMo9r3pOBKPmx3Toe+n7gtymwuA49IHsC8zzKYok8s4vJwugsi3vALQydBJxTshT7sQgAC0xlrj5lbhEFvhqsBOoGtRsnWmcYDuaxZZcsyqpGmqYL1ga-6Mv0omWN2kZhOYsLSSernZqK9pxUGs4bLoRgdqIu6jCMRpTP5v6UJZ7b5dYEwOIYkWleeqDDhVGkeVpAL+BSXWAhRyafoYBFZcRYxgqMrgOFJkH9lmQ2Xtet4QJVKFedsYJGFyZiiJZDjAUq-5zJQ5hAesmyWWyA0DmVUDwYdx2edpdi1esV03XddL+SmiyfKMmwBLYmyfbtdEMUxo0yuNZbQv+z2LKJoJMi4llI7R8mKaQynYv9E1oe1HKbQjHZ9UE9ImLVRoNsaWy6Eq0TREAA */
+  /** @xstate-layout N4IgpgJg5mDOIC5QGMCGA7Abq2ACAtqsgBYCW6YAdKRADZgDEAIgEoCCA6gPoDKAKmxZ8A2gAYAuolAAHAPaxSAF1Kz0UkAA9EAFgDs2ygE4ArAGYAjAA5t5gEzmAbA9G3TAGhABPHYYMPtxpb+lqbGhoahAL6RHmhYOAREZBTUdIwAwgASbAByAOIAolwFADIFALIFOXy82QAKBWKSSCByCsqq6loIgYaUtoaWloa2lmGiQ9oe3gi2oqKUusbz5qIRug7G5ubRsRjYeIQk5FQ09MzsebwCQk3qbUoqai3degYmFtZ2js6u04i6CaUZbGWy6XSmMbaAamXYgOIHRLHFJnRhMUoFPhFHgY9JYpjFMqVao8O4tB4dZ6gbqmNbAuy2aGrTbbYz-BCrcwGXQmUTGXRg0TaUz6OEIhJHZJUCAAJ1QAHdyFALpwyTJ5I9Oi8ARZKCEwsY3qFzOzTIYHEYnFyIVCRYyxfsJUkTpRZQqlSruFUmGrWhrKV1EIZHEYAqZjYaHCL2dpfHrQoZdOZ9K4zdYHfFDs6Um7FehleiyljeLi+ABJADyOV9FKegYQwYtvjMEe0Ud0pqTlGh5oitKTgVsGcRkpdbqgUA9rDYeRr-rr2oQ+mMwMNSbbENE5kG7Icqz1tmM-J7tMNxmHTuR0rlE6nl2KOR9Enu8611KDIeb4a2kejXgBLj9LoQSBNoARjJYOwxPCjpZlerpyvKuBgOgECQAwc7tAu74cqMFrDKILKQQEoJsv+PRgZQmxDBsYxrL4UF7JmSJSghqBQMhqHoZhmpUpoiB2EEeqGIRWzEUeh7svoCyuFYbbboMpjaJYF5waxtCyKgEAejxAaLqM5iUKYDgCi4Z7bOE7KGjJh7HlukEiUO0HimpLrSGAMoKLAyj5hhz7kq+fHdIJ+EiSZ4K2JsLgOOykHAvM8ymLZjLONo0TQegshofALQuSxJwvlhb78QgAC0MXkaVK7hOEBqiEpoIJqp+UomkhW8fWIoWvJW6hOMrhjFZkKLLZgSWFu4Iqc5sEtde7r5u1ek4RsuhGPyQrQsM9j6FZoJGbZbagRMDiGM1o45jek4LQFRVBQC-h6keej1dooiAidUlmv0nyggKliuA4TlMSO2ZzUhKFoRAi3YSV2xgkYIpmPVkWWDyJrkaCCzmGN6ybElXJnaDbEcRDkDQ8VwV2Kt6xI0lDio8GUnY4snx4WekXntNzHnVQGlaUq5N3Qg0JWczApHqC5ouElhPwe5nmkN5As3R1i7Y3tkLGIDHMbIMFUzCYq3JtuKZbGj6WREAA */
   createMachine(
     {
       id: "canvas machine",
@@ -115,6 +118,11 @@ export const canvasMachine =
             DRAG_START: {
               target: "dragging",
               actions: "assignDragStartPoint",
+            },
+
+            DELETE_SELECTED_ELEMENTS: {
+              target: "persisting",
+              actions: ["deleteSelectedElements", "drawElements"],
             },
           },
         },
@@ -323,6 +331,11 @@ export const canvasMachine =
             console.error(error);
           }
         },
+        deleteSelectedElements: assign((context, event) => {
+          return {
+            elements: context.elements.filter((element) => !element.isSelected),
+          };
+        }),
       },
     }
   );
