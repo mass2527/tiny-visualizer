@@ -1,12 +1,30 @@
 import { MouseEventHandler } from "react";
 import invariant from "tiny-invariant";
 import { v4 as uuidv4 } from "uuid";
-import { actions, ActorRefFrom, assign, createMachine, spawn } from "xstate";
-import { calculateMousePoint, isIntersecting, Point } from "../utils";
-import { createElementMachine, VisualizerElement } from "./elementMachine";
+import { assign, createMachine } from "xstate";
+import {
+  calculateMousePoint,
+  generateDraw,
+  isIntersecting,
+  Point,
+} from "../utils";
 
-type VisualizerElementWithRef = VisualizerElement & {
-  ref: ActorRefFrom<ReturnType<typeof createElementMachine>>;
+export type VisualizerElement = {
+  id: string;
+  shape: "selection" | "rectangle" | "ellipse" | "arrow" | "line";
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  isSelected: boolean;
+  draw: VoidFunction | null;
+};
+
+export type CanvasMachineContext = {
+  elementShape: VisualizerElement["shape"];
+  elements: VisualizerElement[];
+  drawingElementId: VisualizerElement["id"] | null;
+  dragStartPoint: Point | null;
 };
 
 export type CanvasMachineEvents =
@@ -18,17 +36,15 @@ export type CanvasMachineEvents =
   | {
       type: "DRAW";
       event: Parameters<MouseEventHandler<HTMLCanvasElement>>[0];
+      canvasElement: HTMLCanvasElement;
     }
   | {
-      type: "ELEMENT.UPDATE";
-      updatedElement: VisualizerElement;
+      type: "DRAW_END";
+      event: Parameters<MouseEventHandler<HTMLCanvasElement>>[0];
+      canvasElement: HTMLCanvasElement;
     }
   | {
-      type: "ELEMENT.UPDATE_END";
-      updatedElement: VisualizerElement;
-    }
-  | {
-      type: "ELEMENT.DELETE";
+      type: "DELETE_SELECTION";
       id: VisualizerElement["id"];
     }
   | {
@@ -41,28 +57,18 @@ export type CanvasMachineEvents =
       canvasElement: HTMLCanvasElement;
     }
   | {
-      type: "ELEMENT.DRAG";
-      updatedElement: VisualizerElement;
+      type: "DRAG";
       event: Parameters<MouseEventHandler<HTMLCanvasElement>>[0];
       canvasElement: HTMLCanvasElement;
     }
   | {
-      type: "ELEMENT.DRAG_END";
-      updatedElement: VisualizerElement;
+      type: "DRAG_END";
       event: Parameters<MouseEventHandler<HTMLCanvasElement>>[0];
       canvasElement: HTMLCanvasElement;
-    }
-  | {
-      type: "ELEMENT.SELECT";
-      updatedElement: VisualizerElement;
-    }
-  | {
-      type: "ELEMENT.UNSELECT";
-      updatedElement: VisualizerElement;
     };
 
 export const canvasMachine =
-  /** @xstate-layout N4IgpgJg5mDOIC5QGMCGA7Abq2ACAtqsgBYCW6YAdKRADZgDEAIgEoCCA6gPoDKAKmxZ8A2gAYAuolAAHAPaxSAF1Kz0UkAA9EAJgAsATkoBmXQHZdANgCMRgKwAOM0au6ANCACeiALQXjt-StTAIC9Uzt9AF9I9zQsHAIiMgpqOkYAYQAJNgA5AHEAUS4CgBkCgFkCnL5ebIAFArFJJBA5BWVVdS0EfW1DUQH9I1EDI31Le3cvBCs9SlN7R1tdK3tRQPsh6NiMbDxCEnIqGnpmdjzeASEm9TalFTUW7tNVyhcAy2dRMZcpxHsjNpjEFRC4LM4rN9bNsQHE9olDikToxShUqnxKDxUekRBJbvJ7p0nogVro3gD9L0wc5tLYLH8EOZTG8xuNxi9rNoYXCEgdklQIAAnVAAd3IUAYqMq1UoAFU6kw2HxGniWncOo9QN1vNojEZKBYFjYBpt9KZRKYGX0-OttNpHKI7ZtwaZubteUkjpQhaLxZKytKMUxUcqbmqCRquohWZR7brKaY+qYXpbPIggvrbLTbGNdPYnVZxm74vtPSkfWL0BKpei5QqlUUqkwwzIIw8owgabGjPnLBZbLYXOsGXqrJRSaILPYpxZtMFdMX4XyvRW-TWZViyjiW6020Stem6W8gifZroTLp7QzDUDzZsrNYXIsxouPYiBcLK9WA7XZTlNwU26qq27TtsSCDeLM+oWJYvQDJYpgwfotjXtY44Xs+ugrCY9ivqW77esKUBQGuP4yqwbB5Du6pgQeCAWI6BrfCs4Tnt89iptMVg2GO+jTuszjDI6roxLC7r4fyhGoMRpFouR5zFDkzbAbuoH7poiBDH4PzWIOHGfPoDIAkCzjmsMU7jKsRh4QiknIv6ckYn+AFAc0IGEpqGkIOezK2KIzprLO6wBAyyz2JQiyUtoDH2Fm07RKJ6CyBAcDqDyElHPiamedq9pjoa9jGv5CYWgy3hDBFAQPjBwSOgCIk7CWtlesiWUeR2iaGA4yEODVBjcde0XjhSsX+YsjjWaJ6XNeWn7im1kbgYV445jxFjrUFA4jstJhGMmPEPkE0JTeJM0ftJJFVgttFeeEfhTpCyErNOwyTGmMyOmOZhOH5awrEWCVAA */
+  /** @xstate-layout N4IgpgJg5mDOIC5QGMCGA7Abq2ACAtqsgBYCW6YAdKRADZgDEAIgEoCCA6gPoDKAKmxZ8A2gAYAuolAAHAPaxSAF1Kz0UkAA9EAFgDs2ygE4ArAGYAjAA5t5gEzmAbA9G3TAGhABPHYYMPtxpb+lqbGhoahAL6RHmhYOAREZBTUdIwAwgASbAByAOIAolwFADIFALIFOXy82QAKBWKSSCByCsqq6loIgYaUtoaWloa2lmGiQ9oe3gi2oqKUusbz5qIRug7G5ubRsRjYeIQk5FQ09MzsebwCQk3qbUoqai3degYmFtZ2js6u04i6CaUZbGWy6XSmMbaAamXYgOIHRLHFIQABOqAA7uQoBdOHcWg8Os9QN0IeZKCEwsY3qFzP8EKZDA4jE5zHpIdTTLpbNo4QiEkdklQ0ZjsbjuFUmPiZPJHp0XohDI4jAFTLTqQ4ufTtL4KaFDLpzPpXIzrHz9gKkidKCKsegcUxSgU+EUeE70nwAJIAeRy0tasqJXUVyt8ZnV2k1unpXPJ0KZEVMokNgVs5vihytKPRUCgYtYbDy-sJT2DCH0xmB1MNkYhonMg3pDlWFNsxmMxoiompxnTiMF1pFufzl2KOSlEnugdLCoQSuZYbVWw1Wq8AJc-V0QUC2gCY0sOxi8ItmeRwvRGNwYHQEEgDGL0-lJMQdiCFMMok2VjZ7bb9OpfiBJYGxjGsviHnsGZIkKNo5leN53g+7Qzs+CCvsywyflsB4BKCxj0voCyuFYkYNoMpjaJYfaWmelC0LIqAQGKSFysSmiIKM5KmA43IuD22zhP+2hEW2HbCd+H5pke-KnjB0hgKiCiwMo9r3pOBKPmx3Toe+n7gtymwuA49IHsC8zzKYok8s4vJwugsi3vALQydBJxTshT7sQgAC0xlrj5lbhEFvhqsBOoGtRsnWmcYDuaxZZcsyqpGmqYL1ga-6Mv0omWN2kZhOYsLSSernZqK9pxUGs4bLoRgdqIu6jCMRpTP5v6UJZ7b5dYEwOIYkWleeqDDhVGkeVpAL+BSXWAhRyafoYBFZcRYxgqMrgOFJkH9lmQ2Xtet4QJVKFedsYJGFyZiiJZDjAUq-5zJQ5hAesmyWWyA0DmVUDwYdx2edpdi1esV03XddL+SmiyfKMmwBLYmyfbtdEMUxo0yuNZbQv+z2LKJoJMi4llI7R8mKaQynYv9E1oe1HKbQjHZ9UE9ImLVRoNsaWy6Eq0TREAA */
   createMachine(
     {
       id: "canvas machine",
@@ -70,15 +76,11 @@ export const canvasMachine =
 
       // Ensures that assign actions are called in order
       preserveActionOrder: true,
+
       predictableActionArguments: true,
 
       schema: {
-        context: {} as {
-          elementShape: VisualizerElement["shape"];
-          elements: VisualizerElementWithRef[];
-          drawingElementId: VisualizerElement["id"] | null;
-          dragStartPoint: Point;
-        },
+        context: {} as CanvasMachineContext,
         events: {} as CanvasMachineEvents,
       },
 
@@ -97,94 +99,94 @@ export const canvasMachine =
           on: {
             DRAW_START: {
               target: "drawing",
-              actions: ["unselectElements", "addElement", "draw"],
+              actions: ["unselectElements", "addElement", "drawElements"],
             },
 
             CHANGE_ELEMENT_SHAPE: {
-              target: "idle",
-              internal: true,
-              actions: ["unselectElements", "changeElementShape", "draw"],
+              target: "persisting",
+
+              actions: [
+                "unselectElements",
+                "changeElementShape",
+                "drawElements",
+              ],
             },
 
             DRAG_START: {
               target: "dragging",
               actions: "assignDragStartPoint",
             },
-
-            "ELEMENT.SELECT": {
-              target: "idle",
-              internal: true,
-              actions: ["updateElement", "draw"],
-            },
-
-            "ELEMENT.UNSELECT": {
-              target: "idle",
-              internal: true,
-              actions: ["updateElement", "draw"],
-            },
           },
-
-          entry: assign({
-            drawingElementId: null,
-          }),
         },
 
         drawing: {
           on: {
-            "ELEMENT.UPDATE": {
+            DRAW: {
               target: "drawing",
               internal: true,
-              actions: ["updateElement", "draw", "updateIntersecting"],
+              actions: ["draw", "updateIntersecting", "drawElements"],
             },
 
-            "ELEMENT.DELETE": {
-              target: "idle",
-              actions: ["stopElement", "deleteElement", "draw"],
-            },
-
-            "ELEMENT.UPDATE_END": {
-              target: "idle",
+            DRAW_END: {
+              target: "draw ended",
               actions: [
-                "updateElement",
                 "draw",
-                assign({
-                  elementShape: "selection",
-                }),
                 "updateIntersecting",
+                "selectDrawingElement",
+                "drawElements",
               ],
             },
 
-            "ELEMENT.SELECT": {
-              target: "drawing",
-              internal: true,
-              actions: ["updateElement", "draw"],
-            },
-
-            "ELEMENT.UNSELECT": {
-              target: "drawing",
-              internal: true,
-              actions: ["updateElement", "draw"],
+            DELETE_SELECTION: {
+              target: "draw ended",
+              actions: ["deleteElement", "drawElements"],
             },
           },
         },
 
         dragging: {
           on: {
-            "ELEMENT.DRAG": {
+            DRAG: {
               target: "dragging",
               internal: true,
-              actions: ["updateElement", "draw", "assignDragStartPoint"],
+              actions: ["drag", "drawElements"],
             },
 
-            "ELEMENT.DRAG_END": {
-              target: "idle",
-              actions: ["updateElement", "draw"],
+            DRAG_END: {
+              target: "drag ended",
+              actions: ["drag", "drawElements"],
             },
           },
         },
+
+        "draw ended": {
+          entry: assign({
+            drawingElementId: null,
+          }),
+
+          always: "persisting",
+        },
+
+        "drag ended": {
+          always: "persisting",
+          entry: assign({
+            dragStartPoint: null,
+          }),
+        },
+
+        loading: {
+          always: "idle",
+          entry: "loadSavedContext",
+          exit: "drawElements",
+        },
+
+        persisting: {
+          entry: "persist",
+          always: "idle",
+        },
       },
 
-      initial: "idle",
+      initial: "loading",
     },
     {
       actions: {
@@ -202,33 +204,9 @@ export const canvasMachine =
           };
 
           return {
-            elements: [
-              ...context.elements,
-              {
-                ...newElement,
-                ref: spawn(createElementMachine(newElement), newElement.id),
-              },
-            ],
+            elements: [...context.elements, newElement],
             drawingElementId: newElement.id,
           };
-        }),
-        updateElement: assign((context, { updatedElement }) => {
-          return {
-            elements: context.elements.map((element) => {
-              if (element.id === updatedElement.id) {
-                return {
-                  ...element,
-                  ...updatedElement,
-                };
-              }
-              return element;
-            }),
-          };
-        }),
-        stopElement: actions.pure((context, { id }) => {
-          return context.elements
-            .filter((element) => element.id === id)
-            .map((element) => actions.stop(element.id));
         }),
         deleteElement: assign((context, { id }) => {
           return {
@@ -248,11 +226,6 @@ export const canvasMachine =
           };
         }),
         unselectElements: assign((context) => {
-          context.elements.forEach((element) => {
-            element.ref.send({
-              type: "UNSELECT",
-            });
-          });
           return {
             elements: context.elements.map((element) => ({
               ...element,
@@ -260,22 +233,94 @@ export const canvasMachine =
             })),
           };
         }),
-        updateIntersecting: ({ elements, drawingElementId }) => {
-          const drawingElement = elements.find(
-            (element) => element.id === drawingElementId
+        draw: assign((context, { canvasElement, event }) => {
+          const currentPoint = calculateMousePoint(canvasElement, event);
+
+          return {
+            elements: context.elements.map((element) => {
+              if (element.id === context.drawingElementId) {
+                const width = currentPoint.x - element.x;
+                const height = currentPoint.y - element.y;
+
+                const updatedElement: VisualizerElement = {
+                  ...element,
+                  width,
+                  height,
+                };
+
+                return {
+                  ...updatedElement,
+                  draw: generateDraw(updatedElement, canvasElement),
+                };
+              }
+              return element;
+            }),
+          };
+        }),
+        updateIntersecting: assign((context) => {
+          const drawingElement = context.elements.find(
+            (element) => element.id === context.drawingElementId
           );
           invariant(drawingElement);
 
           if (drawingElement.shape === "selection") {
-            elements
-              .filter((element) => element.shape !== "selection")
-              .forEach((element) => {
-                if (isIntersecting(drawingElement, element)) {
-                  element.ref.send("SELECT");
-                } else {
-                  element.ref.send("UNSELECT");
+            return {
+              elements: context.elements.map((element) => {
+                if (element.shape === "selection") {
+                  return element;
                 }
-              });
+
+                return {
+                  ...element,
+                  isSelected: isIntersecting(drawingElement, element),
+                };
+              }),
+            };
+          }
+          return {};
+        }),
+        selectDrawingElement: assign((context) => {
+          return {
+            elements: context.elements.map((element) => {
+              if (element.id === context.drawingElementId) {
+                return {
+                  ...element,
+                  isSelected: true,
+                };
+              }
+              return element;
+            }),
+          };
+        }),
+        drag: assign((context, { canvasElement, event }) => {
+          const currentPoint = calculateMousePoint(canvasElement, event);
+
+          return {
+            elements: context.elements.map((element) => {
+              invariant(context.dragStartPoint);
+
+              if (element.isSelected) {
+                const updatedElement = {
+                  ...element,
+                  x: element.x + (currentPoint.x - context.dragStartPoint.x),
+                  y: element.y + (currentPoint.y - context.dragStartPoint.y),
+                };
+
+                return {
+                  ...updatedElement,
+                  draw: generateDraw(updatedElement, canvasElement),
+                };
+              }
+              return element;
+            }),
+            dragStartPoint: currentPoint,
+          };
+        }),
+        persist: (context) => {
+          try {
+            localStorage.setItem("context", JSON.stringify(context));
+          } catch (error) {
+            console.error(error);
           }
         },
       },

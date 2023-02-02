@@ -1,82 +1,21 @@
 import { useMachine } from "@xstate/react";
-import {
-  ChangeEventHandler,
-  CSSProperties,
-  MouseEventHandler,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { MouseEventHandler, useEffect, useRef } from "react";
 import invariant from "tiny-invariant";
-import { canvasMachine } from "./machines/canvasMachine";
-import { VisualizerElement } from "./machines/elementMachine";
-import { calculateMousePoint, isPointInsideOfElement } from "./utils";
+import { assign } from "xstate";
+import Radio from "./components/Radio";
+import { useWindowSize } from "./hooks";
+import { useDevicePixelRatio } from "./hooks/useDevicePixelRatio";
+import {
+  canvasMachine,
+  CanvasMachineContext,
+  VisualizerElement,
+} from "./machines/canvasMachine";
 
-function useWindowSize() {
-  const [windowSize, setWindowSize] = useState({
-    width: window.innerWidth,
-    height: window.innerHeight,
-  });
-
-  useEffect(() => {
-    const updateWindowSize = () => {
-      setWindowSize({
-        width: window.innerWidth,
-        height: window.innerHeight,
-      });
-    };
-
-    window.addEventListener("resize", updateWindowSize);
-    return () => {
-      window.removeEventListener("resize", updateWindowSize);
-    };
-  }, []);
-
-  return windowSize;
-}
-
-function useDevicePixelRatio() {
-  const [devicePixelRatio, setDevicePixelRatio] = useState(
-    window.devicePixelRatio
-  );
-
-  useEffect(() => {
-    const mediaQueryString = `(resolution: ${devicePixelRatio}dppx)`;
-    const mediaQueryList = window.matchMedia(mediaQueryString);
-
-    const updateDevicePixelRatio = () => {
-      setDevicePixelRatio(window.devicePixelRatio);
-    };
-
-    mediaQueryList.addEventListener("change", updateDevicePixelRatio);
-    return () => {
-      mediaQueryList.removeEventListener("change", updateDevicePixelRatio);
-    };
-  }, [devicePixelRatio]);
-
-  return devicePixelRatio;
-}
-
-function Radio({
-  label,
-  value,
-  checked,
-  onChange,
-  style,
-}: {
-  label: string;
-  value: string;
-  checked: boolean;
-  onChange: ChangeEventHandler<HTMLInputElement>;
-  style?: CSSProperties;
-}) {
-  return (
-    <label style={style}>
-      <input type="radio" value={value} checked={checked} onChange={onChange} />
-      {label}
-    </label>
-  );
-}
+import {
+  calculateMousePoint,
+  generateDraw,
+  isPointInsideOfElement,
+} from "./utils";
 
 const TOOL_OPTIONS: {
   label: string;
@@ -112,7 +51,34 @@ function App() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [state, send] = useMachine(canvasMachine, {
     actions: {
-      draw: (context) => {
+      loadSavedContext: assign(() => {
+        const canvasElement = canvasRef.current;
+        if (canvasElement === null) {
+          return {};
+        }
+
+        try {
+          const value = localStorage.getItem("context");
+          if (value === null) {
+            return {};
+          }
+
+          const context = JSON.parse(value) as CanvasMachineContext;
+          return {
+            ...context,
+            elements: context.elements.map((element) => {
+              return {
+                ...element,
+                draw: generateDraw(element, canvasElement),
+              };
+            }),
+          };
+        } catch (error) {
+          console.error(error);
+          return {};
+        }
+      }),
+      drawElements: (context) => {
         const canvasElement = canvasRef.current;
         invariant(canvasElement);
 
@@ -139,8 +105,7 @@ function App() {
       },
     },
   });
-  const { elementShape, drawingElementId, elements, dragStartPoint } =
-    state.context;
+  const { elementShape, drawingElementId, elements } = state.context;
   const drawingElement = elements.find(
     (element) => element.id === drawingElementId
   );
@@ -209,13 +174,10 @@ function App() {
     const canvasElement = canvasRef.current;
     invariant(canvasElement);
 
-    selectedElements.forEach((selectedElement) => {
-      selectedElement.ref.send({
-        type: "DRAG",
-        canvasElement,
-        event,
-        dragStartPoint,
-      });
+    send({
+      type: "DRAG",
+      canvasElement,
+      event,
     });
   };
 
@@ -223,13 +185,10 @@ function App() {
     const canvasElement = canvasRef.current;
     invariant(canvasElement);
 
-    selectedElements.forEach((selectedElement) => {
-      selectedElement.ref.send({
-        type: "DRAG_END",
-        canvasElement,
-        event,
-        dragStartPoint,
-      });
+    send({
+      type: "DRAG_END",
+      canvasElement,
+      event,
     });
   };
 
@@ -248,10 +207,8 @@ function App() {
     const canvasElement = canvasRef.current;
     invariant(canvasElement);
 
-    invariant(drawingElement);
-
-    drawingElement.ref.send({
-      type: "UPDATE",
+    send({
+      type: "DRAW",
       event,
       canvasElement,
     });
@@ -264,10 +221,13 @@ function App() {
     invariant(drawingElement);
 
     if (drawingElement.shape === "selection") {
-      drawingElement.ref.send("DELETE");
+      send({
+        type: "DELETE_SELECTION",
+        id: drawingElement.id,
+      });
     } else {
-      drawingElement.ref.send({
-        type: "UPDATE_END",
+      send({
+        type: "DRAW_END",
         event,
         canvasElement,
       });
