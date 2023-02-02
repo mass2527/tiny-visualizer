@@ -112,17 +112,32 @@ function App() {
   const selectedElements = elements.filter((element) => element.isSelected);
 
   useEffect(() => {
+    const canvasElement = canvasRef.current;
+    invariant(canvasElement);
+
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.repeat) {
         return;
       }
 
       if (event.key === "Backspace") {
-        send("DELETE_SELECTED_ELEMENTS");
+        send("SELECTED_ELEMENTS.DELETE");
+      }
+      if (event.metaKey) {
+        if (event.key === "c") {
+          send("SELECTED_ELEMENTS.COPY");
+        } else if (event.key === "v") {
+          send({
+            type: "SELECTED_ELEMENTS.PASTE",
+            canvasElement,
+          });
+        }
       }
 
-      const isHotKey = ["1", "2", "3", "4", "5"].includes(event.key);
-      if (!isHotKey) {
+      const isShapeChangeHotKeys = ["1", "2", "3", "4", "5"].includes(
+        event.key
+      );
+      if (!isShapeChangeHotKeys) {
         return;
       }
 
@@ -238,6 +253,17 @@ function App() {
     }
   };
 
+  const moveMouse: MouseEventHandler<HTMLCanvasElement> = (event) => {
+    const canvasElement = canvasRef.current;
+    invariant(canvasElement);
+
+    send({
+      type: "MOUSE_MOVE",
+      canvasElement,
+      event,
+    });
+  };
+
   return (
     <div style={{ height: "100vh", overflow: "hidden" }}>
       <div
@@ -289,7 +315,7 @@ function App() {
             ? draw
             : state.matches("dragging")
             ? drag
-            : undefined
+            : moveMouse
         }
         onMouseUp={
           state.matches("drawing")

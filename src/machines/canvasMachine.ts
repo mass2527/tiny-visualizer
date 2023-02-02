@@ -3,6 +3,9 @@ import invariant from "tiny-invariant";
 import { v4 as uuidv4 } from "uuid";
 import { assign, createMachine } from "xstate";
 import {
+  calculateAbsolutePoint,
+  calculateCenterPoint,
+  calculateElementsAbsolutePoint,
   calculateMousePoint,
   generateDraw,
   isIntersecting,
@@ -24,7 +27,10 @@ export type CanvasMachineContext = {
   elementShape: VisualizerElement["shape"];
   elements: VisualizerElement[];
   drawingElementId: VisualizerElement["id"] | null;
-  dragStartPoint: Point | null;
+  dragStartPoint: Point;
+  copiedElements: VisualizerElement[];
+
+  currentPoint: Point;
 };
 
 export type CanvasMachineEvents =
@@ -67,11 +73,23 @@ export type CanvasMachineEvents =
       canvasElement: HTMLCanvasElement;
     }
   | {
-      type: "DELETE_SELECTED_ELEMENTS";
+      type: "SELECTED_ELEMENTS.DELETE";
+    }
+  | {
+      type: "SELECTED_ELEMENTS.COPY";
+    }
+  | {
+      type: "SELECTED_ELEMENTS.PASTE";
+      canvasElement: HTMLCanvasElement;
+    }
+  | {
+      type: "MOUSE_MOVE";
+      event: Parameters<MouseEventHandler<HTMLCanvasElement>>[0];
+      canvasElement: HTMLCanvasElement;
     };
 
 export const canvasMachine =
-  /** @xstate-layout N4IgpgJg5mDOIC5QGMCGA7Abq2ACAtqsgBYCW6YAdKRADZgDEAIgEoCCA6gPoDKAKmxZ8A2gAYAuolAAHAPaxSAF1Kz0UkAA9EAFgDs2ygE4ArAGYAjAA5t5gEzmAbA9G3TAGhABPHYYMPtxpb+lqbGhoahAL6RHmhYOAREZBTUdIwAwgASbAByAOIAolwFADIFALIFOXy82QAKBWKSSCByCsqq6loIgYaUtoaWloa2lmGiQ9oe3gi2oqKUusbz5qIRug7G5ubRsRjYeIQk5FQ09MzsebwCQk3qbUoqai3degYmFtZ2js6u04i6CaUZbGWy6XSmMbaAamXYgOIHRLHFJnRhMUoFPhFHgY9JYpjFMqVao8O4tB4dZ6gbqmNbAuy2aGrTbbYz-BCrcwGXQmUTGXRg0TaUz6OEIhJHZJUCAAJ1QAHdyFALpwyTJ5I9Oi8ARZKCEwsY3qFzOzTIYHEYnFyIVCRYyxfsJUkTpRZQqlSruFUmGrWhrKV1EIZHEYAqZjYaHCL2dpfHrQoZdOZ9K4zdYHfFDs6Um7FehleiyljeLi+ABJADyOV9FKegYQwYtvjMEe0Ud0pqTlGh5oitKTgVsGcRkpdbqgUA9rDYeRr-rr2oQ+mMwMNSbbENE5kG7Icqz1tmM-J7tMNxmHTuR0rlE6nl2KOR9Enu8611KDIeb4a2kejXgBLj9LoQSBNoARjJYOwxPCjpZlerpyvKuBgOgECQAwc7tAu74cqMFrDKILKQQEoJsv+PRgZQmxDBsYxrL4UF7JmSJSghqBQMhqHoZhmpUpoiB2EEeqGIRWzEUeh7svoCyuFYbbboMpjaJYF5waxtCyKgEAejxAaLqM5iUKYDgCi4Z7bOE7KGjJh7HlukEiUO0HimpLrSGAMoKLAyj5hhz7kq+fHdIJ+EiSZ4K2JsLgOOykHAvM8ymLZjLONo0TQegshofALQuSxJwvlhb78QgAC0MXkaVK7hOEBqiEpoIJqp+UomkhW8fWIoWvJW6hOMrhjFZkKLLZgSWFu4Iqc5sEtde7r5u1ek4RsuhGPyQrQsM9j6FZoJGbZbagRMDiGM1o45jek4LQFRVBQC-h6keej1dooiAidUlmv0nyggKliuA4TlMSO2ZzUhKFoRAi3YSV2xgkYIpmPVkWWDyJrkaCCzmGN6ybElXJnaDbEcRDkDQ8VwV2Kt6xI0lDio8GUnY4snx4WekXntNzHnVQGlaUq5N3Qg0JWczApHqC5ouElhPwe5nmkN5As3R1i7Y3tkLGIDHMbIMFUzCYq3JtuKZbGj6WREAA */
+  /** @xstate-layout N4IgpgJg5mDOIC5QGMCGA7Abq2ACAtqsgBYCW6YAdKRADZgDEAIgEoCCA6gPoDKAKmxZ8A2gAYAuolAAHAPaxSAF1Kz0UkAA9EAFgDs2ygE4ArAGYAjAA5t5gEzmAbA9G3TAGhABPHYYMPtxpb+lqbGhoahAL6RHmhYOAREZBTUdIwAwgASbAByAOIAolwFADIFALIFOXy82QAKBWKSSCByCsqq6loIgYaUtoaWloa2lmGiQ9oe3gi2oqKUusbz5qIRug7G5ubRsRjYeIQk5FQ09MzsebwCQk3qbUoqai3degYmFtZ2js6u04i6CaUZbGWy6XSmMbaAamXYgOIHRLHFJnRg8UoFdJ8ApMYplSrVHiUJgY7F3FoPDrPUDdcwbSgOcyBZw2MYOJZTLyIVbmAyWUSmUyDfTGYwOWy2OEIhJHZKnNIMdFlLE4vEVKp8InpADydQAmuSZPJHp0XohTGDFqJRYZHEsXOL-gheZtKAKHOEBiFxREpfsZUkTqlzkrMdjcRiCZrKHU2PxGhJ7saqV1zaIHMDbMt045eaZdE66UFFnTfLowYNJn74odAykIAAnVAAd3IUAunENrWTT1TCAh5koITCxjeoXMTqFGcMTl5EKh+ds2mriNlQcbLbbHe4VSYXcpvbNCFt04Cgq2o4c+ad2l8Q9Chl0dOhgsGy5i8P9teRVA3rfQ7YkmU2K8BiWIAJLajk+49qaNKICeRhnuOl7XlyCD5oO0IzhEpiiE+gSSh+0rfnKlAblAUBbqwbB5DB7SHvB-YBMCo5Pto7J4eYgxOoyCyWFmxj6DC1oBCuAY-uRTaUdRlzFDke6JhSsHUpoCGOEhZgoRxaEzICtj9LoQSBNoARjJYOzEV+SJkX+uBgOgECQAw9EmqptKjBmwzplsFkBKCxhOqOfiBJYGxjGsviWXsNY2eu0n2Y5zmuSmR52MW3mbFYvKilmTr6AsrhWBx3GDKY2iWOJpFBrQsioBAW4pYxamzBZlCmOycxZgE2zhEF2iFYJBXZYYLhVXFKTSGADYKLAygAS5SlGgxcEtelXmjey4K2JsDpOm12bzBauUcaI74xaudbyuc5TagAquiXC3QAagmzTLW5fYWgsIwdRZwwbFe5juOhNh9PhHVXoykLaPm0QfugshOfALQkRNYBJit7mIAAtA4To48YRjhOE+YhCYV7WONa4omkmOfUe+YZiVojAzaLiQoF6FmJYiyCaFrPgpVVmxTTv5Nv+UD06lTEbLoRhCWd0LDPY+hBaC7WCRxJkTB61NXVJqAyQB0vNd0Gx8qKegCgNgIevlQr9J8oLlgJHVERdEm2RLiVORApurbSdjy+sZgCjtYW2kFcyUEyQzrJsFq8vrkkUb7kAB9jzrB0Y+ZhxaDiRxO6EEYsnyeaOoKbCnZG1fVbaZ320JBUyfOiqCM4cx7n6iwbU0zaQc0N8pWN9kyGuc+KO1CR6QROiY8t0txwlbLotrw5EQA */
   createMachine(
     {
       id: "canvas machine",
@@ -90,8 +108,13 @@ export const canvasMachine =
       context: {
         elementShape: "selection",
         elements: [],
+        copiedElements: [],
         drawingElementId: null,
         dragStartPoint: {
+          x: 0,
+          y: 0,
+        },
+        currentPoint: {
           x: 0,
           y: 0,
         },
@@ -120,9 +143,25 @@ export const canvasMachine =
               actions: "assignDragStartPoint",
             },
 
-            DELETE_SELECTED_ELEMENTS: {
+            "SELECTED_ELEMENTS.DELETE": {
               target: "persisting",
               actions: ["deleteSelectedElements", "drawElements"],
+            },
+
+            "SELECTED_ELEMENTS.COPY": {
+              target: "persisting",
+              actions: "copySelectedElements",
+            },
+
+            "SELECTED_ELEMENTS.PASTE": {
+              target: "persisting",
+              actions: ["pasteSelectedElements", "drawElements"],
+            },
+
+            MOUSE_MOVE: {
+              target: "idle",
+              internal: true,
+              actions: "assignCurrentPoint",
             },
           },
         },
@@ -177,9 +216,6 @@ export const canvasMachine =
 
         "drag ended": {
           always: "persisting",
-          entry: assign({
-            dragStartPoint: null,
-          }),
         },
 
         loading: {
@@ -305,8 +341,6 @@ export const canvasMachine =
 
           return {
             elements: context.elements.map((element) => {
-              invariant(context.dragStartPoint);
-
               if (element.isSelected) {
                 const updatedElement = {
                   ...element,
@@ -334,6 +368,63 @@ export const canvasMachine =
         deleteSelectedElements: assign((context, event) => {
           return {
             elements: context.elements.filter((element) => !element.isSelected),
+          };
+        }),
+        copySelectedElements: assign((context) => {
+          return {
+            copiedElements: context.elements.filter(
+              (element) => element.isSelected
+            ),
+          };
+        }),
+        pasteSelectedElements: assign((context, { canvasElement }) => {
+          const absolutePoint = calculateElementsAbsolutePoint(
+            context.copiedElements
+          );
+          const centerPoint = calculateCenterPoint(absolutePoint);
+
+          const copiedElements = context.copiedElements.map((copiedElement) => {
+            const centerX = copiedElement.x + copiedElement.width / 2;
+            const centerY = copiedElement.y + copiedElement.height / 2;
+
+            const updatedElement = {
+              ...copiedElement,
+              id: uuidv4(),
+              x:
+                context.currentPoint.x -
+                copiedElement.width / 2 +
+                centerX -
+                centerPoint.x,
+              y:
+                context.currentPoint.y -
+                copiedElement.height / 2 +
+                centerY -
+                centerPoint.y,
+            };
+
+            return {
+              ...updatedElement,
+              draw: generateDraw(updatedElement, canvasElement),
+            };
+          });
+
+          return {
+            elements: [
+              ...context.elements.map((element) => {
+                return {
+                  ...element,
+                  isSelected: false,
+                };
+              }),
+              ...copiedElements,
+            ],
+          };
+        }),
+        assignCurrentPoint: assign((_, { canvasElement, event }) => {
+          const currentPoint = calculateMousePoint(canvasElement, event);
+
+          return {
+            currentPoint,
           };
         }),
       },

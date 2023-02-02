@@ -35,6 +35,41 @@ export const calculateAbsolutePoint = (element: VisualizerElement) => {
   };
 };
 
+export const calculateElementsAbsolutePoint = (
+  elements: VisualizerElement[]
+) => {
+  return elements.reduce(
+    (acc, copiedElement) => {
+      const elementAbsolutePoint = calculateAbsolutePoint(copiedElement);
+
+      return {
+        minX: Math.min(acc.minX, elementAbsolutePoint.minX),
+        maxX: Math.max(acc.maxX, elementAbsolutePoint.maxX),
+        minY: Math.min(acc.minY, elementAbsolutePoint.minY),
+        maxY: Math.max(acc.maxY, elementAbsolutePoint.maxY),
+      };
+    },
+    {
+      minX: Number.MAX_SAFE_INTEGER,
+      maxX: 0,
+      minY: Number.MAX_SAFE_INTEGER,
+      maxY: 0,
+    }
+  );
+};
+
+export const calculateCenterPoint = (absolutePoint: {
+  minX: number;
+  maxX: number;
+  minY: number;
+  maxY: number;
+}) => {
+  return {
+    x: (absolutePoint.minX + absolutePoint.maxX) / 2,
+    y: (absolutePoint.minY + absolutePoint.maxY) / 2,
+  };
+};
+
 export const isPointInsideOfElement = (
   point: Point,
   element: VisualizerElement
