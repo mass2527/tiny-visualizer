@@ -105,7 +105,8 @@ function App() {
       },
     },
   });
-  const { elementShape, drawingElementId, elements } = state.context;
+  const { elementShape, drawingElementId, elements, isElementShapeFixed } =
+    state.context;
   const drawingElement = elements.find(
     (element) => element.id === drawingElementId
   );
@@ -131,6 +132,8 @@ function App() {
             type: "SELECTED_ELEMENTS.PASTE",
             canvasElement,
           });
+        } else if (event.key === "x") {
+          send("SELECTED_ELEMENTS.CUT");
         }
       }
 
@@ -159,6 +162,14 @@ function App() {
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, []);
+
+  useEffect(() => {
+    if (elementShape === "selection") {
+      document.body.style.cursor = "default";
+    } else {
+      document.body.style.cursor = "crosshair";
+    }
+  }, [elementShape]);
 
   const handleMouseDown: MouseEventHandler<HTMLCanvasElement> = (event) => {
     const canvasElement = canvasRef.current;
@@ -279,8 +290,17 @@ function App() {
           style={{
             display: "flex",
             justifyContent: "center",
+            alignItems: "center",
           }}
         >
+          <label style={{ pointerEvents: "all" }}>
+            <input
+              type="checkbox"
+              checked={isElementShapeFixed}
+              onChange={() => send("IS_ELEMENT_SHAPE_FIXED_TOGGLE")}
+            />
+            Fix shape
+          </label>
           {TOOL_OPTIONS.map(({ label, value }) => (
             <Radio
               key={value}

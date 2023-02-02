@@ -3,7 +3,6 @@ import invariant from "tiny-invariant";
 import { v4 as uuidv4 } from "uuid";
 import { assign, createMachine } from "xstate";
 import {
-  calculateAbsolutePoint,
   calculateCenterPoint,
   calculateElementsAbsolutePoint,
   calculateMousePoint,
@@ -31,6 +30,7 @@ export type CanvasMachineContext = {
   copiedElements: VisualizerElement[];
 
   currentPoint: Point;
+  isElementShapeFixed: boolean;
 };
 
 export type CanvasMachineEvents =
@@ -79,6 +79,9 @@ export type CanvasMachineEvents =
       type: "SELECTED_ELEMENTS.COPY";
     }
   | {
+      type: "SELECTED_ELEMENTS.CUT";
+    }
+  | {
       type: "SELECTED_ELEMENTS.PASTE";
       canvasElement: HTMLCanvasElement;
     }
@@ -86,10 +89,13 @@ export type CanvasMachineEvents =
       type: "MOUSE_MOVE";
       event: Parameters<MouseEventHandler<HTMLCanvasElement>>[0];
       canvasElement: HTMLCanvasElement;
+    }
+  | {
+      type: "IS_ELEMENT_SHAPE_FIXED_TOGGLE";
     };
 
 export const canvasMachine =
-  /** @xstate-layout N4IgpgJg5mDOIC5QGMCGA7Abq2ACAtqsgBYCW6YAdKRADZgDEAIgEoCCA6gPoDKAKmxZ8A2gAYAuolAAHAPaxSAF1Kz0UkAA9EAFgDs2ygE4ArAGYAjAA5t5gEzmAbA9G3TAGhABPHYYMPtxpb+lqbGhoahAL6RHmhYOAREZBTUdIwAwgASbAByAOIAolwFADIFALIFOXy82QAKBWKSSCByCsqq6loIgYaUtoaWloa2lmGiQ9oe3gi2oqKUusbz5qIRug7G5ubRsRjYeIQk5FQ09MzsebwCQk3qbUoqai3degYmFtZ2js6u04i6CaUZbGWy6XSmMbaAamXYgOIHRLHFJnRg8UoFdJ8ApMYplSrVHiUJgY7F3FoPDrPUDdcwbSgOcyBZw2MYOJZTLyIVbmAyWUSmUyDfTGYwOWy2OEIhJHZKnNIMdFlLE4vEVKp8InpADydQAmuSZPJHp0XohTGDFqJRYZHEsXOL-gheZtKAKHOEBiFxREpfsZUkTqlzkrMdjcRiCZrKHU2PxGhJ7saqV1zaIHMDbMt045eaZdE66UFFnTfLowYNJn74odAykIAAnVAAd3IUAunENrWTT1TCAh5koITCxjeoXMTqFGcMTl5EKh+ds2mriNlQcbLbbHe4VSYXcpvbNCFt04Cgq2o4c+ad2l8Q9Chl0dOhgsGy5i8P9teRVA3rfQ7YkmU2K8BiWIAJLajk+49qaNKICeRhnuOl7XlyCD5oO0IzhEpiiE+gSSh+0rfnKlAblAUBbqwbB5DB7SHvB-YBMCo5Pto7J4eYgxOoyCyWFmxj6DC1oBCuAY-uRTaUdRlzFDke6JhSsHUpoCGOEhZgoRxaEzICtj9LoQSBNoARjJYOzEV+SJkX+uBgOgECQAw9EmqptKjBmwzplsFkBKCxhOqOfiBJYGxjGsviWXsNY2eu0n2Y5zmuSmR52MW3mbFYvKilmTr6AsrhWBx3GDKY2iWOJpFBrQsioBAW4pYxamzBZlCmOycxZgE2zhEF2iFYJBXZYYLhVXFKTSGADYKLAygAS5SlGgxcEtelXmjey4K2JsDpOm12bzBauUcaI74xaudbyuc5TagAquiXC3QAagmzTLW5fYWgsIwdRZwwbFe5juOhNh9PhHVXoykLaPm0QfugshOfALQkRNYBJit7mIAAtA4To48YRjhOE+YhCYV7WONa4omkmOfUe+YZiVojAzaLiQoF6FmJYiyCaFrPgpVVmxTTv5Nv+UD06lTEbLoRhCWd0LDPY+hBaC7WCRxJkTB61NXVJqAyQB0vNd0Gx8qKegCgNgIevlQr9J8oLlgJHVERdEm2RLiVORApurbSdjy+sZgCjtYW2kFcyUEyQzrJsFq8vrkkUb7kAB9jzrB0Y+ZhxaDiRxO6EEYsnyeaOoKbCnZG1fVbaZ320JBUyfOiqCM4cx7n6iwbU0zaQc0N8pWN9kyGuc+KO1CR6QROiY8t0txwlbLotrw5EQA */
+  /** @xstate-layout N4IgpgJg5mDOIC5QGMCGA7Abq2ACAtqsgBYCW6YAdKRADZgDEAIgEoCCA6gPoDKAKmxZ8A2gAYAuolAAHAPaxSAF1Kz0UkAA9EAVgAcAdkoBOAIwAWUboBM+gMzaTJ3bYA0IAJ6IjZgGyUf+k76VpYm+qI+tgC+UW5oWDgERGQU1HSMAMIAEmwAcgDiAKJchQAyhQCyhbl8vDkACoVikkggcgrKqupaCHqGphbWdg5Orh6IIaKU+tqioiY+2r4m2vq6MXEY2HiEJORUNPTM7Pm8AkLN6u1KKmqtPX3G5pY29o7Obp4IJjZmlLZmWz6Iy6H5WHzeMwbEDxbZJPapQ6MHhlQoZPiFJglcpVGo8ShMVEYy6ta6dO6gB4GJ6DV4jD7jBBvSgmUTeURWIxGEK6azRWIwraJXYpA7pBgo8rozHYyrVPj4jIAeXqAE0STJ5DcuvcdNSBi9hu8xl8zPo-g5tIsVlbTAtobDhcl9mkjpK0RisajcQrKPU2PwmhIrlryd09f1nkM3qNPjpwsYfAZdLMrL8IQ6hTtnYjxRUlQBVFFcfMANSDLU1HVu4aZgUoZm0thMAKttlsuiMizjTKM2mMczCQIsDh8K0zCWzCLFRwAkjxZT66mxGlwAGKzgAaMr4Svy+XKGraoZrut6+qjdONPYhfyBs3bfVWon5m0n8NFlAgACdUAB3cgoGOTgjzJU9KS8RxKFEcJbEWXRREtBkvl0MxdGMbkrDMPszDMKwrRMCc4RFF0f3-QDgO4aomFAk8dQg75bEQ4xARtCJzXMKwe0cH5KD0RxIkBJMfiMIinWnL9fwA9AgNYTgSlyGiTErY9q3ozREEcesCN0RZ2xMUwlh7XSTH8eY9G5ODUPNMSp0-MjpNkolinddFZyVXJaLUikNO+Nk-DCIx9B8M1Vn0OwuMZLtDFsEFcO0JZrFZdYBUdOzSN-KAoAouT8i87UfJ6bk-jWUxJkE2xwW4sI-B8ELLHigImtsj8MtQLKcpOBSaODUk6MKzT-JZYFgtC8KIu48F0K0-CQqMDlHBakjUgc3AwHQCBIAYfKwzPAzUIbTjREbQF8Pw4yU0oNNFjsew6pWV9BXfZaqDIqA1o2radvA3ynHwhsx2O8LZrWHxuKYvwYJfJtmx+EKfCWnMqFoWRUAgCjvvUnorFBf4AhCHGWxOkwe2w0zWX00w7EQsx7VSrNWtSaQwG-BRYGUGTtt6qsCtrfa-lpvDjqWSrtHOxlcdmQcZh8LC0KtRGJLAeh8HWxRcFgYhUGZ3BvzgMBFC5lSwKxzSAlsfx5atYJ5ll4zZbMlYjA7Mqwn0RXPyRCVUWlL0cXlRUCxEbnVN5s81nQpsIVuwJwhWHsAFoFj8JLOQhZwmISmIBXQWRNvgVo0sZsAQ282sE7BxkE-wu8rBEpM4Pi3CPZdJFS7Dhi8KsYxH2dxCuzHIxSaC-4YZgkJIktFuVqkwD292hjvEMAzzDHNOVjCbi5jvUcWx5dioXp56kck9rspk+efqK3DoM7eb7Gd5xN8ZFtmKhoEU0-zlHqLl7T7-D6m0ICX1Nt8aw-ZlhA2CNbXS9spjBHumhIK95D5vmIifN6gDIAgIGt8c2lsUzWxCAsSKXxX79nfmsPQehv7T2RqjdGF8+plzPHhUmTYzLtjgjMGCgQf4Mz-szVmpB2Zz2YR3XyddYp8UHC2EYEQh5RT+C2Ts0N5ishwnQygyswCq3QOrTW2swC631ooHBfMu5XS7g4GwIJOykMQM4aats5iVWOrybOUQgA */
   createMachine(
     {
       id: "canvas machine",
@@ -118,6 +124,7 @@ export const canvasMachine =
           x: 0,
           y: 0,
         },
+        isElementShapeFixed: false,
       },
 
       states: {
@@ -163,6 +170,20 @@ export const canvasMachine =
               internal: true,
               actions: "assignCurrentPoint",
             },
+
+            IS_ELEMENT_SHAPE_FIXED_TOGGLE: {
+              target: "persisting",
+              actions: "toggleIsElementShapeFixed",
+            },
+
+            "SELECTED_ELEMENTS.CUT": {
+              target: "persisting",
+              actions: [
+                "copySelectedElements",
+                "deleteSelectedElements",
+                "drawElements",
+              ],
+            },
           },
         },
 
@@ -174,15 +195,21 @@ export const canvasMachine =
               actions: ["draw", "updateIntersecting", "drawElements"],
             },
 
-            DRAW_END: {
-              target: "draw ended",
-              actions: [
-                "draw",
-                "updateIntersecting",
-                "selectDrawingElement",
-                "drawElements",
-              ],
-            },
+            DRAW_END: [
+              {
+                target: "draw ended",
+
+                actions: [
+                  "draw",
+                  "updateIntersecting",
+                  "selectDrawingElement",
+                  "drawElements",
+                ],
+
+                cond: "isElementShapeFixed",
+              },
+              "element shape reset",
+            ],
 
             DELETE_SELECTION: {
               target: "draw ended",
@@ -227,6 +254,12 @@ export const canvasMachine =
         persisting: {
           entry: "persist",
           always: "idle",
+        },
+
+        "element shape reset": {
+          entry: "resetElementShape",
+
+          always: "draw ended",
         },
       },
 
@@ -427,6 +460,21 @@ export const canvasMachine =
             currentPoint,
           };
         }),
+        toggleIsElementShapeFixed: assign((context) => {
+          return {
+            isElementShapeFixed: !context.isElementShapeFixed,
+          };
+        }),
+        resetElementShape: assign(() => {
+          return {
+            elementShape: "selection",
+          };
+        }),
+      },
+      guards: {
+        isElementShapeFixed: (context) => {
+          return context.isElementShapeFixed;
+        },
       },
     }
   );
