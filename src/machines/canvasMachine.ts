@@ -79,6 +79,9 @@ export type CanvasMachineEvents =
       type: "SELECTED_ELEMENTS.COPY";
     }
   | {
+      type: "SELECTED_ELEMENTS.CUT";
+    }
+  | {
       type: "SELECTED_ELEMENTS.PASTE";
       canvasElement: HTMLCanvasElement;
     }
@@ -92,7 +95,7 @@ export type CanvasMachineEvents =
     };
 
 export const canvasMachine =
-  /** @xstate-layout N4IgpgJg5mDOIC5QGMCGA7Abq2ACAtqsgBYCW6YAdKRADZgDEAIgEoCCA6gPoDKAKmxZ8A2gAYAuolAAHAPaxSAF1Kz0UkAA9EAVgAcAdkoBOAIwAWUboBM+gMzaTJ3bYA0IAJ6IjZgGyUf+k76VpYm+qI+tgC+UW5oWDgERGQU1HSMAMIAEmwAcgDiAKJchQAyhQCyhbl8vDkACoVikkggcgrKqupaCHqGphbWdg5Orh6IIaKU+tqioiY+2r4m2vq6MXEY2HiEJORUNPTM7Pm8AkLN6u1KKmqtPX3G5pY29o7Obp4IJjZmlLZmWz6Iy6H5WHzeMwbEDxbZJPapQ6MHhlQoZPiFJglcpVGo8ShMVEYy6ta6dO6gB4GJ6DV4jD7jBBvSgmUTeURWIxGEK6azRWIwraJXYpA7pBgo8rozHYyrVPj4jIAeXqAE0STJ5DcuvcdNSBi9hu8xl8zPo-g5tIsVlbTAtobDhcl9mkjpK0RisajcQrKPU2PwmhIrlryd09f1nkM3qNPjpwsYfAZdLMrL8IQ6hTtnYjxRUlQBVFFcfMANSDLU1HVu4aZgUoZm0thMAKttlsuiMizjTKM2mMczCQIsDh8K0zCWzCLFRwAkjxZT66mxGlwAGKzgAaMr4Svy+XKGraoZrut6+qjdONPYhfyBs3bfVWon5m0n8NFlAgACdUAB3cgoGOTgjzJU9KS8RxKFEcJbEWXRREtBkvl0MxdGMbkrDMPszDMKwrRMCc4RFF0f3-QDgO4aomFAk8dQg75bEQ4xARtCJzXMKwe0cH5KD0RxIkBJMfiMIinWnL9fwA9AgMJcoMV4VF0VnJVclo6t6M0RBWS7FlgX0HwzVWfQ7C4xku0MWwQVw7QlmsVl1gFR0p0-MioCgCjWDYfJ1O1CktIQbk-jWUxJkE2xwW4sI-B8QzLBsgJErElzSN-dzPJOEpcho4NSTo-yeh0vwwiMAyjJM0zuPBdDHGCK1sI5Rxko-VL-1wMB0AgSAGF8sMzxMayG040RG0BfD8J7Xl+zTRY7HsWKVlfQV3xI1I3Pazrut68CAqcfCGzHEaTPwgJdB8bimL8GCXybZsfkMnxmtWqhaFkVAIAo7bNJ6KxQX+AIQl+ltRpMHtsJMFkX2bUw7EQsx7ScrMWtSaQwG-BRYGUGSetyqs-NrAbUKGvCRqWCLtAmxk-tmQcZh8LC0KtJ6cyoMjpNk9gqOy4QTErY8NIK7SwghgiztugaVjMSax38eY9G5ODUPNZmJLAeh8A6xRcFgYhUFR3BvzgMBFBxvmwO+7SAlsfxGatYJ5np6WrFllYjA7UKwn0GIBXQWQuvgVpnORsAQwF2sAFpzsZcP+y5LkUysKyfitGCVc-JFQ-xs88Odt37DdxCuzHIwwdK-5bpgkJIktNPWvZzO+oY7xDAl5ZOTHBx9G4uY71HFseXYqFEZWlnJNQdKZIbnaekhaDOyMG63ecMILuY66gRTTfOSWoPnrHv8Nq6iAp4t75rH7ZYjrq06o5QnwpmCBa0NK+8h7fYjR-Wjqj5PwXvitm2KY7YhAWGZL4LY16wTWHoPQ29a6pFeu9QCv9ax4TBk2WW7Y4IzBgoEHeSM96o3RqQTGyC8phzPFYFsRg+KDhbCMCIJdzJ-BbJ2G68wdJLHgVQNWYANboC1jrPWYADZG0UCg-qOdKBYTTA4GwIJOxgMQM4GqDs5gRRGryb2UQgA */
+  /** @xstate-layout N4IgpgJg5mDOIC5QGMCGA7Abq2ACAtqsgBYCW6YAdKRADZgDEAIgEoCCA6gPoDKAKmxZ8A2gAYAuolAAHAPaxSAF1Kz0UkAA9EAVgAcAdkoBOAIwAWUboBM+gMzaTJ3bYA0IAJ6IjZgGyUf+k76VpYm+qI+tgC+UW5oWDgERGQU1HSMAMIAEmwAcgDiAKJchQAyhQCyhbl8vDkACoVikkggcgrKqupaCHqGphbWdg5Orh6IIaKU+tqioiY+2r4m2vq6MXEY2HiEJORUNPTM7Pm8AkLN6u1KKmqtPX3G5pY29o7Obp4IJjZmlLZmWz6Iy6H5WHzeMwbEDxbZJPapQ6MHhlQoZPiFJglcpVGo8ShMVEYy6ta6dO6gB4GJ6DV4jD7jBBvSgmUTeURWIxGEK6azRWIwraJXYpA7pBgo8rozHYyrVPj4jIAeXqAE0STJ5DcuvcdNSBi9hu8xl8zPo-g5tIsVlbTAtobDhcl9mkjpK0RisajcQrKPU2PwmhIrlryd09f1nkM3qNPjpwsYfAZdLMrL8IQ6hTtnYjxRUlQBVFFcfMANSDLU1HVu4aZgUoZm0thMAKttlsuiMizjTKM2mMczCQIsDh8K0zCWzCLFRwAkjxZT66mxGlwAGKzgAaMr4Svy+XKGraoZrut6+qjdONPYhfyBs3bfVWon5m0n8NFlAgACdUAB3cgoGOTgjzJU9KS8RxKFEcJbEWXRREtBkvl0MxdGMbkrDMPszDMKwrRMCc4RFF0f3-QDgO4aomFAk8dQg75bEQ4xARtCJzXMKwe0cH5KD0RxIkBJMfiMIinWnL9fwA9AgNYTgSlyGiTErY9q3ozREEcesCN0RZ2xMUwlh7XSTH8eY9G5ODUPNMSp0-MjpNkolinddFZyVXJaLUikNO+Nk-DCIx9B8M1Vn0OwuMZLtDFsEFcO0JZrFZdYBUdOzSN-KAoAouT8i87UfJ6bk-jWUxJkE2xwW4sI-B8ELLHigImtsj8MtQLKcpOBSaODUk6MKzT-JZYFgtC8KIu48F0K0-CQqMDlHBakjUgc3AwHQCBIAYfKwzPAzUIbTjREbQF8Pw4yU0oNNFjsew6pWV9BXfZaqDIqA1o2radvA3ynHwhsx2O8LZrWHxuKYvwYJfJtmx+EKfCWnMqFoWRUAgCjvvUnorFBf4AhCHGWxOkwe2w0zWX00w7EQsx7VSrNWtSaQwG-BRYGUGTtt6qsCtrfa-lpvDjqWSrtHOxlcdmQcZh8LC0KtRGJLAeh8HWxRcFgYhUGZ3BvzgMBFC5lSwKxzSAlsfx5atYJ5ll4zZbMlYjA7Mqwn0RXPyRCVUWlL0cXlRUCxEbnVN5s81nQpsIVuwJwhWHsAFoFj8JLOQhZwmISmIBXQWRNvgVo0sZsAQ282sE7BxkE-wu8rBEpM4Pi3CPZdJFS7Dhi8KsYxH2dxCuzHIxSaC-4YZgkJIktFuVqkwD292hjvEMAzzDHNOVjCbi5jvUcWx5dioXp56kck9rspk+efqK3DoM7eb7Gd5xN8ZFtmKhoEU0-zlHqLl7T7-D6m0ICX1Nt8aw-ZlhA2CNbXS9spjBHumhIK95D5vmIifN6gDIAgIGt8c2lsUzWxCAsSKXxX79nfmsPQehv7T2RqjdGF8+plzPHhUmTYzLtjgjMGCgQf4Mz-szVmpB2Zz2YR3XyddYp8UHC2EYEQh5RT+C2Ts0N5ishwnQygyswCq3QOrTW2swC631ooHBfMu5XS7g4GwIJOykMQM4aats5iVWOrybOUQgA */
   createMachine(
     {
       id: "canvas machine",
@@ -171,6 +174,15 @@ export const canvasMachine =
             IS_ELEMENT_SHAPE_FIXED_TOGGLE: {
               target: "persisting",
               actions: "toggleIsElementShapeFixed",
+            },
+
+            "SELECTED_ELEMENTS.CUT": {
+              target: "persisting",
+              actions: [
+                "copySelectedElements",
+                "deleteSelectedElements",
+                "drawElements",
+              ],
             },
           },
         },

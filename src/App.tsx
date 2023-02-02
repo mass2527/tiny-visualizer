@@ -132,6 +132,8 @@ function App() {
             type: "SELECTED_ELEMENTS.PASTE",
             canvasElement,
           });
+        } else if (event.key === "x") {
+          send("SELECTED_ELEMENTS.CUT");
         }
       }
 
