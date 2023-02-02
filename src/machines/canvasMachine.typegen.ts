@@ -16,9 +16,12 @@ export interface Typegen0 {
   };
   eventsCausingActions: {
     addElement: "DRAW_START";
+    assignCurrentPoint: "MOUSE_MOVE";
     assignDragStartPoint: "DRAG_START";
     changeElementShape: "CHANGE_ELEMENT_SHAPE";
+    copySelectedElements: "SELECTED_ELEMENTS.COPY";
     deleteElement: "DELETE_SELECTION";
+    deleteSelectedElements: "SELECTED_ELEMENTS.DELETE";
     drag: "DRAG" | "DRAG_END";
     draw: "DRAW" | "DRAW_END";
     drawElements:
@@ -30,9 +33,17 @@ export interface Typegen0 {
       | "DRAW"
       | "DRAW_END"
       | "DRAW_START"
+      | "SELECTED_ELEMENTS.DELETE"
+      | "SELECTED_ELEMENTS.PASTE"
       | "xstate.stop";
     loadSavedContext: "xstate.init";
-    persist: "" | "CHANGE_ELEMENT_SHAPE";
+    pasteSelectedElements: "SELECTED_ELEMENTS.PASTE";
+    persist:
+      | ""
+      | "CHANGE_ELEMENT_SHAPE"
+      | "SELECTED_ELEMENTS.COPY"
+      | "SELECTED_ELEMENTS.DELETE"
+      | "SELECTED_ELEMENTS.PASTE";
     selectDrawingElement: "DRAW_END";
     unselectElements: "CHANGE_ELEMENT_SHAPE" | "DRAW_START";
     updateIntersecting: "DRAW" | "DRAW_END";
