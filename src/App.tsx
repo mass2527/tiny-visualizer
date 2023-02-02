@@ -1,82 +1,12 @@
 import { useMachine } from "@xstate/react";
-import {
-  ChangeEventHandler,
-  CSSProperties,
-  MouseEventHandler,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { MouseEventHandler, useEffect, useRef } from "react";
 import invariant from "tiny-invariant";
+import Radio from "./components/Radio";
+import { useWindowSize } from "./hooks";
+import { useDevicePixelRatio } from "./hooks/useDevicePixelRatio";
 import { canvasMachine } from "./machines/canvasMachine";
 import { VisualizerElement } from "./machines/elementMachine";
 import { calculateMousePoint, isPointInsideOfElement } from "./utils";
-
-function useWindowSize() {
-  const [windowSize, setWindowSize] = useState({
-    width: window.innerWidth,
-    height: window.innerHeight,
-  });
-
-  useEffect(() => {
-    const updateWindowSize = () => {
-      setWindowSize({
-        width: window.innerWidth,
-        height: window.innerHeight,
-      });
-    };
-
-    window.addEventListener("resize", updateWindowSize);
-    return () => {
-      window.removeEventListener("resize", updateWindowSize);
-    };
-  }, []);
-
-  return windowSize;
-}
-
-function useDevicePixelRatio() {
-  const [devicePixelRatio, setDevicePixelRatio] = useState(
-    window.devicePixelRatio
-  );
-
-  useEffect(() => {
-    const mediaQueryString = `(resolution: ${devicePixelRatio}dppx)`;
-    const mediaQueryList = window.matchMedia(mediaQueryString);
-
-    const updateDevicePixelRatio = () => {
-      setDevicePixelRatio(window.devicePixelRatio);
-    };
-
-    mediaQueryList.addEventListener("change", updateDevicePixelRatio);
-    return () => {
-      mediaQueryList.removeEventListener("change", updateDevicePixelRatio);
-    };
-  }, [devicePixelRatio]);
-
-  return devicePixelRatio;
-}
-
-function Radio({
-  label,
-  value,
-  checked,
-  onChange,
-  style,
-}: {
-  label: string;
-  value: string;
-  checked: boolean;
-  onChange: ChangeEventHandler<HTMLInputElement>;
-  style?: CSSProperties;
-}) {
-  return (
-    <label style={style}>
-      <input type="radio" value={value} checked={checked} onChange={onChange} />
-      {label}
-    </label>
-  );
-}
 
 const TOOL_OPTIONS: {
   label: string;
