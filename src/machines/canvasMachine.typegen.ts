@@ -41,21 +41,27 @@ export interface Typegen0 {
     persist:
       | ""
       | "CHANGE_ELEMENT_SHAPE"
+      | "IS_ELEMENT_SHAPE_FIXED_TOGGLE"
       | "SELECTED_ELEMENTS.COPY"
       | "SELECTED_ELEMENTS.DELETE"
       | "SELECTED_ELEMENTS.PASTE";
+    resetElementShape: "DRAW_END";
     selectDrawingElement: "DRAW_END";
+    toggleIsElementShapeFixed: "IS_ELEMENT_SHAPE_FIXED_TOGGLE";
     unselectElements: "CHANGE_ELEMENT_SHAPE" | "DRAW_START";
     updateIntersecting: "DRAW" | "DRAW_END";
   };
   eventsCausingDelays: {};
-  eventsCausingGuards: {};
+  eventsCausingGuards: {
+    isElementShapeFixed: "DRAW_END";
+  };
   eventsCausingServices: {};
   matchesStates:
     | "drag ended"
     | "dragging"
     | "draw ended"
     | "drawing"
+    | "element shape reset"
     | "idle"
     | "loading"
     | "persisting";
