@@ -138,7 +138,8 @@ export const generateDraw = (
       element.x,
       element.y,
       element.width,
-      element.height
+      element.height,
+      element.options
     );
     return () => {
       roughCanvas.draw(rectangleDrawable);
@@ -148,7 +149,8 @@ export const generateDraw = (
       element.x + element.width / 2,
       element.y + element.height / 2,
       element.width,
-      element.height
+      element.height,
+      element.options
     );
     return () => {
       roughCanvas.draw(ellipseDrawable);
@@ -158,7 +160,8 @@ export const generateDraw = (
       element.x,
       element.y,
       element.x + element.width,
-      element.y + element.height
+      element.y + element.height,
+      element.options
     );
     return () => {
       roughCanvas.draw(lineDrawable);
@@ -182,18 +185,22 @@ export const generateDraw = (
         endX,
         endY,
         endX - arrowSize * Math.cos(angleInRadians + convertDegreeToRadian(30)),
-        endY - arrowSize * Math.sin(angleInRadians + convertDegreeToRadian(30))
+        endY - arrowSize * Math.sin(angleInRadians + convertDegreeToRadian(30)),
+        element.options
       )
     );
     // -
-    arrowDrawables.push(generator.line(startX, startY, endX, endY));
+    arrowDrawables.push(
+      generator.line(startX, startY, endX, endY, element.options)
+    );
     // /
     arrowDrawables.push(
       generator.line(
         endX,
         endY,
         endX - arrowSize * Math.cos(angleInRadians - convertDegreeToRadian(30)),
-        endY - arrowSize * Math.sin(angleInRadians - convertDegreeToRadian(30))
+        endY - arrowSize * Math.sin(angleInRadians - convertDegreeToRadian(30)),
+        element.options
       )
     );
 

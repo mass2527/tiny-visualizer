@@ -1,26 +1,26 @@
-import { ChangeEventHandler, CSSProperties } from "react";
+import { ChangeEventHandler } from "react";
 
-function Radio({
+function ColorPicker({
   label,
   value,
-  checked,
   onChange,
 }: {
   label: string;
   value: string;
-  checked: boolean;
   onChange: ChangeEventHandler<HTMLInputElement>;
 }) {
   return (
     <label
       style={{
+        display: "flex",
+        flexDirection: "column",
         pointerEvents: "all",
       }}
     >
-      <input type="radio" value={value} checked={checked} onChange={onChange} />
       {label}
+      <input type="color" value={value} onChange={onChange} />
     </label>
   );
 }
 
-export default Radio;
+export default ColorPicker;
