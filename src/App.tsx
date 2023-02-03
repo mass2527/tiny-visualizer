@@ -4,8 +4,12 @@ import invariant from "tiny-invariant";
 import { assign } from "xstate";
 import ColorPicker from "./components/ColorPicker";
 import Radio from "./components/Radio";
-import { useWindowSize } from "./hooks";
-import { useDevicePixelRatio } from "./hooks/useDevicePixelRatio";
+import {
+  useDevicePixelRatio,
+  usePreventDefaultBrowserZoom,
+  useWindowSize,
+} from "./hooks";
+
 import {
   canvasMachine,
   CanvasMachineContext,
@@ -17,6 +21,7 @@ import {
   calculateMousePoint,
   generateDraw,
   isPointInsideOfElement,
+  isWithPlatformMetaKey,
 } from "./utils";
 
 const MARGIN = 8;
@@ -93,6 +98,8 @@ function App() {
   );
   const selectedElements = elements.filter((element) => element.isSelected);
 
+  usePreventDefaultBrowserZoom();
+
   useEffect(() => {
     const canvasElement = canvasRef.current;
     invariant(canvasElement);
@@ -105,7 +112,7 @@ function App() {
       if (event.key === "Backspace") {
         send("SELECTED_ELEMENTS.DELETE");
       }
-      if (event.metaKey) {
+      if (isWithPlatformMetaKey(event)) {
         if (event.key === "c") {
           send("SELECTED_ELEMENTS.COPY");
         } else if (event.key === "v") {
