@@ -2,6 +2,7 @@ import { useMachine } from "@xstate/react";
 import { MouseEventHandler, useEffect, useRef } from "react";
 import invariant from "tiny-invariant";
 import { assign } from "xstate";
+import ColorPicker from "./components/ColorPicker";
 import Radio from "./components/Radio";
 import { useWindowSize } from "./hooks";
 import { useDevicePixelRatio } from "./hooks/useDevicePixelRatio";
@@ -10,38 +11,13 @@ import {
   CanvasMachineContext,
   VisualizerElement,
 } from "./machines/canvasMachine";
+import { STROKE_WIDTH_OPTIONS, TOOL_OPTIONS } from "./options";
 
 import {
   calculateMousePoint,
   generateDraw,
   isPointInsideOfElement,
 } from "./utils";
-
-const TOOL_OPTIONS: {
-  label: string;
-  value: VisualizerElement["shape"];
-}[] = [
-  {
-    label: "(1) Selection",
-    value: "selection",
-  },
-  {
-    label: "(2) Rectangle",
-    value: "rectangle",
-  },
-  {
-    label: "(3) Ellipse",
-    value: "ellipse",
-  },
-  {
-    label: "(4) Arrow",
-    value: "arrow",
-  },
-  {
-    label: "(5) Line",
-    value: "line",
-  },
-];
 
 const MARGIN = 8;
 
@@ -105,8 +81,13 @@ function App() {
       },
     },
   });
-  const { elementShape, drawingElementId, elements, isElementShapeFixed } =
-    state.context;
+  const {
+    elementShape,
+    drawingElementId,
+    elements,
+    isElementShapeFixed,
+    elementOptions,
+  } = state.context;
   const drawingElement = elements.find(
     (element) => element.id === drawingElementId
   );
@@ -288,6 +269,7 @@ function App() {
       >
         <header
           style={{
+            position: "relative",
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
@@ -314,13 +296,60 @@ function App() {
                     .value as VisualizerElement["shape"],
                 });
               }}
-              style={{
-                pointerEvents: "all",
-              }}
             />
           ))}
 
-          <pre>{JSON.stringify(state.value)}</pre>
+          <div
+            style={{
+              position: "absolute",
+              top: "50px",
+              left: 0,
+            }}
+          >
+            <ColorPicker
+              label="Stroke Color"
+              value={elementOptions.stroke || "#000"}
+              onChange={(event) => {
+                send({
+                  type: "CHANGE_ELEMENT_OPTIONS",
+                  elementOptions: {
+                    stroke: event.target.value,
+                  },
+                });
+              }}
+            />
+            <ColorPicker
+              label="Fill Color"
+              value={elementOptions.fill || "#000"}
+              onChange={(event) => {
+                send({
+                  type: "CHANGE_ELEMENT_OPTIONS",
+                  elementOptions: {
+                    fill: event.target.value,
+                  },
+                });
+              }}
+            />
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              <span>Stroke Width</span>
+              {STROKE_WIDTH_OPTIONS.map(({ label, value }) => (
+                <Radio
+                  key={label}
+                  label={label}
+                  value={String(value)}
+                  checked={elementOptions.strokeWidth === value}
+                  onChange={(event) => {
+                    send({
+                      type: "CHANGE_ELEMENT_OPTIONS",
+                      elementOptions: {
+                        strokeWidth: Number(event.target.value),
+                      },
+                    });
+                  }}
+                />
+              ))}
+            </div>
+          </div>
         </header>
       </div>
 
