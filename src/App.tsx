@@ -11,10 +11,10 @@ import {
 } from "./hooks";
 
 import {
-  canvasMachine,
-  CanvasMachineContext,
+  visualizerMachine,
+  VisualizerMachineContext,
   VisualizerElement,
-} from "./machines/canvasMachine";
+} from "./machines/visualizerMachine";
 import { STROKE_WIDTH_OPTIONS, TOOL_OPTIONS } from "./options";
 
 import {
@@ -30,7 +30,7 @@ function App() {
   const windowSize = useWindowSize();
   const devicePixelRatio = useDevicePixelRatio();
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [state, send] = useMachine(canvasMachine, {
+  const [state, send] = useMachine(visualizerMachine, {
     actions: {
       loadSavedContext: assign(() => {
         const canvasElement = canvasRef.current;
@@ -44,7 +44,7 @@ function App() {
             return {};
           }
 
-          const context = JSON.parse(value) as CanvasMachineContext;
+          const context = JSON.parse(value) as VisualizerMachineContext;
           return {
             ...context,
             elements: context.elements.map((element) => {

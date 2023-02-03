@@ -24,7 +24,7 @@ export type VisualizerElement = {
   options: Options;
 };
 
-export type CanvasMachineContext = {
+export type VisualizerMachineContext = {
   elementShape: VisualizerElement["shape"];
   elements: VisualizerElement[];
   drawingElementId: VisualizerElement["id"] | null;
@@ -36,7 +36,7 @@ export type CanvasMachineContext = {
   elementOptions: Options;
 };
 
-export type CanvasMachineEvents =
+export type VisualizerMachineEvents =
   | {
       type: "DRAW_START";
       event: Parameters<MouseEventHandler<HTMLCanvasElement>>[0];
@@ -98,15 +98,15 @@ export type CanvasMachineEvents =
     }
   | {
       type: "CHANGE_ELEMENT_OPTIONS";
-      elementOptions: CanvasMachineContext["elementOptions"];
+      elementOptions: VisualizerMachineContext["elementOptions"];
     };
 
-export const canvasMachine =
+export const visualizerMachine =
   /** @xstate-layout N4IgpgJg5mDOIC5QGMCGA7Abq2ACAtqsgBYCW6YAdKRADZgDEAIgEoCCA6gPoDKAKmxZ8A2gAYAuolAAHAPaxSAF1Kz0UkAA9EAVgAcAdkoBOAIwAWUboBM+gMzaTJ3bYA0IAJ6IjZgGyUf+k76VpYm+qI+tgC+UW5oWDgERGQU1HSMAMIAEmwAcgDiAKJchQAyhQCyhbl8vDkACoVikkggcgrKqupaCHqGphbWdg5Orh6IIaKU+tqioiY+2r4m2vq6MXEY2HiEJORUNPTM7Pm8AkLN6u1KKmqtPX3G5pY29o7Obp4IJjZmlLZmWz6Iy6H5WHzeMwbEDxbZJPapQ6MHhlQoZPiFJglcpVGo8ShMVEYy6ta6dO6gB4GJ6DV4jD7jBBvSgmUTeURWIxGEK6azRWIwraJXYpA7pBgo8rozHYyrVPj4jIAeXqAE0STJ5DcuvcdNSBi9hu8xl8zPo-g5tIsVlbTAtobDhcl9mkjpK0RisajcQrKPU2PwmhIrlryd09f1nkM3qNPjpwsYfAZdLMrL8IQ6hTtnYjxRUlQBVFFcfMANSDLU1HVu4aZgUoZm0thMAKttlsuiMizjTKM2mMczCQIsDh8K0zCWzCLFRwAkjxZT66mxGlwAGKzgAaMr4Svy+XKGraoZrut6+qjdONPYhfyBs3bfVWon5m0n8NFruRqOlXpx8sVAsRGDUkTx1SlEDWXRKCbCE7CBMJ5m0HsAFoFj8awfi7EF21EbRtAnOERRdCAACdUAAd3IKBjk4I8yVPCCEDtShRHCWxFl0PCVgZL5dDMaCuTTMw+zMMwrCtExCKdadKDIyjqNo7hqiYeiwIpTREBbPDjEBG0InNcwrB7Rwfhg0EFgBDjQU5aSp0-eSqPQGjWE4EpclUkxK2PatwM074whMGCx10RZ2xMUwlh7UKgp8JDOysayzShAVHXskjyKclyiWKd10VnJVcjU3yNJ6VkuxZYF9B8M1Vn0OxjMZLtDFsEExPwgSrFZdZUqzD8MtQKAoEU1z8mK7VSq8Kw-jWUxJkiQFwRMsI-B8GrLHagItrs-rUnkoaRpOdzVJAqsJtrcq-DCIxqtq+qGpM8FoMcYIrREjlHB24i9sy3AwHQCBIAYcawzPCL+IbIzREbRbtAk6KU0oNNFngq0xybL6cyofa-oBoGQcY-ynAkhsx2h+qJICUKTNsCJWPYptmx+GqfEx2TaFkVAIEUgm-J6KxQX+AIQgFlsYZMHsRKC1lwtMOw8LMe1evfb6qGkMBSIUWBlGc4HTp886wbayHxOhpZbAk+HGUF2ZBxmHxpoEq02c-MB6Hwf7FFwWBiFQdXcFIuAwEUPXvIYvmtICWx-Cdq1gnmB3ood-wkKMDs5rCfQXZdJEGGyPIikXeUuBVPgCtyHhecmhBOyMaY4rZFMDDmaaTOfYxQQtxDzFalKBXQWRAfgVo0t2sAQxK2sUJ8VCJLvLqLbi6xnAi7Pc3oCfDaY8SrGMR807wrsxyMSWbv+Rm2JCSJLTX7HMuozfQaY7xDAi8wx05dGwhMuY71HFseQGRSm+IiWM5LkQOs5R+hMeiQlYrXF82g04r30DTHSbEXxrD0HoTkr5BQqzAY5XGgMIDQIjt8aw-Zljk1elTGe1s4rTHBGOASN17zAPwaA2SON-okLIdXBYdgY4pjjiEBYjUvjaX7BgoETccFp1vpQDmXMH6gUnmecSksmwp3bBxGYbFAh4NHqrSg6tNakG1qos6T9-ILzrrbRwMYIgnyan8FsnZEHzHKksRRbswAe3QF7H2fswAByDoofhF0d5Ix3g4GwIIErRQ7CyBOcwLbQ15DEGIQA */
   createMachine(
     {
-      id: "canvas machine",
-      tsTypes: {} as import("./canvasMachine.typegen").Typegen0,
+      id: "visualizer machine",
+      tsTypes: {} as import("./visualizerMachine.typegen").Typegen0,
 
       // Ensures that assign actions are called in order
       preserveActionOrder: true,
@@ -114,8 +114,8 @@ export const canvasMachine =
       predictableActionArguments: true,
 
       schema: {
-        context: {} as CanvasMachineContext,
-        events: {} as CanvasMachineEvents,
+        context: {} as VisualizerMachineContext,
+        events: {} as VisualizerMachineEvents,
       },
 
       context: {
