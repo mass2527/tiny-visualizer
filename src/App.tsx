@@ -70,6 +70,9 @@ function App() {
         invariant(ctx);
 
         ctx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+
+        ctx.setTransform(context.zoom, 0, 0, context.zoom, 0, 0);
+
         context.elements.forEach((element) => {
           if (element.draw) {
             element.draw();
@@ -167,7 +170,7 @@ function App() {
     const canvasElement = canvasRef.current;
     invariant(canvasElement);
 
-    const mousePoint = calculateMousePoint(canvasElement, event);
+    const mousePoint = calculateMousePoint({ canvasElement, event, zoom });
 
     if (
       elementShape === "selection" &&

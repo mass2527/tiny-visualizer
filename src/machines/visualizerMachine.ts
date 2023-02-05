@@ -114,7 +114,7 @@ export const ZOOM = {
 } as const;
 
 export const visualizerMachine =
-  /** @xstate-layout N4IgpgJg5mDOIC5QDcCWsCuBDANqgXmAE4AEAtlgMYAWqAdmAHSoQ5gDEAIgEoCCA6gH0AygBVe3UQG0ADAF1EoAA4B7WKgAuqFXUUgAHogCsATgDsjEwEYALFZkBmAEw2HDswDYjAGhABPRCsrEwdGGwAOG1cZExszB3CzAF8k3zRMXAJicipaBmZWDgBhAAleADkAcQBRQWqAGWqAWWry0REygAVq2QUkEFV1LR09QwRTC2s7Rxc3Tx9-RCcZGUYzGxNzCJkzMydzFLT0bDxCUgoaeiYWNi4+SpFxSV69Qc1tXX6xictbe2dXO4vL4AggrEYnFZGOCPAkEjIjGZwlZDiB0icsudclcCrdhA1qkVRNVOHVGi02sJGJwCcSXv03sNPqBvuZftMAXNgYsEA4jFD7CEnOEjA4ZE4jAjUejMmccpd8jcOPjGkSSWTmq1RFSigB5ToATXpyjU7xGX2MbKm-1mQIWoLiNkY-KMrt2ko8Nn20uOsuyFzy10K7BVhOJpIJFO1jE6vDEPXkr1NTNGlsmfxmgPmIOMZlWJg8iRiTniEqcPoyp392MVwaauoAqvjBPWAGoJvomoYfVO8sxQmyi2wrRwrT058YIsJTCEmSFGZEVjFygM4pXsACSwg1UY6vG6ggAYhuABrq0S6yqVRrGgbJnsW8ZWjOcu0TjyxRjuDYi-ZmEzhLES5+liCpBniBJqhG5JajqDbSImDL3uaLJpuyNpZtyoL-qs4TCjEKxWB4EoODYwFVqBga4sUZRVLUkZaoI+qiBuurlMIt6Mg+qFPumHK2tmPKxAKiRRO4CS7K45GYvKVEQEQWAAO70FAdwCJxyHMgYiBzlCOwIhK6xekYXoToKRiMOEMg2J6Vl5qKETSSuNZMPJSkqWpQitJwGndih2lgvYHjQv+BYeHsMjEf2ZlzIwHhWHsNgzG4VlkakaK+hRsk4m5yl0KpPACHU5Q+VYnZ3n5WljEEkUhZsHjhcsUVWGZ9h8QiAE2XhRFOdWYGMLlHk0o0xIiJBLFsb5ZpVYEQV1WFEXNWZkJOpCMSJHmMjIkYHi9ZROUKVAUBDfcU0po+IROkil17JEsKbGZXqhHEhbBKRc5SulMpZau+RuUdJ28A83lndxAU1cFCX1Y1kUli1PLgrYlh-l4fJON+Rh7dlf0KYpJBgHQECQOwoP+dVsROHFG0xFYZaQuErXOIwjgmOt4mwhCWO-a5h344TxOkzNYLheEcURPEBb1XOZhma6lPhHhsSRfpKxpUclYydzjA4CoWAQB5gu9sKUIOOFwSRTVMjgvaiAeCscWxAuCThIWDhWOEXMuYwSjEOosBaPlJOIV2029sEXpU7sNN0+7E7ItOmwK56SJ-OWX2ZZrXtgGwZAExoJCwNQWA+yQRBwGAGhB+VXFk4EIti4kDiS5LJatTEYTDoWgGSoknv9eupQVDUggAFq6rqTSG4+omWKz6xznE7jw6CAC0fJhJEsSkVbVvWCiqJ0CoRPwP032Z2BSaVb2K8eBOK+05TnUhABTgrdYDh91RSqX6Hj5eo-bh4qkXdqYfY75aqxEHIie6kR+SfwOu5fKP9zo8RMIiaE1hYS-ldAuJwy1+TQk9DEEyVt1iingTjLAAMkFISvhdEyzNWb2HdtZBWBZZYEIVvsEyBYCK7AoTzJSfMiYQGQWDaqSJQjxC6qzTBWw24WFFKzCU0DBxegEQNXmBMRFiNrmCCITolFN0hE4Wy1kOFQi4S7KwaNIRIg0TrPWKldFC1MjyHaoRw52y9IkYUH904a2cv1H2RA-YBygC4o2QQLC7FNgufkexTE2wQAWZmr1iJzmIlbN2Gjs5gFznQfOhdi5gFLuXDQkTHy2CZi4FRqs8zCmSfYSIvwm68PMKzT0KQUhAA */
+  /** @xstate-layout N4IgpgJg5mDOIC5QDcCWsCuBDANqgXmAE4AEAtlgMYAWqAdmAHSoQ5gDEAIgEoCCA6gH0AygBVe3UQG0ADAF1EoAA4B7WKgAuqFXUUgAHogCsATgDsjEwEYALFZkBmAEw2HDswDYjAGhABPRCsrEwdGGwAOG1cZExszB3CzAF8k3zRMXAJicipaBmZWDgBhAAleADkAcQBRQWqAGWqAWWry0REygAVq2QUkEFV1LR09QwRTC2s7Rxc3Tx9-RCcZGUYzGxNzCJkzMydzFLT0bDxCUgoaeiYWNi4+SpFxSV69Qc1tXX6xictbe2dXO4vL4AggrEYnFZGOCPAkEjIjGZwlZDiB0icsudclcCrdhA1qkVRNVOHVGi02sJGJwCcSXv03sNPqBvuZftMAXNgYsEA4jFD7CEnOEjA4ZE4jAjUejMmccpd8jcOPjGkSSWTmq1RFSigB5ToATXpyjU7xGX2MbKm-1mQIWoLiNkY-KMrt2ko8Nn20uOsuyFzy10K7BVhOJpIJFO1jE6vDEPXkr1NTNGlsmfxmgPmIOMZlWJg8iRiTniEqcPoyp392MVwaauoAqvjBPWAGoJvomoYfVO8sxQmyi2wrRwrT058YIsJTCEmSFGZEVjFygM4pXsACSwg1UY6vG6ggAYhuABrq0S6yqVRrGgbJnsW8ZWjOcu0TjyxRjuDYi-ZmEzhLES5+liCpBniBJqhG5JajqDbSImDL3uaLJpuyNpZtyoL-qs4TCjEKxWB4EoODYwFVqBga4sUZRVLUkZaoI+qiBuurlMIt6Mg+qFPumHK2tmPKxAKiRRO4CS7K45GYvKVHrqUFQ1IIABauq6k0nHIcyBiIKJlgmDsGwuPE-YTgAtHyYSRLEpEyPYwRBNJK41kwEBEFgADu9BQHcAiad2KE6Qgc5QjsCISusXpGF6E6CkYjDhDINieoleaihETnVmBjBuZ53m+UIrScP5ZraWMQQyB40L-gWHh7JVJZWLFcyMB4Vh7DYMxuIlZGpGivoUbJOK5V5dA+TwAh1OUxVWJ2d4BWVgT2FV7WbB4dXLMRpk8hVfEIgByV4URmWUcN7mjeNtK1KGRKseUJUpo+FUrTV631VtTU7ZCTqQjEiR5jIyJGB4J1DfkuVQFA+UTZUD3cUFIROkiiN7JEsKbLFXqhHEhbBKRc5Sn1MqDau4PuZD0P3FNxWIV2pW9s91VrRtDXbaC4K2JYf5eHyTjfkYoOk6550kGAdAQJA7Bw4F5WxE4rX-TEVhlpC4SxVYziMI4BkAeJsIQoLLk5eTovi5L0uLWCdXhK1ETxAWa1zmYsWuvL4R4bElVhSsvVHJWMlC4wOAqFgED5RbvbClCDh1cElUVXZrrvisrWxAuCThIWDhWOEhvZUoxDqLAWhjVLtPzfTT1ywruxKyrOcTsi06bO7npIn85ZEwNAdG2AbBkGLGgkLA1BYAXJBEHAYAaGXc1cTLgTW7biQOA7DslurMRhMOhaAZKiQpH1dAqBL8D9MTPdgUmC29mZHjmcr8sHWnlV2Aug553JhTX5XPFek-bg2qkRzqYfYycqqxEHIidGkR+SfzOnlMaP9Ho8RMIiaE1hYS-ldAuJwsUJQCk9DEaKdl1iingWTLAFMkFIRvo+NBToCL2R6u7AsLt+QJQ9tFAsBFdgUOFp5U2EsIDIPhuVJEoR4iHR1kRLYm8LCigMhKaBg4vT8ONlQoRkBRELzBBEJ0ijV6QicClJK7CoTu2FEAiEkIkTqODqHbyOjLYxR5MDUIwRkpJWFKjBw6iC5ECLiXKAzjI5BAsLsGOC5+R7BMfaRABYta42InOYidls7qL7mAAedAh4jzHmACeU8NChKeq4eWLhlE+zzMKeJYJAZOmsKvHh5gDKekPkkIAA */
   createMachine(
     {
       id: "visualizer machine",
@@ -218,7 +218,7 @@ export const visualizerMachine =
 
             CHANGE_ZOOM: {
               target: "persisting",
-              actions: "assignZoom",
+              actions: ["assignZoom", "drawElements"],
             },
           },
         },
@@ -304,7 +304,11 @@ export const visualizerMachine =
     {
       actions: {
         addElement: assign((context, { event, canvasElement }) => {
-          const startPoint = calculateMousePoint(canvasElement, event);
+          const startPoint = calculateMousePoint({
+            canvasElement,
+            event,
+            zoom: context.zoom,
+          });
           const newElement: VisualizerElement = {
             id: uuidv4(),
             shape: context.elementShape,
@@ -332,8 +336,12 @@ export const visualizerMachine =
             elementShape,
           };
         }),
-        assignDragStartPoint: assign((_, { canvasElement, event }) => {
-          const dragStartPoint = calculateMousePoint(canvasElement, event);
+        assignDragStartPoint: assign((context, { canvasElement, event }) => {
+          const dragStartPoint = calculateMousePoint({
+            canvasElement,
+            event,
+            zoom: context.zoom,
+          });
 
           return {
             dragStartPoint,
@@ -348,7 +356,11 @@ export const visualizerMachine =
           };
         }),
         draw: assign((context, { canvasElement, event }) => {
-          const currentPoint = calculateMousePoint(canvasElement, event);
+          const currentPoint = calculateMousePoint({
+            canvasElement,
+            event,
+            zoom: context.zoom,
+          });
 
           return {
             elements: context.elements.map((element) => {
@@ -407,7 +419,11 @@ export const visualizerMachine =
           };
         }),
         drag: assign((context, { canvasElement, event }) => {
-          const currentPoint = calculateMousePoint(canvasElement, event);
+          const currentPoint = calculateMousePoint({
+            canvasElement,
+            event,
+            zoom: context.zoom,
+          });
 
           return {
             elements: context.elements.map((element) => {
@@ -490,8 +506,12 @@ export const visualizerMachine =
             ],
           };
         }),
-        assignCurrentPoint: assign((_, { canvasElement, event }) => {
-          const currentPoint = calculateMousePoint(canvasElement, event);
+        assignCurrentPoint: assign((context, { canvasElement, event }) => {
+          const currentPoint = calculateMousePoint({
+            canvasElement,
+            event,
+            zoom: context.zoom,
+          });
 
           return {
             currentPoint,

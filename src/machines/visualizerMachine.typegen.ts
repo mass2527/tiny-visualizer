@@ -31,6 +31,7 @@ export interface Typegen0 {
     drawElements:
       | ""
       | "CHANGE_ELEMENT_SHAPE"
+      | "CHANGE_ZOOM"
       | "DELETE_SELECTION"
       | "DRAG"
       | "DRAG_END"
