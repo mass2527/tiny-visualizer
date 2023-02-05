@@ -14,11 +14,14 @@ import {
   visualizerMachine,
   VisualizerMachineContext,
   VisualizerElement,
+  ZOOM,
 } from "./machines/visualizerMachine";
 import { STROKE_WIDTH_OPTIONS, TOOL_OPTIONS } from "./options";
 
 import {
   calculateMousePoint,
+  convertToPercent,
+  convertToRatio,
   generateDraw,
   isPointInsideOfElement,
   isWithPlatformMetaKey,
@@ -92,6 +95,7 @@ function App() {
     elements,
     isElementShapeFixed,
     elementOptions,
+    zoom,
   } = state.context;
   const drawingElement = elements.find(
     (element) => element.id === drawingElementId
@@ -356,13 +360,55 @@ function App() {
                 />
               ))}
             </div>
+
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              <span>Zoom</span>
+              <div style={{ display: "flex", pointerEvents: "all" }}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const zoomInPercent = convertToPercent(zoom);
+                    const updatedZoom = convertToRatio(zoomInPercent - 10);
+
+                    send({
+                      type: "CHANGE_ZOOM",
+                      zoom: Math.max(updatedZoom, ZOOM.MINIMUM),
+                    });
+                  }}
+                  disabled={zoom === ZOOM.MINIMUM}
+                >
+                  -
+                </button>
+                <span>{Math.round(zoom * 100)}%</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const zoomInPercent = convertToPercent(zoom);
+                    const updatedZoom = convertToRatio(zoomInPercent + 10);
+
+                    send({
+                      type: "CHANGE_ZOOM",
+                      zoom: Math.min(updatedZoom, ZOOM.MAXIMUM),
+                    });
+                  }}
+                  disabled={zoom === ZOOM.MAXIMUM}
+                >
+                  +
+                </button>
+              </div>
+            </div>
           </div>
         </header>
       </div>
 
       <canvas
         ref={canvasRef}
-        style={{ width: windowSize.width, height: windowSize.height }}
+        style={{
+          // visual size
+          width: windowSize.width,
+          height: windowSize.height,
+        }}
+        // actual size
         width={Math.floor(windowSize.width * devicePixelRatio)}
         height={Math.floor(windowSize.height * devicePixelRatio)}
         onMouseDown={state.matches("idle") ? handleMouseDown : undefined}

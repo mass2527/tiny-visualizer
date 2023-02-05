@@ -225,3 +225,11 @@ export const isWithPlatformMetaKey = (event: {
   metaKey: boolean;
   ctrlKey: boolean;
 }) => (isMac() ? event.metaKey : event.ctrlKey);
+
+export const convertToPercent = (ratio: number) => {
+  return ratio * 100;
+};
+
+export const convertToRatio = (percent: number) => {
+  return percent / 100;
+};

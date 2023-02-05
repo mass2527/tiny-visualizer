@@ -34,6 +34,7 @@ export type VisualizerMachineContext = {
   currentPoint: Point;
   isElementShapeFixed: boolean;
   elementOptions: Options;
+  zoom: number;
 };
 
 export type VisualizerMachineEvents =
@@ -99,10 +100,21 @@ export type VisualizerMachineEvents =
   | {
       type: "CHANGE_ELEMENT_OPTIONS";
       elementOptions: VisualizerMachineContext["elementOptions"];
+    }
+  | {
+      type: "CHANGE_ZOOM";
+      zoom: VisualizerMachineContext["zoom"];
     };
 
+// zoom in ratio
+export const ZOOM = {
+  DEFAULT: 1,
+  MINIMUM: 0.1,
+  MAXIMUM: 30,
+} as const;
+
 export const visualizerMachine =
-  /** @xstate-layout N4IgpgJg5mDOIC5QGMCGA7Abq2ACAtqsgBYCW6YAdKRADZgDEAIgEoCCA6gPoDKAKmxZ8A2gAYAuolAAHAPaxSAF1Kz0UkAA9EAVgAcAdkoBOAIwAWUboBM+gMzaTJ3bYA0IAJ6IjZgGyUf+k76VpYm+qI+tgC+UW5oWDgERGQU1HSMAMIAEmwAcgDiAKJchQAyhQCyhbl8vDkACoVikkggcgrKqupaCHqGphbWdg5Orh6IIaKU+tqioiY+2r4m2vq6MXEY2HiEJORUNPTM7Pm8AkLN6u1KKmqtPX3G5pY29o7Obp4IJjZmlLZmWz6Iy6H5WHzeMwbEDxbZJPapQ6MHhlQoZPiFJglcpVGo8ShMVEYy6ta6dO6gB4GJ6DV4jD7jBBvSgmUTeURWIxGEK6azRWIwraJXYpA7pBgo8rozHYyrVPj4jIAeXqAE0STJ5DcuvcdNSBi9hu8xl8zPo-g5tIsVlbTAtobDhcl9mkjpK0RisajcQrKPU2PwmhIrlryd09f1nkM3qNPjpwsYfAZdLMrL8IQ6hTtnYjxRUlQBVFFcfMANSDLU1HVu4aZgUoZm0thMAKttlsuiMizjTKM2mMczCQIsDh8K0zCWzCLFRwAkjxZT66mxGlwAGKzgAaMr4Svy+XKGraoZrut6+qjdONPYhfyBs3bfVWon5m0n8NFruRqOlXpx8sVAsRGDUkTx1SlEDWXRKCbCE7CBMJ5m0HsAFoFj8awfi7EF21EbRtAnOERRdCAACdUAAd3IKBjk4I8yVPCCEDtShRHCWxFl0PCVgZL5dDMaCuTTMw+zMMwrCtExCKdadKDIyjqNo7hqiYeiwIpTREBbPDjEBG0InNcwrB7Rwfhg0EFgBDjQU5aSp0-eSqPQGjWE4EpclUkxK2PatwM074whMGCx10RZ2xMUwlh7UKgp8JDOysayzShAVHXskjyKclyiWKd10VnJVcjU3yNJ6VkuxZYF9B8M1Vn0OxjMZLtDFsEExPwgSrFZdZUqzD8MtQKAoEU1z8mK7VSq8Kw-jWUxJkiQFwRMsI-B8GrLHagItrs-rUnkoaRpOdzVJAqsJtrcq-DCIxqtq+qGpM8FoMcYIrREjlHB24i9sy3AwHQCBIAYcawzPCL+IbIzREbRbtAk6KU0oNNFngq0xybL6cyofa-oBoGQcY-ynAkhsx2h+qJICUKTNsCJWPYptmx+GqfEx2TaFkVAIEUgm-J6KxQX+AIQgFlsYZMHsRKC1lwtMOw8LMe1evfb6qGkMBSIUWBlGc4HTp886wbayHxOhpZbAk+HGUF2ZBxmHxpoEq02c-MB6Hwf7FFwWBiFQdXcFIuAwEUPXvIYvmtICWx-Cdq1gnmB3ood-wkKMDs5rCfQXZdJEGGyPIikXeUuBVPgCtyHhecmhBOyMaY4rZFMDDmaaTOfYxQQtxDzFalKBXQWRAfgVo0t2sAQxK2sUJ8VCJLvLqLbi6xnAi7Pc3oCfDaY8SrGMR807wrsxyMSWbv+Rm2JCSJLTX7HMuozfQaY7xDAi8wx05dGwhMuY71HFseQGRSm+IiWM5LkQOs5R+hMeiQlYrXF82g04r30DTHSbEXxrD0HoTkr5BQqzAY5XGgMIDQIjt8aw-Zljk1elTGe1s4rTHBGOASN17zAPwaA2SON-okLIdXBYdgY4pjjiEBYjUvjaX7BgoETccFp1vpQDmXMH6gUnmecSksmwp3bBxGYbFAh4NHqrSg6tNakG1qos6T9-ILzrrbRwMYIgnyan8FsnZEHzHKksRRbswAe3QF7H2fswAByDoofhF0d5Ix3g4GwIIErRQ7CyBOcwLbQ15DEGIQA */
+  /** @xstate-layout N4IgpgJg5mDOIC5QDcCWsCuBDANqgXmAE4AEAtlgMYAWqAdmAHSoQ5gDEAIgEoCCA6gH0AygBVe3UQG0ADAF1EoAA4B7WKgAuqFXUUgAHogCsATgDsjEwEYALFZkBmAEw2HDswDYjAGhABPRCsrEwdGGwAOG1cZExszB3CzAF8k3zRMXAJicipaBmZWDgBhAAleADkAcQBRQWqAGWqAWWry0REygAVq2QUkEFV1LR09QwRTC2s7Rxc3Tx9-RCcZGUYzGxNzCJkzMydzFLT0bDxCUgoaeiYWNi4+SpFxSV69Qc1tXX6xictbe2dXO4vL4AggrEYnFZGOCPAkEjIjGZwlZDiB0icsudclcCrdhA1qkVRNVOHVGi02sJGJwCcSXv03sNPqBvuZftMAXNgYsEA4jFD7CEnOEjA4ZE4jAjUejMmccpd8jcOPjGkSSWTmq1RFSigB5ToATXpyjU7xGX2MbKm-1mQIWoLiNkY-KMrt2ko8Nn20uOsuyFzy10K7BVhOJpIJFO1jE6vDEPXkr1NTNGlsmfxmgPmIOMZlWJg8iRiTniEqcPoyp392MVwaauoAqvjBPWAGoJvomoYfVO8sxQmyi2wrRwrT058YIsJTCEmSFGZEVjFygM4pXsACSwg1UY6vG6ggAYhuABrq0S6yqVRrGgbJnsW8ZWjOcu0TjyxRjuDYi-ZmEzhLES5+liCpBniBJqhG5JajqDbSImDL3uaLJpuyNpZtyoL-qs4TCjEKxWB4EoODYwFVqBga4sUZRVLUkZaoI+qiBuurlMIt6Mg+qFPumHK2tmPKxAKiRRO4CS7K45GYvKVEQEQWAAO70FAdwCJxyHMgYiBzlCOwIhK6xekYXoToKRiMOEMg2J6Vl5qKETSSuNZMPJSkqWpQitJwGndih2lgvYHjQv+BYeHsMjEf2ZlzIwHhWHsNgzG4VlkakaK+hRsk4m5yl0KpPACHU5Q+VYnZ3n5WljEEkUhZsHjhcsUVWGZ9h8QiAE2XhRFOdWYGMLlHk0o0xIiJBLFsb5ZpVYEQV1WFEXNWZkJOpCMSJHmMjIkYHi9ZROUKVAUBDfcU0po+IROkil17JEsKbGZXqhHEhbBKRc5SulMpZau+RuUdJ28A83lndxAU1cFCX1Y1kUli1PLgrYlh-l4fJON+Rh7dlf0KYpJBgHQECQOwoP+dVsROHFG0xFYZaQuErXOIwjgmOt4mwhCWO-a5h344TxOkzNYLheEcURPEBb1XOZhma6lPhHhsSRfpKxpUclYydzjA4CoWAQB5gu9sKUIOOFwSRTVMjgvaiAeCscWxAuCThIWDhWOEXMuYwSjEOosBaPlJOIV2029sEXpU7sNN0+7E7ItOmwK56SJ-OWX2ZZrXtgGwZAExoJCwNQWA+yQRBwGAGhB+VXFk4EIti4kDiS5LJatTEYTDoWgGSoknv9eupQVDUggAFq6rqTSG4+omWKz6xznE7jw6CAC0fJhJEsSkVbVvWCiqJ0CoRPwP032Z2BSaVb2K8eBOK+05TnUhABTgrdYDh91RSqX6Hj5eo-bh4qkXdqYfY75aqxEHIie6kR+SfwOu5fKP9zo8RMIiaE1hYS-ldAuJwy1+TQk9DEEyVt1iingTjLAAMkFISvhdEyzNWb2HdtZBWBZZYEIVvsEyBYCK7AoTzJSfMiYQGQWDaqSJQjxC6qzTBWw24WFFKzCU0DBxegEQNXmBMRFiNrmCCITolFN0hE4Wy1kOFQi4S7KwaNIRIg0TrPWKldFC1MjyHaoRw52y9IkYUH904a2cv1H2RA-YBygC4o2QQLC7FNgufkexTE2wQAWZmr1iJzmIlbN2Gjs5gFznQfOhdi5gFLuXDQkTHy2CZi4FRqs8zCmSfYSIvwm68PMKzT0KQUhAA */
   createMachine(
     {
       id: "visualizer machine",
@@ -127,6 +139,7 @@ export const visualizerMachine =
           x: 0,
           y: 0,
         },
+        // cursor point in actual canvas size (not viewport)
         currentPoint: {
           x: 0,
           y: 0,
@@ -137,6 +150,7 @@ export const visualizerMachine =
           fill: "transparent",
           strokeWidth: 2,
         },
+        zoom: ZOOM.DEFAULT,
       },
 
       states: {
@@ -200,6 +214,11 @@ export const visualizerMachine =
             CHANGE_ELEMENT_OPTIONS: {
               target: "persisting",
               actions: "assignElementOptions",
+            },
+
+            CHANGE_ZOOM: {
+              target: "persisting",
+              actions: "assignZoom",
             },
           },
         },
@@ -494,6 +513,11 @@ export const visualizerMachine =
               ...context.elementOptions,
               ...event.elementOptions,
             },
+          };
+        }),
+        assignZoom: assign((_, event) => {
+          return {
+            zoom: event.zoom,
           };
         }),
       },
