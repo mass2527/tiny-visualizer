@@ -5,3 +5,11 @@
 body {
   margin: 0;
 }
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
