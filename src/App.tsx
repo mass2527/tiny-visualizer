@@ -68,6 +68,13 @@ function App() {
 
         ctx.clearRect(0, 0, canvasElement.width, canvasElement.height);
 
+        ctx.clearRect(
+          -canvasElement.width * ((1 / context.zoom - 1) / 2),
+          -canvasElement.height * ((1 / context.zoom - 1) / 2),
+          canvasElement.width / context.zoom,
+          canvasElement.height / context.zoom
+        );
+
         // scale for zoom
         ctx.setTransform(context.zoom, 0, 0, context.zoom, 0, 0);
 
