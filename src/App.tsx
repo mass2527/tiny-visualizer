@@ -443,7 +443,16 @@ function App() {
                 >
                   -
                 </button>
-                <span>{Math.round(zoom * 100)}%</span>
+                <button
+                  onClick={() => {
+                    send({
+                      type: "CHANGE_ZOOM",
+                      zoom: 1,
+                    });
+                  }}
+                >
+                  {Math.round(zoom * 100)}%
+                </button>
                 <button
                   type="button"
                   onClick={() => zoomIn(zoom)}
