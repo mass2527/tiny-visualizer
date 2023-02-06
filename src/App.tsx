@@ -66,13 +66,6 @@ function App() {
         const ctx = canvasElement.getContext("2d");
         invariant(ctx);
 
-        ctx.clearRect(
-          -canvasElement.width * ((1 / context.zoom - 1) / 2),
-          -canvasElement.height * ((1 / context.zoom - 1) / 2),
-          canvasElement.width / context.zoom,
-          canvasElement.height / context.zoom
-        );
-
         // scale for zoom
         ctx.setTransform(context.zoom, 0, 0, context.zoom, 0, 0);
 
@@ -88,6 +81,13 @@ function App() {
           ctx.getTransform().d,
           -canvasCenterDifference.x,
           -canvasCenterDifference.y
+        );
+
+        ctx.clearRect(
+          -ctx.getTransform().e / ctx.getTransform().a,
+          -ctx.getTransform().f / ctx.getTransform().d,
+          canvasElement.width / ctx.getTransform().a,
+          canvasElement.height / ctx.getTransform().d
         );
 
         context.elements.forEach((element) => {
