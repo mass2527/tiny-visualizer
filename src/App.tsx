@@ -19,6 +19,7 @@ import {
 import { STROKE_WIDTH_OPTIONS, TOOL_OPTIONS } from "./options";
 
 import {
+  calculateCanvasCenterDifference,
   calculateMousePoint,
   convertToPercent,
   convertToRatio,
@@ -71,7 +72,22 @@ function App() {
 
         ctx.clearRect(0, 0, canvasElement.width, canvasElement.height);
 
+        // scale for zoom
         ctx.setTransform(context.zoom, 0, 0, context.zoom, 0, 0);
+
+        // translation for zoom
+        const canvasCenterDifference = calculateCanvasCenterDifference(
+          canvasElement,
+          context.zoom
+        );
+        ctx.setTransform(
+          ctx.getTransform().a,
+          0,
+          0,
+          ctx.getTransform().d,
+          -canvasCenterDifference.x,
+          -canvasCenterDifference.y
+        );
 
         context.elements.forEach((element) => {
           if (element.draw) {
