@@ -123,18 +123,36 @@ function App() {
 
   usePreventDefaultBrowserZoom();
 
+  const zoomIn = (zoom: VisualizerMachineContext["zoom"]) => {
+    const zoomInPercent = convertToPercent(zoom);
+    const updatedZoom = convertToRatio(zoomInPercent + 10);
+
+    send({
+      type: "CHANGE_ZOOM",
+      zoom: Math.min(updatedZoom, ZOOM.MAXIMUM),
+    });
+  };
+
+  const zoomOut = (zoom: VisualizerMachineContext["zoom"]) => {
+    const zoomInPercent = convertToPercent(zoom);
+    const updatedZoom = convertToRatio(zoomInPercent - 10);
+
+    send({
+      type: "CHANGE_ZOOM",
+      zoom: Math.max(updatedZoom, ZOOM.MINIMUM),
+    });
+  };
+
   useEffect(() => {
     const canvasElement = canvasRef.current;
     invariant(canvasElement);
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.repeat) {
+      if (event.key === "Backspace") {
+        send("SELECTED_ELEMENTS.DELETE");
         return;
       }
 
-      if (event.key === "Backspace") {
-        send("SELECTED_ELEMENTS.DELETE");
-      }
       if (isWithPlatformMetaKey(event)) {
         if (event.key === "c") {
           send("SELECTED_ELEMENTS.COPY");
@@ -145,6 +163,12 @@ function App() {
           });
         } else if (event.key === "x") {
           send("SELECTED_ELEMENTS.CUT");
+        } else if (event.key === "=" || event.key === "+") {
+          event.preventDefault();
+          zoomIn(zoom);
+        } else if (event.key === "-") {
+          event.preventDefault();
+          zoomOut(zoom);
         }
       }
 
@@ -172,7 +196,7 @@ function App() {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, []);
+  }, [zoom]);
 
   useEffect(() => {
     if (elementShape === "selection") {
@@ -385,15 +409,7 @@ function App() {
               <div style={{ display: "flex", pointerEvents: "all" }}>
                 <button
                   type="button"
-                  onClick={() => {
-                    const zoomInPercent = convertToPercent(zoom);
-                    const updatedZoom = convertToRatio(zoomInPercent - 10);
-
-                    send({
-                      type: "CHANGE_ZOOM",
-                      zoom: Math.max(updatedZoom, ZOOM.MINIMUM),
-                    });
-                  }}
+                  onClick={() => zoomOut(zoom)}
                   disabled={zoom === ZOOM.MINIMUM}
                 >
                   -
@@ -401,15 +417,7 @@ function App() {
                 <span>{Math.round(zoom * 100)}%</span>
                 <button
                   type="button"
-                  onClick={() => {
-                    const zoomInPercent = convertToPercent(zoom);
-                    const updatedZoom = convertToRatio(zoomInPercent + 10);
-
-                    send({
-                      type: "CHANGE_ZOOM",
-                      zoom: Math.min(updatedZoom, ZOOM.MAXIMUM),
-                    });
-                  }}
+                  onClick={() => zoomIn(zoom)}
                   disabled={zoom === ZOOM.MAXIMUM}
                 >
                   +
