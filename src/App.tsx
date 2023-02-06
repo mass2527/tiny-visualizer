@@ -117,23 +117,31 @@ function App() {
   );
   const selectedElements = elements.filter((element) => element.isSelected);
 
-  const zoomIn = (zoom: VisualizerMachineContext["zoom"]) => {
-    const zoomInPercent = convertToPercent(zoom);
-    const updatedZoom = convertToRatio(zoomInPercent + 10);
+  const zoomIn = () => {
+    const setZoom = (zoom: VisualizerMachineContext["zoom"]) => {
+      const zoomInPercent = convertToPercent(zoom);
+      const updatedZoom = convertToRatio(zoomInPercent + 10);
+
+      return Math.min(ZOOM.MAXIMUM, updatedZoom);
+    };
 
     send({
       type: "CHANGE_ZOOM",
-      zoom: Math.min(updatedZoom, ZOOM.MAXIMUM),
+      setZoom,
     });
   };
 
-  const zoomOut = (zoom: VisualizerMachineContext["zoom"]) => {
-    const zoomInPercent = convertToPercent(zoom);
-    const updatedZoom = convertToRatio(zoomInPercent - 10);
+  const zoomOut = () => {
+    const setZoom = (zoom: VisualizerMachineContext["zoom"]) => {
+      const zoomInPercent = convertToPercent(zoom);
+      const updatedZoom = convertToRatio(zoomInPercent - 10);
+
+      return Math.max(ZOOM.MINIMUM, updatedZoom);
+    };
 
     send({
       type: "CHANGE_ZOOM",
-      zoom: Math.max(updatedZoom, ZOOM.MINIMUM),
+      setZoom,
     });
   };
 
@@ -147,19 +155,25 @@ function App() {
         const signDeltaY = Math.sign(event.deltaY);
         const absoluteDeltaY = Math.abs(event.deltaY);
 
-        let updatedZoom = zoom - event.deltaY / 100;
-        updatedZoom +=
-          // the bigger zoom is, the slower it will be increased (applied when zoom > 1)
-          Math.log10(Math.max(1, zoom)) *
-          -signDeltaY *
-          Math.min(1, absoluteDeltaY / 20);
+        const setZoom = (zoom: VisualizerMachineContext["zoom"]) => {
+          let updatedZoom = zoom - event.deltaY / 100;
+          updatedZoom +=
+            // the bigger zoom is, the slower it will be increased (applied when zoom > 1)
+            Math.log10(Math.max(1, zoom)) *
+            -signDeltaY *
+            Math.min(1, absoluteDeltaY / 20);
 
-        const isZoomIn = signDeltaY === -1;
+          const isZoomIn = signDeltaY === -1;
+          if (isZoomIn) {
+            return Math.min(ZOOM.MAXIMUM, updatedZoom);
+          } else {
+            return Math.max(ZOOM.MINIMUM, updatedZoom);
+          }
+        };
+
         send({
           type: "CHANGE_ZOOM",
-          zoom: isZoomIn
-            ? Math.min(ZOOM.MAXIMUM, updatedZoom)
-            : Math.max(ZOOM.MINIMUM, updatedZoom),
+          setZoom,
         });
       }
     };
@@ -170,7 +184,7 @@ function App() {
     return () => {
       window.removeEventListener("wheel", handleWheel);
     };
-  }, [zoom]);
+  }, []);
 
   useEffect(() => {
     const canvasElement = canvasRef.current;
@@ -194,10 +208,10 @@ function App() {
           send("SELECTED_ELEMENTS.CUT");
         } else if (event.key === "=" || event.key === "+") {
           event.preventDefault();
-          zoomIn(zoom);
+          zoomIn();
         } else if (event.key === "-") {
           event.preventDefault();
-          zoomOut(zoom);
+          zoomOut();
         }
       }
 
@@ -225,7 +239,7 @@ function App() {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [zoom]);
+  }, []);
 
   useEffect(() => {
     if (elementShape === "selection") {
@@ -438,7 +452,7 @@ function App() {
               <div style={{ display: "flex", pointerEvents: "all" }}>
                 <button
                   type="button"
-                  onClick={() => zoomOut(zoom)}
+                  onClick={() => zoomOut()}
                   disabled={zoom === ZOOM.MINIMUM}
                 >
                   -
@@ -447,7 +461,7 @@ function App() {
                   onClick={() => {
                     send({
                       type: "CHANGE_ZOOM",
-                      zoom: 1,
+                      setZoom: () => 1,
                     });
                   }}
                 >
@@ -455,7 +469,7 @@ function App() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => zoomIn(zoom)}
+                  onClick={() => zoomIn()}
                   disabled={zoom === ZOOM.MAXIMUM}
                 >
                   +

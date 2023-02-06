@@ -103,7 +103,9 @@ export type VisualizerMachineEvents =
     }
   | {
       type: "CHANGE_ZOOM";
-      zoom: VisualizerMachineContext["zoom"];
+      setZoom: (
+        zoom: VisualizerMachineContext["zoom"]
+      ) => VisualizerMachineContext["zoom"];
     };
 
 // zoom in ratio
@@ -535,9 +537,9 @@ export const visualizerMachine =
             },
           };
         }),
-        assignZoom: assign((_, event) => {
+        assignZoom: assign((context, event) => {
           return {
-            zoom: event.zoom,
+            zoom: event.setZoom(context.zoom),
           };
         }),
       },
