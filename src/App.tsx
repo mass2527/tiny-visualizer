@@ -4,11 +4,7 @@ import invariant from "tiny-invariant";
 import { assign } from "xstate";
 import ColorPicker from "./components/ColorPicker";
 import Radio from "./components/Radio";
-import {
-  useDevicePixelRatio,
-  usePreventDefaultBrowserZoom,
-  useWindowSize,
-} from "./hooks";
+import { useDevicePixelRatio, useWindowSize } from "./hooks";
 
 import {
   visualizerMachine,
@@ -121,8 +117,6 @@ function App() {
   );
   const selectedElements = elements.filter((element) => element.isSelected);
 
-  usePreventDefaultBrowserZoom();
-
   const zoomIn = (zoom: VisualizerMachineContext["zoom"]) => {
     const zoomInPercent = convertToPercent(zoom);
     const updatedZoom = convertToRatio(zoomInPercent + 10);
@@ -142,6 +136,41 @@ function App() {
       zoom: Math.max(updatedZoom, ZOOM.MINIMUM),
     });
   };
+
+  useEffect(() => {
+    const handleWheel = (event: WheelEvent) => {
+      event.preventDefault();
+
+      // window - pressing ctrlKey with wheel result in zooming
+      // mac - event.ctrlKey is automatically true when pinch with two fingers on track pad
+      if (event.ctrlKey) {
+        const signDeltaY = Math.sign(event.deltaY);
+        const absoluteDeltaY = Math.abs(event.deltaY);
+
+        let updatedZoom = zoom - event.deltaY / 100;
+        updatedZoom +=
+          // the bigger zoom is, the slower it will be increased (applied when zoom > 1)
+          Math.log10(Math.max(1, zoom)) *
+          -signDeltaY *
+          Math.min(1, absoluteDeltaY / 20);
+
+        const isZoomIn = signDeltaY === -1;
+        send({
+          type: "CHANGE_ZOOM",
+          zoom: isZoomIn
+            ? Math.min(ZOOM.MAXIMUM, updatedZoom)
+            : Math.max(ZOOM.MINIMUM, updatedZoom),
+        });
+      }
+    };
+
+    window.addEventListener("wheel", handleWheel, {
+      passive: false,
+    });
+    return () => {
+      window.removeEventListener("wheel", handleWheel);
+    };
+  }, [zoom]);
 
   useEffect(() => {
     const canvasElement = canvasRef.current;
