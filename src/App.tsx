@@ -66,8 +66,6 @@ function App() {
         const ctx = canvasElement.getContext("2d");
         invariant(ctx);
 
-        ctx.clearRect(0, 0, canvasElement.width, canvasElement.height);
-
         ctx.clearRect(
           -canvasElement.width * ((1 / context.zoom - 1) / 2),
           -canvasElement.height * ((1 / context.zoom - 1) / 2),
