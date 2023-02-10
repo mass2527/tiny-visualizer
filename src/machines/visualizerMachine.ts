@@ -574,37 +574,37 @@ export const visualizerMachine =
           };
         }),
         assignZoom: assign((context, { setZoom, canvasElement }) => {
-          const updatedZoom = getNormalizedZoom(setZoom(context.zoom));
+          const normalizedZoom = getNormalizedZoom(setZoom(context.zoom));
           const targetPoint = {
             x: canvasElement.width / 2,
             y: canvasElement.height / 2,
           };
 
           return {
-            zoom: updatedZoom,
+            zoom: normalizedZoom,
             origin: {
               x:
                 context.origin.x -
-                (targetPoint.x * updatedZoom - targetPoint.x * context.zoom),
+                (targetPoint.x * normalizedZoom - targetPoint.x * context.zoom),
               y:
                 context.origin.y -
-                (targetPoint.y * updatedZoom - targetPoint.y * context.zoom),
+                (targetPoint.y * normalizedZoom - targetPoint.y * context.zoom),
             },
           };
         }),
         assignZoomToCurrentPoint: assign((context, { setZoom }) => {
-          const updatedZoom = getNormalizedZoom(setZoom(context.zoom));
+          const normalizedZoom = getNormalizedZoom(setZoom(context.zoom));
 
           return {
-            zoom: updatedZoom,
+            zoom: normalizedZoom,
             origin: {
               x:
                 context.origin.x -
-                (context.currentPoint.x * updatedZoom -
+                (context.currentPoint.x * normalizedZoom -
                   context.currentPoint.x * context.zoom),
               y:
                 context.origin.y -
-                (context.currentPoint.y * updatedZoom -
+                (context.currentPoint.y * normalizedZoom -
                   context.currentPoint.y * context.zoom),
             },
           };
