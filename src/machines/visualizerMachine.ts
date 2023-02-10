@@ -583,12 +583,8 @@ export const visualizerMachine =
           return {
             zoom: normalizedZoom,
             origin: {
-              x:
-                context.origin.x -
-                (targetPoint.x * normalizedZoom - targetPoint.x * context.zoom),
-              y:
-                context.origin.y -
-                (targetPoint.y * normalizedZoom - targetPoint.y * context.zoom),
+              x: -(targetPoint.x * normalizedZoom - targetPoint.x),
+              y: -(targetPoint.y * normalizedZoom - targetPoint.y),
             },
           };
         }),
