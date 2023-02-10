@@ -150,6 +150,11 @@ function App() {
           type: "CHANGE_ZOOM_WITH_PINCH",
           setZoom,
         });
+      } else {
+        send({
+          type: "PAN",
+          event,
+        });
       }
     };
 

@@ -119,6 +119,10 @@ export type VisualizerMachineEvents =
       setZoom: (
         zoom: VisualizerMachineContext["zoom"]
       ) => VisualizerMachineContext["zoom"];
+    }
+  | {
+      type: "PAN";
+      event: WheelEvent;
     };
 
 // zoom in ratio
@@ -129,7 +133,7 @@ export const ZOOM = {
 } as const;
 
 export const visualizerMachine =
-  /** @xstate-layout N4IgpgJg5mDOIC5QDcCWsCuBDANqgXmAE4AEAtlgMYAWqAdmAHSoQ5gDEAIgEoCCA6gH0AygBVe3UQG0ADAF1EoAA4B7WKgAuqFXUUgAHogCsATgDsjEwEYALFZkBmAEw2HDswDYjAGhABPRCsrEwdGGwAOG1cZExszB3CzAF8k3zRMXAJicipaBmZWDgBhAAleADkAcQBRQWqAGWqAWWry0REygAVq2QUkEFV1LR09QwRTC2s7Rxc3Tx9-RCcZGUYzGxNzCJkzMydzFLT0bDxCUgoaeiYWNi4+SpFxSV69Qc1tXX6xictbe2dXO4vL4AggrEYnFZGOCPAkEjIjGZwlZDiB0icsudclcCrdhA1qkVRNVOHVGi02sJGJwCcSXv03sNPqBvuZftMAXNgYsEA4jFD7CEnOEjA4ZE4jAjUejMmccpd8jcOPjGkSSWTmq1RFSigB5ToATXpyjU7xGX2MbKm-1mQIWoLiNkY-KMrt2ko8Nn20uOsuyFzy10K7BVhOJpIJFO1jE6vDEPXkr1NTNGlsmfxmgPmIOMZlWJg8iRiTniEqcPoyp392MVwaauoAqvjBPWAGoJvomoYfVO8sxQmyi2wrRwrT058YIsJTCEmSFGZEVjFygM4pXsACSwg1UY6vG6ggAYhuABrq0S6yqVRrGgbJnsW8ZWjOcu0TjyxRjuDYi-ZmEzhLES5+liCpBniBJqhG5JajqDbSImDL3uaLJpuyNpZtyoL-qs4TCjEKxWB4EoODYwFVqBga4sUZRVLUkZaoI+qiBuurlMIt6Mg+qFPumHK2tmPKxAKiRRO4CS7K45GYvKVHrqUFQ1IIABauq6k0nHIcyBiIKJlgmDsGwuPE-YTgAtHyYSRLEpEyPYwRBNJK41uBNGKbUqnqYI-AbqIJSCJ0G7lKUmndihOkIOECRfokRiDrEkqmFY5nLE4zqkVYGUeDEmXEU51ZgYwEBEFgADu9BQHcAihWa2ljHOUI7AiErrF6cVOBOgpGIw4QyDYnq9XmooRPllE4sVZUVVVQitJwNUpo+QSItCnqulYuwSnYnWkaE-X9nO-ZOA41ijbJ40leVdCVTwAh1OUc1WJ2d5hXVgRWJCjCFjIxH7AZyJmPagQxKEHieIBCIigZUSnau+QTZd120rUoZEqx5TzdxEVBN90L-gWoPLMRpk8u9tiMJCMSJHmMjIkYHgwy5RUlVAUBTTdlQY+F9WkWsgGkXskSwpsnVertYPBKRc5SqkaK+hRZ1w8zrNXVVDyzZzr1gvYHi45sHgE99JbJST-JOnO5heHyR3rEYDOFfDJBgHQECQOwGu9sEXqfVTOVlpC4SdZlaWOAZAHibCEJ21RE1QI7zuu+7i2g+En0RPEBZ6wdnWuml4R4bE31NSsZEyzK8uw0wOAqFgEBTYnPHClCDig8E33Y3Zrrvisn0JVFeeFg4VjhFHOJKMQ6iwFoKv11jsRpYWuy+xC-sTsi06bP3cTInY5al3LMkV4wYBsGQTsaCQsDUFgY8kEQcBgBobuIV2tUe8nqeJMdH4ZyWgcxGEw5CyAUlIkFIMs6AqBdvAfoZcD4uSTC9XsZkPApQMowRwdgIiemCMJEetY2AINfo+L0aUQjN0ynYSG+wu461iIOREQtIj8jwUweGFVCELR4iYZaDlYS-ldAuDqJMJQCk9DEOKdkbYOBYUzLALN2FIUQY+bhToCL2V6hEQCKCTb8h6vnOKBYCK7BkQ7J2LsIAcMxmMdaUU1ikULKHIiWw-4WFFAZCUDDBxehMczOO5jLFc0CBEJ0bjjqQicANPq2ddF52FB4TKy8bEyKrjXBRL9OERS9BOOmoRPbZS9IkYU0i96VjgYVMeRAJ5TygAEzWkJ1prHiF4EU60nARMBggAs6DCxEX2BE5YmUUQlOXAVKix8wCnzoOfS+18wC33vhoWpHtXBpRcB44ueZhQdPsJEX4x1DHmAMp6MBSQgA */
+  /** @xstate-layout N4IgpgJg5mDOIC5QDcCWsCuBDANqgXmAE4AEAtlgMYAWqAdmAHSoQ5gDEAIgEoCCA6gH0AygBVe3UQG0ADAF1EoAA4B7WKgAuqFXUUgAHogCsATgDsjEwEYALFZkBmAEw2HDswDYjAGhABPRCsrEwdGGwAOG1cZExszB3CzAF8k3zRMXAJicipaBmZWDgBhAAleADkAcQBRQWqAGWqAWWry0REygAVq2QUkEFV1LR09QwRTC2s7Rxc3Tx9-RCcZGUYzGxNzCJkzMydzFLT0bDxCUgoaeiYWNi4+SpFxSV69Qc1tXX6xictbe2dXO4vL4AggrEYnFZGOCPAkEjIjGZwlZDiB0icsudclcCrdhA1qkVRNVOHVGi02sJGJwCcSXv03sNPqBvuZftMAXNgYsEA4jFD7CEnOEjA4ZE4jAjUejMmccpd8jcOPjGkSSWTmq1RFSigB5ToATXpyjU7xGX2MbKm-1mQIWoLiNkY-KMrt2ko8Nn20uOsuyFzy10K7BVhOJpIJFO1jE6vDEPXkr1NTNGlsmfxmgPmIOMZlWJg8iRiTniEqcPoyp392MVwaauoAqvjBPWAGoJvomoYfVO8sxQmyi2wrRwrT058YIsJTCEmSFGZEVjFygM4pXsACSwg1UY6vG6ggAYhuABrq0S6yqVRrGgbJnsW8ZWjOcu0TjyxRjuDYi-ZmEzhLES5+liCpBniBJqhG5JajqDbSImDL3uaLJpuyNpZtyoL-qs4TCjEKxWB4EoODYwFVqBga4sUZRVLUkZaoI+qiBuurlMIt6Mg+qFPumHK2tmPKxAKiRRO4CS7K45GYvKVHrqUFQ1IIABauq6k0nHIcyBiIKJlgmDsGwuPE-YTgAtHyYSRLEpEyPYwRBNJK41uBNGKbUqnqYI-AbqIJSCJ0G7lKUmndihOkIOECRfokRiDrEkqmFY5nLE4zqkVYGUeDEmXEU51ZgYwEBEFgADu9BQHcAihWa2ljHOUI7AiErrF6cVOBOgpGIw4QyDYnq9XmooRPllE4sVZUVVVQitJwNUpo+QSItCnqulYuwSnYnWkaE-X9nO-ZOA41ijbJ40leVdCVTwAh1OUc1WJ2d5hXVgRWJCjCFjIxH7AZyJmPagQxKEHieIBCIigZUSnau+QTZd120rUoZEqx5TzdxEVBN90L-gWoPLMRpk8u9tiMJCMSJHmMjIkYHgwy5RUlVAUBTTdlQY+F9WkWsgGkXskSwpsnVertYPBKRc5SqkaK+hRZ1w8zrNXVVDyzZzr1gvYHi45sHgE99JbJST-JOnO5heHyR3rEYDOFfDJBgHQECQOwGu9sEXqfVTOVlpC4SdZlaWOAZAHibCEJ21RE1QI7zuu+7i2g+En0RPEBZ6wdnWuml4R4bE31NSsZEyzK8uw0wOAqFgEBTYnPHClCDig8E33Y3Zrrvisn0JVFeeFg4VjhFHOJKMQ6iwFoKv11jsRpYWuy+xC-sTsi06bP3cTInY5al3LMkV4wYBsGQTsaCQsDUFgY8kEQcBgBobuIV2tUe8nqeJMdH4ZyWgcxGEw5CyAUlIkEetZbixnRs-Z6r9Hx6T+oZWImxwQBx5BZdaK054LicPrCUw9UR0BUC7eA-Qy4HxckmF6vYzIeHMjYPqn0PzRBiEiDuYDXKUNgTxL0aUQjN0ynYSG+wu461iIOREQtIj8nYUzSaV1OELR4iYZaDlYS-ldNgzqEoBSehiHFOyNsHAyJjsrKACjMb1TiowAi9leoREArQk2-Ier5zigWAiuxjEXTji7CA5iuaBCRKEeI-VwbWA-OsP+FhRQGQlBIwcXovFYFjk7Xx-jNa2EiOlEIDUcHbBsNnZxedhQeEysvda+CjiVnIYVKuNcKrpN7F6CcdNQie2yl6RIwojF72qc5QqY8iATynmYpCVDHyQgwbsZuC5+R7BwYDBABZrGFiIvsHByxMool6cuAqVFj5gFPnQc+l9r5gFvvfDQjTFquDSi4OJxc8zCkWfYLJ1hjruPMAZT0KQUhAA */
   createMachine(
     {
       id: "visualizer machine",
@@ -244,6 +248,11 @@ export const visualizerMachine =
             CHANGE_ZOOM_WITH_PINCH: {
               target: "persisting",
               actions: ["assignZoomToCurrentPoint", "drawElements"],
+            },
+
+            PAN: {
+              target: "persisting",
+              actions: ["assignOrigin", "drawElements"],
             },
           },
         },
@@ -602,6 +611,14 @@ export const visualizerMachine =
                 context.origin.y -
                 (context.currentPoint.y * normalizedZoom -
                   context.currentPoint.y * context.zoom),
+            },
+          };
+        }),
+        assignOrigin: assign((context, { event }) => {
+          return {
+            origin: {
+              x: context.origin.x - event.deltaX,
+              y: context.origin.y - event.deltaY,
             },
           };
         }),

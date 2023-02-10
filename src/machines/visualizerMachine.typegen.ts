@@ -19,6 +19,7 @@ export interface Typegen0 {
     assignCurrentPoint: "MOUSE_MOVE";
     assignDragStartPoint: "DRAG_START";
     assignElementOptions: "CHANGE_ELEMENT_OPTIONS";
+    assignOrigin: "PAN";
     assignZoom: "CHANGE_ZOOM";
     assignZoomToCurrentPoint: "CHANGE_ZOOM_WITH_PINCH";
     changeElementShape: "CHANGE_ELEMENT_SHAPE";
@@ -40,6 +41,7 @@ export interface Typegen0 {
       | "DRAW"
       | "DRAW_END"
       | "DRAW_START"
+      | "PAN"
       | "SELECTED_ELEMENTS.CUT"
       | "SELECTED_ELEMENTS.DELETE"
       | "SELECTED_ELEMENTS.PASTE"
@@ -53,6 +55,7 @@ export interface Typegen0 {
       | "CHANGE_ZOOM"
       | "CHANGE_ZOOM_WITH_PINCH"
       | "IS_ELEMENT_SHAPE_FIXED_TOGGLE"
+      | "PAN"
       | "SELECTED_ELEMENTS.COPY"
       | "SELECTED_ELEMENTS.CUT"
       | "SELECTED_ELEMENTS.DELETE"
