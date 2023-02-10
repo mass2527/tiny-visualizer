@@ -107,31 +107,13 @@ function App() {
   );
   const selectedElements = elements.filter((element) => element.isSelected);
 
-  const zoomIn = () => {
+  const updateZoom = (change: number) => {
     const canvasElement = canvasRef.current;
     invariant(canvasElement);
 
     const setZoom = (zoom: VisualizerMachineContext["zoom"]) => {
       const zoomInPercent = convertToPercent(zoom);
-      const updatedZoom = convertToRatio(zoomInPercent + 10);
-
-      return updatedZoom;
-    };
-
-    send({
-      type: "CHANGE_ZOOM",
-      setZoom,
-      canvasElement,
-    });
-  };
-
-  const zoomOut = () => {
-    const canvasElement = canvasRef.current;
-    invariant(canvasElement);
-
-    const setZoom = (zoom: VisualizerMachineContext["zoom"]) => {
-      const zoomInPercent = convertToPercent(zoom);
-      const updatedZoom = convertToRatio(zoomInPercent - 10);
+      const updatedZoom = convertToRatio(zoomInPercent + change);
 
       return updatedZoom;
     };
@@ -201,10 +183,10 @@ function App() {
           send("SELECTED_ELEMENTS.CUT");
         } else if (event.key === "=" || event.key === "+") {
           event.preventDefault();
-          zoomIn();
+          updateZoom(10);
         } else if (event.key === "-") {
           event.preventDefault();
-          zoomOut();
+          updateZoom(-10);
         }
       }
 
@@ -450,7 +432,7 @@ function App() {
               <div style={{ display: "flex", pointerEvents: "all" }}>
                 <button
                   type="button"
-                  onClick={() => zoomOut()}
+                  onClick={() => updateZoom(-10)}
                   disabled={zoom === ZOOM.MINIMUM}
                 >
                   -
@@ -471,7 +453,7 @@ function App() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => zoomIn()}
+                  onClick={() => updateZoom(10)}
                   disabled={zoom === ZOOM.MAXIMUM}
                 >
                   +
