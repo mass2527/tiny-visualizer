@@ -12,6 +12,7 @@ import {
   isIntersecting,
   Point,
 } from "../utils";
+import debounce from "lodash.debounce";
 
 export type VisualizerElement = {
   id: string;
@@ -490,13 +491,13 @@ export const visualizerMachine =
             dragStartPoint: currentPoint,
           };
         }),
-        persist: (context) => {
+        persist: debounce((context) => {
           try {
             localStorage.setItem("context", JSON.stringify(context));
           } catch (error) {
             console.error(error);
           }
-        },
+        }, 300),
         deleteSelectedElements: assign((context, event) => {
           return {
             elements: context.elements.filter((element) => !element.isSelected),
