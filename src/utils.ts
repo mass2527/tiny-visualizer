@@ -5,6 +5,7 @@ import { Drawable } from "roughjs/bin/core";
 import {
   VisualizerElement,
   VisualizerMachineContext,
+  ZOOM,
 } from "./machines/visualizerMachine";
 
 // https://stackoverflow.com/questions/17130395/real-mouse-position-in-canvas
@@ -12,33 +13,20 @@ export const calculateMousePoint = ({
   canvasElement,
   event,
   zoom,
+  origin,
 }: {
   canvasElement: HTMLCanvasElement;
   event: Parameters<MouseEventHandler<HTMLCanvasElement>>[0];
   zoom: VisualizerMachineContext["zoom"];
+  origin: VisualizerMachineContext["origin"];
 }) => {
   const rect = canvasElement.getBoundingClientRect();
   const scaleX = canvasElement.width / rect.width; // relationship bitmap vs. element for x
   const scaleY = canvasElement.height / rect.height; // relationship bitmap vs. element for y
 
-  const canvasCenterDifference = calculateCanvasCenterDifference(
-    canvasElement,
-    zoom
-  );
-
   return {
-    x: ((event.clientX - rect.left) * scaleX + canvasCenterDifference.x) / zoom,
-    y: ((event.clientY - rect.top) * scaleY + canvasCenterDifference.y) / zoom,
-  };
-};
-
-export const calculateCanvasCenterDifference = (
-  canvasElement: HTMLCanvasElement,
-  zoom: VisualizerMachineContext["zoom"]
-) => {
-  return {
-    x: (canvasElement.width / 2) * (zoom - 1),
-    y: (canvasElement.height / 2) * (zoom - 1),
+    x: ((event.clientX - rect.left) * scaleX - origin.x) / zoom,
+    y: ((event.clientY - rect.top) * scaleY - origin.y) / zoom,
   };
 };
 
@@ -255,4 +243,8 @@ export const convertToPercent = (ratio: number) => {
 
 export const convertToRatio = (percent: number) => {
   return percent / 100;
+};
+
+export const getNormalizedZoom = (zoom: VisualizerMachineContext["zoom"]) => {
+  return Math.max(ZOOM.MINIMUM, Math.min(zoom, ZOOM.MAXIMUM));
 };

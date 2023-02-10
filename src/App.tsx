@@ -15,7 +15,6 @@ import {
 import { STROKE_WIDTH_OPTIONS, TOOL_OPTIONS } from "./options";
 
 import {
-  calculateCanvasCenterDifference,
   calculateMousePoint,
   convertToPercent,
   convertToRatio,
@@ -66,31 +65,13 @@ function App() {
         const ctx = canvasElement.getContext("2d");
         invariant(ctx);
 
-        // scale for zoom
-        ctx.setTransform(context.zoom, 0, 0, context.zoom, 0, 0);
-
-        // translation for zoom
-        const canvasCenterDifference = calculateCanvasCenterDifference(
-          canvasElement,
-          context.zoom
-        );
-        ctx.setTransform(
-          ctx.getTransform().a,
-          0,
-          0,
-          ctx.getTransform().d,
-          -canvasCenterDifference.x,
-          -canvasCenterDifference.y
-        );
-
-        ctx.clearRect(
-          -ctx.getTransform().e / ctx.getTransform().a,
-          -ctx.getTransform().f / ctx.getTransform().d,
-          canvasElement.width / ctx.getTransform().a,
-          canvasElement.height / ctx.getTransform().d
-        );
+        ctx.clearRect(0, 0, canvasElement.width, canvasElement.height);
 
         context.elements.forEach((element) => {
+          ctx.save();
+          ctx.translate(context.origin.x, context.origin.y);
+          ctx.scale(context.zoom, context.zoom);
+
           if (element.draw) {
             element.draw();
           }
@@ -105,6 +86,8 @@ function App() {
             );
             ctx.setLineDash([]);
           }
+
+          ctx.restore();
         });
       },
     },
@@ -116,37 +99,47 @@ function App() {
     isElementShapeFixed,
     elementOptions,
     zoom,
+    origin,
   } = state.context;
+
   const drawingElement = elements.find(
     (element) => element.id === drawingElementId
   );
   const selectedElements = elements.filter((element) => element.isSelected);
 
   const zoomIn = () => {
+    const canvasElement = canvasRef.current;
+    invariant(canvasElement);
+
     const setZoom = (zoom: VisualizerMachineContext["zoom"]) => {
       const zoomInPercent = convertToPercent(zoom);
       const updatedZoom = convertToRatio(zoomInPercent + 10);
 
-      return Math.min(ZOOM.MAXIMUM, updatedZoom);
+      return updatedZoom;
     };
 
     send({
       type: "CHANGE_ZOOM",
       setZoom,
+      canvasElement,
     });
   };
 
   const zoomOut = () => {
+    const canvasElement = canvasRef.current;
+    invariant(canvasElement);
+
     const setZoom = (zoom: VisualizerMachineContext["zoom"]) => {
       const zoomInPercent = convertToPercent(zoom);
       const updatedZoom = convertToRatio(zoomInPercent - 10);
 
-      return Math.max(ZOOM.MINIMUM, updatedZoom);
+      return updatedZoom;
     };
 
     send({
       type: "CHANGE_ZOOM",
       setZoom,
+      canvasElement,
     });
   };
 
@@ -168,16 +161,11 @@ function App() {
             -signDeltaY *
             Math.min(1, absoluteDeltaY / 20);
 
-          const isZoomIn = signDeltaY === -1;
-          if (isZoomIn) {
-            return Math.min(ZOOM.MAXIMUM, updatedZoom);
-          } else {
-            return Math.max(ZOOM.MINIMUM, updatedZoom);
-          }
+          return updatedZoom;
         };
 
         send({
-          type: "CHANGE_ZOOM",
+          type: "CHANGE_ZOOM_WITH_PINCH",
           setZoom,
         });
       }
@@ -258,7 +246,12 @@ function App() {
     const canvasElement = canvasRef.current;
     invariant(canvasElement);
 
-    const mousePoint = calculateMousePoint({ canvasElement, event, zoom });
+    const mousePoint = calculateMousePoint({
+      canvasElement,
+      event,
+      zoom,
+      origin,
+    });
 
     if (
       elementShape === "selection" &&
@@ -464,9 +457,13 @@ function App() {
                 </button>
                 <button
                   onClick={() => {
+                    const canvasElement = canvasRef.current;
+                    invariant(canvasElement);
+
                     send({
                       type: "CHANGE_ZOOM",
                       setZoom: () => 1,
+                      canvasElement,
                     });
                   }}
                 >

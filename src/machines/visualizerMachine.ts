@@ -8,6 +8,7 @@ import {
   calculateElementsAbsolutePoint,
   calculateMousePoint,
   generateDraw,
+  getNormalizedZoom,
   isIntersecting,
   Point,
 } from "../utils";
@@ -35,6 +36,11 @@ export type VisualizerMachineContext = {
   isElementShapeFixed: boolean;
   elementOptions: Options;
   zoom: number;
+
+  origin: {
+    x: number;
+    y: number;
+  };
 };
 
 export type VisualizerMachineEvents =
@@ -106,6 +112,13 @@ export type VisualizerMachineEvents =
       setZoom: (
         zoom: VisualizerMachineContext["zoom"]
       ) => VisualizerMachineContext["zoom"];
+      canvasElement: HTMLCanvasElement;
+    }
+  | {
+      type: "CHANGE_ZOOM_WITH_PINCH";
+      setZoom: (
+        zoom: VisualizerMachineContext["zoom"]
+      ) => VisualizerMachineContext["zoom"];
     };
 
 // zoom in ratio
@@ -116,7 +129,7 @@ export const ZOOM = {
 } as const;
 
 export const visualizerMachine =
-  /** @xstate-layout N4IgpgJg5mDOIC5QDcCWsCuBDANqgXmAE4AEAtlgMYAWqAdmAHSoQ5gDEAIgEoCCA6gH0AygBVe3UQG0ADAF1EoAA4B7WKgAuqFXUUgAHogCsATgDsjEwEYALFZkBmAEw2HDswDYjAGhABPRCsrEwdGGwAOG1cZExszB3CzAF8k3zRMXAJicipaBmZWDgBhAAleADkAcQBRQWqAGWqAWWry0REygAVq2QUkEFV1LR09QwRTC2s7Rxc3Tx9-RCcZGUYzGxNzCJkzMydzFLT0bDxCUgoaeiYWNi4+SpFxSV69Qc1tXX6xictbe2dXO4vL4AggrEYnFZGOCPAkEjIjGZwlZDiB0icsudclcCrdhA1qkVRNVOHVGi02sJGJwCcSXv03sNPqBvuZftMAXNgYsEA4jFD7CEnOEjA4ZE4jAjUejMmccpd8jcOPjGkSSWTmq1RFSigB5ToATXpyjU7xGX2MbKm-1mQIWoLiNkY-KMrt2ko8Nn20uOsuyFzy10K7BVhOJpIJFO1jE6vDEPXkr1NTNGlsmfxmgPmIOMZlWJg8iRiTniEqcPoyp392MVwaauoAqvjBPWAGoJvomoYfVO8sxQmyi2wrRwrT058YIsJTCEmSFGZEVjFygM4pXsACSwg1UY6vG6ggAYhuABrq0S6yqVRrGgbJnsW8ZWjOcu0TjyxRjuDYi-ZmEzhLES5+liCpBniBJqhG5JajqDbSImDL3uaLJpuyNpZtyoL-qs4TCjEKxWB4EoODYwFVqBga4sUZRVLUkZaoI+qiBuurlMIt6Mg+qFPumHK2tmPKxAKiRRO4CS7K45GYvKVHrqUFQ1IIABauq6k0nHIcyBiIKJlgmDsGwuPE-YTgAtHyYSRLEpEyPYwRBNJK41kwEBEFgADu9BQHcAiad2KE6Qgc5QjsCISusXpGF6E6CkYjDhDINieoleaihETnVmBjBuZ53m+UIrScP5ZraWMQSItCnqulYuwSnYsWkaEyX9nO-ZOA41iZZROK5V5dA+TwAh1OUxVWJ2d4BWVgRWJCjCFjIxH7AZyJmPagQxKEHieIBCIigZUTdbJvXuf1g20rUoZEqx5QlSmj5BIt0L-gW23LMRpk8rNtiMJCMSJHmMjIkYHhHau+S5VAUD5UNlR3dxQUhE6SJI3skSwpssVes1O3BKRc5SqkaK+hRx0Q+5UMw-cI3FYhXalb2j0eM9mweG9i0llYsX8k6c7mF4fIdesRhgy5OWnSQYB0BAkDsPDgXlbETjzQDMSzRCkLhLFVjOIwjgGQB4mwhCovZZDkvS7L8vTWC23hPNETxAWrNtdzEIJXhsSLWFKxkUTMqk+DTA4CoWAQPl1u9sKUIONtwSLY9dmuu+KzzbEC4JOEhYOFY4Sm1RSjEOosBaANct05NDMPUrKu7GrZaaxOyLTps4RZ3EyJ2OW-skzJQeMGAbBkFLGgkLA1BYIXJBEHAYAaOXE1cQrgR2w7iSdR+zsltrMRhMOhaAZKiQpETdAqDL8D9AHfcuUmU29mZHjmbNysARsUSQnspGIvna6FHfVceJelfm4DwOs7D7X2CnZmsRByIgxpEfkv9yZ5QGgA+6PETCVQcrCX8roFxOFihKAUnoYjRTssLBwyDXIU2hmgpC99HxYKdAReyiUIiASfl9GqHt9jRQLARXY1DxaeQtjLCA6CEblSRKEeIyVdrWA-OsHeFhRQGQlPAwcXphHmyluIyRy8wQRCdGozqkInApSSm7KEbdhRgMFp-POPdKw32yiHMO3kDE2xijyEGoRgjJSSsKNGVDnHLiygXIu6BS5QC8VHIIFhdixwXPyPYFj1rBWZotZExE5zETsjnYRg8wDDzoKPcek8wDT1nhoOJD1XDKxcBo32eZhQZPsJEX4nUBHmAMp6E+SQgA */
+  /** @xstate-layout N4IgpgJg5mDOIC5QDcCWsCuBDANqgXmAE4AEAtlgMYAWqAdmAHSoQ5gDEAIgEoCCA6gH0AygBVe3UQG0ADAF1EoAA4B7WKgAuqFXUUgAHogCsATgDsjEwEYALFZkBmAEw2HDswDYjAGhABPRCsrEwdGGwAOG1cZExszB3CzAF8k3zRMXAJicipaBmZWDgBhAAleADkAcQBRQWqAGWqAWWry0REygAVq2QUkEFV1LR09QwRTC2s7Rxc3Tx9-RCcZGUYzGxNzCJkzMydzFLT0bDxCUgoaeiYWNi4+SpFxSV69Qc1tXX6xictbe2dXO4vL4AggrEYnFZGOCPAkEjIjGZwlZDiB0icsudclcCrdhA1qkVRNVOHVGi02sJGJwCcSXv03sNPqBvuZftMAXNgYsEA4jFD7CEnOEjA4ZE4jAjUejMmccpd8jcOPjGkSSWTmq1RFSigB5ToATXpyjU7xGX2MbKm-1mQIWoLiNkY-KMrt2ko8Nn20uOsuyFzy10K7BVhOJpIJFO1jE6vDEPXkr1NTNGlsmfxmgPmIOMZlWJg8iRiTniEqcPoyp392MVwaauoAqvjBPWAGoJvomoYfVO8sxQmyi2wrRwrT058YIsJTCEmSFGZEVjFygM4pXsACSwg1UY6vG6ggAYhuABrq0S6yqVRrGgbJnsW8ZWjOcu0TjyxRjuDYi-ZmEzhLES5+liCpBniBJqhG5JajqDbSImDL3uaLJpuyNpZtyoL-qs4TCjEKxWB4EoODYwFVqBga4sUZRVLUkZaoI+qiBuurlMIt6Mg+qFPumHK2tmPKxAKiRRO4CS7K45GYvKVHrqUFQ1IIABauq6k0nHIcyBiIKJlgmDsGwuPE-YTgAtHyYSRLEpEyPYwRBNJK41uBNGKbUqnqYI-AbqIJSCJ0G7lKUmndihOkIOECRfokRiDrEkqmFY5nLE4zqkVYGUeDEmXEU51ZgYwEBEFgADu9BQHcAihWa2ljHOUI7AiErrF6cVOBOgpGIw4QyDYnq9XmooRPllE4sVZUVVVQitJwNUpo+QSItCnqulYuwSnYnWkaE-X9nO-ZOA41ijbJ40leVdCVTwAh1OUc1WJ2d5hXVgRWJCjCFjIxH7AZyJmPagQxKEHieIBCIigZUSnau+QTZd120rUoZEqx5TzdxEVBN90L-gWoPLMRpk8u9tiMJCMSJHmMjIkYHgwy5RUlVAUBTTdlQY+F9WkWsgGkXskSwpsnVertYPBKRc5SqkaK+hRZ1w8zrNXVVDyzZzr1gvYHi45sHgE99JbJST-JOnO5heHyR3rEYDOFfDJBgHQECQOwGu9sEXqfVTOVlpC4SdZlaWOAZAHibCEJ21RE1QI7zuu+7i2g+En0RPEBZ6wdnWuml4R4bE31NSsZEyzK8uw0wOAqFgEBTYnPHClCDig8E33Y3Zrrvisn0JVFeeFg4VjhFHOJKMQ6iwFoKv11jsRpYWuy+xC-sTsi06bP3cTInY5al3LMkV4wYBsGQTsaCQsDUFgY8kEQcBgBobuIV2tUe8nqeJMdH4ZyWgcxGEw5CyAUlIkFIMs6AqBdvAfoZcD4uSTC9XsZkPApQMowRwdgIiemCMJEetY2AINfo+L0aUQjN0ynYSG+wu461iIOREQtIj8jwUweGFVCELR4iYZaDlYS-ldAuDqJMJQCk9DEOKdkbYOBYUzLALN2FIUQY+bhToCL2V6hEQCKCTb8h6vnOKBYCK7BkQ7J2LsIAcMxmMdaUU1ikULKHIiWw-4WFFAZCUDDBxehMczOO5jLFc0CBEJ0bjjqQicANPq2ddF52FB4TKy8bEyKrjXBRL9OERS9BOOmoRPbZS9IkYU0i96VjgYVMeRAJ5TygAEzWkJ1prHiF4EU60nARMBggAs6DCxEX2BE5YmUUQlOXAVKix8wCnzoOfS+18wC33vhoWpHtXBpRcB44ueZhQdPsJEX4x1DHmAMp6MBSQgA */
   createMachine(
     {
       id: "visualizer machine",
@@ -153,6 +166,11 @@ export const visualizerMachine =
           strokeWidth: 2,
         },
         zoom: ZOOM.DEFAULT,
+
+        origin: {
+          x: 0,
+          y: 0,
+        },
       },
 
       states: {
@@ -221,6 +239,11 @@ export const visualizerMachine =
             CHANGE_ZOOM: {
               target: "persisting",
               actions: ["assignZoom", "drawElements"],
+            },
+
+            CHANGE_ZOOM_WITH_PINCH: {
+              target: "persisting",
+              actions: ["assignZoomToCurrentPoint", "drawElements"],
             },
           },
         },
@@ -318,6 +341,7 @@ export const visualizerMachine =
             canvasElement,
             event,
             zoom: context.zoom,
+            origin: context.origin,
           });
           const newElement: VisualizerElement = {
             id: uuidv4(),
@@ -351,6 +375,7 @@ export const visualizerMachine =
             canvasElement,
             event,
             zoom: context.zoom,
+            origin: context.origin,
           });
 
           return {
@@ -370,6 +395,7 @@ export const visualizerMachine =
             canvasElement,
             event,
             zoom: context.zoom,
+            origin: context.origin,
           });
 
           return {
@@ -433,6 +459,7 @@ export const visualizerMachine =
             canvasElement,
             event,
             zoom: context.zoom,
+            origin: context.origin,
           });
 
           return {
@@ -521,6 +548,7 @@ export const visualizerMachine =
             canvasElement,
             event,
             zoom: context.zoom,
+            origin: context.origin,
           });
 
           return {
@@ -545,9 +573,40 @@ export const visualizerMachine =
             },
           };
         }),
-        assignZoom: assign((context, event) => {
+        assignZoom: assign((context, { setZoom, canvasElement }) => {
+          const updatedZoom = getNormalizedZoom(setZoom(context.zoom));
+          const targetPoint = {
+            x: canvasElement.width / 2,
+            y: canvasElement.height / 2,
+          };
+
           return {
-            zoom: event.setZoom(context.zoom),
+            zoom: updatedZoom,
+            origin: {
+              x:
+                context.origin.x -
+                (targetPoint.x * updatedZoom - targetPoint.x * context.zoom),
+              y:
+                context.origin.y -
+                (targetPoint.y * updatedZoom - targetPoint.y * context.zoom),
+            },
+          };
+        }),
+        assignZoomToCurrentPoint: assign((context, { setZoom }) => {
+          const updatedZoom = getNormalizedZoom(setZoom(context.zoom));
+
+          return {
+            zoom: updatedZoom,
+            origin: {
+              x:
+                context.origin.x -
+                (context.currentPoint.x * updatedZoom -
+                  context.currentPoint.x * context.zoom),
+              y:
+                context.origin.y -
+                (context.currentPoint.y * updatedZoom -
+                  context.currentPoint.y * context.zoom),
+            },
           };
         }),
       },
