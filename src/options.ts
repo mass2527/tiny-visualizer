@@ -1,4 +1,4 @@
-import { VisualizerElement } from "./machines/canvasMachine";
+import { VisualizerElement } from "./machines/visualizerMachine";
 
 export const TOOL_OPTIONS: {
   label: string;

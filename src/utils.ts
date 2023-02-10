@@ -2,20 +2,31 @@ import { MouseEventHandler } from "react";
 import invariant from "tiny-invariant";
 import rough from "roughjs";
 import { Drawable } from "roughjs/bin/core";
-import { VisualizerElement } from "./machines/canvasMachine";
+import {
+  VisualizerElement,
+  VisualizerMachineContext,
+  ZOOM,
+} from "./machines/visualizerMachine";
 
 // https://stackoverflow.com/questions/17130395/real-mouse-position-in-canvas
-export const calculateMousePoint = (
-  canvasElement: HTMLCanvasElement,
-  event: Parameters<MouseEventHandler<HTMLCanvasElement>>[0]
-) => {
+export const calculateMousePoint = ({
+  canvasElement,
+  event,
+  zoom,
+  origin,
+}: {
+  canvasElement: HTMLCanvasElement;
+  event: Parameters<MouseEventHandler<HTMLCanvasElement>>[0];
+  zoom: VisualizerMachineContext["zoom"];
+  origin: VisualizerMachineContext["origin"];
+}) => {
   const rect = canvasElement.getBoundingClientRect();
   const scaleX = canvasElement.width / rect.width; // relationship bitmap vs. element for x
   const scaleY = canvasElement.height / rect.height; // relationship bitmap vs. element for y
 
   return {
-    x: (event.clientX - rect.left) * scaleX,
-    y: (event.clientY - rect.top) * scaleY,
+    x: ((event.clientX - rect.left) * scaleX - origin.x) / zoom,
+    y: ((event.clientY - rect.top) * scaleY - origin.y) / zoom,
   };
 };
 
@@ -210,4 +221,30 @@ export const generateDraw = (
       });
     };
   }
+};
+
+const platform =
+  window.navigator?.userAgentData?.platform ||
+  window.navigator?.platform ||
+  "unknown";
+
+const testPlatform = (regex: RegExp) => regex.test(platform);
+
+const isMac = () => testPlatform(/^mac/i);
+
+export const isWithPlatformMetaKey = (event: {
+  metaKey: boolean;
+  ctrlKey: boolean;
+}) => (isMac() ? event.metaKey : event.ctrlKey);
+
+export const convertToPercent = (ratio: number) => {
+  return ratio * 100;
+};
+
+export const convertToRatio = (percent: number) => {
+  return percent / 100;
+};
+
+export const getNormalizedZoom = (zoom: VisualizerMachineContext["zoom"]) => {
+  return Math.max(ZOOM.MINIMUM, Math.min(zoom, ZOOM.MAXIMUM));
 };

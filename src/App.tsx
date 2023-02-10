@@ -4,19 +4,23 @@ import invariant from "tiny-invariant";
 import { assign } from "xstate";
 import ColorPicker from "./components/ColorPicker";
 import Radio from "./components/Radio";
-import { useWindowSize } from "./hooks";
-import { useDevicePixelRatio } from "./hooks/useDevicePixelRatio";
+import { useDevicePixelRatio, useWindowSize } from "./hooks";
+
 import {
-  canvasMachine,
-  CanvasMachineContext,
+  visualizerMachine,
+  VisualizerMachineContext,
   VisualizerElement,
-} from "./machines/canvasMachine";
+  ZOOM,
+} from "./machines/visualizerMachine";
 import { STROKE_WIDTH_OPTIONS, TOOL_OPTIONS } from "./options";
 
 import {
   calculateMousePoint,
+  convertToPercent,
+  convertToRatio,
   generateDraw,
   isPointInsideOfElement,
+  isWithPlatformMetaKey,
 } from "./utils";
 
 const MARGIN = 8;
@@ -25,7 +29,7 @@ function App() {
   const windowSize = useWindowSize();
   const devicePixelRatio = useDevicePixelRatio();
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [state, send] = useMachine(canvasMachine, {
+  const [state, send] = useMachine(visualizerMachine, {
     actions: {
       loadSavedContext: assign(() => {
         const canvasElement = canvasRef.current;
@@ -39,7 +43,7 @@ function App() {
             return {};
           }
 
-          const context = JSON.parse(value) as CanvasMachineContext;
+          const context = JSON.parse(value) as VisualizerMachineContext;
           return {
             ...context,
             elements: context.elements.map((element) => {
@@ -62,7 +66,12 @@ function App() {
         invariant(ctx);
 
         ctx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+
         context.elements.forEach((element) => {
+          ctx.save();
+          ctx.translate(context.origin.x, context.origin.y);
+          ctx.scale(context.zoom, context.zoom);
+
           if (element.draw) {
             element.draw();
           }
@@ -77,6 +86,8 @@ function App() {
             );
             ctx.setLineDash([]);
           }
+
+          ctx.restore();
         });
       },
     },
@@ -87,25 +98,80 @@ function App() {
     elements,
     isElementShapeFixed,
     elementOptions,
+    zoom,
+    origin,
   } = state.context;
+
   const drawingElement = elements.find(
     (element) => element.id === drawingElementId
   );
   const selectedElements = elements.filter((element) => element.isSelected);
+
+  const updateZoom = (change: number) => {
+    const canvasElement = canvasRef.current;
+    invariant(canvasElement);
+
+    const setZoom = (zoom: VisualizerMachineContext["zoom"]) => {
+      const zoomInPercent = convertToPercent(zoom);
+      const updatedZoom = convertToRatio(zoomInPercent + change);
+
+      return updatedZoom;
+    };
+
+    send({
+      type: "CHANGE_ZOOM",
+      setZoom,
+      canvasElement,
+    });
+  };
+
+  useEffect(() => {
+    const handleWheel = (event: WheelEvent) => {
+      event.preventDefault();
+
+      // window - pressing ctrlKey with wheel result in zooming
+      // mac - event.ctrlKey is automatically true when pinch with two fingers on track pad
+      if (event.ctrlKey) {
+        const signDeltaY = Math.sign(event.deltaY);
+        const absoluteDeltaY = Math.abs(event.deltaY);
+
+        const setZoom = (zoom: VisualizerMachineContext["zoom"]) => {
+          let updatedZoom = zoom - event.deltaY / 100;
+          updatedZoom +=
+            // the bigger zoom is, the slower it will be increased (applied when zoom > 1)
+            Math.log10(Math.max(1, zoom)) *
+            -signDeltaY *
+            Math.min(1, absoluteDeltaY / 20);
+
+          return updatedZoom;
+        };
+
+        send({
+          type: "CHANGE_ZOOM_WITH_PINCH",
+          setZoom,
+        });
+      }
+    };
+
+    window.addEventListener("wheel", handleWheel, {
+      passive: false,
+    });
+    return () => {
+      window.removeEventListener("wheel", handleWheel);
+    };
+  }, []);
 
   useEffect(() => {
     const canvasElement = canvasRef.current;
     invariant(canvasElement);
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.repeat) {
+      if (event.key === "Backspace") {
+        send("SELECTED_ELEMENTS.DELETE");
         return;
       }
 
-      if (event.key === "Backspace") {
-        send("SELECTED_ELEMENTS.DELETE");
-      }
-      if (event.metaKey) {
+      if (isWithPlatformMetaKey(event)) {
         if (event.key === "c") {
           send("SELECTED_ELEMENTS.COPY");
         } else if (event.key === "v") {
@@ -115,6 +181,12 @@ function App() {
           });
         } else if (event.key === "x") {
           send("SELECTED_ELEMENTS.CUT");
+        } else if (event.key === "=" || event.key === "+") {
+          event.preventDefault();
+          updateZoom(10);
+        } else if (event.key === "-") {
+          event.preventDefault();
+          updateZoom(-10);
         }
       }
 
@@ -156,7 +228,12 @@ function App() {
     const canvasElement = canvasRef.current;
     invariant(canvasElement);
 
-    const mousePoint = calculateMousePoint(canvasElement, event);
+    const mousePoint = calculateMousePoint({
+      canvasElement,
+      event,
+      zoom,
+      origin,
+    });
 
     if (
       elementShape === "selection" &&
@@ -349,13 +426,52 @@ function App() {
                 />
               ))}
             </div>
+
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              <span>Zoom</span>
+              <div style={{ display: "flex", pointerEvents: "all" }}>
+                <button
+                  type="button"
+                  onClick={() => updateZoom(-10)}
+                  disabled={zoom === ZOOM.MINIMUM}
+                >
+                  -
+                </button>
+                <button
+                  onClick={() => {
+                    const canvasElement = canvasRef.current;
+                    invariant(canvasElement);
+
+                    send({
+                      type: "CHANGE_ZOOM",
+                      setZoom: () => 1,
+                      canvasElement,
+                    });
+                  }}
+                >
+                  {Math.round(zoom * 100)}%
+                </button>
+                <button
+                  type="button"
+                  onClick={() => updateZoom(10)}
+                  disabled={zoom === ZOOM.MAXIMUM}
+                >
+                  +
+                </button>
+              </div>
+            </div>
           </div>
         </header>
       </div>
 
       <canvas
         ref={canvasRef}
-        style={{ width: windowSize.width, height: windowSize.height }}
+        style={{
+          // visual size
+          width: windowSize.width,
+          height: windowSize.height,
+        }}
+        // actual size
         width={Math.floor(windowSize.width * devicePixelRatio)}
         height={Math.floor(windowSize.height * devicePixelRatio)}
         onMouseDown={state.matches("idle") ? handleMouseDown : undefined}
