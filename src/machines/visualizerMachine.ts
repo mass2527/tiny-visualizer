@@ -8,6 +8,7 @@ import {
   calculateElementsAbsolutePoint,
   calculateMousePoint,
   generateDraw,
+  getNormalizedValue,
   getNormalizedZoom,
   isIntersecting,
   Point,
@@ -133,7 +134,7 @@ export type VisualizerMachineEvents =
     }
   | {
       type: "HISTORY_UPDATE";
-      changedStep: number;
+      changedStep: 1 | -1;
     };
 /* #endregion */
 
@@ -689,7 +690,11 @@ export const visualizerMachine =
           };
         }),
         updateHistory: assign((context, { changedStep }) => {
-          const updatedHistoryStep = context.historyStep + changedStep;
+          const updatedHistoryStep = getNormalizedValue({
+            maximum: context.history.length - 1,
+            value: context.historyStep + changedStep,
+            minimum: 0,
+          });
           const { elements, elementOptions } =
             context.history[updatedHistoryStep];
 

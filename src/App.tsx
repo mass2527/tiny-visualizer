@@ -205,6 +205,16 @@ function App() {
         } else if (event.key === "-") {
           event.preventDefault();
           updateZoom(-10);
+        } else if (event.shiftKey && event.key === "z") {
+          send({
+            type: "HISTORY_UPDATE",
+            changedStep: 1,
+          });
+        } else if (event.key === "z") {
+          send({
+            type: "HISTORY_UPDATE",
+            changedStep: -1,
+          });
         }
       }
 
