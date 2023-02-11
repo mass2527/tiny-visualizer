@@ -61,6 +61,7 @@ export interface Typegen0 {
       | "CHANGE_ELEMENT_SHAPE"
       | "CHANGE_ZOOM"
       | "CHANGE_ZOOM_WITH_PINCH"
+      | "HISTORY_UPDATE"
       | "IS_ELEMENT_SHAPE_FIXED_TOGGLE"
       | "PAN"
       | "SELECTED_ELEMENTS.COPY"
