@@ -50,14 +50,17 @@ function App() {
               draw: generateDraw(element, canvasElement),
             };
           });
-
-          return {
+          const updatedContext = {
             ...context,
             elements: loadedElements,
+          };
+
+          return {
+            ...updatedContext,
             history: [
               {
-                elements: loadedElements,
-                elementOptions: context.elementOptions,
+                elements: updatedContext.elements,
+                elementOptions: updatedContext.elementOptions,
               },
             ],
           };

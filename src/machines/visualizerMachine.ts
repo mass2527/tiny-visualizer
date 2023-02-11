@@ -28,7 +28,13 @@ export type VisualizerElement = {
   isDeleted: boolean;
 };
 
-export type VisualizerMachineContext = {
+type Version = {
+  elements: VisualizerMachineContext["elements"];
+  elementOptions: VisualizerMachineContext["elementOptions"];
+};
+
+// context that is saved to localStorage
+type VisualizerMachinePersistedContext = {
   elements: VisualizerElement[];
   elementOptions: Options;
 
@@ -43,11 +49,11 @@ export type VisualizerMachineContext = {
     x: number;
     y: number;
   };
+};
 
-  history: {
-    elements: VisualizerElement[];
-    elementOptions: Options;
-  }[];
+export type VisualizerMachineContext = VisualizerMachinePersistedContext & {
+  // context that is **not** saved to localStorage
+  history: Version[];
   historyStep: number;
 };
 
@@ -145,6 +151,36 @@ export const ZOOM = {
   MAXIMUM: 30,
 } as const;
 
+const PERSISTED_CONTEXT: VisualizerMachinePersistedContext = {
+  // track
+  elements: [],
+  elementOptions: {
+    stroke: "#000",
+    fill: "transparent",
+    strokeWidth: 2,
+  },
+
+  // untrack
+  elementShape: "selection",
+  copiedElements: [],
+  drawingElementId: null,
+  dragStartPoint: {
+    x: 0,
+    y: 0,
+  },
+  // cursor point in actual canvas size (not viewport)
+  currentPoint: {
+    x: 0,
+    y: 0,
+  },
+  isElementShapeFixed: false,
+  zoom: ZOOM.DEFAULT,
+  origin: {
+    x: 0,
+    y: 0,
+  },
+};
+
 export const visualizerMachine =
   /** @xstate-layout N4IgpgJg5mDOIC5QDcCWsCuBDANqgXmAE4AEAtlgMYAWqAdmAHSoQ5gDEAIgEoCCA6gH0AygBVe3UQG0ADAF1EoAA4B7WKgAuqFXUUgAHogBsAdhOMAnAEYALDIBMFmQA5T9kxYA0IAJ6IrzgCsMoyuNs4m4VZGMjJGgQC+Cd5omLgExORUtAzMrBwAwgASvAByAOIAooKVADKVALKVpaIiJQAKlbIKSCCq6lo6eoYIpubWdo4ubh7efgj2sYyRFqs2NgDMgYFWMjb2SSno2HiEpBQ09EwsbFx85SLikt16-Zraur0jY5a2Dk6uEzuLy+fyBDYWRgbDYxGRWdwxGIWQ4gVInDLnbJXPK3YR1SoFUSVTg1epNFrCRicfFEl69N6DT6gb5mX6TAEzEHzLZWRi7Cww+zOewxXaRFFo9JnLKXXI3Dh4+qE4mkxrNUSUgoAeXaAE06co1O8hl9jKyJv9pkDZqCEDZIowdoEjO5IvENhEJccpZkLjlrvl2IqCUSSfjyRrGO1eGIuvJXkbGcNEECbIx3JN3Bs7DYLCY5ohAiZedYLIFwkFnIKjF60qdfVi5YGGlqAKp4wQtgBqcZ6hoGH2TCA2xcYNnBVknHnBTg2BYQVhMwrH1i2wqszviJlr6Olfux8vYAElhKqI21eJ1BAAxI8ADRVoi15XK9QNfUTg9No3NfymgOBecjAsNMR1zMtHFWWINh3H1MVlANcXxZUwzJdVNVbaR43pT8TWZM1xj-DlrS5FMnFCIV4RMbMNxA5xYPreD-RxQoSgqapw3VQQdVEI8tVKYR3wZL98J-Qj2StQDbRA3kAhMQJ7B2OwyxdBiMRlZjD2KMoqkEAAtLUtQaITcKZAwCLZS0AJteZdhHRgjDsQILCrRyLCFejklRb1GI0g9A209j9MMhpBH4I9RCKQR2iPUpihMgc8PMsTLP-Tl50nIxeT2MZgkCZwIhHNS90bRCOGjUoEuNMyWXEqz0tteFnDTccNjiAUCpFRTiobBCWPYIoTyfbhdUEVt2k4XhaWw-tqqHEdAkddwxUWYD13newrBhdMeXtNrwkU7cvMlXz91yCAiCwAB3egoDuAQqqTb9djhRgZBMBxqICIwfosIwMsiZwxx5LY7DMaijqOOt1LOpgLuu277qEZpOEekTksnVw+Q8UwjFcKwQOdDKq3sCiq1sDNFgcHqmOxeGbroO6eAEGpSlRqw+w-RKav8RZFvCPYzDicdnA3DKXSB51FOsZw1mCKwab887LoZpmaWqYNCT4yqZq5ubvw8EIXVzZy2rMGxHIBpY8vtD7okcxJjp8mHSsYeGoCgRHmfKNGkpGeFTFCFYjC2csssCDL1l5eIXWibZHCLRXYbdy6Pa9+5WdR3XhL9sF4XTfZvp2AmFoy8ENj5GQQJDvYIUUmwk9dnAVCwCBEd9nmFlFqFTEXAr1hkDYrGJ1lgPHex7QnhShUbvqlGIdRYC0Rn2A7odVvMfL8tlvGPvkiPbW78DVmAstc3WTyod3XrmLANgyDAOgNBIWBqCweeSCIOAwA0Vfs9Moci58oOXCPsQeuYNjuCtkYSw44B4gXsCOAqs9mLIAXh8T+d8wBYFgJAP+nMc6d02sESwzgq5VjWM1RSVtzDrG2A4RcBMnCOy8nQFQEA4B6BOi7BCCZuZDgALT-VtEIt6sRYgRHCOHWIyInbQxKn1eUfD9aiX2KTAUMIq5D1MIPKBjUCqQl2JsbMHp3qi0ht5eRN86Yq1usop6ok7LmAJltEm-I-pzkarOZYhNoSLGLDyFBNisBp0ZvY9G-shTOPkiYEOMTFLD0akWEIcQEkuGFNmGscjr601yM3VudicL8O-PsYmdg+SE0nHmFy+wG7ZLgkrJg88iCL2XlAcJucFibVJr3Uw2wZKOE8fMUWMD8r2niOWVwWigm5CwQ-J+L834fy-rgjQHTO4bnzhPTarhi4CnkuLZcdDczyR+kuAIMymBoJaRgr+bAcGQHWYAoIFdqLrBsBudwIp3KHNJscvMm5zmeSSEAA */
   createMachine(
@@ -163,43 +199,13 @@ export const visualizerMachine =
       },
 
       context: {
-        // track
-        elements: [],
-        elementOptions: {
-          stroke: "#000",
-          fill: "transparent",
-          strokeWidth: 2,
-        },
-
-        // untrack
-        elementShape: "selection",
-        copiedElements: [],
-        drawingElementId: null,
-        dragStartPoint: {
-          x: 0,
-          y: 0,
-        },
-        // cursor point in actual canvas size (not viewport)
-        currentPoint: {
-          x: 0,
-          y: 0,
-        },
-        isElementShapeFixed: false,
-        zoom: ZOOM.DEFAULT,
-        origin: {
-          x: 0,
-          y: 0,
-        },
+        ...PERSISTED_CONTEXT,
 
         historyStep: 0,
         history: [
           {
-            elements: [],
-            elementOptions: {
-              stroke: "#000",
-              fill: "transparent",
-              strokeWidth: 2,
-            },
+            elements: PERSISTED_CONTEXT["elements"],
+            elementOptions: PERSISTED_CONTEXT["elementOptions"],
           },
         ],
       },
