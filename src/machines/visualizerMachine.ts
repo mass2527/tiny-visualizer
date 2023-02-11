@@ -8,6 +8,7 @@ import {
   calculateElementsAbsolutePoint,
   calculateMousePoint,
   generateDraw,
+  getNormalizedValue,
   getNormalizedZoom,
   isIntersecting,
   Point,
@@ -24,26 +25,39 @@ export type VisualizerElement = {
   isSelected: boolean;
   draw: VoidFunction | null;
   options: Options;
+  isDeleted: boolean;
 };
 
-export type VisualizerMachineContext = {
-  elementShape: VisualizerElement["shape"];
+type Version = {
+  elements: VisualizerMachineContext["elements"];
+  elementOptions: VisualizerMachineContext["elementOptions"];
+};
+
+// context that is saved to localStorage
+type VisualizerMachinePersistedContext = {
   elements: VisualizerElement[];
+  elementOptions: Options;
+
+  elementShape: VisualizerElement["shape"];
   drawingElementId: VisualizerElement["id"] | null;
   dragStartPoint: Point;
   copiedElements: VisualizerElement[];
-
   currentPoint: Point;
   isElementShapeFixed: boolean;
-  elementOptions: Options;
   zoom: number;
-
   origin: {
     x: number;
     y: number;
   };
 };
 
+export type VisualizerMachineContext = VisualizerMachinePersistedContext & {
+  // context that is **not** saved to localStorage
+  history: Version[];
+  historyStep: number;
+};
+
+/* #region events within machine  */
 export type VisualizerMachineEvents =
   | {
       type: "DRAW_START";
@@ -62,7 +76,6 @@ export type VisualizerMachineEvents =
     }
   | {
       type: "DELETE_SELECTION";
-      id: VisualizerElement["id"];
     }
   | {
       type: "CHANGE_ELEMENT_SHAPE";
@@ -124,7 +137,12 @@ export type VisualizerMachineEvents =
   | {
       type: "PAN";
       event: WheelEvent;
+    }
+  | {
+      type: "HISTORY_UPDATE";
+      changedStep: 1 | -1;
     };
+/* #endregion */
 
 // zoom in ratio
 export const ZOOM = {
@@ -133,8 +151,38 @@ export const ZOOM = {
   MAXIMUM: 30,
 } as const;
 
+const PERSISTED_CONTEXT: VisualizerMachinePersistedContext = {
+  // track
+  elements: [],
+  elementOptions: {
+    stroke: "#000",
+    fill: "transparent",
+    strokeWidth: 2,
+  },
+
+  // untrack
+  elementShape: "selection",
+  copiedElements: [],
+  drawingElementId: null,
+  dragStartPoint: {
+    x: 0,
+    y: 0,
+  },
+  // cursor point in actual canvas size (not viewport)
+  currentPoint: {
+    x: 0,
+    y: 0,
+  },
+  isElementShapeFixed: false,
+  zoom: ZOOM.DEFAULT,
+  origin: {
+    x: 0,
+    y: 0,
+  },
+};
+
 export const visualizerMachine =
-  /** @xstate-layout N4IgpgJg5mDOIC5QDcCWsCuBDANqgXmAE4AEAtlgMYAWqAdmAHSoQ5gDEAIgEoCCA6gH0AygBVe3UQG0ADAF1EoAA4B7WKgAuqFXUUgAHogCsATgDsjEwEYALFZkBmAEw2HDswDYjAGhABPRCsrEwdGGwAOG1cZExszB3CzAF8k3zRMXAJicipaBmZWDgBhAAleADkAcQBRQWqAGWqAWWry0REygAVq2QUkEFV1LR09QwRTC2s7Rxc3Tx9-RCcZGUYzGxNzCJkzMydzFLT0bDxCUgoaeiYWNi4+SpFxSV69Qc1tXX6xictbe2dXO4vL4AggrEYnFZGOCPAkEjIjGZwlZDiB0icsudclcCrdhA1qkVRNVOHVGi02sJGJwCcSXv03sNPqBvuZftMAXNgYsEA4jFD7CEnOEjA4ZE4jAjUejMmccpd8jcOPjGkSSWTmq1RFSigB5ToATXpyjU7xGX2MbKm-1mQIWoLiNkY-KMrt2ko8Nn20uOsuyFzy10K7BVhOJpIJFO1jE6vDEPXkr1NTNGlsmfxmgPmIOMZlWJg8iRiTniEqcPoyp392MVwaauoAqvjBPWAGoJvomoYfVO8sxQmyi2wrRwrT058YIsJTCEmSFGZEVjFygM4pXsACSwg1UY6vG6ggAYhuABrq0S6yqVRrGgbJnsW8ZWjOcu0TjyxRjuDYi-ZmEzhLES5+liCpBniBJqhG5JajqDbSImDL3uaLJpuyNpZtyoL-qs4TCjEKxWB4EoODYwFVqBga4sUZRVLUkZaoI+qiBuurlMIt6Mg+qFPumHK2tmPKxAKiRRO4CS7K45GYvKVHrqUFQ1IIABauq6k0nHIcyBiIKJlgmDsGwuPE-YTgAtHyYSRLEpEyPYwRBNJK41uBNGKbUqnqYI-AbqIJSCJ0G7lKUmndihOkIOECRfokRiDrEkqmFY5nLE4zqkVYGUeDEmXEU51ZgYwEBEFgADu9BQHcAihWa2ljHOUI7AiErrF6cVOBOgpGIw4QyDYnq9XmooRPllE4sVZUVVVQitJwNUpo+QSItCnqulYuwSnYnWkaE-X9nO-ZOA41ijbJ40leVdCVTwAh1OUc1WJ2d5hXVgRWJCjCFjIxH7AZyJmPagQxKEHieIBCIigZUSnau+QTZd120rUoZEqx5TzdxEVBN90L-gWoPLMRpk8u9tiMJCMSJHmMjIkYHgwy5RUlVAUBTTdlQY+F9WkWsgGkXskSwpsnVertYPBKRc5SqkaK+hRZ1w8zrNXVVDyzZzr1gvYHi45sHgE99JbJST-JOnO5heHyR3rEYDOFfDJBgHQECQOwGu9sEXqfVTOVlpC4SdZlaWOAZAHibCEJ21RE1QI7zuu+7i2g+En0RPEBZ6wdnWuml4R4bE31NSsZEyzK8uw0wOAqFgEBTYnPHClCDig8E33Y3Zrrvisn0JVFeeFg4VjhFHOJKMQ6iwFoKv11jsRpYWuy+xC-sTsi06bP3cTInY5al3LMkV4wYBsGQTsaCQsDUFgY8kEQcBgBobuIV2tUe8nqeJMdH4ZyWgcxGEw5CyAUlIkEetZbixnRs-Z6r9Hx6T+oZWImxwQBx5BZdaK054LicPrCUw9UR0BUC7eA-Qy4HxckmF6vYzIeHMjYPqn0PzRBiEiDuYDXKUNgTxL0aUQjN0ynYSG+wu461iIOREQtIj8nYUzSaV1OELR4iYZaDlYS-ldNgzqEoBSehiHFOyNsHAyJjsrKACjMb1TiowAi9leoREArQk2-Ier5zigWAiuxjEXTji7CA5iuaBCRKEeI-VwbWA-OsP+FhRQGQlBIwcXovFYFjk7Xx-jNa2EiOlEIDUcHbBsNnZxedhQeEysvda+CjiVnIYVKuNcKrpN7F6CcdNQie2yl6RIwojF72qc5QqY8iATynmYpCVDHyQgwbsZuC5+R7BwYDBABZrGFiIvsHByxMool6cuAqVFj5gFPnQc+l9r5gFvvfDQjTFquDSi4OJxc8zCkWfYLJ1hjruPMAZT0KQUhAA */
+  /** @xstate-layout N4IgpgJg5mDOIC5QDcCWsCuBDANqgXmAE4AEAtlgMYAWqAdmAHSoQ5gDEAIgEoCCA6gH0AygBVe3UQG0ADAF1EoAA4B7WKgAuqFXUUgAHogBsAdhOMAnAEYALDIBMFmQA5T9kxYA0IAJ6IrzgCsMoyuNs4m4VZGMjJGgQC+Cd5omLgExORUtAzMrBwAwgASvAByAOIAooKVADKVALKVpaIiJQAKlbIKSCCq6lo6eoYIpubWdo4ubh7efgj2sYyRFqs2NgDMgYFWMjb2SSno2HiEpBQ09EwsbFx85SLikt16-Zraur0jY5a2Dk6uEzuLy+fyBDYWRgbDYxGRWdwxGIWQ4gVInDLnbJXPK3YR1SoFUSVTg1epNFrCRicfFEl69N6DT6gb5mX6TAEzEHzLZWRi7Cww+zOewxXaRFFo9JnLKXXI3Dh4+qE4mkxrNUSUgoAeXaAE06co1O8hl9jKyJv9pkDZqCEDZIowdoEjO5IvENhEJccpZkLjlrvl2IqCUSSfjyRrGO1eGIuvJXkbGcNEECbIx3JN3Bs7DYLCY5ohAiZedYLIFwkFnIKjF60qdfVi5YGGlqAKp4wQtgBqcZ6hoGH2TCA2xcYNnBVknHnBTg2BYQVhMwrH1i2wqszviJlr6Olfux8vYAElhKqI21eJ1BAAxI8ADRVoi15XK9QNfUTg9No3NfymgOBecjAsNMR1zMtHFWWINh3H1MVlANcXxZUwzJdVNVbaR43pT8TWZM1xj-DlrS5FMnFCIV4RMbMNxA5xYPreD-RxQoSgqapw3VQQdVEI8tVKYR3wZL98J-Qj2StQDbRA3kAhMQJ7B2OwyxdBiMRlZjD2KMoqkEAAtLUtQaITcKZAwCLZS0AJteZdhHRgjDsQILCrRyLCFejklRb1GI0g9A209j9MMhpBH4I9RCKQR2iPUpihMgc8PMsTLP-Tl50nIxeT2MZgkCZwIhHNS90bRCOGjUoEuNMyWXEqz0tteFnDTccNjiAUCpFRTiobBCWPYIoTyfbhdUEVt2k4XhaWw-tqqHEdAkddwxUWYD13newrBhdMeXtNrwkU7cvMlXz91yCAiCwAB3egoDuAQqqTb9djhRgZBMBxqICIwfosIwMsiZwxx5LY7DMaijqOOt1LOpgLuu277qEZpOEekTksnVw+Q8UwjFcKwQOdDKq3sCiq1sDNFgcHqmOxeGbroO6eAEGpSlRqw+w-RKav8RZFvCPYzDicdnA3DKXSB51FOsZw1mCKwab887LoZpmaWqYNCT4yqZq5ubvw8EIXVzZy2rMGxHIBpY8vtD7okcxJjp8mHSsYeGoCgRHmfKNGkpGeFTFCFYjC2csssCDL1l5eIXWibZHCLRXYbdy6Pa9+5WdR3XhL9sF4XTfZvp2AmFoy8ENj5GQQJDvYIUUmwk9dnAVCwCBEd9nmFlFqFTEXAr1hkDYrGJ1lgPHex7QnhShUbvqlGIdRYC0Rn2A7odVvMfL8tlvGPvkiPbW78DVmAstc3WTyod3XrmLANgyDAOgNBIWBqCweeSCIOAwA0Vfs9Moci58oOXCPsQeuYNjuCtkYSw44B4gXsCOAqs9mLIAXh8T+d8wBYFgJAP+nMc6d02sESwzgq5VjWM1RSVtzDrG2A4RcBMnCOy8nQFQEA4B6BOi7BCCZuZDgALT-VtEIt6sRYipgnosTakNvLQxKn1eUfD9aiX2KTAUMIq5D1MIPKBjUCqQl2JsbMHp3qi1kdwhRzF6a3WUU9USdlzAEy2iTfkf05yNVnMsQm0JFjFh5CgumqdPaMzsejf2QonHyRMCHaJilh6NSLCEOI8SXDCmzDWJ28ib7Ymbq3WxOF+Hfn2MTOwfJCaTjzC5fYDcsnX1prkeeRBF7LygGE3OCxNqk17qYbYMlHAePmKLGB+V7TxHLK4LRgTchYIfk-F+b8P5f1wRodpncNz5ykUXSppdGp41JnQ3M8kfpLgCNMpgaDmkYK-mwHBkA1mAKCBXai6wbAbncCKdy4tlyHLzJuU5nkkhAA */
   createMachine(
     {
       id: "visualizer machine",
@@ -151,31 +199,15 @@ export const visualizerMachine =
       },
 
       context: {
-        elementShape: "selection",
-        elements: [],
-        copiedElements: [],
-        drawingElementId: null,
-        dragStartPoint: {
-          x: 0,
-          y: 0,
-        },
-        // cursor point in actual canvas size (not viewport)
-        currentPoint: {
-          x: 0,
-          y: 0,
-        },
-        isElementShapeFixed: false,
-        elementOptions: {
-          stroke: "#000",
-          fill: "transparent",
-          strokeWidth: 2,
-        },
-        zoom: ZOOM.DEFAULT,
+        ...PERSISTED_CONTEXT,
 
-        origin: {
-          x: 0,
-          y: 0,
-        },
+        historyStep: 0,
+        history: [
+          {
+            elements: PERSISTED_CONTEXT["elements"],
+            elementOptions: PERSISTED_CONTEXT["elementOptions"],
+          },
+        ],
       },
 
       states: {
@@ -202,7 +234,7 @@ export const visualizerMachine =
             },
 
             "SELECTED_ELEMENTS.DELETE": {
-              target: "persisting",
+              target: "version released",
               actions: ["deleteSelectedElements", "drawElements"],
             },
 
@@ -212,7 +244,7 @@ export const visualizerMachine =
             },
 
             "SELECTED_ELEMENTS.PASTE": {
-              target: "persisting",
+              target: "version released",
               actions: ["pasteSelectedElements", "drawElements"],
             },
 
@@ -237,7 +269,7 @@ export const visualizerMachine =
             },
 
             CHANGE_ELEMENT_OPTIONS: {
-              target: "persisting",
+              target: "version released",
               actions: "assignElementOptions",
             },
 
@@ -255,6 +287,11 @@ export const visualizerMachine =
               target: "persisting",
               actions: ["assignOrigin", "drawElements"],
             },
+
+            HISTORY_UPDATE: {
+              target: "persisting",
+              actions: ["updateHistory", "drawElements"],
+            },
           },
         },
 
@@ -268,13 +305,14 @@ export const visualizerMachine =
 
             DRAW_END: [
               {
-                target: "draw ended",
+                target: "version released",
 
                 actions: [
                   "draw",
                   "updateIntersecting",
                   "selectDrawingElement",
                   "drawElements",
+                  "resetDrawingElementId",
                 ],
 
                 cond: "isElementShapeFixed",
@@ -286,13 +324,18 @@ export const visualizerMachine =
                   "updateIntersecting",
                   "selectDrawingElement",
                   "drawElements",
+                  "resetDrawingElementId",
                 ],
               },
             ],
 
             DELETE_SELECTION: {
-              target: "draw ended",
-              actions: ["deleteElement", "drawElements"],
+              target: "idle",
+              actions: [
+                "deleteSelection",
+                "drawElements",
+                "resetDrawingElementId",
+              ],
             },
           },
         },
@@ -306,22 +349,10 @@ export const visualizerMachine =
             },
 
             DRAG_END: {
-              target: "drag ended",
+              target: "version released",
               actions: ["drag", "drawElements"],
             },
           },
-        },
-
-        "draw ended": {
-          entry: assign({
-            drawingElementId: null,
-          }),
-
-          always: "persisting",
-        },
-
-        "drag ended": {
-          always: "persisting",
         },
 
         loading: {
@@ -336,9 +367,17 @@ export const visualizerMachine =
         },
 
         "element shape reset": {
-          entry: "resetElementShape",
+          entry: assign({
+            elementShape: "selection",
+          }),
 
-          always: "draw ended",
+          always: "version released",
+        },
+
+        "version released": {
+          entry: ["addVersionToHistory"],
+
+          always: "persisting",
         },
       },
 
@@ -363,6 +402,7 @@ export const visualizerMachine =
             isSelected: false,
             draw: null,
             options: context.elementOptions,
+            isDeleted: false,
           };
 
           return {
@@ -370,9 +410,11 @@ export const visualizerMachine =
             drawingElementId: newElement.id,
           };
         }),
-        deleteElement: assign((context, { id }) => {
+        deleteSelection: assign((context) => {
           return {
-            elements: context.elements.filter((element) => element.id !== id),
+            elements: context.elements.filter(
+              (element) => element.shape !== "selection"
+            ),
           };
         }),
         changeElementShape: assign((_, { elementShape }) => {
@@ -491,16 +533,28 @@ export const visualizerMachine =
             dragStartPoint: currentPoint,
           };
         }),
-        persist: debounce((context) => {
+        persist: debounce((context: VisualizerMachineContext) => {
+          const { history, historyStep, ...persistedContext } = context;
+
           try {
-            localStorage.setItem("context", JSON.stringify(context));
+            localStorage.setItem("context", JSON.stringify(persistedContext));
           } catch (error) {
             console.error(error);
           }
         }, 300),
-        deleteSelectedElements: assign((context, event) => {
+        deleteSelectedElements: assign((context) => {
           return {
-            elements: context.elements.filter((element) => !element.isSelected),
+            elements: context.elements.map((element) => {
+              if (element.isSelected) {
+                return {
+                  ...element,
+                  isDeleted: true,
+                  isSelected: false,
+                };
+              }
+
+              return element;
+            }),
           };
         }),
         copySelectedElements: assign((context) => {
@@ -570,11 +624,6 @@ export const visualizerMachine =
             isElementShapeFixed: !context.isElementShapeFixed,
           };
         }),
-        resetElementShape: assign(() => {
-          return {
-            elementShape: "selection",
-          };
-        }),
         assignElementOptions: assign((context, event) => {
           return {
             elementOptions: {
@@ -623,6 +672,46 @@ export const visualizerMachine =
             },
           };
         }),
+        addVersionToHistory: assign((context) => {
+          const newVersion = {
+            elementOptions: context.elementOptions,
+            elements: context.elements,
+          };
+
+          const isPresent = context.historyStep === context.history.length - 1;
+          if (isPresent) {
+            return {
+              history: [...context.history, newVersion],
+              historyStep: context.historyStep + 1,
+            };
+          }
+
+          return {
+            history: [
+              ...context.history.slice(0, context.historyStep + 1),
+              newVersion,
+            ],
+            historyStep: context.historyStep + 1,
+          };
+        }),
+        updateHistory: assign((context, { changedStep }) => {
+          const updatedHistoryStep = getNormalizedValue({
+            maximum: context.history.length - 1,
+            value: context.historyStep + changedStep,
+            minimum: 0,
+          });
+          const { elements, elementOptions } =
+            context.history[updatedHistoryStep];
+
+          return {
+            elements,
+            elementOptions,
+            historyStep: updatedHistoryStep,
+          };
+        }),
+        resetDrawingElementId: assign((_) => ({
+          drawingElementId: null,
+        })),
       },
       guards: {
         isElementShapeFixed: (context) => {

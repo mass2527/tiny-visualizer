@@ -44,14 +44,25 @@ function App() {
           }
 
           const context = JSON.parse(value) as VisualizerMachineContext;
-          return {
+          const loadedElements = context.elements.map((element) => {
+            return {
+              ...element,
+              draw: generateDraw(element, canvasElement),
+            };
+          });
+          const updatedContext = {
             ...context,
-            elements: context.elements.map((element) => {
-              return {
-                ...element,
-                draw: generateDraw(element, canvasElement),
-              };
-            }),
+            elements: loadedElements,
+          };
+
+          return {
+            ...updatedContext,
+            history: [
+              {
+                elements: updatedContext.elements,
+                elementOptions: updatedContext.elementOptions,
+              },
+            ],
           };
         } catch (error) {
           console.error(error);
@@ -67,7 +78,10 @@ function App() {
 
         ctx.clearRect(0, 0, canvasElement.width, canvasElement.height);
 
-        context.elements.forEach((element) => {
+        const drawnElements = context.elements.filter(
+          (element) => !element.isDeleted
+        );
+        drawnElements.forEach((element) => {
           ctx.save();
           ctx.translate(context.origin.x, context.origin.y);
           ctx.scale(context.zoom, context.zoom);
@@ -100,6 +114,8 @@ function App() {
     elementOptions,
     zoom,
     origin,
+    history,
+    historyStep,
   } = state.context;
 
   const drawingElement = elements.find(
@@ -192,6 +208,16 @@ function App() {
         } else if (event.key === "-") {
           event.preventDefault();
           updateZoom(-10);
+        } else if (event.shiftKey && event.key === "z") {
+          send({
+            type: "HISTORY_UPDATE",
+            changedStep: 1,
+          });
+        } else if (event.key === "z") {
+          send({
+            type: "HISTORY_UPDATE",
+            changedStep: -1,
+          });
         }
       }
 
@@ -314,10 +340,7 @@ function App() {
     invariant(drawingElement);
 
     if (drawingElement.shape === "selection") {
-      send({
-        type: "DELETE_SELECTION",
-        id: drawingElement.id,
-      });
+      send("DELETE_SELECTION");
     } else {
       send({
         type: "DRAW_END",
@@ -462,6 +485,36 @@ function App() {
                   disabled={zoom === ZOOM.MAXIMUM}
                 >
                   +
+                </button>
+              </div>
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              <div style={{ display: "flex", pointerEvents: "all" }}>
+                <button
+                  type="button"
+                  onClick={() =>
+                    send({
+                      type: "HISTORY_UPDATE",
+                      changedStep: -1,
+                    })
+                  }
+                  disabled={historyStep === 0}
+                >
+                  undo
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    send({
+                      type: "HISTORY_UPDATE",
+                      changedStep: 1,
+                    });
+                  }}
+                  disabled={historyStep === history.length - 1}
+                >
+                  redo
                 </button>
               </div>
             </div>

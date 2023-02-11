@@ -16,6 +16,13 @@ export interface Typegen0 {
   };
   eventsCausingActions: {
     addElement: "DRAW_START";
+    addVersionToHistory:
+      | ""
+      | "CHANGE_ELEMENT_OPTIONS"
+      | "DRAG_END"
+      | "DRAW_END"
+      | "SELECTED_ELEMENTS.DELETE"
+      | "SELECTED_ELEMENTS.PASTE";
     assignCurrentPoint: "MOUSE_MOVE";
     assignDragStartPoint: "DRAG_START";
     assignElementOptions: "CHANGE_ELEMENT_OPTIONS";
@@ -24,10 +31,10 @@ export interface Typegen0 {
     assignZoomToCurrentPoint: "CHANGE_ZOOM_WITH_PINCH";
     changeElementShape: "CHANGE_ELEMENT_SHAPE";
     copySelectedElements: "SELECTED_ELEMENTS.COPY" | "SELECTED_ELEMENTS.CUT";
-    deleteElement: "DELETE_SELECTION";
     deleteSelectedElements:
       | "SELECTED_ELEMENTS.CUT"
       | "SELECTED_ELEMENTS.DELETE";
+    deleteSelection: "DELETE_SELECTION";
     drag: "DRAG" | "DRAG_END";
     draw: "DRAW" | "DRAW_END";
     drawElements:
@@ -41,6 +48,7 @@ export interface Typegen0 {
       | "DRAW"
       | "DRAW_END"
       | "DRAW_START"
+      | "HISTORY_UPDATE"
       | "PAN"
       | "SELECTED_ELEMENTS.CUT"
       | "SELECTED_ELEMENTS.DELETE"
@@ -50,20 +58,19 @@ export interface Typegen0 {
     pasteSelectedElements: "SELECTED_ELEMENTS.PASTE";
     persist:
       | ""
-      | "CHANGE_ELEMENT_OPTIONS"
       | "CHANGE_ELEMENT_SHAPE"
       | "CHANGE_ZOOM"
       | "CHANGE_ZOOM_WITH_PINCH"
+      | "HISTORY_UPDATE"
       | "IS_ELEMENT_SHAPE_FIXED_TOGGLE"
       | "PAN"
       | "SELECTED_ELEMENTS.COPY"
-      | "SELECTED_ELEMENTS.CUT"
-      | "SELECTED_ELEMENTS.DELETE"
-      | "SELECTED_ELEMENTS.PASTE";
-    resetElementShape: "DRAW_END";
+      | "SELECTED_ELEMENTS.CUT";
+    resetDrawingElementId: "DELETE_SELECTION" | "DRAW_END";
     selectDrawingElement: "DRAW_END";
     toggleIsElementShapeFixed: "IS_ELEMENT_SHAPE_FIXED_TOGGLE";
     unselectElements: "CHANGE_ELEMENT_SHAPE" | "DRAW_START";
+    updateHistory: "HISTORY_UPDATE";
     updateIntersecting: "DRAW" | "DRAW_END";
   };
   eventsCausingDelays: {};
@@ -72,13 +79,12 @@ export interface Typegen0 {
   };
   eventsCausingServices: {};
   matchesStates:
-    | "drag ended"
     | "dragging"
-    | "draw ended"
     | "drawing"
     | "element shape reset"
     | "idle"
     | "loading"
-    | "persisting";
+    | "persisting"
+    | "version released";
   tags: never;
 }

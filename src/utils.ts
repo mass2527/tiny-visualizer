@@ -245,6 +245,22 @@ export const convertToRatio = (percent: number) => {
   return percent / 100;
 };
 
+export const getNormalizedValue = ({
+  maximum,
+  value,
+  minimum,
+}: {
+  maximum: number;
+  value: number;
+  minimum: number;
+}) => {
+  return Math.max(minimum, Math.min(value, maximum));
+};
+
 export const getNormalizedZoom = (zoom: VisualizerMachineContext["zoom"]) => {
-  return Math.max(ZOOM.MINIMUM, Math.min(zoom, ZOOM.MAXIMUM));
+  return getNormalizedValue({
+    maximum: ZOOM.MAXIMUM,
+    value: zoom,
+    minimum: ZOOM.MINIMUM,
+  });
 };
