@@ -63,7 +63,6 @@ export type VisualizerMachineEvents =
     }
   | {
       type: "DELETE_SELECTION";
-      id: VisualizerElement["id"];
     }
   | {
       type: "CHANGE_ELEMENT_SHAPE";
@@ -293,7 +292,7 @@ export const visualizerMachine =
 
             DELETE_SELECTION: {
               target: "draw ended",
-              actions: ["deleteElement", "drawElements"],
+              actions: ["deleteSelection", "drawElements"],
             },
           },
         },
@@ -372,9 +371,11 @@ export const visualizerMachine =
             drawingElementId: newElement.id,
           };
         }),
-        deleteElement: assign((context, { id }) => {
+        deleteSelection: assign((context) => {
           return {
-            elements: context.elements.filter((element) => element.id !== id),
+            elements: context.elements.filter(
+              (element) => element.shape !== "selection"
+            ),
           };
         }),
         changeElementShape: assign((_, { elementShape }) => {

@@ -317,10 +317,7 @@ function App() {
     invariant(drawingElement);
 
     if (drawingElement.shape === "selection") {
-      send({
-        type: "DELETE_SELECTION",
-        id: drawingElement.id,
-      });
+      send("DELETE_SELECTION");
     } else {
       send({
         type: "DRAW_END",

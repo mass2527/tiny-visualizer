@@ -24,10 +24,10 @@ export interface Typegen0 {
     assignZoomToCurrentPoint: "CHANGE_ZOOM_WITH_PINCH";
     changeElementShape: "CHANGE_ELEMENT_SHAPE";
     copySelectedElements: "SELECTED_ELEMENTS.COPY" | "SELECTED_ELEMENTS.CUT";
-    deleteElement: "DELETE_SELECTION";
     deleteSelectedElements:
       | "SELECTED_ELEMENTS.CUT"
       | "SELECTED_ELEMENTS.DELETE";
+    deleteSelection: "DELETE_SELECTION";
     drag: "DRAG" | "DRAG_END";
     draw: "DRAW" | "DRAW_END";
     drawElements:
