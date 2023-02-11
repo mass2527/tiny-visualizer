@@ -18,6 +18,7 @@ export interface Typegen0 {
     addElement: "DRAW_START";
     addVersionToHistory:
       | ""
+      | "CHANGE_ELEMENT_OPTIONS"
       | "DRAG_END"
       | "DRAW_END"
       | "SELECTED_ELEMENTS.DELETE"
@@ -57,7 +58,6 @@ export interface Typegen0 {
     pasteSelectedElements: "SELECTED_ELEMENTS.PASTE";
     persist:
       | ""
-      | "CHANGE_ELEMENT_OPTIONS"
       | "CHANGE_ELEMENT_SHAPE"
       | "CHANGE_ZOOM"
       | "CHANGE_ZOOM_WITH_PINCH"
