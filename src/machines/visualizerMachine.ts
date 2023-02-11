@@ -361,7 +361,9 @@ export const visualizerMachine =
         },
 
         "element shape reset": {
-          entry: "resetElementShape",
+          entry: assign({
+            elementShape: "selection",
+          }),
 
           always: "version released",
         },
@@ -614,11 +616,6 @@ export const visualizerMachine =
         toggleIsElementShapeFixed: assign((context) => {
           return {
             isElementShapeFixed: !context.isElementShapeFixed,
-          };
-        }),
-        resetElementShape: assign(() => {
-          return {
-            elementShape: "selection",
           };
         }),
         assignElementOptions: assign((context, event) => {

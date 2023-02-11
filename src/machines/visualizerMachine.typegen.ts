@@ -66,7 +66,6 @@ export interface Typegen0 {
       | "SELECTED_ELEMENTS.COPY"
       | "SELECTED_ELEMENTS.CUT";
     resetDrawingElementId: "DELETE_SELECTION" | "DRAW_END";
-    resetElementShape: "DRAW_END";
     selectDrawingElement: "DRAW_END";
     toggleIsElementShapeFixed: "IS_ELEMENT_SHAPE_FIXED_TOGGLE";
     unselectElements: "CHANGE_ELEMENT_SHAPE" | "DRAW_START";
