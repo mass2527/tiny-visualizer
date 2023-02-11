@@ -67,7 +67,10 @@ function App() {
 
         ctx.clearRect(0, 0, canvasElement.width, canvasElement.height);
 
-        context.elements.forEach((element) => {
+        const drawnElements = context.elements.filter(
+          (element) => !element.isDeleted
+        );
+        drawnElements.forEach((element) => {
           ctx.save();
           ctx.translate(context.origin.x, context.origin.y);
           ctx.scale(context.zoom, context.zoom);

@@ -24,6 +24,7 @@ export type VisualizerElement = {
   isSelected: boolean;
   draw: VoidFunction | null;
   options: Options;
+  isDeleted: boolean;
 };
 
 export type VisualizerMachineContext = {
@@ -363,6 +364,7 @@ export const visualizerMachine =
             isSelected: false,
             draw: null,
             options: context.elementOptions,
+            isDeleted: false,
           };
 
           return {
@@ -498,9 +500,19 @@ export const visualizerMachine =
             console.error(error);
           }
         }, 300),
-        deleteSelectedElements: assign((context, event) => {
+        deleteSelectedElements: assign((context) => {
           return {
-            elements: context.elements.filter((element) => !element.isSelected),
+            elements: context.elements.map((element) => {
+              if (element.isSelected) {
+                return {
+                  ...element,
+                  isDeleted: true,
+                  isSelected: false,
+                };
+              }
+
+              return element;
+            }),
           };
         }),
         copySelectedElements: assign((context) => {
