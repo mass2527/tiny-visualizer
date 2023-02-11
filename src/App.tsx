@@ -44,14 +44,22 @@ function App() {
           }
 
           const context = JSON.parse(value) as VisualizerMachineContext;
+          const loadedElements = context.elements.map((element) => {
+            return {
+              ...element,
+              draw: generateDraw(element, canvasElement),
+            };
+          });
+
           return {
             ...context,
-            elements: context.elements.map((element) => {
-              return {
-                ...element,
-                draw: generateDraw(element, canvasElement),
-              };
-            }),
+            elements: loadedElements,
+            history: [
+              {
+                elements: loadedElements,
+                elementOptions: context.elementOptions,
+              },
+            ],
           };
         } catch (error) {
           console.error(error);
@@ -103,6 +111,8 @@ function App() {
     elementOptions,
     zoom,
     origin,
+    history,
+    historyStep,
   } = state.context;
 
   const drawingElement = elements.find(
@@ -462,6 +472,36 @@ function App() {
                   disabled={zoom === ZOOM.MAXIMUM}
                 >
                   +
+                </button>
+              </div>
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              <div style={{ display: "flex", pointerEvents: "all" }}>
+                <button
+                  type="button"
+                  onClick={() =>
+                    send({
+                      type: "HISTORY_UPDATE",
+                      changedStep: -1,
+                    })
+                  }
+                  disabled={historyStep === 0}
+                >
+                  undo
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    send({
+                      type: "HISTORY_UPDATE",
+                      changedStep: 1,
+                    });
+                  }}
+                  disabled={historyStep === history.length - 1}
+                >
+                  redo
                 </button>
               </div>
             </div>

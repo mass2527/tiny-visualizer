@@ -16,6 +16,12 @@ export interface Typegen0 {
   };
   eventsCausingActions: {
     addElement: "DRAW_START";
+    addVersionToHistory:
+      | ""
+      | "DRAG_END"
+      | "DRAW_END"
+      | "SELECTED_ELEMENTS.DELETE"
+      | "SELECTED_ELEMENTS.PASTE";
     assignCurrentPoint: "MOUSE_MOVE";
     assignDragStartPoint: "DRAG_START";
     assignElementOptions: "CHANGE_ELEMENT_OPTIONS";
@@ -41,6 +47,7 @@ export interface Typegen0 {
       | "DRAW"
       | "DRAW_END"
       | "DRAW_START"
+      | "HISTORY_UPDATE"
       | "PAN"
       | "SELECTED_ELEMENTS.CUT"
       | "SELECTED_ELEMENTS.DELETE"
@@ -57,13 +64,13 @@ export interface Typegen0 {
       | "IS_ELEMENT_SHAPE_FIXED_TOGGLE"
       | "PAN"
       | "SELECTED_ELEMENTS.COPY"
-      | "SELECTED_ELEMENTS.CUT"
-      | "SELECTED_ELEMENTS.DELETE"
-      | "SELECTED_ELEMENTS.PASTE";
+      | "SELECTED_ELEMENTS.CUT";
+    resetDrawingElementId: "DELETE_SELECTION" | "DRAW_END";
     resetElementShape: "DRAW_END";
     selectDrawingElement: "DRAW_END";
     toggleIsElementShapeFixed: "IS_ELEMENT_SHAPE_FIXED_TOGGLE";
     unselectElements: "CHANGE_ELEMENT_SHAPE" | "DRAW_START";
+    updateHistory: "HISTORY_UPDATE";
     updateIntersecting: "DRAW" | "DRAW_END";
   };
   eventsCausingDelays: {};
@@ -72,13 +79,12 @@ export interface Typegen0 {
   };
   eventsCausingServices: {};
   matchesStates:
-    | "drag ended"
     | "dragging"
-    | "draw ended"
     | "drawing"
     | "element shape reset"
     | "idle"
     | "loading"
-    | "persisting";
+    | "persisting"
+    | "version released";
   tags: never;
 }
