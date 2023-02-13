@@ -7,7 +7,6 @@ import {
   calculateCenterPoint,
   calculateElementsAbsolutePoint,
   calculateMousePoint,
-  generateDraw,
   getNormalizedValue,
   getNormalizedZoom,
   isIntersecting,
@@ -22,7 +21,6 @@ type VisualizerElementBase = {
   width: number;
   height: number;
   isSelected: boolean;
-  draw: VoidFunction | null;
   options: Options;
   isDeleted: boolean;
 };
@@ -425,7 +423,6 @@ export const visualizerMachine =
             width: 0,
             height: 0,
             isSelected: false,
-            draw: null,
             options: context.elementOptions,
             isDeleted: false,
           };
@@ -478,18 +475,10 @@ export const visualizerMachine =
           return {
             elements: context.elements.map((element) => {
               if (element.id === context.drawingElementId) {
-                const width = currentPoint.x - element.x;
-                const height = currentPoint.y - element.y;
-
-                const updatedElement: VisualizerElement = {
-                  ...element,
-                  width,
-                  height,
-                };
-
                 return {
-                  ...updatedElement,
-                  draw: generateDraw(updatedElement, canvasElement),
+                  ...element,
+                  width: currentPoint.x - element.x,
+                  height: currentPoint.y - element.y,
                 };
               }
               return element;
@@ -542,15 +531,10 @@ export const visualizerMachine =
           return {
             elements: context.elements.map((element) => {
               if (element.isSelected) {
-                const updatedElement = {
+                return {
                   ...element,
                   x: element.x + (currentPoint.x - context.dragStartPoint.x),
                   y: element.y + (currentPoint.y - context.dragStartPoint.y),
-                };
-
-                return {
-                  ...updatedElement,
-                  draw: generateDraw(updatedElement, canvasElement),
                 };
               }
               return element;
@@ -599,7 +583,7 @@ export const visualizerMachine =
             const centerX = copiedElement.x + copiedElement.width / 2;
             const centerY = copiedElement.y + copiedElement.height / 2;
 
-            const updatedElement = {
+            return {
               ...copiedElement,
               id: uuidv4(),
               x:
@@ -612,11 +596,6 @@ export const visualizerMachine =
                 copiedElement.height / 2 +
                 centerY -
                 centerPoint.y,
-            };
-
-            return {
-              ...updatedElement,
-              draw: generateDraw(updatedElement, canvasElement),
             };
           });
 

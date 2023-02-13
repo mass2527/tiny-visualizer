@@ -44,15 +44,9 @@ function App() {
           }
 
           const context = JSON.parse(value) as VisualizerMachineContext;
-          const loadedElements = context.elements.map((element) => {
-            return {
-              ...element,
-              draw: generateDraw(element, canvasElement),
-            };
-          });
           const updatedContext = {
             ...context,
-            elements: loadedElements,
+            elements: context.elements,
           };
 
           return {
@@ -86,9 +80,8 @@ function App() {
           ctx.translate(context.origin.x, context.origin.y);
           ctx.scale(context.zoom, context.zoom);
 
-          if (element.draw) {
-            element.draw();
-          }
+          const drawElement = generateDraw(element, canvasElement);
+          drawElement();
 
           if (element.isSelected) {
             ctx.setLineDash([8, 4]);
