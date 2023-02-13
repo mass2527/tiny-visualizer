@@ -3,10 +3,15 @@ import invariant from "tiny-invariant";
 import rough from "roughjs";
 import { Drawable } from "roughjs/bin/core";
 import {
+  SHAPE_TYPES,
   VisualizerElement,
+  VisualizerElementBase,
+  VisualizerGenericElement,
+  VisualizerLinearElement,
   VisualizerMachineContext,
   ZOOM,
 } from "./machines/visualizerMachine";
+import { v4 as uuidv4 } from "uuid";
 
 // https://stackoverflow.com/questions/17130395/real-mouse-position-in-canvas
 export const calculateMousePoint = ({
@@ -32,49 +37,81 @@ export const calculateMousePoint = ({
 
 export type Point = { x: number; y: number };
 
-export const calculateAbsolutePoint = (element: VisualizerElement) => {
-  const minX = Math.min(element.x, element.x + element.width);
-  const maxX = Math.max(element.x, element.x + element.width);
-  const minY = Math.min(element.y, element.y + element.height);
-  const maxY = Math.max(element.y, element.y + element.height);
+type AbsolutePoint = {
+  minX: number;
+  minY: number;
+  maxX: number;
+  maxY: number;
+};
 
+export const calculateElementAbsolutePoint = (
+  element: VisualizerElement
+): AbsolutePoint => {
+  if (isGenericElement(element)) {
+    return calculateGenericElementAbsolutePoint(element);
+  } else {
+    return calculateLinearElementAbsolutePoint(element);
+  }
+};
+
+const calculateGenericElementAbsolutePoint = (
+  element: VisualizerGenericElement
+) => {
   return {
-    minX,
-    maxX,
-    minY,
-    maxY,
+    minX: element.x,
+    minY: element.y,
+    maxX: element.x + element.width,
+    maxY: element.y + element.height,
   };
+};
+
+const calculateLinearElementAbsolutePoint = (
+  element: VisualizerLinearElement
+) => {
+  return element.points.reduce(
+    (result, point) => {
+      const [dx, dy] = point;
+
+      return {
+        minX: Math.min(result.minX, element.x + dx),
+        minY: Math.min(result.minY, element.y + dy),
+        maxX: Math.max(result.maxX, element.x + dx),
+        maxY: Math.max(result.maxY, element.y + dy),
+      };
+    },
+    {
+      minX: Infinity,
+      minY: Infinity,
+      maxX: -Infinity,
+      maxY: -Infinity,
+    }
+  );
 };
 
 export const calculateElementsAbsolutePoint = (
   elements: VisualizerElement[]
 ) => {
   return elements.reduce(
-    (acc, copiedElement) => {
-      const elementAbsolutePoint = calculateAbsolutePoint(copiedElement);
+    (result, copiedElement) => {
+      const elementAbsolutePoint = calculateElementAbsolutePoint(copiedElement);
 
       return {
-        minX: Math.min(acc.minX, elementAbsolutePoint.minX),
-        maxX: Math.max(acc.maxX, elementAbsolutePoint.maxX),
-        minY: Math.min(acc.minY, elementAbsolutePoint.minY),
-        maxY: Math.max(acc.maxY, elementAbsolutePoint.maxY),
+        minX: Math.min(result.minX, elementAbsolutePoint.minX),
+        maxX: Math.max(result.maxX, elementAbsolutePoint.maxX),
+        minY: Math.min(result.minY, elementAbsolutePoint.minY),
+        maxY: Math.max(result.maxY, elementAbsolutePoint.maxY),
       };
     },
     {
-      minX: Number.MAX_SAFE_INTEGER,
-      maxX: 0,
-      minY: Number.MAX_SAFE_INTEGER,
-      maxY: 0,
+      minX: Infinity,
+      minY: Infinity,
+      maxX: -Infinity,
+      maxY: -Infinity,
     }
   );
 };
 
-export const calculateCenterPoint = (absolutePoint: {
-  minX: number;
-  maxX: number;
-  minY: number;
-  maxY: number;
-}) => {
+export const calculateCenterPoint = (absolutePoint: AbsolutePoint) => {
   return {
     x: (absolutePoint.minX + absolutePoint.maxX) / 2,
     y: (absolutePoint.minY + absolutePoint.maxY) / 2,
@@ -85,7 +122,7 @@ export const isPointInsideOfElement = (
   point: Point,
   element: VisualizerElement
 ) => {
-  const { minX, maxX, minY, maxY } = calculateAbsolutePoint(element);
+  const { minX, maxX, minY, maxY } = calculateElementAbsolutePoint(element);
 
   if (
     point.x >= minX &&
@@ -102,8 +139,8 @@ export const isIntersecting = (
   selection: VisualizerElement,
   element: VisualizerElement
 ) => {
-  const selectionAbsolutePoint = calculateAbsolutePoint(selection);
-  const elementAbsolutePoint = calculateAbsolutePoint(element);
+  const selectionAbsolutePoint = calculateElementAbsolutePoint(selection);
+  const elementAbsolutePoint = calculateElementAbsolutePoint(element);
 
   if (selectionAbsolutePoint.minX > elementAbsolutePoint.maxX) {
     return false;
@@ -133,7 +170,7 @@ const ARROW_MAX_SIZE = 30;
 export const generateDraw = (
   element: VisualizerElement,
   canvasElement: HTMLCanvasElement
-) => {
+): VoidFunction => {
   const ctx = canvasElement.getContext("2d");
   invariant(ctx);
 
@@ -167,26 +204,28 @@ export const generateDraw = (
       roughCanvas.draw(ellipseDrawable);
     };
   } else if (element.shape === "line") {
+    const [dx, dy] = element.points[element.points.length - 1];
     const lineDrawable = generator.line(
       element.x,
       element.y,
-      element.x + element.width,
-      element.y + element.height,
+      element.x + dx,
+      element.y + dy,
       element.options
     );
     return () => {
       roughCanvas.draw(lineDrawable);
     };
   } else {
-    // element.shape === "arrow"
     const distance = calculateDistance(element.width, element.height);
     const arrowSize = Math.min(ARROW_MAX_SIZE, distance / 2);
-    const angleInRadians = Math.atan2(element.height, element.width);
+    const [dx, dy] = element.points[element.points.length - 1];
+    const angleInRadians = Math.atan2(dy, dx);
 
     const startX = element.x;
     const startY = element.y;
-    const endX = element.x + element.width;
-    const endY = element.y + element.height;
+
+    const endX = element.x + dx;
+    const endY = element.y + dy;
 
     let arrowDrawables: Drawable[] = [];
 
@@ -263,4 +302,51 @@ export const getNormalizedZoom = (zoom: VisualizerMachineContext["zoom"]) => {
     value: zoom,
     minimum: ZOOM.MINIMUM,
   });
+};
+
+export const isGenericElementShape = (
+  shape: VisualizerElement["shape"]
+): shape is VisualizerGenericElement["shape"] => {
+  return SHAPE_TYPES[shape] === "generic";
+};
+
+export const isGenericElement = (
+  element: VisualizerElement
+): element is VisualizerGenericElement => {
+  return isGenericElementShape(element.shape);
+};
+
+export const getNewElement = ({
+  elementShape,
+  drawStartPoint,
+  elementOptions,
+}: {
+  elementShape: VisualizerMachineContext["elementShape"];
+  drawStartPoint: VisualizerMachineContext["drawStartPoint"];
+  elementOptions: VisualizerMachineContext["elementOptions"];
+}): VisualizerElement => {
+  const elementBase: VisualizerElementBase = {
+    id: uuidv4(),
+    x: drawStartPoint.x,
+    y: drawStartPoint.y,
+    width: 0,
+    height: 0,
+    isSelected: false,
+    options: elementOptions,
+    isDeleted: false,
+  };
+
+  if (isGenericElementShape(elementShape)) {
+    return {
+      ...elementBase,
+      shape: elementShape,
+    };
+  }
+
+  // linear
+  return {
+    ...elementBase,
+    shape: elementShape,
+    points: [[0, 0]],
+  };
 };

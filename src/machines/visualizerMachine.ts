@@ -11,15 +11,24 @@ import {
   getNormalizedZoom,
   isIntersecting,
   Point,
+  getNewElement,
+  isGenericElement,
 } from "../utils";
 import debounce from "lodash.debounce";
 
-type VisualizerElementBase = {
+export type VisualizerElementBase = {
   id: string;
+
+  // VisualizerGenericElement: left top point
+  // VisualizerLinearElement: start point
   x: number;
   y: number;
+
+  // VisualizerGenericElement: absolute width, height
+  // VisualizerLinearElement: absolute width, height
   width: number;
   height: number;
+
   isSelected: boolean;
   options: Options;
   isDeleted: boolean;
@@ -34,22 +43,33 @@ type VisualizerRectangleElement = VisualizerElementBase & {
 type VisualizerEllipseElement = VisualizerElementBase & {
   shape: "ellipse";
 };
-type VisualizerGenericElement =
+
+export type VisualizerGenericElement =
   | VisualizerSelectionElement
   | VisualizerRectangleElement
   | VisualizerEllipseElement;
 
-type VisualizerArrowElement = VisualizerElementBase & {
-  shape: "arrow";
+type TuplePoint = [number, number];
+
+export type VisualizerLinearElement = VisualizerElementBase & {
+  shape: "line" | "arrow";
+  points: TuplePoint[];
 };
-type VisualizerLineElement = VisualizerElementBase & {
-  shape: "line";
-};
-type VisualizerLinearElement = VisualizerArrowElement | VisualizerLineElement;
 
 export type VisualizerElement =
   | VisualizerGenericElement
   | VisualizerLinearElement;
+
+export const SHAPE_TYPES: Record<
+  VisualizerElement["shape"],
+  "generic" | "linear"
+> = {
+  selection: "generic",
+  rectangle: "generic",
+  ellipse: "generic",
+  line: "linear",
+  arrow: "linear",
+};
 
 type Version = {
   elements: VisualizerMachineContext["elements"];
@@ -63,7 +83,8 @@ type VisualizerMachinePersistedContext = {
 
   elementShape: VisualizerElement["shape"];
   drawingElementId: VisualizerElement["id"] | null;
-  dragStartPoint: Point;
+  drawStartPoint: Point;
+  previousPoint: Point;
   copiedElements: VisualizerElement[];
   currentPoint: Point;
   isElementShapeFixed: boolean;
@@ -187,7 +208,11 @@ const PERSISTED_CONTEXT: VisualizerMachinePersistedContext = {
   elementShape: "selection",
   copiedElements: [],
   drawingElementId: null,
-  dragStartPoint: {
+  drawStartPoint: {
+    x: 0,
+    y: 0,
+  },
+  previousPoint: {
     x: 0,
     y: 0,
   },
@@ -205,7 +230,7 @@ const PERSISTED_CONTEXT: VisualizerMachinePersistedContext = {
 };
 
 export const visualizerMachine =
-  /** @xstate-layout N4IgpgJg5mDOIC5QDcCWsCuBDANqgXmAE4AEAtlgMYAWqAdmAHSoQ5gDEAIgEoCCA6gH0AygBVe3UQG0ADAF1EoAA4B7WKgAuqFXUUgAHogBsAdhOMAnAEYALDIBMFmQA5T9kxYA0IAJ6IrzgCsMoyuNs4m4VZGMjJGgQC+Cd5omLgExORUtAzMrBwAwgASvAByAOIAooKVADKVALKVpaIiJQAKlbIKSCCq6lo6eoYIpubWdo4ubh7efgj2sYyRFqs2NgDMgYFWMjb2SSno2HiEpBQ09EwsbFx85SLikt16-Zraur0jY5a2Dk6uEzuLy+fyBDYWRgbDYxGRWdwxGIWQ4gVInDLnbJXPK3YR1SoFUSVTg1epNFrCRicfFEl69N6DT6gb5mX6TAEzEHzLZWRi7Cww+zOewxXaRFFo9JnLKXXI3Dh4+qE4mkxrNUSUgoAeXaAE06co1O8hl9jKyJv9pkDZqCEDZIowdoEjO5IvENhEJccpZkLjlrvl2IqCUSSfjyRrGO1eGIuvJXkbGcNEECbIx3JN3Bs7DYLCY5ohAiZedYLIFwkFnIKjF60qdfVi5YGGlqAKp4wQtgBqcZ6hoGH2TCA2xcYNnBVknHnBTg2BYQVhMwrH1i2wqszviJlr6Olfux8vYAElhKqI21eJ1BAAxI8ADRVoi15XK9QNfUTg9No3NfymgOBecjAsNMR1zMtHFWWINh3H1MVlANcXxZUwzJdVNVbaR43pT8TWZM1xj-DlrS5FMnFCIV4RMbMNxA5xYPreD-RxQoSgqapw3VQQdVEI8tVKYR3wZL98J-Qj2StQDbRA3kAhMQJ7B2OwyxdBiMRlZjD2KMoqkEAAtLUtQaITcKZAwCLZS0AJteZdhHRgjDsQILCrRyLCFejklRb1GI0g9A209j9MMhpBH4I9RCKQR2iPUpihMgc8PMsTLP-Tl50nIxeT2MZgkCZwIhHNS90bRCOGjUoEuNMyWXEqz0tteFnDTccNjiAUCpFRTiobBCWPYIoTyfbhdUEVt2k4XhaWw-tqqHEdAkddwxUWYD13newrBhdMeXtNrwkU7cvMlXz91yCAiCwAB3egoDuAQqqTb9djhRgZBMBxqICIwfosIwMsiZwxx5LY7DMaijqOOt1LOpgLuu277qEZpOEekTksnVw+Q8UwjFcKwQOdDKq3sCiq1sDNFgcHqmOxeGbroO6eAEGpSlRqw+w-RKav8RZFvCPYzDicdnA3DKXSB51FOsZw1mCKwab887LoZpmaWqYNCT4yqZq5ubvw8EIXVzZy2rMGxHIBpY8vtD7okcxJjp8mHSsYeGoCgRHmfKNGkpGeFTFCFYjC2csssCDL1l5eIXWibZHCLRXYbdy6Pa9+5WdR3XhL9sF4XTfZvp2AmFoy8ENj5GQQJDvYIUUmwk9dnAVCwCBEd9nmFlFqFTEXAr1hkDYrGJ1lgPHex7QnhShUbvqlGIdRYC0Rn2A7odVvMfL8tlvGPvkiPbW78DVmAstc3WTyod3XrmLANgyDAOgNBIWBqCweeSCIOAwA0Vfs9Moci58oOXCPsQeuYNjuCtkYSw44B4gXsCOAqs9mLIAXh8T+d8wBYFgJAP+nMc6d02sESwzgq5VjWM1RSVtzDrG2A4RcBMnCOy8nQFQEA4B6BOi7BCCZuZDgALT-VtEIt6sRYipgnosTakNvLQxKn1eUfD9aiX2KTAUMIq5D1MIPKBjUCqQl2JsbMHp3qi1kdwhRzF6a3WUU9USdlzAEy2iTfkf05yNVnMsQm0JFjFh5CgumqdPaMzsejf2QonHyRMCHaJilh6NSLCEOI8SXDCmzDWJ28ib7Ymbq3WxOF+Hfn2MTOwfJCaTjzC5fYDcsnX1prkeeRBF7LygGE3OCxNqk17qYbYMlHAePmKLGB+V7TxHLK4LRgTchYIfk-F+b8P5f1wRodpncNz5ykUXSppdGp41JnQ3M8kfpLgCNMpgaDmkYK-mwHBkA1mAKCBXai6wbAbncCKdy4tlyHLzJuU5nkkhAA */
+  /** @xstate-layout N4IgpgJg5mDOIC5QDcCWsCuBDANqgXmAE4AEAtlgMYAWqAdmAHSoQ5gDEAIgEoCCA6gH0AygBVe3UQG0ADAF1EoAA4B7WKgAuqFXUUgAHogBsAdhOMAnAEYALDIBMFmQA5T9kxYA0IAJ6IrzgCsMoyuNs4m4VZGMjJGgQC+Cd5omLgExORUtAzMrBwAwgASvAByAOIAooKVADKVALKVpaIiJQAKlbIKSCCq6lo6eoYIpubWdo4ubh7efgj2sYyRFqs2NgDMgYFWMjb2SSno2HiEpBQ09EwsbFx85SLikt16-Zraur0jY5a2Dk6uEzuLy+fyBDYWRgbDYxGRWdwxGIWQ4gVInDLnbJXPK3YR1SoFUSVTg1epNFrCRicfFEl69N6DT6gb5mX6TAEzEHzLZWRi7Cww+zOewxXaRFFo9JnLKXXI3Dh4+qE4mkxrNUSUgoAeXaAE06co1O8hl9jKyJv9pkDZqCEDZIowdoEjO5IvENhEJccpZkLjlrvl2IqCUSSfjyRrGO1eGIuvJXkbGcNEECbIx3JN3Bs7DYLCY5ohAiZedYLIFwkFnIKjF60qdfVi5YGGlqAKp4wQtgBqcZ6hoGH2TCA2xcYNnBVknHnBTg2BYQVhMwrH1i2wqszviJlr6Olfux8vYAElhKqI21eJ1BAAxI8ADRVoi15XK9QNfUTg9No3NfymgOBecjAsNMR1zMtHFWWINh3H1MVlANcXxZUwzJdVNVbaR43pT8TWZM1xj-DlrS5FMnFCIV4RMbMNxA5xYPreD-RxQoSgqapw3VQQdVEI8tVKYR3wZL98J-Qj2StQDbRA3kAhMQJ7B2OwyxdBiMRlZjD2KMoqkEAAtLUtQaITcKZAwCLZS0AJteZdhHRgjDsQILCrRyLCFejklRb1GI0g9A209j9MMhpBH4I9RCKQR2iPUpihMgc8PMsTLP-Tl50nIxeT2MZgkCZwIhHNS90bRCOGjUoEuNMyWXEqz0tteFnDTccNjiAUCpFRTiobBCWPYIoTyfbhdUEVt2k4XhaWw-tqqHEdAkddwxUWYD13newrBhdMeXtNrwkU7cvMlXz91yCAiCwAB3egoDuAQqqTb9djhRgZBMBxqICIwfosIwMsiZwxx5LY7DMaijqOOt1LOpgLuu277qEZpOEekTksnVw+Q8UwjFcKwQOdDKq3sCiq1sDNFgcHqmOxeGbroO6eAEGpSlRqw+w-RKav8RZFvCPYzDicdnA3DKXSB51FOsZw1mCKwab887LoZpmaWqYNCT4yqZq5ubvw8EIXVzZy2rMGxHIBpY8vtD7okcxJjp8mHSsYeGoCgRHmfKNGkpGeFTFCFYjC2csssCDL1l5eIXWibZHCLRXYbdy6Pa9+5WdR3XhL9sF4XTfZvp2AmFoy8ENj5GQQJDvYIUUmwk9dnAVCwCBEd9nmFlFqFTEXAr1hkDYrGJ1lgPHex7QnhShUbvqlGIdRYC0Rn2A7odVvMfL8tlvGPvkiPbW78DVmAstc3WTyod3XrmLANgyDAOgNBIWBqCweeSCIOAwA0Vfs9Moci58oOXCPsQeuYNjuCtkYSw44B4gXsCOAqs9mLIAXh8T+d8wBYFgJAP+nMc6d02sESwzgq5VjWM1RSVtzDrG2A4RcBMnCOy8nQFQEA4B6BOi7BCCZuZDgALT-VtEIt6sRB7wjNrLeuKD-JsD4frUS+xSYChhFXIephB5QMagVSEuxNjZg9O9UWkNvLQxKn1emt0FFPVEnZcwBMtok35H9OcjVZzLEJtCRYxYeSyOVlgNOjMbHo39kKBx8kTAh0iYpYejUiwhDiLElwwpsw1iduYm+2Jm6t2sThfh359jEzsHyQmk48wuX2A3DJ19aa5HnkQRey8oAhNzgsTapNe6mG2DJRwbj5iixgfle08RyyuHUf4pgWCH5Pxfm-D+X9cEaFaZ3Dc+cJ6bVcMXAU8lxbLjobmeSP0lwBEmYwNBjSMFfzYDgyAKzAFBArtRdYNgNzuBFO5PZpMDl5k3CczySQgA */
   createMachine(
     {
       id: "visualizer machine",
@@ -238,7 +263,12 @@ export const visualizerMachine =
           on: {
             DRAW_START: {
               target: "drawing",
-              actions: ["unselectElements", "addElement", "drawElements"],
+              actions: [
+                "unselectElements",
+                "assignDrawStartPoint",
+                "addElement",
+                "drawElements",
+              ],
             },
 
             CHANGE_ELEMENT_SHAPE: {
@@ -253,7 +283,7 @@ export const visualizerMachine =
 
             DRAG_START: {
               target: "dragging",
-              actions: "assignDragStartPoint",
+              actions: "assignPreviousPoint",
             },
 
             "SELECTED_ELEMENTS.DELETE": {
@@ -368,7 +398,7 @@ export const visualizerMachine =
             DRAG: {
               target: "dragging",
               internal: true,
-              actions: ["drag", "drawElements"],
+              actions: ["drag", "assignPreviousPoint", "drawElements"],
             },
 
             DRAG_END: {
@@ -408,24 +438,12 @@ export const visualizerMachine =
     },
     {
       actions: {
-        addElement: assign((context, { event, canvasElement }) => {
-          const startPoint = calculateMousePoint({
-            canvasElement,
-            event,
-            zoom: context.zoom,
-            origin: context.origin,
+        addElement: assign((context) => {
+          const newElement = getNewElement({
+            elementShape: context.elementShape,
+            elementOptions: context.elementOptions,
+            drawStartPoint: context.drawStartPoint,
           });
-          const newElement: VisualizerElement = {
-            id: uuidv4(),
-            shape: context.elementShape,
-            x: startPoint.x,
-            y: startPoint.y,
-            width: 0,
-            height: 0,
-            isSelected: false,
-            options: context.elementOptions,
-            isDeleted: false,
-          };
 
           return {
             elements: [...context.elements, newElement],
@@ -444,8 +462,8 @@ export const visualizerMachine =
             elementShape,
           };
         }),
-        assignDragStartPoint: assign((context, { canvasElement, event }) => {
-          const dragStartPoint = calculateMousePoint({
+        assignDrawStartPoint: assign((context, { canvasElement, event }) => {
+          const drawStartPoint = calculateMousePoint({
             canvasElement,
             event,
             zoom: context.zoom,
@@ -453,7 +471,19 @@ export const visualizerMachine =
           });
 
           return {
-            dragStartPoint,
+            drawStartPoint,
+          };
+        }),
+        assignPreviousPoint: assign((context, { canvasElement, event }) => {
+          const previousPoint = calculateMousePoint({
+            canvasElement,
+            event,
+            zoom: context.zoom,
+            origin: context.origin,
+          });
+
+          return {
+            previousPoint,
           };
         }),
         unselectElements: assign((context) => {
@@ -475,12 +505,32 @@ export const visualizerMachine =
           return {
             elements: context.elements.map((element) => {
               if (element.id === context.drawingElementId) {
-                return {
+                const dx = currentPoint.x - context.drawStartPoint.x;
+                const dy = currentPoint.y - context.drawStartPoint.y;
+                const updatedElement = {
                   ...element,
-                  width: currentPoint.x - element.x,
-                  height: currentPoint.y - element.y,
+                  width: Math.abs(dx),
+                  height: Math.abs(dy),
                 };
+
+                if (isGenericElement(element)) {
+                  return {
+                    ...updatedElement,
+                    x: Math.min(currentPoint.x, context.drawStartPoint.x),
+                    y: Math.min(currentPoint.y, context.drawStartPoint.y),
+                  };
+                } else {
+                  const updatedPoints: VisualizerLinearElement["points"] = [
+                    [0, 0],
+                    [dx, dy],
+                  ];
+                  return {
+                    ...updatedElement,
+                    points: updatedPoints,
+                  };
+                }
               }
+
               return element;
             }),
           };
@@ -533,13 +583,12 @@ export const visualizerMachine =
               if (element.isSelected) {
                 return {
                   ...element,
-                  x: element.x + (currentPoint.x - context.dragStartPoint.x),
-                  y: element.y + (currentPoint.y - context.dragStartPoint.y),
+                  x: element.x + (currentPoint.x - context.previousPoint.x),
+                  y: element.y + (currentPoint.y - context.previousPoint.y),
                 };
               }
               return element;
             }),
-            dragStartPoint: currentPoint,
           };
         }),
         persist: debounce((context: VisualizerMachineContext) => {
@@ -573,7 +622,7 @@ export const visualizerMachine =
             ),
           };
         }),
-        pasteSelectedElements: assign((context, { canvasElement }) => {
+        pasteSelectedElements: assign((context) => {
           const absolutePoint = calculateElementsAbsolutePoint(
             context.copiedElements
           );

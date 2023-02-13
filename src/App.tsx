@@ -15,7 +15,7 @@ import {
 import { STROKE_WIDTH_OPTIONS, TOOL_OPTIONS } from "./options";
 
 import {
-  calculateAbsolutePoint,
+  calculateElementAbsolutePoint,
   calculateMousePoint,
   convertToPercent,
   convertToRatio,
@@ -84,7 +84,7 @@ function App() {
           const drawElement = generateDraw(element, canvasElement);
           drawElement();
 
-          const absolutePoint = calculateAbsolutePoint(element);
+          const absolutePoint = calculateElementAbsolutePoint(element);
           if (element.isSelected) {
             ctx.setLineDash([8, 4]);
             ctx.strokeRect(
