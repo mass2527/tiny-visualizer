@@ -15,6 +15,7 @@ import {
 import { STROKE_WIDTH_OPTIONS, TOOL_OPTIONS } from "./options";
 
 import {
+  calculateElementAbsolutePoint,
   calculateMousePoint,
   convertToPercent,
   convertToRatio,
@@ -44,15 +45,9 @@ function App() {
           }
 
           const context = JSON.parse(value) as VisualizerMachineContext;
-          const loadedElements = context.elements.map((element) => {
-            return {
-              ...element,
-              draw: generateDraw(element, canvasElement),
-            };
-          });
           const updatedContext = {
             ...context,
-            elements: loadedElements,
+            elements: context.elements,
           };
 
           return {
@@ -86,17 +81,17 @@ function App() {
           ctx.translate(context.origin.x, context.origin.y);
           ctx.scale(context.zoom, context.zoom);
 
-          if (element.draw) {
-            element.draw();
-          }
+          const drawElement = generateDraw(element, canvasElement);
+          drawElement();
 
+          const absolutePoint = calculateElementAbsolutePoint(element);
           if (element.isSelected) {
             ctx.setLineDash([8, 4]);
             ctx.strokeRect(
-              element.x - MARGIN,
-              element.y - MARGIN,
-              element.width + MARGIN * 2,
-              element.height + MARGIN * 2
+              absolutePoint.minX - MARGIN,
+              absolutePoint.minY - MARGIN,
+              absolutePoint.maxX - absolutePoint.minX + MARGIN * 2,
+              absolutePoint.maxY - absolutePoint.minY + MARGIN * 2
             );
             ctx.setLineDash([]);
           }

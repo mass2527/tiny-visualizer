@@ -24,9 +24,10 @@ export interface Typegen0 {
       | "SELECTED_ELEMENTS.DELETE"
       | "SELECTED_ELEMENTS.PASTE";
     assignCurrentPoint: "MOUSE_MOVE";
-    assignDragStartPoint: "DRAG_START";
+    assignDrawStartPoint: "DRAW_START";
     assignElementOptions: "CHANGE_ELEMENT_OPTIONS";
     assignOrigin: "PAN";
+    assignPreviousPoint: "DRAG" | "DRAG_START";
     assignZoom: "CHANGE_ZOOM";
     assignZoomToCurrentPoint: "CHANGE_ZOOM_WITH_PINCH";
     changeElementShape: "CHANGE_ELEMENT_SHAPE";
