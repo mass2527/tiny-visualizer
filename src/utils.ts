@@ -293,6 +293,7 @@ export const createDraw = (
       ctx.save();
 
       ctx.beginPath();
+      ctx.lineWidth = element.options.strokeWidth!;
       ctx.strokeStyle = element.options.stroke || "black";
 
       ctx.moveTo(element.x, element.y);
