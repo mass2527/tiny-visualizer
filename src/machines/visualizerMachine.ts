@@ -15,9 +15,8 @@ import {
 } from "../utils";
 import debounce from "lodash.debounce";
 
-export type VisualizerElement = {
+type VisualizerElementBase = {
   id: string;
-  shape: "selection" | "rectangle" | "ellipse" | "arrow" | "line";
   x: number;
   y: number;
   width: number;
@@ -27,6 +26,32 @@ export type VisualizerElement = {
   options: Options;
   isDeleted: boolean;
 };
+
+type VisualizerSelectionElement = VisualizerElementBase & {
+  shape: "selection";
+};
+type VisualizerRectangleElement = VisualizerElementBase & {
+  shape: "rectangle";
+};
+type VisualizerEllipseElement = VisualizerElementBase & {
+  shape: "ellipse";
+};
+type VisualizerGenericElement =
+  | VisualizerSelectionElement
+  | VisualizerRectangleElement
+  | VisualizerEllipseElement;
+
+type VisualizerArrowElement = VisualizerElementBase & {
+  shape: "arrow";
+};
+type VisualizerLineElement = VisualizerElementBase & {
+  shape: "line";
+};
+type VisualizerLinearElement = VisualizerArrowElement | VisualizerLineElement;
+
+export type VisualizerElement =
+  | VisualizerGenericElement
+  | VisualizerLinearElement;
 
 type Version = {
   elements: VisualizerMachineContext["elements"];
