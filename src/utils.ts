@@ -6,6 +6,7 @@ import {
   SHAPE_TYPES,
   VisualizerElement,
   VisualizerElementBase,
+  VisualizerFreeDrawElement,
   VisualizerGenericElement,
   VisualizerLinearElement,
   VisualizerMachineContext,
@@ -49,9 +50,13 @@ export const calculateElementAbsolutePoint = (
 ): AbsolutePoint => {
   if (isGenericElement(element)) {
     return calculateGenericElementAbsolutePoint(element);
-  } else {
+  }
+
+  if (isLinearElement(element)) {
     return calculateLinearElementAbsolutePoint(element);
   }
+
+  return calculateFreeDrawElementAbsolutePoint(element);
 };
 
 const calculateGenericElementAbsolutePoint = (
@@ -67,6 +72,29 @@ const calculateGenericElementAbsolutePoint = (
 
 const calculateLinearElementAbsolutePoint = (
   element: VisualizerLinearElement
+) => {
+  return element.points.reduce(
+    (result, point) => {
+      const [dx, dy] = point;
+
+      return {
+        minX: Math.min(result.minX, element.x + dx),
+        minY: Math.min(result.minY, element.y + dy),
+        maxX: Math.max(result.maxX, element.x + dx),
+        maxY: Math.max(result.maxY, element.y + dy),
+      };
+    },
+    {
+      minX: Infinity,
+      minY: Infinity,
+      maxX: -Infinity,
+      maxY: -Infinity,
+    }
+  );
+};
+
+export const calculateFreeDrawElementAbsolutePoint = (
+  element: VisualizerFreeDrawElement
 ) => {
   return element.points.reduce(
     (result, point) => {
@@ -215,7 +243,7 @@ export const createDraw = (
     return () => {
       roughCanvas.draw(lineDrawable);
     };
-  } else {
+  } else if (element.shape === "arrow") {
     const distance = calculateDistance(element.width, element.height);
     const arrowSize = Math.min(ARROW_MAX_SIZE, distance / 2);
     const [dx, dy] = element.points[element.points.length - 1];
@@ -258,6 +286,23 @@ export const createDraw = (
       arrowDrawables.forEach((drawable) => {
         roughCanvas.draw(drawable);
       });
+    };
+  } else {
+    // freedraw
+    return () => {
+      ctx.save();
+
+      ctx.beginPath();
+      ctx.strokeStyle = element.options.stroke || "black";
+
+      ctx.moveTo(element.x, element.y);
+      for (let i = 1; i < element.points.length; i++) {
+        const [dx, dy] = element.points[i];
+        ctx.lineTo(element.x + dx, element.y + dy);
+      }
+      ctx.stroke();
+
+      ctx.restore();
     };
   }
 };
@@ -318,6 +363,18 @@ export const isGenericElement = (
   return isGenericElementShape(element.shape);
 };
 
+const isLinearElementShape = (
+  shape: VisualizerElement["shape"]
+): shape is VisualizerLinearElement["shape"] => {
+  return SHAPE_TYPES[shape] === "linear";
+};
+
+export const isLinearElement = (
+  element: VisualizerElement
+): element is VisualizerLinearElement => {
+  return isLinearElementShape(element.shape);
+};
+
 export const createElement = ({
   elementShape,
   drawStartPoint,
@@ -345,7 +402,7 @@ export const createElement = ({
     };
   }
 
-  // linear
+  // linear or freedraw
   return {
     ...elementBase,
     shape: elementShape,

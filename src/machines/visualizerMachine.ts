@@ -13,6 +13,8 @@ import {
   Point,
   createElement,
   isGenericElement,
+  isLinearElement,
+  calculateFreeDrawElementAbsolutePoint,
 } from "../utils";
 import debounce from "lodash.debounce";
 
@@ -56,19 +58,26 @@ export type VisualizerLinearElement = VisualizerElementBase & {
   points: TuplePoint[];
 };
 
+export type VisualizerFreeDrawElement = VisualizerElementBase & {
+  shape: "freedraw";
+  points: TuplePoint[];
+};
+
 export type VisualizerElement =
   | VisualizerGenericElement
-  | VisualizerLinearElement;
+  | VisualizerLinearElement
+  | VisualizerFreeDrawElement;
 
 export const SHAPE_TYPES: Record<
   VisualizerElement["shape"],
-  "generic" | "linear"
+  "generic" | "linear" | "freedraw"
 > = {
   selection: "generic",
   rectangle: "generic",
   ellipse: "generic",
   line: "linear",
   arrow: "linear",
+  freedraw: "freedraw",
 };
 
 type Version = {
@@ -507,28 +516,38 @@ export const visualizerMachine =
               if (element.id === context.drawingElementId) {
                 const dx = currentPoint.x - context.drawStartPoint.x;
                 const dy = currentPoint.y - context.drawStartPoint.y;
-                const updatedElement = {
-                  ...element,
-                  width: Math.abs(dx),
-                  height: Math.abs(dy),
-                };
 
                 if (isGenericElement(element)) {
                   return {
-                    ...updatedElement,
+                    ...element,
                     x: Math.min(currentPoint.x, context.drawStartPoint.x),
                     y: Math.min(currentPoint.y, context.drawStartPoint.y),
-                  };
-                } else {
-                  const updatedPoints: VisualizerLinearElement["points"] = [
-                    [0, 0],
-                    [dx, dy],
-                  ];
-                  return {
-                    ...updatedElement,
-                    points: updatedPoints,
+                    width: Math.abs(dx),
+                    height: Math.abs(dy),
                   };
                 }
+
+                if (isLinearElement(element)) {
+                  return {
+                    ...element,
+                    width: Math.abs(dx),
+                    height: Math.abs(dy),
+                    points: [
+                      [0, 0],
+                      [dx, dy],
+                    ],
+                  };
+                }
+
+                // freedraw
+                const absolutePoint =
+                  calculateFreeDrawElementAbsolutePoint(element);
+                return {
+                  ...element,
+                  width: absolutePoint.maxX - absolutePoint.minX,
+                  height: absolutePoint.maxY - absolutePoint.minY,
+                  points: [...element.points, [dx, dy]],
+                };
               }
 
               return element;
