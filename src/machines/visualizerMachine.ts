@@ -7,11 +7,11 @@ import {
   calculateCenterPoint,
   calculateElementsAbsolutePoint,
   calculateMousePoint,
-  getNormalizedValue,
-  getNormalizedZoom,
+  calculateNormalizedValue,
+  calculateNormalizedZoom,
   isIntersecting,
   Point,
-  getNewElement,
+  createElement,
   isGenericElement,
 } from "../utils";
 import debounce from "lodash.debounce";
@@ -439,7 +439,7 @@ export const visualizerMachine =
     {
       actions: {
         addElement: assign((context) => {
-          const newElement = getNewElement({
+          const newElement = createElement({
             elementShape: context.elementShape,
             elementOptions: context.elementOptions,
             drawStartPoint: context.drawStartPoint,
@@ -686,7 +686,7 @@ export const visualizerMachine =
           };
         }),
         assignZoom: assign((context, { setZoom, canvasElement }) => {
-          const normalizedZoom = getNormalizedZoom(setZoom(context.zoom));
+          const normalizedZoom = calculateNormalizedZoom(setZoom(context.zoom));
           const targetPoint = {
             x: canvasElement.width / 2,
             y: canvasElement.height / 2,
@@ -701,7 +701,7 @@ export const visualizerMachine =
           };
         }),
         assignZoomToCurrentPoint: assign((context, { setZoom }) => {
-          const normalizedZoom = getNormalizedZoom(setZoom(context.zoom));
+          const normalizedZoom = calculateNormalizedZoom(setZoom(context.zoom));
 
           return {
             zoom: normalizedZoom,
@@ -748,7 +748,7 @@ export const visualizerMachine =
           };
         }),
         updateHistory: assign((context, { changedStep }) => {
-          const updatedHistoryStep = getNormalizedValue({
+          const updatedHistoryStep = calculateNormalizedValue({
             maximum: context.history.length - 1,
             value: context.historyStep + changedStep,
             minimum: 0,

@@ -167,7 +167,7 @@ export const convertDegreeToRadian = (angleInDegrees: number) => {
 
 const ARROW_MAX_SIZE = 30;
 
-export const generateDraw = (
+export const createDraw = (
   element: VisualizerElement,
   canvasElement: HTMLCanvasElement
 ): VoidFunction => {
@@ -284,7 +284,7 @@ export const convertToRatio = (percent: number) => {
   return percent / 100;
 };
 
-export const getNormalizedValue = ({
+export const calculateNormalizedValue = ({
   maximum,
   value,
   minimum,
@@ -296,8 +296,10 @@ export const getNormalizedValue = ({
   return Math.max(minimum, Math.min(value, maximum));
 };
 
-export const getNormalizedZoom = (zoom: VisualizerMachineContext["zoom"]) => {
-  return getNormalizedValue({
+export const calculateNormalizedZoom = (
+  zoom: VisualizerMachineContext["zoom"]
+) => {
+  return calculateNormalizedValue({
     maximum: ZOOM.MAXIMUM,
     value: zoom,
     minimum: ZOOM.MINIMUM,
@@ -316,7 +318,7 @@ export const isGenericElement = (
   return isGenericElementShape(element.shape);
 };
 
-export const getNewElement = ({
+export const createElement = ({
   elementShape,
   drawStartPoint,
   elementOptions,
