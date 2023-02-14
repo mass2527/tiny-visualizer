@@ -19,7 +19,7 @@ import {
   calculateMousePoint,
   convertToPercent,
   convertToRatio,
-  generateDraw,
+  createDraw,
   isPointInsideOfElement,
   isWithPlatformMetaKey,
 } from "./utils";
@@ -81,7 +81,7 @@ function App() {
           ctx.translate(context.origin.x, context.origin.y);
           ctx.scale(context.zoom, context.zoom);
 
-          const drawElement = generateDraw(element, canvasElement);
+          const drawElement = createDraw(element, canvasElement);
           drawElement();
 
           const absolutePoint = calculateElementAbsolutePoint(element);
@@ -216,7 +216,7 @@ function App() {
         }
       }
 
-      const isShapeChangeHotKeys = ["1", "2", "3", "4", "5"].includes(
+      const isShapeChangeHotKeys = ["1", "2", "3", "4", "5", "6"].includes(
         event.key
       );
       if (!isShapeChangeHotKeys) {
@@ -229,6 +229,7 @@ function App() {
         3: "ellipse",
         4: "arrow",
         5: "line",
+        6: "freedraw",
       };
       send({
         type: "CHANGE_ELEMENT_SHAPE",

@@ -24,6 +24,10 @@ export const TOOL_OPTIONS: {
     label: "(5) Line",
     value: "line",
   },
+  {
+    label: "(6) Freedraw",
+    value: "freedraw",
+  },
 ];
 
 export const STROKE_WIDTH_OPTIONS: {

@@ -7,12 +7,14 @@ import {
   calculateCenterPoint,
   calculateElementsAbsolutePoint,
   calculateMousePoint,
-  getNormalizedValue,
-  getNormalizedZoom,
+  calculateNormalizedValue,
+  calculateNormalizedZoom,
   isIntersecting,
   Point,
-  getNewElement,
+  createElement,
   isGenericElement,
+  isLinearElement,
+  calculateFreeDrawElementAbsolutePoint,
 } from "../utils";
 import debounce from "lodash.debounce";
 
@@ -56,19 +58,26 @@ export type VisualizerLinearElement = VisualizerElementBase & {
   points: TuplePoint[];
 };
 
+export type VisualizerFreeDrawElement = VisualizerElementBase & {
+  shape: "freedraw";
+  points: TuplePoint[];
+};
+
 export type VisualizerElement =
   | VisualizerGenericElement
-  | VisualizerLinearElement;
+  | VisualizerLinearElement
+  | VisualizerFreeDrawElement;
 
 export const SHAPE_TYPES: Record<
   VisualizerElement["shape"],
-  "generic" | "linear"
+  "generic" | "linear" | "freedraw"
 > = {
   selection: "generic",
   rectangle: "generic",
   ellipse: "generic",
   line: "linear",
   arrow: "linear",
+  freedraw: "freedraw",
 };
 
 type Version = {
@@ -439,7 +448,7 @@ export const visualizerMachine =
     {
       actions: {
         addElement: assign((context) => {
-          const newElement = getNewElement({
+          const newElement = createElement({
             elementShape: context.elementShape,
             elementOptions: context.elementOptions,
             drawStartPoint: context.drawStartPoint,
@@ -503,32 +512,42 @@ export const visualizerMachine =
           });
 
           return {
-            elements: context.elements.map((element) => {
+            elements: context.elements.map((element): VisualizerElement => {
               if (element.id === context.drawingElementId) {
                 const dx = currentPoint.x - context.drawStartPoint.x;
                 const dy = currentPoint.y - context.drawStartPoint.y;
-                const updatedElement = {
-                  ...element,
-                  width: Math.abs(dx),
-                  height: Math.abs(dy),
-                };
 
                 if (isGenericElement(element)) {
                   return {
-                    ...updatedElement,
+                    ...element,
                     x: Math.min(currentPoint.x, context.drawStartPoint.x),
                     y: Math.min(currentPoint.y, context.drawStartPoint.y),
-                  };
-                } else {
-                  const updatedPoints: VisualizerLinearElement["points"] = [
-                    [0, 0],
-                    [dx, dy],
-                  ];
-                  return {
-                    ...updatedElement,
-                    points: updatedPoints,
+                    width: Math.abs(dx),
+                    height: Math.abs(dy),
                   };
                 }
+
+                if (isLinearElement(element)) {
+                  return {
+                    ...element,
+                    width: Math.abs(dx),
+                    height: Math.abs(dy),
+                    points: [
+                      [0, 0],
+                      [dx, dy],
+                    ],
+                  };
+                }
+
+                // freedraw
+                const absolutePoint =
+                  calculateFreeDrawElementAbsolutePoint(element);
+                return {
+                  ...element,
+                  width: absolutePoint.maxX - absolutePoint.minX,
+                  height: absolutePoint.maxY - absolutePoint.minY,
+                  points: [...element.points, [dx, dy]],
+                };
               }
 
               return element;
@@ -686,7 +705,7 @@ export const visualizerMachine =
           };
         }),
         assignZoom: assign((context, { setZoom, canvasElement }) => {
-          const normalizedZoom = getNormalizedZoom(setZoom(context.zoom));
+          const normalizedZoom = calculateNormalizedZoom(setZoom(context.zoom));
           const targetPoint = {
             x: canvasElement.width / 2,
             y: canvasElement.height / 2,
@@ -701,7 +720,7 @@ export const visualizerMachine =
           };
         }),
         assignZoomToCurrentPoint: assign((context, { setZoom }) => {
-          const normalizedZoom = getNormalizedZoom(setZoom(context.zoom));
+          const normalizedZoom = calculateNormalizedZoom(setZoom(context.zoom));
 
           return {
             zoom: normalizedZoom,
@@ -748,7 +767,7 @@ export const visualizerMachine =
           };
         }),
         updateHistory: assign((context, { changedStep }) => {
-          const updatedHistoryStep = getNormalizedValue({
+          const updatedHistoryStep = calculateNormalizedValue({
             maximum: context.history.length - 1,
             value: context.historyStep + changedStep,
             minimum: 0,
