@@ -512,7 +512,7 @@ export const visualizerMachine =
           });
 
           return {
-            elements: context.elements.map((element) => {
+            elements: context.elements.map((element): VisualizerElement => {
               if (element.id === context.drawingElementId) {
                 const dx = currentPoint.x - context.drawStartPoint.x;
                 const dy = currentPoint.y - context.drawStartPoint.y;
