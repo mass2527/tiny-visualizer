@@ -5,11 +5,10 @@ export interface Typegen0 {
   internalEvents: {
     "": { type: "" };
     "xstate.init": { type: "xstate.init" };
-    "xstate.stop": { type: "xstate.stop" };
   };
   invokeSrcNameMap: {};
   missingImplementations: {
-    actions: "drawElements" | "loadSavedContext";
+    actions: "loadSavedContext";
     delays: never;
     guards: never;
     services: never;
@@ -38,23 +37,6 @@ export interface Typegen0 {
     deleteSelection: "DELETE_SELECTION";
     drag: "DRAG" | "DRAG_END";
     draw: "DRAW" | "DRAW_END";
-    drawElements:
-      | ""
-      | "CHANGE_ELEMENT_SHAPE"
-      | "CHANGE_ZOOM"
-      | "CHANGE_ZOOM_WITH_PINCH"
-      | "DELETE_SELECTION"
-      | "DRAG"
-      | "DRAG_END"
-      | "DRAW"
-      | "DRAW_END"
-      | "DRAW_START"
-      | "HISTORY_UPDATE"
-      | "PAN"
-      | "SELECTED_ELEMENTS.CUT"
-      | "SELECTED_ELEMENTS.DELETE"
-      | "SELECTED_ELEMENTS.PASTE"
-      | "xstate.stop";
     loadSavedContext: "xstate.init";
     pasteSelectedElements: "SELECTED_ELEMENTS.PASTE";
     persist:

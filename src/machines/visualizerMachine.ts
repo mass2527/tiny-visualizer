@@ -239,7 +239,7 @@ const PERSISTED_CONTEXT: VisualizerMachinePersistedContext = {
 };
 
 export const visualizerMachine =
-  /** @xstate-layout N4IgpgJg5mDOIC5QDcCWsCuBDANqgXmAE4AEAtlgMYAWqAdmAHSoQ5gDEAIgEoCCA6gH0AygBVe3UQG0ADAF1EoAA4B7WKgAuqFXUUgAHogBsAdhOMAnAEYALDIBMFmQA5T9kxYA0IAJ6IrzgCsMoyuNs4m4VZGMjJGgQC+Cd5omLgExORUtAzMrBwAwgASvAByAOIAooKVADKVALKVpaIiJQAKlbIKSCCq6lo6eoYIpubWdo4ubh7efgj2sYyRFqs2NgDMgYFWMjb2SSno2HiEpBQ09EwsbFx85SLikt16-Zraur0jY5a2Dk6uEzuLy+fyBDYWRgbDYxGRWdwxGIWQ4gVInDLnbJXPK3YR1SoFUSVTg1epNFrCRicfFEl69N6DT6gb5mX6TAEzEHzLZWRi7Cww+zOewxXaRFFo9JnLKXXI3Dh4+qE4mkxrNUSUgoAeXaAE06co1O8hl9jKyJv9pkDZqCEDZIowdoEjO5IvENhEJccpZkLjlrvl2IqCUSSfjyRrGO1eGIuvJXkbGcNEECbIx3JN3Bs7DYLCY5ohAiZedYLIFwkFnIKjF60qdfVi5YGGlqAKp4wQtgBqcZ6hoGH2TCA2xcYNnBVknHnBTg2BYQVhMwrH1i2wqszviJlr6Olfux8vYAElhKqI21eJ1BAAxI8ADRVoi15XK9QNfUTg9No3NfymgOBecjAsNMR1zMtHFWWINh3H1MVlANcXxZUwzJdVNVbaR43pT8TWZM1xj-DlrS5FMnFCIV4RMbMNxA5xYPreD-RxQoSgqapw3VQQdVEI8tVKYR3wZL98J-Qj2StQDbRA3kAhMQJ7B2OwyxdBiMRlZjD2KMoqkEAAtLUtQaITcKZAwCLZS0AJteZdhHRgjDsQILCrRyLCFejklRb1GI0g9A209j9MMhpBH4I9RCKQR2iPUpihMgc8PMsTLP-Tl50nIxeT2MZgkCZwIhHNS90bRCOGjUoEuNMyWXEqz0tteFnDTccNjiAUCpFRTiobBCWPYIoTyfbhdUEVt2k4XhaWw-tqqHEdAkddwxUWYD13newrBhdMeXtNrwkU7cvMlXz91yCAiCwAB3egoDuAQqqTb9djhRgZBMBxqICIwfosIwMsiZwxx5LY7DMaijqOOt1LOpgLuu277qEZpOEekTksnVw+Q8UwjFcKwQOdDKq3sCiq1sDNFgcHqmOxeGbroO6eAEGpSlRqw+w-RKav8RZFvCPYzDicdnA3DKXSB51FOsZw1mCKwab887LoZpmaWqYNCT4yqZq5ubvw8EIXVzZy2rMGxHIBpY8vtD7okcxJjp8mHSsYeGoCgRHmfKNGkpGeFTFCFYjC2csssCDL1l5eIXWibZHCLRXYbdy6Pa9+5WdR3XhL9sF4XTfZvp2AmFoy8ENj5GQQJDvYIUUmwk9dnAVCwCBEd9nmFlFqFTEXAr1hkDYrGJ1lgPHex7QnhShUbvqlGIdRYC0Rn2A7odVvMfL8tlvGPvkiPbW78DVmAstc3WTyod3XrmLANgyDAOgNBIWBqCweeSCIOAwA0Vfs9Moci58oOXCPsQeuYNjuCtkYSw44B4gXsCOAqs9mLIAXh8T+d8wBYFgJAP+nMc6d02sESwzgq5VjWM1RSVtzDrG2A4RcBMnCOy8nQFQEA4B6BOi7BCCZuZDgALT-VtEIt6sRB7wjNrLeuKD-JsD4frUS+xSYChhFXIephB5QMagVSEuxNjZg9O9UWkNvLQxKn1emt0FFPVEnZcwBMtok35H9OcjVZzLEJtCRYxYeSyOVlgNOjMbHo39kKBx8kTAh0iYpYejUiwhDiLElwwpsw1iduYm+2Jm6t2sThfh359jEzsHyQmk48wuX2A3DJ19aa5HnkQRey8oAhNzgsTapNe6mG2DJRwbj5iixgfle08RyyuHUf4pgWCH5Pxfm-D+X9cEaFaZ3Dc+cJ6bVcMXAU8lxbLjobmeSP0lwBEmYwNBjSMFfzYDgyAKzAFBArtRdYNgNzuBFO5PZpMDl5k3CczySQgA */
+  /** @xstate-layout N4IgpgJg5mDOIC5QDcCWsCuBDANqgXmAE4AEAtlgMYAWqAdmAHSoQ5gDEAIgEoCCA6gH0AygBVe3UQG0ADAF1EoAA4B7WKgAuqFXUUgAHogBsAdhOMAnAEYALDIBMFmQA5T9kxYA0IAJ6IrzgCsMoyuNs4m4VZGMjJGgQC+Cd5omLgExORUtAzMrBwAwgASvAByAOIAooKVADKVALKVpaIiJQAKlbIKSCCq6lo6eoYIpubWdo4ubh7efgj2sYyRFqs2NgDMgYFWMjb2SSno2HiEpBQ09EwsbFx85SLikt16-Zraur0jY5a2Dk6uEzuLy+fyBDYWRgbDYxGRWdwxGIWQ4gVInDLnbJXPK3YR1SoFUSVTg1epNFrCRicfFEl69N6DT6gb5mX6TAEzEHzLZWRi7Cww+zOewxXaRFFo9JnLKXXI3Dh4+qE4mkxrNUSUgoAeXaAE06co1O8hl9jKyJv9pkDZqCEDZIowdoEjO5IvENhEJccpZkLjlrvl2IqCUSSfjyRrGO1eGIuvJXkbGcNEECbIx3JN3Bs7DYLCY5ohAiZedYLIFwkFnIKjF60qdfVi5YGGlqAKp4wQtgBqcZ6hoGH2TCA2xcYNnBVknHnBTg2BYQVhMwrH1i2wqszviJlr6Olfux8vYAElhKqI21eJ1BAAxI8ADRVoi15XK9QNfUTg9No3NfymgOBecjAsNMR1zMtHFWWINh3H1MVlANcXxZUwzJdVNVbaR43pT8TWZM1xj-DlrS5FMnFCIV4RMbMNxA5xYPreD-RxQoSgqapw3VQQdVEI8tVKYR3wZL98J-Qj2StQDbRA3kAhMQJ7B2OwyxdBiMRlZjD2KMoqkEAAtLUtQaITcKZAwCLZS0AJteZdhHRgjDsQILCrRyLCFejklRb1GI0g9A209j9MMhpBH4I9RCKQR2iPUpihMgc8PMsTLP-Tl50nIxeT2MZgkCZwIhHNS90bRCOGjUoEuNMyWXEqz0tteFnDTccNjiAUCpFRTiobBCWPYIoTyfbhdUEVt2k4XhaWw-tqqHEdAkddwxUWYD13newrBhdMeXtNrwkU7cvMlXz91yCAiCwAB3egoDuAQqqTb9djhRgZBMBxqICIwfosIwMsiZwxx5LY7DMaijqOOt1LOpgLuu277qEZpOEekTksnVw+Q8UwjFcKwQOdDKq3sCiq1sDNFgcHqmOxeGbroO6eAEGpSlRqw+w-RKav8RZFvCPYzDicdnA3DKXSB51FOsZw1mCKwab887LoZpmaWqYNCT4yqZq5ubvw8EIXVzZy2rMGxHIBpY8vtD7okcxJjp8mHSsYeGoCgRHmfKNGkpGeFTFCFYjC2csssCDL1l5eIXWibZHCLRXYbdy6Pa9+5WdR3XhL9sF4XTfZvp2AmFoy8ENj5GQQJDvYIUUmwk9dnAVCwCBEd9nmFlFqFTEXAr1hkDYrGJ1lgPHex7QnhShUbvqlGIdRYC0Rn2A7odVvMfL8tlvGPvkiPbW78DVmAstc3WTyod3XrmLANgyDAOgNBIWBqCweeSCIOAwA0Vfs9Moci58oOXCPsQeuYNjuCtkYSw44B4gXsCOAqs9mLIAXh8T+d8wBYFgJAP+nMc6d02sESwzgq5VjWM1RSVtzDrG2A4RcBMnCOy8nQFQEA4B6BOi7BCCZuZDgALT-VtEIt6sQ4TREXFsVYQ8UH+TYHw-Wol9ikwFDCKuQ9TCDygY1AqkJdibGzB6d6otIbeWhiVPq9NbqKKeqJOy5gCZbRJvyP6c5GqzmWITaEixiw8jkcrLAadGa2PRv7IUjj5ImBDlExSw9GpFhCHEOJLhhTZhrE7CxN9sTN1bjYnC-Dvz7GJnYPkhNJx5hcvsBumTr601yPPIgi9l5QFCbnBYm1Sa91MNsGSjh3HzFFjA-K9p4jllcBogJTAsEPyfi-N+H8v64I0G0zuG584T02q4YuAp5Li2XHQ3M8kfpLgCFMxgaCmkYK-mwHBkBVmAKCBXai6wbAbncCKdy+zSaHLzJuU5nkkhAA */
   createMachine(
     {
       id: "visualizer machine",
@@ -276,18 +276,13 @@ export const visualizerMachine =
                 "unselectElements",
                 "assignDrawStartPoint",
                 "addElement",
-                "drawElements",
               ],
             },
 
             CHANGE_ELEMENT_SHAPE: {
               target: "persisting",
 
-              actions: [
-                "unselectElements",
-                "changeElementShape",
-                "drawElements",
-              ],
+              actions: ["unselectElements", "changeElementShape"],
             },
 
             DRAG_START: {
@@ -297,7 +292,7 @@ export const visualizerMachine =
 
             "SELECTED_ELEMENTS.DELETE": {
               target: "version released",
-              actions: ["deleteSelectedElements", "drawElements"],
+              actions: ["deleteSelectedElements"],
             },
 
             "SELECTED_ELEMENTS.COPY": {
@@ -307,7 +302,7 @@ export const visualizerMachine =
 
             "SELECTED_ELEMENTS.PASTE": {
               target: "version released",
-              actions: ["pasteSelectedElements", "drawElements"],
+              actions: ["pasteSelectedElements"],
             },
 
             MOUSE_MOVE: {
@@ -323,11 +318,7 @@ export const visualizerMachine =
 
             "SELECTED_ELEMENTS.CUT": {
               target: "persisting",
-              actions: [
-                "copySelectedElements",
-                "deleteSelectedElements",
-                "drawElements",
-              ],
+              actions: ["copySelectedElements", "deleteSelectedElements"],
             },
 
             CHANGE_ELEMENT_OPTIONS: {
@@ -337,22 +328,22 @@ export const visualizerMachine =
 
             CHANGE_ZOOM: {
               target: "persisting",
-              actions: ["assignZoom", "drawElements"],
+              actions: ["assignZoom"],
             },
 
             CHANGE_ZOOM_WITH_PINCH: {
               target: "persisting",
-              actions: ["assignZoomToCurrentPoint", "drawElements"],
+              actions: ["assignZoomToCurrentPoint"],
             },
 
             PAN: {
               target: "persisting",
-              actions: ["assignOrigin", "drawElements"],
+              actions: ["assignOrigin"],
             },
 
             HISTORY_UPDATE: {
               target: "persisting",
-              actions: ["updateHistory", "drawElements"],
+              actions: ["updateHistory"],
             },
           },
         },
@@ -362,7 +353,7 @@ export const visualizerMachine =
             DRAW: {
               target: "drawing",
               internal: true,
-              actions: ["draw", "updateIntersecting", "drawElements"],
+              actions: ["draw", "updateIntersecting"],
             },
 
             DRAW_END: [
@@ -373,7 +364,6 @@ export const visualizerMachine =
                   "draw",
                   "updateIntersecting",
                   "selectDrawingElement",
-                  "drawElements",
                   "resetDrawingElementId",
                 ],
 
@@ -385,7 +375,6 @@ export const visualizerMachine =
                   "draw",
                   "updateIntersecting",
                   "selectDrawingElement",
-                  "drawElements",
                   "resetDrawingElementId",
                 ],
               },
@@ -393,11 +382,7 @@ export const visualizerMachine =
 
             DELETE_SELECTION: {
               target: "idle",
-              actions: [
-                "deleteSelection",
-                "drawElements",
-                "resetDrawingElementId",
-              ],
+              actions: ["deleteSelection", "resetDrawingElementId"],
             },
           },
         },
@@ -407,12 +392,12 @@ export const visualizerMachine =
             DRAG: {
               target: "dragging",
               internal: true,
-              actions: ["drag", "assignPreviousPoint", "drawElements"],
+              actions: ["drag", "assignPreviousPoint"],
             },
 
             DRAG_END: {
               target: "version released",
-              actions: ["drag", "drawElements"],
+              actions: ["drag"],
             },
           },
         },
@@ -420,7 +405,6 @@ export const visualizerMachine =
         loading: {
           always: "idle",
           entry: "loadSavedContext",
-          exit: "drawElements",
         },
 
         persisting: {
