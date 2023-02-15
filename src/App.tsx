@@ -1,22 +1,30 @@
 import { useMachine } from "@xstate/react";
-import { MouseEventHandler, useEffect, useLayoutEffect, useRef } from "react";
+import {
+  MouseEventHandler,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+} from "react";
 import invariant from "tiny-invariant";
 import { assign } from "xstate";
 import ColorPicker from "./components/ColorPicker";
 import Radio from "./components/Radio";
-import { useDevicePixelRatio, useWindowSize } from "./hooks";
+import { useDevicePixelRatio, useHistory, useWindowSize } from "./hooks";
 
 import {
   visualizerMachine,
   VisualizerMachineContext,
   VisualizerElement,
   ZOOM,
+  VISUALIZER_MACHINE_INITIAL_CONTEXT,
 } from "./machines/visualizerMachine";
 import { STROKE_WIDTH_OPTIONS, TOOL_OPTIONS } from "./options";
 
 import {
   calculateElementAbsolutePoint,
   calculateMousePoint,
+  calculateNormalizedValue,
   convertToPercent,
   convertToRatio,
   createDraw,
@@ -30,6 +38,37 @@ function App() {
   const windowSize = useWindowSize();
   const devicePixelRatio = useDevicePixelRatio();
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const {
+    currentVersionIndex,
+    versions,
+    addHistory,
+    changeVersion,
+    canUndo,
+    canRedo,
+  } = useHistory(() => {
+    try {
+      const value = localStorage.getItem("context");
+      if (value === null) {
+        return {
+          elements: VISUALIZER_MACHINE_INITIAL_CONTEXT.elements,
+          elementOptions: VISUALIZER_MACHINE_INITIAL_CONTEXT.elementOptions,
+        };
+      }
+
+      const context = JSON.parse(value) as VisualizerMachineContext;
+      return {
+        elements: context.elements,
+        elementOptions: context.elementOptions,
+      };
+    } catch (error) {
+      console.error(error);
+      return {
+        elements: VISUALIZER_MACHINE_INITIAL_CONTEXT.elements,
+        elementOptions: VISUALIZER_MACHINE_INITIAL_CONTEXT.elementOptions,
+      };
+    }
+  });
+
   const [state, send] = useMachine(visualizerMachine, {
     actions: {
       loadSavedContext: assign(() => {
@@ -45,38 +84,50 @@ function App() {
           }
 
           const context = JSON.parse(value) as VisualizerMachineContext;
-          const updatedContext = {
+          return {
             ...context,
             elements: context.elements,
-          };
-
-          return {
-            ...updatedContext,
-            history: [
-              {
-                elements: updatedContext.elements,
-                elementOptions: updatedContext.elementOptions,
-              },
-            ],
           };
         } catch (error) {
           console.error(error);
           return {};
         }
       }),
+      addHistory: (context) => {
+        addHistory({
+          elements: context.elements,
+          elementOptions: context.elementOptions,
+        });
+      },
     },
   });
   const {
-    elementShape,
     drawingElementId,
-    elements,
     isElementShapeFixed,
-    elementOptions,
+    elementShape,
     zoom,
     origin,
-    history,
-    historyStep,
+    elements,
+    elementOptions,
   } = state.context;
+
+  const changeVersionWithSync = useCallback(
+    (change: -1 | 1) => {
+      changeVersion(change);
+
+      const updatedVersionIndex = calculateNormalizedValue({
+        minimum: 0,
+        value: currentVersionIndex + change,
+        maximum: versions.length - 1,
+      });
+
+      send({
+        type: "VERSION_CHANGE",
+        version: versions[updatedVersionIndex],
+      });
+    },
+    [changeVersion, versions, currentVersionIndex]
+  );
 
   const drawingElement = elements.find(
     (element) => element.id === drawingElementId
@@ -203,15 +254,9 @@ function App() {
           event.preventDefault();
           updateZoom(-10);
         } else if (event.shiftKey && event.key === "z") {
-          send({
-            type: "HISTORY_UPDATE",
-            changedStep: 1,
-          });
+          changeVersionWithSync(+1);
         } else if (event.key === "z") {
-          send({
-            type: "HISTORY_UPDATE",
-            changedStep: -1,
-          });
+          changeVersionWithSync(-1);
         }
       }
 
@@ -240,7 +285,7 @@ function App() {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, []);
+  }, [changeVersionWithSync]);
 
   useEffect(() => {
     if (elementShape === "selection") {
@@ -488,26 +533,16 @@ function App() {
               <div style={{ display: "flex", pointerEvents: "all" }}>
                 <button
                   type="button"
-                  onClick={() =>
-                    send({
-                      type: "HISTORY_UPDATE",
-                      changedStep: -1,
-                    })
-                  }
-                  disabled={historyStep === 0}
+                  onClick={() => changeVersionWithSync(-1)}
+                  disabled={!canUndo}
                 >
                   undo
                 </button>
 
                 <button
                   type="button"
-                  onClick={() => {
-                    send({
-                      type: "HISTORY_UPDATE",
-                      changedStep: 1,
-                    });
-                  }}
-                  disabled={historyStep === history.length - 1}
+                  onClick={() => changeVersionWithSync(1)}
+                  disabled={!canRedo}
                 >
                   redo
                 </button>
