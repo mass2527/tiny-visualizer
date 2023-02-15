@@ -12,7 +12,7 @@ import {
   VisualizerElement,
   ZOOM,
 } from "./machines/visualizerMachine";
-import { LABELS, STROKE_WIDTH_OPTIONS } from "./options";
+import { HOT_KEY, HOT_KEYS, LABELS, STROKE_WIDTH_OPTIONS } from "./constants";
 
 import {
   calculateElementAbsolutePoint,
@@ -215,24 +215,20 @@ function App() {
         }
       }
 
-      const isShapeChangeHotKeys = ["1", "2", "3", "4", "5", "6"].includes(
-        event.key
+      const isShapeChangeHotKeys = Object.values(HOT_KEYS).includes(
+        event.key as HOT_KEY
       );
       if (!isShapeChangeHotKeys) {
         return;
       }
 
-      const hotKeys: Record<string, VisualizerElement["shape"]> = {
-        1: "selection",
-        2: "rectangle",
-        3: "ellipse",
-        4: "arrow",
-        5: "line",
-        6: "freedraw",
-      };
+      const updatedElementShape = Object.entries(HOT_KEYS).find(
+        ([, hotkey]) => hotkey === event.key
+      )![0];
+
       send({
         type: "CHANGE_ELEMENT_SHAPE",
-        elementShape: hotKeys[event.key],
+        elementShape: updatedElementShape as VisualizerElement["shape"],
       });
     };
 
