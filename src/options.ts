@@ -1,34 +1,13 @@
 import { VisualizerElement } from "./machines/visualizerMachine";
 
-export const TOOL_OPTIONS: {
-  label: string;
-  value: VisualizerElement["shape"];
-}[] = [
-  {
-    label: "(1) Selection",
-    value: "selection",
-  },
-  {
-    label: "(2) Rectangle",
-    value: "rectangle",
-  },
-  {
-    label: "(3) Ellipse",
-    value: "ellipse",
-  },
-  {
-    label: "(4) Arrow",
-    value: "arrow",
-  },
-  {
-    label: "(5) Line",
-    value: "line",
-  },
-  {
-    label: "(6) Freedraw",
-    value: "freedraw",
-  },
-];
+export const LABELS: Record<VisualizerElement["shape"], string> = {
+  selection: "(1) Selection",
+  rectangle: "(2) Rectangle",
+  ellipse: "(3) Ellipse",
+  arrow: "(4) Arrow",
+  line: "(5) Line",
+  freedraw: "(6) Freedraw",
+};
 
 export const STROKE_WIDTH_OPTIONS: {
   label: string;

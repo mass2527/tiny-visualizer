@@ -12,7 +12,7 @@ import {
   VisualizerElement,
   ZOOM,
 } from "./machines/visualizerMachine";
-import { STROKE_WIDTH_OPTIONS, TOOL_OPTIONS } from "./options";
+import { LABELS, STROKE_WIDTH_OPTIONS } from "./options";
 
 import {
   calculateElementAbsolutePoint,
@@ -383,12 +383,12 @@ function App() {
             />
             Fix shape
           </label>
-          {TOOL_OPTIONS.map(({ label, value }) => (
+          {Object.entries(LABELS).map(([shape, label]) => (
             <Radio
-              key={value}
+              key={shape}
               label={label}
-              value={value}
-              checked={elementShape === value}
+              value={shape}
+              checked={elementShape === shape}
               onChange={(event) => {
                 send({
                   type: "CHANGE_ELEMENT_SHAPE",
