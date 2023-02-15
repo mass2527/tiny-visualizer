@@ -8,14 +8,15 @@ export interface Typegen0 {
   };
   invokeSrcNameMap: {};
   missingImplementations: {
-    actions: "addHistory" | "loadSavedContext";
+    actions: "loadSavedContext";
     delays: never;
     guards: never;
     services: never;
   };
   eventsCausingActions: {
     addElement: "DRAW_START";
-    addHistory:
+    addVersionToHistory:
+      | ""
       | "CHANGE_ELEMENT_OPTIONS"
       | "DRAG_END"
       | "DRAW_END"
@@ -29,7 +30,6 @@ export interface Typegen0 {
     assignZoom: "CHANGE_ZOOM";
     assignZoomToCurrentPoint: "CHANGE_ZOOM_WITH_PINCH";
     changeElementShape: "CHANGE_ELEMENT_SHAPE";
-    changeVersion: "VERSION_CHANGE";
     copySelectedElements: "SELECTED_ELEMENTS.COPY" | "SELECTED_ELEMENTS.CUT";
     deleteSelectedElements:
       | "SELECTED_ELEMENTS.CUT"
@@ -41,22 +41,19 @@ export interface Typegen0 {
     pasteSelectedElements: "SELECTED_ELEMENTS.PASTE";
     persist:
       | ""
-      | "CHANGE_ELEMENT_OPTIONS"
       | "CHANGE_ELEMENT_SHAPE"
       | "CHANGE_ZOOM"
       | "CHANGE_ZOOM_WITH_PINCH"
-      | "DRAG_END"
-      | "DRAW_END"
+      | "HISTORY_UPDATE"
       | "IS_ELEMENT_SHAPE_FIXED_TOGGLE"
       | "PAN"
       | "SELECTED_ELEMENTS.COPY"
-      | "SELECTED_ELEMENTS.CUT"
-      | "SELECTED_ELEMENTS.DELETE"
-      | "SELECTED_ELEMENTS.PASTE";
+      | "SELECTED_ELEMENTS.CUT";
     resetDrawingElementId: "DELETE_SELECTION" | "DRAW_END";
     selectDrawingElement: "DRAW_END";
     toggleIsElementShapeFixed: "IS_ELEMENT_SHAPE_FIXED_TOGGLE";
     unselectElements: "CHANGE_ELEMENT_SHAPE" | "DRAW_START";
+    updateHistory: "HISTORY_UPDATE";
     updateIntersecting: "DRAW" | "DRAW_END";
   };
   eventsCausingDelays: {};
@@ -70,6 +67,7 @@ export interface Typegen0 {
     | "element shape reset"
     | "idle"
     | "loading"
-    | "persisting";
+    | "persisting"
+    | "version released";
   tags: never;
 }

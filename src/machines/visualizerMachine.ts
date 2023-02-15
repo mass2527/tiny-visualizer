@@ -7,6 +7,7 @@ import {
   calculateCenterPoint,
   calculateElementsAbsolutePoint,
   calculateMousePoint,
+  calculateNormalizedValue,
   calculateNormalizedZoom,
   isIntersecting,
   Point,
@@ -79,7 +80,13 @@ export const SHAPE_TYPES: Record<
   freedraw: "freedraw",
 };
 
-export type VisualizerMachineContext = {
+type Version = {
+  elements: VisualizerMachineContext["elements"];
+  elementOptions: VisualizerMachineContext["elementOptions"];
+};
+
+// context that is saved to localStorage
+type VisualizerMachinePersistedContext = {
   elements: VisualizerElement[];
   elementOptions: Options;
 
@@ -97,45 +104,10 @@ export type VisualizerMachineContext = {
   };
 };
 
-// zoom in ratio
-export const ZOOM = {
-  DEFAULT: 1,
-  MINIMUM: 0.1,
-  MAXIMUM: 30,
-} as const;
-
-export const VISUALIZER_MACHINE_INITIAL_CONTEXT: VisualizerMachineContext = {
-  // track
-  elements: [],
-  elementOptions: {
-    stroke: "#000",
-    fill: "transparent",
-    strokeWidth: 2,
-  },
-
-  // untrack
-  elementShape: "selection",
-  copiedElements: [],
-  drawingElementId: null,
-  drawStartPoint: {
-    x: 0,
-    y: 0,
-  },
-  previousPoint: {
-    x: 0,
-    y: 0,
-  },
-  // cursor point in actual canvas size (not viewport)
-  currentPoint: {
-    x: 0,
-    y: 0,
-  },
-  isElementShapeFixed: false,
-  zoom: ZOOM.DEFAULT,
-  origin: {
-    x: 0,
-    y: 0,
-  },
+export type VisualizerMachineContext = VisualizerMachinePersistedContext & {
+  // context that is **not** saved to localStorage
+  history: Version[];
+  historyStep: number;
 };
 
 /* #region events within machine  */
@@ -220,17 +192,54 @@ export type VisualizerMachineEvents =
       event: WheelEvent;
     }
   | {
-      type: "VERSION_CHANGE";
-      version: {
-        elements: VisualizerMachineContext["elements"];
-        elementOptions: VisualizerMachineContext["elementOptions"];
-      };
+      type: "HISTORY_UPDATE";
+      changedStep: 1 | -1;
     };
-
 /* #endregion */
 
+// zoom in ratio
+export const ZOOM = {
+  DEFAULT: 1,
+  MINIMUM: 0.1,
+  MAXIMUM: 30,
+} as const;
+
+const PERSISTED_CONTEXT: VisualizerMachinePersistedContext = {
+  // track
+  elements: [],
+  elementOptions: {
+    stroke: "#000",
+    fill: "transparent",
+    strokeWidth: 2,
+  },
+
+  // untrack
+  elementShape: "selection",
+  copiedElements: [],
+  drawingElementId: null,
+  drawStartPoint: {
+    x: 0,
+    y: 0,
+  },
+  previousPoint: {
+    x: 0,
+    y: 0,
+  },
+  // cursor point in actual canvas size (not viewport)
+  currentPoint: {
+    x: 0,
+    y: 0,
+  },
+  isElementShapeFixed: false,
+  zoom: ZOOM.DEFAULT,
+  origin: {
+    x: 0,
+    y: 0,
+  },
+};
+
 export const visualizerMachine =
-  /** @xstate-layout N4IgpgJg5mDOIC5QDcCWsCuBDANqgXmAE4AEAtlgMYAWqAdmAHSoQ5gDEAIgEoCCA6gH0AygBVe3UQG0ADAF1EoAA4B7WKgAuqFXUUgAHogBsAdhOMAnAEYALDIBMFmQA5T9kxYA0IAJ6IrzgCsMoyuNs4m4VZGMjJGgQC+Cd5omLgExORUtAzMrBwAwgASvAByAOIAooKVADKVALKVpaIiJQAKlbIKSCCq6lo6eoYIpubWdo4ubh7efgj2sYyRFqs2NgDMgYFWMjb2SSno2HiEpBQ09EwsbFx85SLikt16-Zraur0jY5a2Dk6uEzuLy+fyBDYWRgbDYxGRWdwxGIWQ4gVInDLnbJXPK3YR1SoFUSVTg1epNFrCRicfFEl69N6DT6gb5mX6TAEzEHzLZWRi7Cww+zOewxXaRFFo9JnLKXXI3Dh4+qE4mkxrNUSUgoAeXaAE06co1O8hl9jKyJv9pkDZqCEDZIowdoEjO5IvENhEJccpZkLjlrvl2IqCUSSfjyRrGO1eGIuvJXkbGcNEECbIx3JN3Bs7DYLCY5ohAiZedYLIFwkFnIKjF60qdfVi5YGGlqAKp4wQtgBqcZ6hoGH2TCA2xcYNnBVknHnBTg2BYQVhMwrH1i2wqszviJlr6Olfux8vYAElhKqI21eJ1BAAxI8ADRVoi15XK9QNfUTg9No3NfymgOBecjAsNMR1zMtHFWWINh3H1MVlANcXxZUwzJdVNVbaR43pT8TWZM1xj-DlrS5FMnFCIV4RMbMNxA5xYPreD-RxQoSgqapw3VQQdVEI8tVKYR3wZL98J-Qj2StQDbRA3kAhMQJ7B2OwyxdBiMRlZjD2KMoqkEAAtLUtQaITcKZAwCLZS0AJteZdhHRgjDsQILCrRyLCFejklRb1GI0g9A209j9MMhpBH4I9RCKQR2iPUpihMgc8PMsTLP-Tl50nIxeT2MZgkCZwIhHNS90bRCOGjUoEuNMyWXEqz0tteFnDTccNjiAUCpFRTiobBCWPYHtuGEPjSkEQKqiqpNvxzByrA2Rwq2a6EtnnexdmcX4TBdYJx2cPYeqY7EICILAAHd6CgO4BEmkTkt2OFGBkEwHGogIjHeiwjAyyINs2HYtjsMxqO3LzJV8-dcmOs6LquoRmk4G6kpGSdXD5DxTCMVwrBA50MqrewKKrWwM0WBwDr8yGTvOuhLp4AQalKBGrD7D9Epq-xFkCMc9vtZ7HPyjcMpdDbnUU6xnDWYIrHJiGmCh6naZpapg0JEbEfZhAPBCF1c2ctqzBsRzvqWPLebhd7xxl0rGChqAoBhunynVod4VMUIViMLZyyywIMvWXl4hdaJtkcIsrb6237Zpq6Hnh53vw3eF032N6dmxkdfca8ENj5GQQM9vYIUUmxw+YnAVCwCAYfj0TKKhUxFwK9YZA2Kw8dZYDx3se1u4UoVS+xJRiHUWAtGjmvksWN38vyiXMee+TM-mZxeXA1ZgLLXN1k8o463U2XGDANgyDAOgNBIWBqCwIeSCIOAwA0dgJ+R+SNviStnXBcIXTxxZLCFde4Q85ZRLiiOgKgIBwD0GDfepUExsyHAAWi+raZBj1YixHBDPT6IFQG713L1TS+R4HVSHPsAmAoYR51bqYFu7g8YS1zpsbMHonorxBvguCFM5ZUwuiQqaok7LmGxnNfG-JPpzkarOZYONoSLGLDyAelMsB2z4ThBBCchTCPkltDOQIdgZSLCEOIil1rCmzDWUGPlYF9XLpXNR-ZSHTXsHjOwfIcaTjzC5fYeDvJ7xKn1IeRAR5jygPw26Ix7BrQJg3Uw2wZKOEkcvaIjpmpbW2N-ahSimBHzACfM+F8r43zvrAB+4SkZgiTt3Narg04CnkkLZc6xyx5k3EuAISQkhAA */
+  /** @xstate-layout N4IgpgJg5mDOIC5QDcCWsCuBDANqgXmAE4AEAtlgMYAWqAdmAHSoQ5gDEAIgEoCCA6gH0AygBVe3UQG0ADAF1EoAA4B7WKgAuqFXUUgAHogBsAdhOMAnAEYALDIBMFmQA5T9kxYA0IAJ6IrzgCsMoyuNs4m4VZGMjJGgQC+Cd5omLgExORUtAzMrBwAwgASvAByAOIAooKVADKVALKVpaIiJQAKlbIKSCCq6lo6eoYIpubWdo4ubh7efgj2sYyRFqs2NgDMgYFWMjb2SSno2HiEpBQ09EwsbFx85SLikt16-Zraur0jY5a2Dk6uEzuLy+fyBDYWRgbDYxGRWdwxGIWQ4gVInDLnbJXPK3YR1SoFUSVTg1epNFrCRicfFEl69N6DT6gb5mX6TAEzEHzLZWRi7Cww+zOewxXaRFFo9JnLKXXI3Dh4+qE4mkxrNUSUgoAeXaAE06co1O8hl9jKyJv9pkDZqCEDZIowdoEjO5IvENhEJccpZkLjlrvl2IqCUSSfjyRrGO1eGIuvJXkbGcNEECbIx3JN3Bs7DYLCY5ohAiZedYLIFwkFnIKjF60qdfVi5YGGlqAKp4wQtgBqcZ6hoGH2TCA2xcYNnBVknHnBTg2BYQVhMwrH1i2wqszviJlr6Olfux8vYAElhKqI21eJ1BAAxI8ADRVoi15XK9QNfUTg9No3NfymgOBecjAsNMR1zMtHFWWINh3H1MVlANcXxZUwzJdVNVbaR43pT8TWZM1xj-DlrS5FMnFCIV4RMbMNxA5xYPreD-RxQoSgqapw3VQQdVEI8tVKYR3wZL98J-Qj2StQDbRA3kAhMQJ7B2OwyxdBiMRlZjD2KMoqkEAAtLUtQaITcKZAwCLZS0AJteZdhHRgjDsQILCrRyLCFejklRb1GI0g9A209j9MMhpBH4I9RCKQR2iPUpihMgc8PMsTLP-Tl50nIxeT2MZgkCZwIhHNS90bRCOGjUoEuNMyWXEqz0tteFnDTccNjiAUCpFRTiobBCWPYIoTyfbhdUEVt2k4XhaWw-tqqHEdAkddwxUWYD13newrBhdMeXtNrwkU7cvMlXz91yCAiCwAB3egoDuAQqqTb9djhRgZBMBxqICIwfosIwMsiZwxx5LY7DMaijqOOt1LOpgLuu277qEZpOEekTksnVw+Q8UwjFcKwQOdDKq3sCiq1sDNFgcHqmOxeGbroO6eAEGpSlRqw+w-RKav8RZFvCPYzDicdnA3DKXSB51FOsZw1mCKwab887LoZpmaWqYNCT4yqZq5ubvw8EIXVzZy2rMGxHIBpY8vtD7okcxJjp8mHSsYeGoCgRHmfKNGkpGeFTFCFYjC2csssCDL1l5eIXWibZHCLRXYbdy6Pa9+5WdR3XhL9sF4XTfZvp2AmFoy8ENj5GQQJDvYIUUmwk9dnAVCwCBEd9nmFlFqFTEXAr1hkDYrGJ1lgPHex7QnhShUbvqlGIdRYC0Rn2A7odVvMfL8tlvGPvkiPbW78DVmAstc3WTyod3XrmLANgyDAOgNBIWBqCweeSCIOAwA0Vfs9Moci58oOXCPsQeuYNjuCtkYSw44B4gXsCOAqs9mLIAXh8T+d8wBYFgJAP+nMc6d02sESwzgq5VjWM1RSVtzDrG2A4RcBMnCOy8nQFQEA4B6BOi7BCCZuZDgALT-VtEIt6sQ4TREXFsVYQ8UH+TYHw-Wol9ikwFDCKuQ9TCDygY1AqkJdibGzB6d6otIbeWhiVPq9NbqKKeqJOy5gCZbRJvyP6c5GqzmWITaEixiw8jkcrLAadGa2PRv7IUjj5ImBDlExSw9GpFhCHEOJLhhTZhrE7CxN9sTN1bjYnC-Dvz7GJnYPkhNJx5hcvsBumTr601yPPIgi9l5QFCbnBYm1Sa91MNsGSjh3HzFFjA-K9p4jllcBogJTAsEPyfi-N+H8v64I0G0zuG584T02q4YuAp5Li2XHQ3M8kfpLgCFMxgaCmkYK-mwHBkBVmAKCBXai6wbAbncCKdy+zSaHLzJuU5nkkhAA */
   createMachine(
     {
       id: "visualizer machine",
@@ -246,7 +255,17 @@ export const visualizerMachine =
         events: {} as VisualizerMachineEvents,
       },
 
-      context: VISUALIZER_MACHINE_INITIAL_CONTEXT,
+      context: {
+        ...PERSISTED_CONTEXT,
+
+        historyStep: 0,
+        history: [
+          {
+            elements: PERSISTED_CONTEXT["elements"],
+            elementOptions: PERSISTED_CONTEXT["elementOptions"],
+          },
+        ],
+      },
 
       states: {
         idle: {
@@ -272,8 +291,8 @@ export const visualizerMachine =
             },
 
             "SELECTED_ELEMENTS.DELETE": {
-              target: "persisting",
-              actions: ["deleteSelectedElements", "addHistory"],
+              target: "version released",
+              actions: ["deleteSelectedElements"],
             },
 
             "SELECTED_ELEMENTS.COPY": {
@@ -282,8 +301,8 @@ export const visualizerMachine =
             },
 
             "SELECTED_ELEMENTS.PASTE": {
-              target: "persisting",
-              actions: ["pasteSelectedElements", "addHistory"],
+              target: "version released",
+              actions: ["pasteSelectedElements"],
             },
 
             MOUSE_MOVE: {
@@ -303,8 +322,8 @@ export const visualizerMachine =
             },
 
             CHANGE_ELEMENT_OPTIONS: {
-              target: "persisting",
-              actions: ["assignElementOptions", "addHistory"],
+              target: "version released",
+              actions: "assignElementOptions",
             },
 
             CHANGE_ZOOM: {
@@ -322,10 +341,9 @@ export const visualizerMachine =
               actions: ["assignOrigin"],
             },
 
-            VERSION_CHANGE: {
-              target: "idle",
-              internal: true,
-              actions: "changeVersion",
+            HISTORY_UPDATE: {
+              target: "persisting",
+              actions: ["updateHistory"],
             },
           },
         },
@@ -340,14 +358,13 @@ export const visualizerMachine =
 
             DRAW_END: [
               {
-                target: "persisting",
+                target: "version released",
 
                 actions: [
                   "draw",
                   "updateIntersecting",
                   "selectDrawingElement",
                   "resetDrawingElementId",
-                  "addHistory",
                 ],
 
                 cond: "isElementShapeFixed",
@@ -359,7 +376,6 @@ export const visualizerMachine =
                   "updateIntersecting",
                   "selectDrawingElement",
                   "resetDrawingElementId",
-                  "addHistory",
                 ],
               },
             ],
@@ -380,8 +396,8 @@ export const visualizerMachine =
             },
 
             DRAG_END: {
-              target: "persisting",
-              actions: ["drag", "addHistory"],
+              target: "version released",
+              actions: ["drag"],
             },
           },
         },
@@ -400,6 +416,12 @@ export const visualizerMachine =
           entry: assign({
             elementShape: "selection",
           }),
+
+          always: "version released",
+        },
+
+        "version released": {
+          entry: ["addVersionToHistory"],
 
           always: "persisting",
         },
@@ -573,8 +595,10 @@ export const visualizerMachine =
           };
         }),
         persist: debounce((context: VisualizerMachineContext) => {
+          const { history, historyStep, ...persistedContext } = context;
+
           try {
-            localStorage.setItem("context", JSON.stringify(context));
+            localStorage.setItem("context", JSON.stringify(persistedContext));
           } catch (error) {
             console.error(error);
           }
@@ -704,15 +728,46 @@ export const visualizerMachine =
             },
           };
         }),
+        addVersionToHistory: assign((context) => {
+          const newVersion = {
+            elementOptions: context.elementOptions,
+            elements: context.elements,
+          };
+
+          const isPresent = context.historyStep === context.history.length - 1;
+          if (isPresent) {
+            return {
+              history: [...context.history, newVersion],
+              historyStep: context.historyStep + 1,
+            };
+          }
+
+          return {
+            history: [
+              ...context.history.slice(0, context.historyStep + 1),
+              newVersion,
+            ],
+            historyStep: context.historyStep + 1,
+          };
+        }),
+        updateHistory: assign((context, { changedStep }) => {
+          const updatedHistoryStep = calculateNormalizedValue({
+            maximum: context.history.length - 1,
+            value: context.historyStep + changedStep,
+            minimum: 0,
+          });
+          const { elements, elementOptions } =
+            context.history[updatedHistoryStep];
+
+          return {
+            elements,
+            elementOptions,
+            historyStep: updatedHistoryStep,
+          };
+        }),
         resetDrawingElementId: assign((_) => ({
           drawingElementId: null,
         })),
-        changeVersion: assign((context, { version }) => {
-          return {
-            elements: version.elements,
-            elementOptions: version.elementOptions,
-          };
-        }),
       },
       guards: {
         isElementShapeFixed: (context) => {
