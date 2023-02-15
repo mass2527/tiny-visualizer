@@ -1,5 +1,5 @@
 import { useMachine } from "@xstate/react";
-import { MouseEventHandler, useEffect, useRef } from "react";
+import { MouseEventHandler, useEffect, useLayoutEffect, useRef } from "react";
 import invariant from "tiny-invariant";
 import { assign } from "xstate";
 import ColorPicker from "./components/ColorPicker";
@@ -64,41 +64,6 @@ function App() {
           return {};
         }
       }),
-      drawElements: (context) => {
-        const canvasElement = canvasRef.current;
-        invariant(canvasElement);
-
-        const ctx = canvasElement.getContext("2d");
-        invariant(ctx);
-
-        ctx.clearRect(0, 0, canvasElement.width, canvasElement.height);
-
-        const drawnElements = context.elements.filter(
-          (element) => !element.isDeleted
-        );
-        drawnElements.forEach((element) => {
-          ctx.save();
-          ctx.translate(context.origin.x, context.origin.y);
-          ctx.scale(context.zoom, context.zoom);
-
-          const drawElement = createDraw(element, canvasElement);
-          drawElement();
-
-          const absolutePoint = calculateElementAbsolutePoint(element);
-          if (element.isSelected) {
-            ctx.setLineDash([8, 4]);
-            ctx.strokeRect(
-              absolutePoint.minX - MARGIN,
-              absolutePoint.minY - MARGIN,
-              absolutePoint.maxX - absolutePoint.minX + MARGIN * 2,
-              absolutePoint.maxY - absolutePoint.minY + MARGIN * 2
-            );
-            ctx.setLineDash([]);
-          }
-
-          ctx.restore();
-        });
-      },
     },
   });
   const {
@@ -135,6 +100,40 @@ function App() {
       canvasElement,
     });
   };
+
+  useLayoutEffect(() => {
+    const canvasElement = canvasRef.current;
+    invariant(canvasElement);
+
+    const ctx = canvasElement.getContext("2d");
+    invariant(ctx);
+
+    ctx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+
+    const drawnElements = elements.filter((element) => !element.isDeleted);
+    drawnElements.forEach((element) => {
+      ctx.save();
+      ctx.translate(origin.x, origin.y);
+      ctx.scale(zoom, zoom);
+
+      const drawElement = createDraw(element, canvasElement);
+      drawElement();
+
+      const absolutePoint = calculateElementAbsolutePoint(element);
+      if (element.isSelected) {
+        ctx.setLineDash([8, 4]);
+        ctx.strokeRect(
+          absolutePoint.minX - MARGIN,
+          absolutePoint.minY - MARGIN,
+          absolutePoint.maxX - absolutePoint.minX + MARGIN * 2,
+          absolutePoint.maxY - absolutePoint.minY + MARGIN * 2
+        );
+        ctx.setLineDash([]);
+      }
+
+      ctx.restore();
+    });
+  }, [elements, origin, zoom]);
 
   useEffect(() => {
     const handleWheel = (event: WheelEvent) => {
