@@ -42,3 +42,5 @@ export const STROKE_WIDTH_OPTIONS: {
     value: 6,
   },
 ];
+
+export const TEXTAREA_UNIT_LESS_LINE_HEIGHT = 1.5;

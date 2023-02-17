@@ -1,5 +1,11 @@
 import { useMachine } from "@xstate/react";
-import { MouseEventHandler, useEffect, useLayoutEffect, useRef } from "react";
+import {
+  MouseEventHandler,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+} from "react";
 import invariant from "tiny-invariant";
 import { assign } from "xstate";
 import ColorPicker from "./components/ColorPicker";
@@ -12,16 +18,24 @@ import {
   VisualizerElement,
   ZOOM,
 } from "./machines/visualizerMachine";
-import { HOT_KEY, HOT_KEYS, LABELS, STROKE_WIDTH_OPTIONS } from "./constants";
+import {
+  HOT_KEY,
+  HOT_KEYS,
+  LABELS,
+  STROKE_WIDTH_OPTIONS,
+  TEXTAREA_UNIT_LESS_LINE_HEIGHT,
+} from "./constants";
 
 import {
   calculateElementAbsolutePoint,
-  calculateMousePoint,
+  calculateCanvasPoint,
   convertToPercent,
   convertToRatio,
   createDraw,
   isPointInsideOfElement,
+  isTextElement,
   isWithPlatformMetaKey,
+  convertToViewportPoint,
 } from "./utils";
 
 const MARGIN = 8;
@@ -76,7 +90,15 @@ function App() {
     origin,
     history,
     historyStep,
+    drawStartPoint,
   } = state.context;
+
+  const drawStartViewportPoint = convertToViewportPoint({
+    canvasPoint: drawStartPoint,
+    canvasElement: canvasRef.current,
+    origin,
+    zoom,
+  });
 
   const drawingElement = elements.find(
     (element) => element.id === drawingElementId
@@ -108,6 +130,7 @@ function App() {
     const ctx = canvasElement.getContext("2d");
     invariant(ctx);
 
+    // canvasElement width and height are dependent on windowSize, devicePixelRatio
     ctx.clearRect(0, 0, canvasElement.width, canvasElement.height);
 
     const drawnElements = elements.filter((element) => !element.isDeleted);
@@ -133,7 +156,7 @@ function App() {
 
       ctx.restore();
     });
-  }, [elements, origin, zoom]);
+  }, [elements, origin, zoom, windowSize, devicePixelRatio]);
 
   useEffect(() => {
     const handleWheel = (event: WheelEvent) => {
@@ -250,12 +273,17 @@ function App() {
     const canvasElement = canvasRef.current;
     invariant(canvasElement);
 
-    const mousePoint = calculateMousePoint({
+    const mousePoint = calculateCanvasPoint({
       canvasElement,
       event,
       zoom,
       origin,
     });
+
+    if (elementShape === "text") {
+      startWrite(event);
+      return;
+    }
 
     if (
       elementShape === "selection" &&
@@ -267,6 +295,17 @@ function App() {
     } else {
       startDraw(event);
     }
+  };
+
+  const startWrite: MouseEventHandler<HTMLCanvasElement> = (event) => {
+    const canvasElement = canvasRef.current;
+    invariant(canvasElement);
+
+    send({
+      type: "WRITE_START",
+      event,
+      canvasElement,
+    });
   };
 
   const startDrag: MouseEventHandler<HTMLCanvasElement> = (event) => {
@@ -351,6 +390,19 @@ function App() {
       event,
     });
   };
+
+  const editableRefCallback = useCallback(
+    (editableElement: HTMLDivElement | null) => {
+      if (editableElement === null) {
+        return;
+      }
+
+      setTimeout(() => {
+        editableElement.focus();
+      }, 0);
+    },
+    []
+  );
 
   return (
     <div style={{ height: "100vh", overflow: "hidden" }}>
@@ -539,6 +591,54 @@ function App() {
             : undefined
         }
       />
+      {state.matches("writing") &&
+        drawingElement &&
+        isTextElement(drawingElement) && (
+          <div
+            contentEditable
+            role="textbox"
+            ref={editableRefCallback}
+            onBlur={(event) => {
+              send({
+                type: "WRITE_END",
+                text: event.target.innerText,
+              });
+            }}
+            style={{
+              position: "absolute",
+              left: drawStartViewportPoint.x,
+              top:
+                drawStartViewportPoint.y -
+                (drawingElement.fontSize * TEXTAREA_UNIT_LESS_LINE_HEIGHT) / 2,
+              fontFamily: drawingElement.fontFamily,
+              fontSize: drawingElement.fontSize,
+              lineHeight: TEXTAREA_UNIT_LESS_LINE_HEIGHT,
+              padding: 0,
+              outline: 0,
+              border: 0,
+              overflow: "hidden",
+              whiteSpace: "nowrap",
+              backgroundColor: "transparent",
+              resize: "none",
+              // initialize width = '1px' to show input caret
+              width: 1,
+              maxWidth: windowSize.width - drawStartViewportPoint.x,
+              maxHeight:
+                windowSize.height -
+                drawStartViewportPoint.y +
+                (drawingElement.fontSize * TEXTAREA_UNIT_LESS_LINE_HEIGHT) / 2,
+            }}
+            onInput={(event) => {
+              const editableElement = event.currentTarget;
+
+              if (editableElement.innerText === "") {
+                editableElement.style.width = "1px";
+              } else {
+                editableElement.style.width = "auto";
+              }
+            }}
+          />
+        )}
     </div>
   );
 }

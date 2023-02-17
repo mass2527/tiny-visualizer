@@ -14,16 +14,17 @@ export interface Typegen0 {
     services: never;
   };
   eventsCausingActions: {
-    addElement: "DRAW_START";
+    addElement: "DRAW_START" | "WRITE_START";
     addVersionToHistory:
       | ""
       | "CHANGE_ELEMENT_OPTIONS"
       | "DRAG_END"
       | "DRAW_END"
       | "SELECTED_ELEMENTS.DELETE"
-      | "SELECTED_ELEMENTS.PASTE";
+      | "SELECTED_ELEMENTS.PASTE"
+      | "WRITE_END";
     assignCurrentPoint: "MOUSE_MOVE";
-    assignDrawStartPoint: "DRAW_START";
+    assignDrawStartPoint: "DRAW_START" | "WRITE_START";
     assignElementOptions: "CHANGE_ELEMENT_OPTIONS";
     assignOrigin: "PAN";
     assignPreviousPoint: "DRAG" | "DRAG_START";
@@ -37,6 +38,7 @@ export interface Typegen0 {
     deleteSelection: "DELETE_SELECTION";
     drag: "DRAG" | "DRAG_END";
     draw: "DRAW" | "DRAW_END";
+    endWrite: "WRITE_END";
     loadSavedContext: "xstate.init";
     pasteSelectedElements: "SELECTED_ELEMENTS.PASTE";
     persist:
@@ -68,6 +70,7 @@ export interface Typegen0 {
     | "idle"
     | "loading"
     | "persisting"
-    | "version released";
+    | "version released"
+    | "writing";
   tags: never;
 }
