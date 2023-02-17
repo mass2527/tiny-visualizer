@@ -187,6 +187,7 @@ function App() {
         send({
           type: "PAN",
           event,
+          devicePixelRatio,
         });
       }
     };
@@ -197,7 +198,7 @@ function App() {
     return () => {
       window.removeEventListener("wheel", handleWheel);
     };
-  }, []);
+  }, [devicePixelRatio]);
 
   useEffect(() => {
     const canvasElement = canvasRef.current;

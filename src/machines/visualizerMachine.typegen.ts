@@ -26,7 +26,6 @@ export interface Typegen0 {
     assignCurrentPoint: "MOUSE_MOVE";
     assignDrawStartPoint: "DRAW_START" | "WRITE_START";
     assignElementOptions: "CHANGE_ELEMENT_OPTIONS";
-    assignOrigin: "PAN";
     assignPreviousPoint: "DRAG" | "DRAG_START";
     assignZoom: "CHANGE_ZOOM";
     assignZoomToCurrentPoint: "CHANGE_ZOOM_WITH_PINCH";
@@ -40,6 +39,7 @@ export interface Typegen0 {
     draw: "DRAW" | "DRAW_END";
     endWrite: "WRITE_END";
     loadSavedContext: "xstate.init";
+    pan: "PAN";
     pasteSelectedElements: "SELECTED_ELEMENTS.PASTE";
     persist:
       | ""

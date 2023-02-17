@@ -16,7 +16,6 @@ import {
 import { v4 as uuidv4 } from "uuid";
 import { TEXTAREA_UNIT_LESS_LINE_HEIGHT } from "./constants";
 
-// https://stackoverflow.com/questions/17130395/real-mouse-position-in-canvas
 export const calculateCanvasPoint = ({
   devicePixelRatio,
   event,
@@ -24,13 +23,32 @@ export const calculateCanvasPoint = ({
   origin,
 }: {
   devicePixelRatio: number;
-  event: Parameters<MouseEventHandler<HTMLCanvasElement>>[0];
+  event: {
+    clientX: number;
+    clientY: number;
+  };
   zoom: VisualizerMachineContext["zoom"];
   origin: VisualizerMachineContext["origin"];
 }) => {
   return {
     x: (event.clientX * devicePixelRatio - origin.x) / zoom,
     y: (event.clientY * devicePixelRatio - origin.y) / zoom,
+  };
+};
+
+// calculate clientX, clientY from canvas point
+export const calculateClientPoint = ({
+  canvasPoint,
+  zoom,
+  origin,
+}: {
+  canvasPoint: Point;
+  zoom: VisualizerMachineContext["zoom"];
+  origin: VisualizerMachineContext["origin"];
+}) => {
+  return {
+    x: (canvasPoint.x * zoom + origin.x) / devicePixelRatio,
+    y: (canvasPoint.y * zoom + origin.y) / devicePixelRatio,
   };
 };
 

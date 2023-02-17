@@ -17,6 +17,7 @@ import {
   calculateFreeDrawElementAbsolutePoint,
   isTextElement,
   isFreeDrawElement,
+  calculateClientPoint,
 } from "../utils";
 import debounce from "lodash.debounce";
 
@@ -201,6 +202,7 @@ export type VisualizerMachineEvents =
   | {
       type: "PAN";
       event: WheelEvent;
+      devicePixelRatio: number;
     }
   | {
       type: "HISTORY_UPDATE";
@@ -259,7 +261,7 @@ const PERSISTED_CONTEXT: VisualizerMachinePersistedContext = {
 };
 
 export const visualizerMachine =
-  /** @xstate-layout N4IgpgJg5mDOIC5QDcCWsCuBDANqgXmAE4AEAtlgMYAWqAdmAHSoQ5gDEAIgEoCCA6gH0AygBVe3UQG0ADAF1EoAA4B7WKgAuqFXUUgAHogBsAdhOMAnAEYALDIBMFmQA5T9kxYA0IAJ6IrzgCsMoyuNs4m4VZGMjJGgQC+Cd5omLgExORUtAzMrBwAwgASvAByAOIAooKVADKVALKVpaIiJQAKlbIKSCCq6lo6eoYIpubWdo4ubh7efgj2sYyRFqs2NgDMgYFWMjb2SSno2HiEpBQ09EwsbFx85SLikt16-Zraur0jY5a2Dk6uEzuLy+fyBDYWRgbDYxGRWdwxGIWQ4gVInDLnbJXPK3YR1SoFUSVTg1epNFrCRicfFEl69N6DT6gb5mX6TAEzEHzLZWRi7Cww+zOewxXaRFFo9JnLKXXI3Dh4+qE4mkxrNUSUgoAeXaAE06co1O8hl9jKyJv9pkDZqCEDZIowdoEjO5IvENhEJccpZkLjlrvl2IqCUSSfjyRrGO1eGIuvJXkbGcNEECbIx3JN3Bs7DYLCY5ohAiZedYLIFwkFnIKjF60qdfVi5YGGlqAKp4wQtgBqcZ6hoGH2TCA2xcYNnBVknHnBTg2BYQVhMwrH1i2wqszviJlr6Olfux8vYAElhKqI21eJ1BAAxI8ADRVoi15XK9QNfUTg9No3NfymgOBecjAsNMR1zMtHFWWINh3H1MVlANcXxZUwzJdVNVbaR43pT8TWZM1xj-DlrS5FMnFCIV4RMbMNxA5xYPreD-RxQoSgqapw3VQQdVEI8tVKYR3wZL98J-Qj2StQDbRA3kAhMQJ7B2OwyxdBiMRlZjD2KMoqkEAAtLUtQaITcKZAwCLZS0AJteZdhHRgjDsQILCrRyLCFejklRb1GI0g9A209j9MMhpBH4I9RCKQR2iPUpihMgc8PMsTLP-Tl50nIxeT2MZgkCZwIhHNS90bRCOGjUoEuNMyWXEqz0tteFnDTccNjiAUCpFRTiobBCWPYIoTyfbhdUEVt2k4XhaWw-tqqHEdAkddwxUWYD13newrBhdMeXtNrwkU7cvMlXz9ybW5+G4CLqjECQsL7D9Epqwt1lCEd7GzRZcw2IUNv+RgZEiZwrDLVzhRg46fPUs6mAgIgsAAd3oKA7gEKqk2-XY4QBkwHGogIjEJiwjAyoGxx5LY7DMaijqOOtodKxg4cR5HUaEZpOHRkTksnVw+Q8UwjFcEHxxJxqq3sCiq1sDNFgcHqmOxZmkboFGeAEGpSk5qwHuEpKRnhGRFvCPYzDicdgcCDKXWcR0XWcgI1mCKwFb83JldZ6l6iJERkN4-iuf1siQhdXNnLaswbEc0mljy+1ceiRzEkh+mSr65moCgT37kD56FxFcwIlzIwtnLLKrca9ZeXiF1om2Rwi1dmGmfhzPs94B4OdzocN3hdN9gJnYQYWjLwQ2PkZBAku9ghRSbCbxmcBULAIFZ7vv0oqFTEXAr1hkDYrAyiJzGA8d7Htc+FKFBe+qUYh1FgLRVfYdfRNW8x8vy5xiYiQHtnnYGK5VjE1WOWEC4Qb7MTAGwMgYA6AaBILAagWA74kCIHAMAGgX4zUenNTG8lbaOWaosbMAp3AxyMJYcce8QIfSXJ5Omu5erMWQPfD4aDoFgCwLASA2DdamSHJtYIlhnCTyrGsYhFdbK43MOsbYDhFwgycMnRhcE3ZMARkQd4z9LrXVfslIIkIqz2g3CXcIMiNrwkljYeE9p1jNUnHmSB2JNHaJRron2XccF6zzltbMyxYjEzkcBDwzg-rOV+OfahoCRRJC8nQFQEA4B6BOgzBCCYnpDgALRi3mDkgGsRAlLi2rYBazjzpgAyXg0S+xJYChhJPA+ph97kPFt-CemxswekBsDWm3lU7MKVvDFWUAqkY1EnZcwIMtoS35MTOcjVZzLBAmPRYxYeTlNhq3LOqsxncwNkKKZ8kTAl2OYpQ+jUiwhDiOclw4Mo6bMYEvFeyM9lBztPYI+dg+QrMcaE-Y88U5MMVrkO+RAH5P1GThTJG9NqS23qYbYMlHALPmMDSh+V7TxHLK4RpjzOGwPgYg5BqD0E8I0G83xOxJbn02q4IeAp5LW2XHI3M8lCbFIYf04F6jGCsPBew9BbBuGQEpT3II49qLrBsQpIEwFPmNSFtY6J7LTDAy5aktOzFXGQrFd+eljoiwNJLjLXM4TITWHPjREuJc4kJCAA */
+  /** @xstate-layout N4IgpgJg5mDOIC5QDcCWsCuBDANqgXmAE4AEAtlgMYAWqAdmAHSoQ5gDEAIgEoCCA6gH0AygBVe3UQG0ADAF1EoAA4B7WKgAuqFXUUgAHogBsAdhOMAnAEYALDIBMFmQA5T9kxYA0IAJ6IrzgCsMoyuNs4m4VZGMjJGgQC+Cd5omLgExORUtAzMrBwAwgASvAByAOIAooKVADKVALKVpaIiJQAKlbIKSCCq6lo6eoYIpubWdo4ubh7efgj2sYyRFqs2NgDMgYFWMjb2SSno2HiEpBQ09EwsbFx85SLikt16-Zraur0jY5a2Dk6uEzuLy+fyBDYWRgbDYxGRWdwxGIWQ4gVInDLnbJXPK3YR1SoFUSVTg1epNFrCRicfFEl69N6DT6gb5mX6TAEzEHzLZWRi7Cww+zOewxXaRFFo9JnLKXXI3Dh4+qE4mkxrNUSUgoAeXaAE06co1O8hl9jKyJv9pkDZqCEDZIowdoEjO5IvENhEJccpZkLjlrvl2IqCUSSfjyRrGO1eGIuvJXkbGcNEECbIx3JN3Bs7DYLCY5ohAiZedYLIFwkFnIKjF60qdfVi5YGGlqAKp4wQtgBqcZ6hoGH2TCA2xcYNnBVknHnBTg2BYQVhMwrH1i2wqszviJlr6Olfux8vYAElhKqI21eJ1BAAxI8ADRVoi15XK9QNfUTg9No3NfymgOBecjAsNMR1zMtHFWWINh3H1MVlANcXxZUwzJdVNVbaR43pT8TWZM1xj-DlrS5FMnFCIV4RMbMNxA5xYPreD-RxQoSgqapw3VQQdVEI8tVKYR3wZL98J-Qj2StQDbRA3kAhMQJ7B2OwyxdBiMRlZjD2KMoqkEAAtLUtQaITcKZAwCLZS0AJteZdhHRgjDsQILCrRyLCFejklRb1GI0g9A209j9MMhpBH4I9RCKQR2iPUpihMgc8PMsTLP-Tl50nIxeT2MZgkCZwIhHNS90bRCOGjUoEuNMyWXEqz0tteFnDTccNjiAUCpFRTiobBCWPYIoTyfbhdUEVt2k4XhaWw-tqqHEdAkddwxUWYD13newrBhdMeXtNrwkU7cvMlXz9ybW5+G4CLqjECQsL7D9Epqwt1lCEd7GzRZcw2IUNv+RgZEiZwrDLVzhRg46fPUs6mAgIgsAAd3oKA7gEKqk2-XY4QBkwHGogIjEJiwjAyoGxx5LY7DMaijqOOtodKxg4cR5HUaEZpOHRkTksnVw+Q8UwjFcEHxxJxqq3sCiq1sDNFgcHqmOxZmkboFGeAEGpSk5qwHuEpKRnhGRFvCPYzDicdgcCDKXWcR0XWcgI1mCKwFb83JldZ6l6iJERkN4-iuf1siQhdXNnLaswbEc0mljy+1ceiRzEkh+mSr65moCgT37kD56FxFcwIlzIwtnLLKrca9ZeXiF1om2Rwi1dmGmfhzPs94B4OdzocN3hdN9gJnYQYWjLwQ2PkZBAku9ghRSbCbxmcBULAIFZ7vv0oqFTEXAr1hkDYrAyiJzGA8d7Htc+FKFBe+qUYh1FgLRVfYdfRNW8x8vy5xiYiQHtnnYGK5VjE1WOWEC4Qb7MTAGwMgYA6AaBILAagWA74kCIHAMAGgX4zUenNTG8lbaOWaosbMAp3AxyMJYcce8QIfSXJ5Omu5erMWQPfD4aDoFgCwLASA2DdamSHJtYIlhnCTyrGsYhFdbK43MOsbYDhFwgycMnRhcE3ZMARkQd4z9LrXU1pzHBes85bWzMsWIxM5HAQ8M4P6zlfjn2oaAkUSQvJ0BUBAOAegToMwQgmJ6Q4AC0Yt5gBMWsAlyBVKYLRLpA-ybA-F4NEvsSWAoYSTwPqYfe5DxbfwnpsbMHpAbA1pt5VOzClbwxVlABJGNRJ2XMCDLaEt+TEznI1WcywQJj0WMWHksT3atyzqrGp3MDZCgafJEwJdJmKUPo1IsIQ4izJcODKO-SmBLxXsjEZQc7T2CPnYPkXTJx5hcvseeKcmGK1yHfIgD8n7VJwv4jem1Jbb1MNsGSjg2nzGBpQ-K9p4jllcOk9ZjBOGwPgYg5BqD0E8I0Ds4xOxJbn02q4IeAp5LW2XHI3M8lCZLgCGC1hdz2HoLYNwyAiKe5BHHtRdYNgNzuBFO5bFktcV5k3IShhpSrnqMYJo7RjzZq1OSuix0RY0klxlrmWxkJrDnxoiXGJLigA */
   createMachine(
     {
       id: "visualizer machine",
@@ -358,7 +360,7 @@ export const visualizerMachine =
 
             PAN: {
               target: "persisting",
-              actions: ["assignOrigin"],
+              actions: ["pan"],
             },
 
             HISTORY_UPDATE: {
@@ -757,12 +759,29 @@ export const visualizerMachine =
             },
           };
         }),
-        assignOrigin: assign((context, { event }) => {
-          return {
-            origin: {
-              x: context.origin.x - event.deltaX,
-              y: context.origin.y - event.deltaY,
+        pan: assign((context, { event, devicePixelRatio }) => {
+          const clientPoint = calculateClientPoint({
+            canvasPoint: context.currentPoint,
+            origin: context.origin,
+            zoom: context.zoom,
+          });
+          const updatedOrigin = {
+            x: context.origin.x - event.deltaX,
+            y: context.origin.y - event.deltaY,
+          };
+          const currentPoint = calculateCanvasPoint({
+            devicePixelRatio,
+            event: {
+              clientX: clientPoint.x,
+              clientY: clientPoint.y,
             },
+            origin: updatedOrigin,
+            zoom: context.zoom,
+          });
+
+          return {
+            origin: updatedOrigin,
+            currentPoint,
           };
         }),
         addVersionToHistory: assign((context) => {
