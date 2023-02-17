@@ -16,6 +16,7 @@ import {
   isLinearElement,
   calculateFreeDrawElementAbsolutePoint,
   isTextElement,
+  isFreeDrawElement,
 } from "../utils";
 import debounce from "lodash.debounce";
 
@@ -125,17 +126,17 @@ export type VisualizerMachineEvents =
   | {
       type: "DRAW_START";
       event: Parameters<MouseEventHandler<HTMLCanvasElement>>[0];
-      canvasElement: HTMLCanvasElement;
+      devicePixelRatio: number;
     }
   | {
       type: "DRAW";
       event: Parameters<MouseEventHandler<HTMLCanvasElement>>[0];
-      canvasElement: HTMLCanvasElement;
+      devicePixelRatio: number;
     }
   | {
       type: "DRAW_END";
       event: Parameters<MouseEventHandler<HTMLCanvasElement>>[0];
-      canvasElement: HTMLCanvasElement;
+      devicePixelRatio: number;
     }
   | {
       type: "DELETE_SELECTION";
@@ -147,17 +148,17 @@ export type VisualizerMachineEvents =
   | {
       type: "DRAG_START";
       event: Parameters<MouseEventHandler<HTMLCanvasElement>>[0];
-      canvasElement: HTMLCanvasElement;
+      devicePixelRatio: number;
     }
   | {
       type: "DRAG";
       event: Parameters<MouseEventHandler<HTMLCanvasElement>>[0];
-      canvasElement: HTMLCanvasElement;
+      devicePixelRatio: number;
     }
   | {
       type: "DRAG_END";
       event: Parameters<MouseEventHandler<HTMLCanvasElement>>[0];
-      canvasElement: HTMLCanvasElement;
+      devicePixelRatio: number;
     }
   | {
       type: "SELECTED_ELEMENTS.DELETE";
@@ -175,7 +176,7 @@ export type VisualizerMachineEvents =
   | {
       type: "MOUSE_MOVE";
       event: Parameters<MouseEventHandler<HTMLCanvasElement>>[0];
-      canvasElement: HTMLCanvasElement;
+      devicePixelRatio: number;
     }
   | {
       type: "IS_ELEMENT_SHAPE_FIXED_TOGGLE";
@@ -208,11 +209,7 @@ export type VisualizerMachineEvents =
   | {
       type: "WRITE_START";
       event: Parameters<MouseEventHandler<HTMLCanvasElement>>[0];
-      canvasElement: HTMLCanvasElement;
-    }
-  | {
-      type: "WRITE";
-      text: string;
+      devicePixelRatio: number;
     }
   | {
       type: "WRITE_END";
@@ -456,11 +453,6 @@ export const visualizerMachine =
 
         writing: {
           on: {
-            WRITE: {
-              target: "writing",
-              internal: true,
-            },
-
             WRITE_END: {
               target: "version released",
               actions: "endWrite",
@@ -497,9 +489,9 @@ export const visualizerMachine =
             elementShape,
           };
         }),
-        assignDrawStartPoint: assign((context, { canvasElement, event }) => {
+        assignDrawStartPoint: assign((context, { devicePixelRatio, event }) => {
           const drawStartPoint = calculateCanvasPoint({
-            canvasElement,
+            devicePixelRatio,
             event,
             zoom: context.zoom,
             origin: context.origin,
@@ -509,9 +501,9 @@ export const visualizerMachine =
             drawStartPoint,
           };
         }),
-        assignPreviousPoint: assign((context, { canvasElement, event }) => {
+        assignPreviousPoint: assign((context, { devicePixelRatio, event }) => {
           const previousPoint = calculateCanvasPoint({
-            canvasElement,
+            devicePixelRatio,
             event,
             zoom: context.zoom,
             origin: context.origin,
@@ -529,9 +521,9 @@ export const visualizerMachine =
             })),
           };
         }),
-        draw: assign((context, { canvasElement, event }) => {
+        draw: assign((context, { devicePixelRatio, event }) => {
           const currentPoint = calculateCanvasPoint({
-            canvasElement,
+            devicePixelRatio,
             event,
             zoom: context.zoom,
             origin: context.origin,
@@ -565,15 +557,18 @@ export const visualizerMachine =
                   };
                 }
 
-                // freedraw
-                const absolutePoint =
-                  calculateFreeDrawElementAbsolutePoint(element);
-                return {
-                  ...element,
-                  width: absolutePoint.maxX - absolutePoint.minX,
-                  height: absolutePoint.maxY - absolutePoint.minY,
-                  points: [...element.points, [dx, dy]],
-                };
+                if (isFreeDrawElement(element)) {
+                  const absolutePoint =
+                    calculateFreeDrawElementAbsolutePoint(element);
+                  return {
+                    ...element,
+                    width: absolutePoint.maxX - absolutePoint.minX,
+                    height: absolutePoint.maxY - absolutePoint.minY,
+                    points: [...element.points, [dx, dy]],
+                  };
+                }
+
+                return element;
               }
 
               return element;
@@ -615,9 +610,9 @@ export const visualizerMachine =
             }),
           };
         }),
-        drag: assign((context, { canvasElement, event }) => {
+        drag: assign((context, { devicePixelRatio, event }) => {
           const currentPoint = calculateCanvasPoint({
-            canvasElement,
+            devicePixelRatio,
             event,
             zoom: context.zoom,
             origin: context.origin,
@@ -705,9 +700,9 @@ export const visualizerMachine =
             ],
           };
         }),
-        assignCurrentPoint: assign((context, { canvasElement, event }) => {
+        assignCurrentPoint: assign((context, { devicePixelRatio, event }) => {
           const currentPoint = calculateCanvasPoint({
-            canvasElement,
+            devicePixelRatio,
             event,
             zoom: context.zoom,
             origin: context.origin,
@@ -798,12 +793,12 @@ export const visualizerMachine =
             value: context.historyStep + changedStep,
             minimum: 0,
           });
-          const { elements, elementOptions } =
-            context.history[updatedHistoryStep];
+          const version = context.history[updatedHistoryStep];
+          invariant(version);
 
           return {
-            elements,
-            elementOptions,
+            elements: version.elements,
+            elementOptions: version.elementOptions,
             historyStep: updatedHistoryStep,
           };
         }),

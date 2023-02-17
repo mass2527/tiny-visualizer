@@ -18,48 +18,36 @@ import { TEXTAREA_UNIT_LESS_LINE_HEIGHT } from "./constants";
 
 // https://stackoverflow.com/questions/17130395/real-mouse-position-in-canvas
 export const calculateCanvasPoint = ({
-  canvasElement,
+  devicePixelRatio,
   event,
   zoom,
   origin,
 }: {
-  canvasElement: HTMLCanvasElement;
+  devicePixelRatio: number;
   event: Parameters<MouseEventHandler<HTMLCanvasElement>>[0];
   zoom: VisualizerMachineContext["zoom"];
   origin: VisualizerMachineContext["origin"];
 }) => {
-  const rect = canvasElement.getBoundingClientRect();
-  const scaleX = canvasElement.width / rect.width; // relationship bitmap vs. element for x
-  const scaleY = canvasElement.height / rect.height; // relationship bitmap vs. element for y
-
   return {
-    x: ((event.clientX - rect.left) * scaleX - origin.x) / zoom,
-    y: ((event.clientY - rect.top) * scaleY - origin.y) / zoom,
+    x: (event.clientX * devicePixelRatio - origin.x) / zoom,
+    y: (event.clientY * devicePixelRatio - origin.y) / zoom,
   };
 };
 
 export const convertToViewportPoint = ({
-  canvasElement,
+  devicePixelRatio,
   canvasPoint,
   zoom,
   origin,
 }: {
-  canvasElement: HTMLCanvasElement | null;
+  devicePixelRatio: number;
   canvasPoint: Point;
   zoom: VisualizerMachineContext["zoom"];
   origin: VisualizerMachineContext["origin"];
 }) => {
-  if (canvasElement === null) {
-    return { x: 0, y: 0 };
-  }
-
-  const rect = canvasElement.getBoundingClientRect();
-  const scaleX = canvasElement.width / rect.width;
-  const scaleY = canvasElement.height / rect.height;
-
   return {
-    x: (canvasPoint.x * zoom + origin.x) / scaleX + rect.left,
-    y: (canvasPoint.y * zoom + origin.y) / scaleY + rect.top,
+    x: (canvasPoint.x * zoom + origin.x) / devicePixelRatio,
+    y: (canvasPoint.y * zoom + origin.y) / devicePixelRatio,
   };
 };
 

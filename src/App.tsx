@@ -95,7 +95,7 @@ function App() {
 
   const drawStartViewportPoint = convertToViewportPoint({
     canvasPoint: drawStartPoint,
-    canvasElement: canvasRef.current,
+    devicePixelRatio,
     origin,
     zoom,
   });
@@ -270,11 +270,8 @@ function App() {
   }, [elementShape]);
 
   const handleMouseDown: MouseEventHandler<HTMLCanvasElement> = (event) => {
-    const canvasElement = canvasRef.current;
-    invariant(canvasElement);
-
     const mousePoint = calculateCanvasPoint({
-      canvasElement,
+      devicePixelRatio,
       event,
       zoom,
       origin,
@@ -298,75 +295,54 @@ function App() {
   };
 
   const startWrite: MouseEventHandler<HTMLCanvasElement> = (event) => {
-    const canvasElement = canvasRef.current;
-    invariant(canvasElement);
-
     send({
       type: "WRITE_START",
       event,
-      canvasElement,
+      devicePixelRatio,
     });
   };
 
   const startDrag: MouseEventHandler<HTMLCanvasElement> = (event) => {
-    const canvasElement = canvasRef.current;
-    invariant(canvasElement);
-
     send({
       type: "DRAG_START",
-      canvasElement,
       event,
+      devicePixelRatio,
     });
   };
 
   const drag: MouseEventHandler<HTMLCanvasElement> = (event) => {
-    const canvasElement = canvasRef.current;
-    invariant(canvasElement);
-
     send({
       type: "DRAG",
-      canvasElement,
       event,
+      devicePixelRatio,
     });
   };
 
   const endDrag: MouseEventHandler<HTMLCanvasElement> = (event) => {
-    const canvasElement = canvasRef.current;
-    invariant(canvasElement);
-
     send({
       type: "DRAG_END",
-      canvasElement,
       event,
+      devicePixelRatio,
     });
   };
 
   const startDraw: MouseEventHandler<HTMLCanvasElement> = (event) => {
-    const canvasElement = canvasRef.current;
-    invariant(canvasElement);
-
     send({
       type: "DRAW_START",
       event,
-      canvasElement,
+      devicePixelRatio,
     });
   };
 
   const draw: MouseEventHandler<HTMLCanvasElement> = (event) => {
-    const canvasElement = canvasRef.current;
-    invariant(canvasElement);
-
     send({
       type: "DRAW",
       event,
-      canvasElement,
+      devicePixelRatio,
     });
   };
 
   const endDraw: MouseEventHandler<HTMLCanvasElement> = (event) => {
-    const canvasElement = canvasRef.current;
-    invariant(canvasElement);
-
     invariant(drawingElement);
 
     if (drawingElement.shape === "selection") {
@@ -375,19 +351,16 @@ function App() {
       send({
         type: "DRAW_END",
         event,
-        canvasElement,
+        devicePixelRatio,
       });
     }
   };
 
   const moveMouse: MouseEventHandler<HTMLCanvasElement> = (event) => {
-    const canvasElement = canvasRef.current;
-    invariant(canvasElement);
-
     send({
       type: "MOUSE_MOVE",
-      canvasElement,
       event,
+      devicePixelRatio,
     });
   };
 
