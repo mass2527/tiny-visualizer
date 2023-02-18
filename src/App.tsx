@@ -414,7 +414,7 @@ function App() {
               onChange={(event) => {
                 send({
                   type: "CHANGE_ELEMENT_SHAPE",
-                  elementShape: event.target
+                  elementShape: event.currentTarget
                     .value as VisualizerElement["shape"],
                 });
               }}
@@ -435,7 +435,7 @@ function App() {
                 send({
                   type: "CHANGE_ELEMENT_OPTIONS",
                   elementOptions: {
-                    stroke: event.target.value,
+                    stroke: event.currentTarget.value,
                   },
                 });
               }}
@@ -447,7 +447,7 @@ function App() {
                 send({
                   type: "CHANGE_ELEMENT_OPTIONS",
                   elementOptions: {
-                    fill: event.target.value,
+                    fill: event.currentTarget.value,
                   },
                 });
               }}
@@ -464,7 +464,7 @@ function App() {
                     send({
                       type: "CHANGE_ELEMENT_OPTIONS",
                       elementOptions: {
-                        strokeWidth: Number(event.target.value),
+                        strokeWidth: Number(event.currentTarget.value),
                       },
                     });
                   }}
@@ -601,7 +601,7 @@ function App() {
             onBlur={(event) => {
               send({
                 type: "WRITE_END",
-                text: event.target.innerText,
+                text: event.currentTarget.innerText,
               });
             }}
             onKeyDown={(event) => {
