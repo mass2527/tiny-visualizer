@@ -572,12 +572,6 @@ function App() {
             contentEditable
             role="textbox"
             ref={editableRefCallback}
-            onBlur={(event) => {
-              send({
-                type: "WRITE_END",
-                text: event.target.innerText,
-              });
-            }}
             style={{
               position: "absolute",
               left: drawStartViewportPoint.x,
@@ -603,6 +597,20 @@ function App() {
                 (drawingElement.fontSize * TEXTAREA_UNIT_LESS_LINE_HEIGHT) / 2,
               transformOrigin: "left center",
               transform: `scale(${zoom})`,
+            }}
+            onBlur={(event) => {
+              send({
+                type: "WRITE_END",
+                text: event.target.innerText,
+              });
+            }}
+            onKeyDown={(event) => {
+              if (event.key === "Escape") {
+                send({
+                  type: "WRITE_END",
+                  text: event.currentTarget.innerText,
+                });
+              }
             }}
             onInput={(event) => {
               const editableElement = event.currentTarget;
