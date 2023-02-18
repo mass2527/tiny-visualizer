@@ -279,7 +279,10 @@ export const createDraw = (
     };
   } else if (isLinearElement(element)) {
     if (element.shape === "line") {
-      const [dx, dy] = element.points[element.points.length - 1];
+      const point = element.points[element.points.length - 1];
+      invariant(point);
+
+      const [dx, dy] = point;
       const lineDrawable = generator.line(
         element.x,
         element.y,
@@ -293,7 +296,10 @@ export const createDraw = (
     } else {
       const distance = calculateDistance(element.width, element.height);
       const arrowSize = Math.min(ARROW_MAX_SIZE, distance / 2);
-      const [dx, dy] = element.points[element.points.length - 1];
+      const point = element.points[element.points.length - 1];
+      invariant(point);
+
+      const [dx, dy] = point;
       const angleInRadians = Math.atan2(dy, dx);
 
       const startX = element.x;
@@ -349,7 +355,10 @@ export const createDraw = (
 
       ctx.moveTo(element.x, element.y);
       for (let i = 1; i < element.points.length; i++) {
-        const [dx, dy] = element.points[i];
+        const point = element.points[i];
+        invariant(point);
+
+        const [dx, dy] = point;
         ctx.lineTo(element.x + dx, element.y + dy);
       }
       ctx.stroke();
