@@ -601,6 +601,8 @@ function App() {
                 windowSize.height -
                 drawStartViewportPoint.y +
                 (drawingElement.fontSize * TEXTAREA_UNIT_LESS_LINE_HEIGHT) / 2,
+              transformOrigin: "left center",
+              transform: `scale(${zoom})`,
             }}
             onInput={(event) => {
               const editableElement = event.currentTarget;
