@@ -18,8 +18,10 @@ import {
   isTextElement,
   isFreeDrawElement,
   calculateClientPoint,
+  measureText,
 } from "../utils";
 import debounce from "lodash.debounce";
+import { TEXTAREA_UNIT_LESS_LINE_HEIGHT } from "../constants";
 
 export type VisualizerElementBase = {
   id: string;
@@ -216,6 +218,7 @@ export type VisualizerMachineEvents =
   | {
       type: "WRITE_END";
       text: string;
+      canvasElement: HTMLCanvasElement;
     };
 /* #endregion */
 
@@ -825,16 +828,26 @@ export const visualizerMachine =
         resetDrawingElementId: assign((_) => ({
           drawingElementId: null,
         })),
-        endWrite: assign((context, { text }) => {
+        endWrite: assign((context, { text, canvasElement }) => {
           return {
             elements: context.elements.map((element) => {
               if (
                 element.id === context.drawingElementId &&
                 isTextElement(element)
               ) {
+                const { width, height } = measureText({
+                  fontFamily: element.fontFamily,
+                  fontSize: element.fontSize,
+                  lineHeight: TEXTAREA_UNIT_LESS_LINE_HEIGHT,
+                  text,
+                  canvasElement,
+                });
+
                 return {
                   ...element,
                   text,
+                  width,
+                  height,
                 };
               }
               return element;

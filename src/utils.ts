@@ -371,32 +371,75 @@ export const createDraw = (
     return () => {
       ctx.save();
 
-      const devicePixelRatio =
-        canvasElement.width / parseInt(canvasElement.style.width);
-      const fontSize = element.fontSize * devicePixelRatio;
-      ctx.font = `${fontSize}px ${element.fontFamily}`;
+      const { fontSize, lineGap, lineHeight } = measureText({
+        fontFamily: element.fontFamily,
+        fontSize: element.fontSize,
+        lineHeight: TEXTAREA_UNIT_LESS_LINE_HEIGHT,
+        text: element.text,
+        canvasElement,
+      });
+
       ctx.textBaseline = "top";
+      ctx.font = `${fontSize}px ${element.fontFamily}`;
 
       const lines = element.text.split("\n");
-      const lineHeight = fontSize * TEXTAREA_UNIT_LESS_LINE_HEIGHT;
       for (let i = 0; i < lines.length; i++) {
         const text = lines[i];
         if (text) {
-          ctx.fillText(
-            text,
-            element.x,
-            element.y -
-              lineHeight / 2 +
-              i * lineHeight +
-              (lineHeight - fontSize) / 2 +
-              2
-          );
+          ctx.fillText(text, element.x, element.y + lineGap + i * lineHeight);
         }
       }
 
       ctx.restore();
     };
   }
+};
+
+export const measureText = ({
+  text,
+  fontSize,
+  fontFamily,
+  lineHeight,
+  canvasElement,
+}: {
+  text: string;
+  fontSize: number;
+  fontFamily: string;
+  lineHeight: number;
+  canvasElement: HTMLCanvasElement;
+}) => {
+  const ctx = canvasElement.getContext("2d");
+  invariant(ctx);
+
+  ctx.save();
+
+  const height = fontSize * lineHeight;
+  ctx.font = `${fontSize}px ${fontFamily}`;
+  const { fontBoundingBoxAscent, fontBoundingBoxDescent } =
+    ctx.measureText(text);
+  const lineGap = height - (fontBoundingBoxAscent + fontBoundingBoxDescent);
+
+  const lines = text.split("\n");
+  const maxWidth = lines.reduce((currentMaxWidth, currentText) => {
+    const { width } = ctx.measureText(currentText);
+    return Math.max(currentMaxWidth, width);
+  }, 0);
+
+  const devicePixelRatio = calculateDevicePixelRatio(canvasElement);
+
+  ctx.restore();
+
+  return {
+    width: maxWidth * devicePixelRatio,
+    height: height * lines.length * devicePixelRatio,
+    lineHeight: height * devicePixelRatio,
+    lineGap: lineGap * devicePixelRatio,
+    fontSize: fontSize * devicePixelRatio,
+  };
+};
+
+const calculateDevicePixelRatio = (canvasElement: HTMLCanvasElement) => {
+  return canvasElement.width / parseInt(canvasElement.style.width);
 };
 
 const platform =
@@ -528,11 +571,16 @@ export const createElement = ({
       points: [[0, 0]],
     };
   }
+  const fontSize = 24;
+  const devicePixelRatio = 2;
 
   return {
     ...elementBase,
+    y:
+      elementBase.y -
+      (fontSize * TEXTAREA_UNIT_LESS_LINE_HEIGHT * devicePixelRatio) / 2,
     shape: elementShape,
-    fontSize: 24,
+    fontSize,
     fontFamily: "serif",
     text: "",
   };

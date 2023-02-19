@@ -575,9 +575,7 @@ function App() {
             style={{
               position: "absolute",
               left: drawStartViewportPoint.x,
-              top:
-                drawStartViewportPoint.y -
-                (drawingElement.fontSize * TEXTAREA_UNIT_LESS_LINE_HEIGHT) / 2,
+              top: drawStartViewportPoint.y,
               fontFamily: drawingElement.fontFamily,
               fontSize: drawingElement.fontSize,
               lineHeight: TEXTAREA_UNIT_LESS_LINE_HEIGHT,
@@ -590,25 +588,39 @@ function App() {
               resize: "none",
               // initialize width = '1px' to show input caret
               width: 1,
-              maxWidth: windowSize.width - drawStartViewportPoint.x,
-              maxHeight:
-                windowSize.height -
-                drawStartViewportPoint.y +
-                (drawingElement.fontSize * TEXTAREA_UNIT_LESS_LINE_HEIGHT) / 2,
-              transformOrigin: "left center",
-              transform: `scale(${zoom})`,
+              maxWidth: (windowSize.width - drawStartViewportPoint.x) / zoom,
+              maxHeight: Math.max(
+                (windowSize.height -
+                  drawStartViewportPoint.y +
+                  (drawingElement.fontSize * TEXTAREA_UNIT_LESS_LINE_HEIGHT) /
+                    2) /
+                  zoom,
+                drawingElement.fontSize * TEXTAREA_UNIT_LESS_LINE_HEIGHT
+              ),
+              transformOrigin: "top left",
+              transform: `scale(${zoom}) translateY(${
+                -(drawingElement.fontSize * TEXTAREA_UNIT_LESS_LINE_HEIGHT) / 2
+              }px)`,
             }}
             onBlur={(event) => {
+              const canvasElement = canvasRef.current;
+              invariant(canvasElement);
+
               send({
                 type: "WRITE_END",
                 text: event.currentTarget.innerText,
+                canvasElement,
               });
             }}
             onKeyDown={(event) => {
+              const canvasElement = canvasRef.current;
+              invariant(canvasElement);
+
               if (event.key === "Escape") {
                 send({
                   type: "WRITE_END",
                   text: event.currentTarget.innerText,
+                  canvasElement,
                 });
               }
             }}
