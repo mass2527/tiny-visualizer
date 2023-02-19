@@ -538,10 +538,14 @@ export const createElement = ({
   elementShape,
   drawStartPoint,
   elementOptions,
+  styles,
+  devicePixelRatio,
 }: {
   elementShape: VisualizerMachineContext["elementShape"];
   drawStartPoint: VisualizerMachineContext["drawStartPoint"];
   elementOptions: VisualizerMachineContext["elementOptions"];
+  styles: VisualizerMachineContext["styles"];
+  devicePixelRatio: number;
 }): VisualizerElement => {
   const elementBase: VisualizerElementBase = {
     id: uuidv4(),
@@ -571,8 +575,7 @@ export const createElement = ({
       points: [[0, 0]],
     };
   }
-  const fontSize = 24;
-  const devicePixelRatio = 2;
+  const { fontSize } = styles;
 
   return {
     ...elementBase,

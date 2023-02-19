@@ -17,8 +17,10 @@ import {
   VisualizerMachineContext,
   VisualizerElement,
   ZOOM,
+  FontSize,
 } from "./machines/visualizerMachine";
 import {
+  FONT_SIZE_OPTIONS,
   HOT_KEY,
   HOT_KEYS,
   LABELS,
@@ -91,6 +93,7 @@ function App() {
     history,
     historyStep,
     drawStartPoint,
+    styles,
   } = state.context;
 
   const drawStartViewportPoint = convertToViewportPoint({
@@ -465,6 +468,26 @@ function App() {
                       type: "CHANGE_ELEMENT_OPTIONS",
                       elementOptions: {
                         strokeWidth: Number(event.currentTarget.value),
+                      },
+                    });
+                  }}
+                />
+              ))}
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              <span>Font Size</span>
+              {FONT_SIZE_OPTIONS.map(({ label, value }) => (
+                <Radio
+                  key={label}
+                  label={label}
+                  value={String(value)}
+                  checked={styles.fontSize === value}
+                  onChange={(event) => {
+                    send({
+                      type: "CHANGE_STYLES",
+                      styles: {
+                        fontSize: Number(event.currentTarget.value) as FontSize,
                       },
                     });
                   }}

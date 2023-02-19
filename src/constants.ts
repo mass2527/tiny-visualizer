@@ -1,4 +1,7 @@
-import { VisualizerElement } from "./machines/visualizerMachine";
+import {
+  VisualizerElement,
+  VisualizerMachineContext,
+} from "./machines/visualizerMachine";
 
 export type HOT_KEY = "1" | "2" | "3" | "4" | "5" | "6" | "7";
 
@@ -40,6 +43,28 @@ export const STROKE_WIDTH_OPTIONS: {
   {
     label: "Bold",
     value: 6,
+  },
+];
+
+export const FONT_SIZE_OPTIONS: {
+  label: string;
+  value: VisualizerMachineContext["styles"]["fontSize"];
+}[] = [
+  {
+    label: "Small",
+    value: 12,
+  },
+  {
+    label: "Medium",
+    value: 16,
+  },
+  {
+    label: "Large",
+    value: 20,
+  },
+  {
+    label: "X-Large",
+    value: 24,
   },
 ];
 

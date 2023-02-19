@@ -99,6 +99,8 @@ type Version = {
   elementOptions: VisualizerMachineContext["elementOptions"];
 };
 
+export type FontSize = 12 | 16 | 20 | 24;
+
 // context that is saved to localStorage
 type VisualizerMachinePersistedContext = {
   elements: VisualizerElement[];
@@ -115,6 +117,10 @@ type VisualizerMachinePersistedContext = {
   origin: {
     x: number;
     y: number;
+  };
+
+  styles: {
+    fontSize: FontSize;
   };
 };
 
@@ -219,6 +225,10 @@ export type VisualizerMachineEvents =
       type: "WRITE_END";
       text: string;
       canvasElement: HTMLCanvasElement;
+    }
+  | {
+      type: "CHANGE_STYLES";
+      styles: VisualizerMachineContext["styles"];
     };
 /* #endregion */
 
@@ -261,10 +271,14 @@ const PERSISTED_CONTEXT: VisualizerMachinePersistedContext = {
     x: 0,
     y: 0,
   },
+
+  styles: {
+    fontSize: 16,
+  },
 };
 
 export const visualizerMachine =
-  /** @xstate-layout N4IgpgJg5mDOIC5QDcCWsCuBDANqgXmAE4AEAtlgMYAWqAdmAHSoQ5gDEAIgEoCCA6gH0AygBVe3UQG0ADAF1EoAA4B7WKgAuqFXUUgAHogBsAdhOMAnAEYALDIBMFmQA5T9kxYA0IAJ6IrzgCsMoyuNs4m4VZGMjJGgQC+Cd5omLgExORUtAzMrBwAwgASvAByAOIAooKVADKVALKVpaIiJQAKlbIKSCCq6lo6eoYIpubWdo4ubh7efgj2sYyRFqs2NgDMgYFWMjb2SSno2HiEpBQ09EwsbFx85SLikt16-Zraur0jY5a2Dk6uEzuLy+fyBDYWRgbDYxGRWdwxGIWQ4gVInDLnbJXPK3YR1SoFUSVTg1epNFrCRicfFEl69N6DT6gb5mX6TAEzEHzLZWRi7Cww+zOewxXaRFFo9JnLKXXI3Dh4+qE4mkxrNUSUgoAeXaAE06co1O8hl9jKyJv9pkDZqCEDZIowdoEjO5IvENhEJccpZkLjlrvl2IqCUSSfjyRrGO1eGIuvJXkbGcNEECbIx3JN3Bs7DYLCY5ohAiZedYLIFwkFnIKjF60qdfVi5YGGlqAKp4wQtgBqcZ6hoGH2TCA2xcYNnBVknHnBTg2BYQVhMwrH1i2wqszviJlr6Olfux8vYAElhKqI21eJ1BAAxI8ADRVoi15XK9QNfUTg9No3NfymgOBecjAsNMR1zMtHFWWINh3H1MVlANcXxZUwzJdVNVbaR43pT8TWZM1xj-DlrS5FMnFCIV4RMbMNxA5xYPreD-RxQoSgqapw3VQQdVEI8tVKYR3wZL98J-Qj2StQDbRA3kAhMQJ7B2OwyxdBiMRlZjD2KMoqkEAAtLUtQaITcKZAwCLZS0AJteZdhHRgjDsQILCrRyLCFejklRb1GI0g9A209j9MMhpBH4I9RCKQR2iPUpihMgc8PMsTLP-Tl50nIxeT2MZgkCZwIhHNS90bRCOGjUoEuNMyWXEqz0tteFnDTccNjiAUCpFRTiobBCWPYIoTyfbhdUEVt2k4XhaWw-tqqHEdAkddwxUWYD13newrBhdMeXtNrwkU7cvMlXz9ybW5+G4CLqjECQsL7D9Epqwt1lCEd7GzRZcw2IUNv+RgZEiZwrDLVzhRg46fPUs6mAgIgsAAd3oKA7gEKqk2-XY4QBkwHGogIjEJiwjAyoGxx5LY7DMaijqOOtodKxg4cR5HUaEZpOHRkTksnVw+Q8UwjFcEHxxJxqq3sCiq1sDNFgcHqmOxZmkboFGeAEGpSk5qwHuEpKRnhGRFvCPYzDicdgcCDKXWcR0XWcgI1mCKwFb83JldZ6l6iJERkN4-iuf1siQhdXNnLaswbEc0mljy+1ceiRzEkh+mSr65moCgT37kD56FxFcwIlzIwtnLLKrca9ZeXiF1om2Rwi1dmGmfhzPs94B4OdzocN3hdN9gJnYQYWjLwQ2PkZBAku9ghRSbCbxmcBULAIFZ7vv0oqFTEXAr1hkDYrAyiJzGA8d7Htc+FKFBe+qUYh1FgLRVfYdfRNW8x8vy5xiYiQHtnnYGK5VjE1WOWEC4Qb7MTAGwMgYA6AaBILAagWA74kCIHAMAGgX4zUenNTG8lbaOWaosbMAp3AxyMJYcce8QIfSXJ5Omu5erMWQPfD4aDoFgCwLASA2DdamSHJtYIlhnCTyrGsYhFdbK43MOsbYDhFwgycMnRhcE3ZMARkQd4z9LrXU1pzHBes85bWzMsWIxM5HAQ8M4P6zlfjn2oaAkUSQvJ0BUBAOAegToMwQgmJ6Q4AC0Yt5gBMWsAlyBVKYLRLpA-ybA-F4NEvsSWAoYSTwPqYfe5DxbfwnpsbMHpAbA1pt5VOzClbwxVlABJGNRJ2XMCDLaEt+TEznI1WcywQJj0WMWHksT3atyzqrGp3MDZCgafJEwJdJmKUPo1IsIQ4izJcODKO-SmBLxXsjEZQc7T2CPnYPkXTJx5hcvseeKcmGK1yHfIgD8n7VJwv4jem1Jbb1MNsGSjg2nzGBpQ-K9p4jllcOk9ZjBOGwPgYg5BqD0E8I0Ds4xOxJbn02q4IeAp5LW2XHI3M8lCZLgCGC1hdz2HoLYNwyAiKe5BHHtRdYNgNzuBFO5bFktcV5k3IShhpSrnqMYJo7RjzZq1OSuix0RY0klxlrmWxkJrDnxoiXGJLigA */
+  /** @xstate-layout N4IgpgJg5mDOIC5QDcCWsCuBDANqgXmAE4AEAtlgMYAWqAdmAHSoQ5gDEAIgEoCCA6gH0AygBVe3UQG0ADAF1EoAA4B7WKgAuqFXUUgAHogDsMo4wCcARgAspgKyXz1hwCYjAGhABPRJYAcMuaMLgBsAMwyYSGOLnYh1uYAvomeaJi4BMTkVLQMzKwcAMIAErwAcgDiAKKCVQAyVQCyVWWiIqUAClWyCkggqupaOnqGCCZmVrZGDk6uHt6ILjIyjNPLMksyzmHmdsmp6Nh4hKQUNPRMLGxcfBUi4pI9egOa2rp9o+MWNvaOzpZuTw+BBLfyMMJGFwuJzLEIBeL7EBpI6ZU45C75a7CepVQqiKqcWoNZqtYSMTg4-FPPovIbvUCfUzfKYzf6AhYIAGWMwuPwAsJhbnLMLWRHIjInbLnPJXDjYhp4glEpotURkwoAeQ6AE1qco1K9hh9jEzJr9ZgD5sCwi5rIxLHFYhEdn47EZLGLDhKsmdcpcCux5bj8YScSS1YwOrwxN15M8DXSRiaJj9pn85kDfIKwqsRWE7NY4XY-NYwn5Peljj70TKA40NQBVbGCesANVjvX1gzeSYQEMsjG2lnCsyMZbCmc55ihq15RkhO3ngr2KSRXqraOl-uuAElhMrw+1eF1BAAxHcADSVog1FQqDT1-QTPeNY1NqdZGY51iWjBCgQhZw7DiEITBXA5K1RKU-UxOUcUVUNiVVdUG2kOMaWfI0GWTZlzTZK1EAcMwZBCW1zH-d1rHnCsUUlX0MVldgSnKaoD1VQQtVEHcNTKYRH1pF9sLfFMWXTS1JxsSwVn8IwqNImRhzsCEaO9TcYMY5jKhqAAtDUNUafjMPpAwcLNNMLXZYF4hWQs-D8fMBQFEIQnAtdILomttyKUotMEXT9MEfgd1EYpBA6HcyhKQzuywkzhNw8z8MnMcQgsFxHDiEsrCMFyVI3aCGIDKMymiw1jMZES8K-YF7JzCE7FMez4nMPxSLyqD6Nra5ij3G9uG1QQGw6TheCpdCuzK3svjMz9xI5acgj8XlHBagIjHIj1V3FfLOq89h+G4YKajECQ0M7J8YvK0yPzEyzfBIlZGpcHZzGnZ6bXajyt1gpifNYsRtQaPjxouybX2mm6LIIzkGtS6y7HMeduULKJPurb6ICILAAHd6CgG4BFKxNXykkVGARpH0pa6Y-AksccyMVqpisZqHDRtSMUxnG8YJoQWk4InBLigFnuCPNGfMHZwksCTSLMHYZDdExAkVhEtvXDrPMYLncbofGeAEWoygFyxzoE2LRhFnNntLCWpcFCSAjtExBWmCJXuiUV1fc9GYJ1nmKQafERHgrieMFi3ECWlZSIapZ5xckwXFl11GFdZzyMlki3fZgq8i5qAoAD24I6uzlIgHUxIhCRGonMBToZiGPpzAnKHRMEJc927WscL4veDufnS97K2xdtvxJfIh2OSWWI-yhOcpNsLYu61nAVCwCAeeH19lvBUD0sieOdknUEJkFPwTG5JXplX76lGIdRYC0PX2B3oT0oiNPlpFSFnAUuwk4+Tk3WNnHKAQJ6d29rRX2GIwBsDIGAOgGgSCwGoFgB+JAiBwDABoN+INzZl2vgOUIwFyKuiksKR2Nc-wAVstOJaBY74wWQI-N4WD4FgCwLASA+CzZGV7J-FYS0+S-1tA1B0EkGo5ksACEs7p2411cttTW31sZEFeK-A6R0jYCwIQIkmUJrbiwnvbGWHIpJjnJgWEsdkXJuDCMkVcdAVAQDgHoFRX0-Txkur2AAtCEScfi7AWFegwpY0drC2BcMwwqbAfFgyEj+FwFgnKyIFIEcIgSZ4bDtP4fwk9LD5msDYWJ+csa6ygAk4mQlLErHdJfFKjVJEWNaikmIsl3SMzLFRMpTAC5Fz1tUoWlts5-m5OlWIS1SyOFPlsIIgQ7GuhdsOPpjB16bzxsMyOCAfwSVejmGZq16bdPLNA1SecmAPyIE-F+VSMK+N3qQ3CdkRS7AUpOcIfhaFRKRl0twazOGIOQag9BmDsE8I0NsohBYgjQjhE7N2izHbOHtABecUIfwI0cecnaWtWE3PYdgtg3DIDQpHpfVK+YHQNSogjV6tMLFUW+dENwE8oQkUFF7CCMCOZ5HUZo+5E0anC1MHaS+0irB2WvtYCSgRiLZh-FJCROLkhAA */
   createMachine(
     {
       id: "visualizer machine",
@@ -375,6 +389,11 @@ export const visualizerMachine =
               target: "writing",
               actions: ["assignDrawStartPoint", "addElement"],
             },
+
+            CHANGE_STYLES: {
+              target: "persisting",
+              actions: "assignStyles",
+            },
           },
         },
 
@@ -470,11 +489,13 @@ export const visualizerMachine =
     },
     {
       actions: {
-        addElement: assign((context) => {
+        addElement: assign((context, { devicePixelRatio }) => {
           const newElement = createElement({
             elementShape: context.elementShape,
             elementOptions: context.elementOptions,
             drawStartPoint: context.drawStartPoint,
+            styles: context.styles,
+            devicePixelRatio,
           });
 
           return {
@@ -852,6 +873,11 @@ export const visualizerMachine =
               }
               return element;
             }),
+          };
+        }),
+        assignStyles: assign((_, { styles }) => {
+          return {
+            styles,
           };
         }),
       },
