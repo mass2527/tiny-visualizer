@@ -2,6 +2,7 @@ import invariant from "tiny-invariant";
 import rough from "roughjs";
 import { Drawable } from "roughjs/bin/core";
 import {
+  Point,
   SHAPE_TYPES,
   VisualizerElement,
   VisualizerElementBase,
@@ -69,8 +70,6 @@ export const convertToViewportPoint = ({
     y: (canvasPoint.y * zoom + origin.y) / devicePixelRatio,
   };
 };
-
-export type Point = { x: number; y: number };
 
 type AbsolutePoint = {
   minX: number;

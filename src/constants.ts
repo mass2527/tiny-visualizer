@@ -48,7 +48,7 @@ export const STROKE_WIDTH_OPTIONS: {
 
 export const FONT_SIZE_OPTIONS: {
   label: string;
-  value: VisualizerMachineContext["styles"]["fontSize"];
+  value: VisualizerMachineContext["elementOptions"]["fontSize"];
 }[] = [
   {
     label: "Small",
