@@ -27,7 +27,6 @@ export interface Typegen0 {
     assignDrawStartPoint: "DRAW_START" | "WRITE_START";
     assignElementOptions: "CHANGE_ELEMENT_OPTIONS";
     assignPreviousPoint: "DRAG" | "DRAG_START";
-    assignStyles: "CHANGE_STYLES";
     assignZoom: "CHANGE_ZOOM";
     assignZoomToCurrentPoint: "CHANGE_ZOOM_WITH_PINCH";
     changeElementShape: "CHANGE_ELEMENT_SHAPE";
@@ -45,7 +44,6 @@ export interface Typegen0 {
     persist:
       | ""
       | "CHANGE_ELEMENT_SHAPE"
-      | "CHANGE_STYLES"
       | "CHANGE_ZOOM"
       | "CHANGE_ZOOM_WITH_PINCH"
       | "HISTORY_UPDATE"

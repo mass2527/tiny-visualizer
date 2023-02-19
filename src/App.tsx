@@ -93,7 +93,6 @@ function App() {
     history,
     historyStep,
     drawStartPoint,
-    styles,
   } = state.context;
 
   const drawStartViewportPoint = convertToViewportPoint({
@@ -482,11 +481,11 @@ function App() {
                   key={label}
                   label={label}
                   value={String(value)}
-                  checked={styles.fontSize === value}
+                  checked={elementOptions.fontSize === value}
                   onChange={(event) => {
                     send({
-                      type: "CHANGE_STYLES",
-                      styles: {
+                      type: "CHANGE_ELEMENT_OPTIONS",
+                      elementOptions: {
                         fontSize: Number(event.currentTarget.value) as FontSize,
                       },
                     });

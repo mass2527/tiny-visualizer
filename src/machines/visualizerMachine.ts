@@ -1,5 +1,5 @@
 import { MouseEventHandler } from "react";
-import { Options } from "roughjs/bin/core";
+import { Options as RoughJSOptions } from "roughjs/bin/core";
 import invariant from "tiny-invariant";
 import { v4 as uuidv4 } from "uuid";
 import { assign, createMachine } from "xstate";
@@ -37,7 +37,7 @@ export type VisualizerElementBase = {
   height: number;
 
   isSelected: boolean;
-  options: Options;
+  options: RoughJSOptions;
   isDeleted: boolean;
 };
 
@@ -68,12 +68,17 @@ export type VisualizerFreeDrawElement = VisualizerElementBase & {
   points: TuplePoint[];
 };
 
-export type VisualizerTextElement = VisualizerElementBase & {
-  shape: "text";
+export type FontSize = 12 | 16 | 20 | 24;
+type VisualizerTextElementOptions = {
   fontFamily: "serif";
-  fontSize: number;
-  text: string;
+  fontSize: FontSize;
 };
+
+export type VisualizerTextElement = VisualizerElementBase &
+  VisualizerTextElementOptions & {
+    shape: "text";
+    text: string;
+  };
 
 export type VisualizerElement =
   | VisualizerGenericElement
@@ -99,12 +104,12 @@ type Version = {
   elementOptions: VisualizerMachineContext["elementOptions"];
 };
 
-export type FontSize = 12 | 16 | 20 | 24;
+type ElementOptions = RoughJSOptions & VisualizerTextElementOptions;
 
 // context that is saved to localStorage
 type VisualizerMachinePersistedContext = {
   elements: VisualizerElement[];
-  elementOptions: Options;
+  elementOptions: ElementOptions;
 
   elementShape: VisualizerElement["shape"];
   drawingElementId: VisualizerElement["id"] | null;
@@ -117,10 +122,6 @@ type VisualizerMachinePersistedContext = {
   origin: {
     x: number;
     y: number;
-  };
-
-  styles: {
-    fontSize: FontSize;
   };
 };
 
@@ -192,7 +193,7 @@ export type VisualizerMachineEvents =
     }
   | {
       type: "CHANGE_ELEMENT_OPTIONS";
-      elementOptions: VisualizerMachineContext["elementOptions"];
+      elementOptions: Partial<VisualizerMachineContext["elementOptions"]>;
     }
   | {
       type: "CHANGE_ZOOM";
@@ -225,10 +226,6 @@ export type VisualizerMachineEvents =
       type: "WRITE_END";
       text: string;
       canvasElement: HTMLCanvasElement;
-    }
-  | {
-      type: "CHANGE_STYLES";
-      styles: VisualizerMachineContext["styles"];
     };
 /* #endregion */
 
@@ -246,6 +243,8 @@ const PERSISTED_CONTEXT: VisualizerMachinePersistedContext = {
     stroke: "#000",
     fill: "transparent",
     strokeWidth: 2,
+    fontSize: 16,
+    fontFamily: "serif",
   },
 
   // untrack
@@ -270,10 +269,6 @@ const PERSISTED_CONTEXT: VisualizerMachinePersistedContext = {
   origin: {
     x: 0,
     y: 0,
-  },
-
-  styles: {
-    fontSize: 16,
   },
 };
 
@@ -389,11 +384,6 @@ export const visualizerMachine =
               target: "writing",
               actions: ["assignDrawStartPoint", "addElement"],
             },
-
-            CHANGE_STYLES: {
-              target: "persisting",
-              actions: "assignStyles",
-            },
           },
         },
 
@@ -494,7 +484,6 @@ export const visualizerMachine =
             elementShape: context.elementShape,
             elementOptions: context.elementOptions,
             drawStartPoint: context.drawStartPoint,
-            styles: context.styles,
             devicePixelRatio,
           });
 
@@ -873,11 +862,6 @@ export const visualizerMachine =
               }
               return element;
             }),
-          };
-        }),
-        assignStyles: assign((_, { styles }) => {
-          return {
-            styles,
           };
         }),
       },

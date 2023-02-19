@@ -1,4 +1,3 @@
-import { MouseEventHandler } from "react";
 import invariant from "tiny-invariant";
 import rough from "roughjs";
 import { Drawable } from "roughjs/bin/core";
@@ -538,13 +537,11 @@ export const createElement = ({
   elementShape,
   drawStartPoint,
   elementOptions,
-  styles,
   devicePixelRatio,
 }: {
   elementShape: VisualizerMachineContext["elementShape"];
   drawStartPoint: VisualizerMachineContext["drawStartPoint"];
   elementOptions: VisualizerMachineContext["elementOptions"];
-  styles: VisualizerMachineContext["styles"];
   devicePixelRatio: number;
 }): VisualizerElement => {
   const elementBase: VisualizerElementBase = {
@@ -575,7 +572,7 @@ export const createElement = ({
       points: [[0, 0]],
     };
   }
-  const { fontSize } = styles;
+  const { fontSize, fontFamily } = elementOptions;
 
   return {
     ...elementBase,
@@ -584,7 +581,7 @@ export const createElement = ({
       (fontSize * TEXTAREA_UNIT_LESS_LINE_HEIGHT * devicePixelRatio) / 2,
     shape: elementShape,
     fontSize,
-    fontFamily: "serif",
+    fontFamily,
     text: "",
   };
 };
