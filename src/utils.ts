@@ -41,10 +41,12 @@ export const calculateClientPoint = ({
   canvasPoint,
   zoom,
   origin,
+  devicePixelRatio,
 }: {
   canvasPoint: Point;
   zoom: VisualizerMachineContext["zoom"];
   origin: VisualizerMachineContext["origin"];
+  devicePixelRatio: number;
 }) => {
   return {
     x: (canvasPoint.x * zoom + origin.x) / devicePixelRatio,

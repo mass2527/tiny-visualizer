@@ -764,6 +764,7 @@ export const visualizerMachine =
             canvasPoint: context.currentPoint,
             origin: context.origin,
             zoom: context.zoom,
+            devicePixelRatio,
           });
           const updatedOrigin = {
             x: context.origin.x - event.deltaX,
