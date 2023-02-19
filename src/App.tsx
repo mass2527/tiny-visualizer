@@ -1,5 +1,11 @@
 import { useMachine } from "@xstate/react";
-import { MouseEventHandler, useEffect, useLayoutEffect, useRef } from "react";
+import {
+  MouseEventHandler,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+} from "react";
 import invariant from "tiny-invariant";
 import { assign } from "xstate";
 import ColorPicker from "./components/ColorPicker";
@@ -11,17 +17,27 @@ import {
   VisualizerMachineContext,
   VisualizerElement,
   ZOOM,
+  FontSize,
 } from "./machines/visualizerMachine";
-import { STROKE_WIDTH_OPTIONS, TOOL_OPTIONS } from "./options";
+import {
+  FONT_SIZE_OPTIONS,
+  HOT_KEY,
+  HOT_KEYS,
+  LABELS,
+  STROKE_WIDTH_OPTIONS,
+  TEXTAREA_UNIT_LESS_LINE_HEIGHT,
+} from "./constants";
 
 import {
   calculateElementAbsolutePoint,
-  calculateMousePoint,
+  calculateCanvasPoint,
   convertToPercent,
   convertToRatio,
   createDraw,
   isPointInsideOfElement,
+  isTextElement,
   isWithPlatformMetaKey,
+  convertToViewportPoint,
 } from "./utils";
 
 const MARGIN = 8;
@@ -76,7 +92,15 @@ function App() {
     origin,
     history,
     historyStep,
+    drawStartPoint,
   } = state.context;
+
+  const drawStartViewportPoint = convertToViewportPoint({
+    canvasPoint: drawStartPoint,
+    devicePixelRatio,
+    origin,
+    zoom,
+  });
 
   const drawingElement = elements.find(
     (element) => element.id === drawingElementId
@@ -108,6 +132,7 @@ function App() {
     const ctx = canvasElement.getContext("2d");
     invariant(ctx);
 
+    // canvasElement width and height are dependent on windowSize, devicePixelRatio
     ctx.clearRect(0, 0, canvasElement.width, canvasElement.height);
 
     const drawnElements = elements.filter((element) => !element.isDeleted);
@@ -133,7 +158,7 @@ function App() {
 
       ctx.restore();
     });
-  }, [elements, origin, zoom]);
+  }, [elements, origin, zoom, windowSize, devicePixelRatio]);
 
   useEffect(() => {
     const handleWheel = (event: WheelEvent) => {
@@ -164,6 +189,7 @@ function App() {
         send({
           type: "PAN",
           event,
+          devicePixelRatio,
         });
       }
     };
@@ -174,7 +200,7 @@ function App() {
     return () => {
       window.removeEventListener("wheel", handleWheel);
     };
-  }, []);
+  }, [devicePixelRatio]);
 
   useEffect(() => {
     const canvasElement = canvasRef.current;
@@ -215,24 +241,20 @@ function App() {
         }
       }
 
-      const isShapeChangeHotKeys = ["1", "2", "3", "4", "5", "6"].includes(
-        event.key
+      const isShapeChangeHotKeys = Object.values(HOT_KEYS).includes(
+        event.key as HOT_KEY
       );
       if (!isShapeChangeHotKeys) {
         return;
       }
 
-      const hotKeys: Record<string, VisualizerElement["shape"]> = {
-        1: "selection",
-        2: "rectangle",
-        3: "ellipse",
-        4: "arrow",
-        5: "line",
-        6: "freedraw",
-      };
+      const updatedElementShape = Object.entries(HOT_KEYS).find(
+        ([, hotkey]) => hotkey === event.key
+      )![0];
+
       send({
         type: "CHANGE_ELEMENT_SHAPE",
-        elementShape: hotKeys[event.key],
+        elementShape: updatedElementShape as VisualizerElement["shape"],
       });
     };
 
@@ -251,15 +273,17 @@ function App() {
   }, [elementShape]);
 
   const handleMouseDown: MouseEventHandler<HTMLCanvasElement> = (event) => {
-    const canvasElement = canvasRef.current;
-    invariant(canvasElement);
-
-    const mousePoint = calculateMousePoint({
-      canvasElement,
+    const mousePoint = calculateCanvasPoint({
+      devicePixelRatio,
       event,
       zoom,
       origin,
     });
+
+    if (elementShape === "text") {
+      startWrite(event);
+      return;
+    }
 
     if (
       elementShape === "selection" &&
@@ -273,65 +297,55 @@ function App() {
     }
   };
 
-  const startDrag: MouseEventHandler<HTMLCanvasElement> = (event) => {
-    const canvasElement = canvasRef.current;
-    invariant(canvasElement);
+  const startWrite: MouseEventHandler<HTMLCanvasElement> = (event) => {
+    send({
+      type: "WRITE_START",
+      event,
+      devicePixelRatio,
+    });
+  };
 
+  const startDrag: MouseEventHandler<HTMLCanvasElement> = (event) => {
     send({
       type: "DRAG_START",
-      canvasElement,
       event,
+      devicePixelRatio,
     });
   };
 
   const drag: MouseEventHandler<HTMLCanvasElement> = (event) => {
-    const canvasElement = canvasRef.current;
-    invariant(canvasElement);
-
     send({
       type: "DRAG",
-      canvasElement,
       event,
+      devicePixelRatio,
     });
   };
 
   const endDrag: MouseEventHandler<HTMLCanvasElement> = (event) => {
-    const canvasElement = canvasRef.current;
-    invariant(canvasElement);
-
     send({
       type: "DRAG_END",
-      canvasElement,
       event,
+      devicePixelRatio,
     });
   };
 
   const startDraw: MouseEventHandler<HTMLCanvasElement> = (event) => {
-    const canvasElement = canvasRef.current;
-    invariant(canvasElement);
-
     send({
       type: "DRAW_START",
       event,
-      canvasElement,
+      devicePixelRatio,
     });
   };
 
   const draw: MouseEventHandler<HTMLCanvasElement> = (event) => {
-    const canvasElement = canvasRef.current;
-    invariant(canvasElement);
-
     send({
       type: "DRAW",
       event,
-      canvasElement,
+      devicePixelRatio,
     });
   };
 
   const endDraw: MouseEventHandler<HTMLCanvasElement> = (event) => {
-    const canvasElement = canvasRef.current;
-    invariant(canvasElement);
-
     invariant(drawingElement);
 
     if (drawingElement.shape === "selection") {
@@ -340,21 +354,31 @@ function App() {
       send({
         type: "DRAW_END",
         event,
-        canvasElement,
+        devicePixelRatio,
       });
     }
   };
 
   const moveMouse: MouseEventHandler<HTMLCanvasElement> = (event) => {
-    const canvasElement = canvasRef.current;
-    invariant(canvasElement);
-
     send({
       type: "MOUSE_MOVE",
-      canvasElement,
       event,
+      devicePixelRatio,
     });
   };
+
+  const editableRefCallback = useCallback(
+    (editableElement: HTMLDivElement | null) => {
+      if (editableElement === null) {
+        return;
+      }
+
+      setTimeout(() => {
+        editableElement.focus();
+      }, 0);
+    },
+    []
+  );
 
   return (
     <div style={{ height: "100vh", overflow: "hidden" }}>
@@ -383,16 +407,16 @@ function App() {
             />
             Fix shape
           </label>
-          {TOOL_OPTIONS.map(({ label, value }) => (
+          {Object.entries(LABELS).map(([shape, label]) => (
             <Radio
-              key={value}
+              key={shape}
               label={label}
-              value={value}
-              checked={elementShape === value}
+              value={shape}
+              checked={elementShape === shape}
               onChange={(event) => {
                 send({
                   type: "CHANGE_ELEMENT_SHAPE",
-                  elementShape: event.target
+                  elementShape: event.currentTarget
                     .value as VisualizerElement["shape"],
                 });
               }}
@@ -413,7 +437,7 @@ function App() {
                 send({
                   type: "CHANGE_ELEMENT_OPTIONS",
                   elementOptions: {
-                    stroke: event.target.value,
+                    stroke: event.currentTarget.value,
                   },
                 });
               }}
@@ -425,7 +449,7 @@ function App() {
                 send({
                   type: "CHANGE_ELEMENT_OPTIONS",
                   elementOptions: {
-                    fill: event.target.value,
+                    fill: event.currentTarget.value,
                   },
                 });
               }}
@@ -442,7 +466,27 @@ function App() {
                     send({
                       type: "CHANGE_ELEMENT_OPTIONS",
                       elementOptions: {
-                        strokeWidth: Number(event.target.value),
+                        strokeWidth: Number(event.currentTarget.value),
+                      },
+                    });
+                  }}
+                />
+              ))}
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              <span>Font Size</span>
+              {FONT_SIZE_OPTIONS.map(({ label, value }) => (
+                <Radio
+                  key={label}
+                  label={label}
+                  value={String(value)}
+                  checked={elementOptions.fontSize === value}
+                  onChange={(event) => {
+                    send({
+                      type: "CHANGE_ELEMENT_OPTIONS",
+                      elementOptions: {
+                        fontSize: Number(event.currentTarget.value) as FontSize,
                       },
                     });
                   }}
@@ -543,6 +587,76 @@ function App() {
             : undefined
         }
       />
+      {state.matches("writing") &&
+        drawingElement &&
+        isTextElement(drawingElement) && (
+          <div
+            contentEditable
+            role="textbox"
+            ref={editableRefCallback}
+            style={{
+              position: "absolute",
+              left: drawStartViewportPoint.x,
+              top: drawStartViewportPoint.y,
+              fontFamily: drawingElement.fontFamily,
+              fontSize: drawingElement.fontSize,
+              lineHeight: TEXTAREA_UNIT_LESS_LINE_HEIGHT,
+              padding: 0,
+              outline: 0,
+              border: 0,
+              overflow: "hidden",
+              whiteSpace: "nowrap",
+              backgroundColor: "transparent",
+              resize: "none",
+              // initialize width = '1px' to show input caret
+              width: 1,
+              maxWidth: (windowSize.width - drawStartViewportPoint.x) / zoom,
+              maxHeight: Math.max(
+                (windowSize.height -
+                  drawStartViewportPoint.y +
+                  (drawingElement.fontSize * TEXTAREA_UNIT_LESS_LINE_HEIGHT) /
+                    2) /
+                  zoom,
+                drawingElement.fontSize * TEXTAREA_UNIT_LESS_LINE_HEIGHT
+              ),
+              transformOrigin: "top left",
+              transform: `scale(${zoom}) translateY(${
+                -(drawingElement.fontSize * TEXTAREA_UNIT_LESS_LINE_HEIGHT) / 2
+              }px)`,
+            }}
+            onBlur={(event) => {
+              const canvasElement = canvasRef.current;
+              invariant(canvasElement);
+
+              send({
+                type: "WRITE_END",
+                text: event.currentTarget.innerText,
+                canvasElement,
+              });
+            }}
+            onKeyDown={(event) => {
+              const canvasElement = canvasRef.current;
+              invariant(canvasElement);
+
+              if (event.key === "Escape") {
+                send({
+                  type: "WRITE_END",
+                  text: event.currentTarget.innerText,
+                  canvasElement,
+                });
+              }
+            }}
+            onInput={(event) => {
+              const editableElement = event.currentTarget;
+
+              if (editableElement.innerText === "") {
+                editableElement.style.width = "1px";
+              } else {
+                editableElement.style.width = "auto";
+              }
+            }}
+          />
+        )}
     </div>
   );
 }

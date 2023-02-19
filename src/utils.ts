@@ -1,8 +1,8 @@
-import { MouseEventHandler } from "react";
 import invariant from "tiny-invariant";
 import rough from "roughjs";
 import { Drawable } from "roughjs/bin/core";
 import {
+  Point,
   SHAPE_TYPES,
   VisualizerElement,
   VisualizerElementBase,
@@ -10,33 +10,66 @@ import {
   VisualizerGenericElement,
   VisualizerLinearElement,
   VisualizerMachineContext,
+  VisualizerTextElement,
   ZOOM,
 } from "./machines/visualizerMachine";
 import { v4 as uuidv4 } from "uuid";
+import { TEXTAREA_UNIT_LESS_LINE_HEIGHT } from "./constants";
 
-// https://stackoverflow.com/questions/17130395/real-mouse-position-in-canvas
-export const calculateMousePoint = ({
-  canvasElement,
+export const calculateCanvasPoint = ({
+  devicePixelRatio,
   event,
   zoom,
   origin,
 }: {
-  canvasElement: HTMLCanvasElement;
-  event: Parameters<MouseEventHandler<HTMLCanvasElement>>[0];
+  devicePixelRatio: number;
+  event: {
+    clientX: number;
+    clientY: number;
+  };
   zoom: VisualizerMachineContext["zoom"];
   origin: VisualizerMachineContext["origin"];
 }) => {
-  const rect = canvasElement.getBoundingClientRect();
-  const scaleX = canvasElement.width / rect.width; // relationship bitmap vs. element for x
-  const scaleY = canvasElement.height / rect.height; // relationship bitmap vs. element for y
-
   return {
-    x: ((event.clientX - rect.left) * scaleX - origin.x) / zoom,
-    y: ((event.clientY - rect.top) * scaleY - origin.y) / zoom,
+    x: (event.clientX * devicePixelRatio - origin.x) / zoom,
+    y: (event.clientY * devicePixelRatio - origin.y) / zoom,
   };
 };
 
-export type Point = { x: number; y: number };
+// calculate clientX, clientY from canvas point
+export const calculateClientPoint = ({
+  canvasPoint,
+  zoom,
+  origin,
+  devicePixelRatio,
+}: {
+  canvasPoint: Point;
+  zoom: VisualizerMachineContext["zoom"];
+  origin: VisualizerMachineContext["origin"];
+  devicePixelRatio: number;
+}) => {
+  return {
+    x: (canvasPoint.x * zoom + origin.x) / devicePixelRatio,
+    y: (canvasPoint.y * zoom + origin.y) / devicePixelRatio,
+  };
+};
+
+export const convertToViewportPoint = ({
+  devicePixelRatio,
+  canvasPoint,
+  zoom,
+  origin,
+}: {
+  devicePixelRatio: number;
+  canvasPoint: Point;
+  zoom: VisualizerMachineContext["zoom"];
+  origin: VisualizerMachineContext["origin"];
+}) => {
+  return {
+    x: (canvasPoint.x * zoom + origin.x) / devicePixelRatio,
+    y: (canvasPoint.y * zoom + origin.y) / devicePixelRatio,
+  };
+};
 
 type AbsolutePoint = {
   minX: number;
@@ -56,7 +89,11 @@ export const calculateElementAbsolutePoint = (
     return calculateLinearElementAbsolutePoint(element);
   }
 
-  return calculateFreeDrawElementAbsolutePoint(element);
+  if (isFreeDrawElement(element)) {
+    return calculateFreeDrawElementAbsolutePoint(element);
+  }
+
+  return calculateTextElementAbsolutePoint(element);
 };
 
 const calculateGenericElementAbsolutePoint = (
@@ -114,6 +151,15 @@ export const calculateFreeDrawElementAbsolutePoint = (
       maxY: -Infinity,
     }
   );
+};
+
+const calculateTextElementAbsolutePoint = (element: VisualizerTextElement) => {
+  return {
+    minX: element.x,
+    minY: element.y,
+    maxX: element.x + element.width,
+    maxY: element.y + element.height,
+  };
 };
 
 export const calculateElementsAbsolutePoint = (
@@ -231,64 +277,75 @@ export const createDraw = (
     return () => {
       roughCanvas.draw(ellipseDrawable);
     };
-  } else if (element.shape === "line") {
-    const [dx, dy] = element.points[element.points.length - 1];
-    const lineDrawable = generator.line(
-      element.x,
-      element.y,
-      element.x + dx,
-      element.y + dy,
-      element.options
-    );
-    return () => {
-      roughCanvas.draw(lineDrawable);
-    };
-  } else if (element.shape === "arrow") {
-    const distance = calculateDistance(element.width, element.height);
-    const arrowSize = Math.min(ARROW_MAX_SIZE, distance / 2);
-    const [dx, dy] = element.points[element.points.length - 1];
-    const angleInRadians = Math.atan2(dy, dx);
+  } else if (isLinearElement(element)) {
+    if (element.shape === "line") {
+      const point = element.points[element.points.length - 1];
+      invariant(point);
 
-    const startX = element.x;
-    const startY = element.y;
-
-    const endX = element.x + dx;
-    const endY = element.y + dy;
-
-    let arrowDrawables: Drawable[] = [];
-
-    // \
-    arrowDrawables.push(
-      generator.line(
-        endX,
-        endY,
-        endX - arrowSize * Math.cos(angleInRadians + convertDegreeToRadian(30)),
-        endY - arrowSize * Math.sin(angleInRadians + convertDegreeToRadian(30)),
+      const [dx, dy] = point;
+      const lineDrawable = generator.line(
+        element.x,
+        element.y,
+        element.x + dx,
+        element.y + dy,
         element.options
-      )
-    );
-    // -
-    arrowDrawables.push(
-      generator.line(startX, startY, endX, endY, element.options)
-    );
-    // /
-    arrowDrawables.push(
-      generator.line(
-        endX,
-        endY,
-        endX - arrowSize * Math.cos(angleInRadians - convertDegreeToRadian(30)),
-        endY - arrowSize * Math.sin(angleInRadians - convertDegreeToRadian(30)),
-        element.options
-      )
-    );
+      );
+      return () => {
+        roughCanvas.draw(lineDrawable);
+      };
+    } else {
+      const distance = calculateDistance(element.width, element.height);
+      const arrowSize = Math.min(ARROW_MAX_SIZE, distance / 2);
+      const point = element.points[element.points.length - 1];
+      invariant(point);
 
-    return () => {
-      arrowDrawables.forEach((drawable) => {
-        roughCanvas.draw(drawable);
-      });
-    };
-  } else {
-    // freedraw
+      const [dx, dy] = point;
+      const angleInRadians = Math.atan2(dy, dx);
+
+      const startX = element.x;
+      const startY = element.y;
+
+      const endX = element.x + dx;
+      const endY = element.y + dy;
+
+      let arrowDrawables: Drawable[] = [];
+
+      // \
+      arrowDrawables.push(
+        generator.line(
+          endX,
+          endY,
+          endX -
+            arrowSize * Math.cos(angleInRadians + convertDegreeToRadian(30)),
+          endY -
+            arrowSize * Math.sin(angleInRadians + convertDegreeToRadian(30)),
+          element.options
+        )
+      );
+      // -
+      arrowDrawables.push(
+        generator.line(startX, startY, endX, endY, element.options)
+      );
+      // /
+      arrowDrawables.push(
+        generator.line(
+          endX,
+          endY,
+          endX -
+            arrowSize * Math.cos(angleInRadians - convertDegreeToRadian(30)),
+          endY -
+            arrowSize * Math.sin(angleInRadians - convertDegreeToRadian(30)),
+          element.options
+        )
+      );
+
+      return () => {
+        arrowDrawables.forEach((drawable) => {
+          roughCanvas.draw(drawable);
+        });
+      };
+    }
+  } else if (element.shape === "freedraw") {
     return () => {
       ctx.save();
 
@@ -298,14 +355,89 @@ export const createDraw = (
 
       ctx.moveTo(element.x, element.y);
       for (let i = 1; i < element.points.length; i++) {
-        const [dx, dy] = element.points[i];
+        const point = element.points[i];
+        invariant(point);
+
+        const [dx, dy] = point;
         ctx.lineTo(element.x + dx, element.y + dy);
       }
       ctx.stroke();
 
       ctx.restore();
     };
+  } else {
+    return () => {
+      ctx.save();
+
+      const { fontSize, lineGap, lineHeight } = measureText({
+        fontFamily: element.fontFamily,
+        fontSize: element.fontSize,
+        lineHeight: TEXTAREA_UNIT_LESS_LINE_HEIGHT,
+        text: element.text,
+        canvasElement,
+      });
+
+      ctx.textBaseline = "top";
+      ctx.font = `${fontSize}px ${element.fontFamily}`;
+
+      const lines = element.text.split("\n");
+      for (let i = 0; i < lines.length; i++) {
+        const text = lines[i];
+        if (text) {
+          ctx.fillText(text, element.x, element.y + lineGap + i * lineHeight);
+        }
+      }
+
+      ctx.restore();
+    };
   }
+};
+
+export const measureText = ({
+  text,
+  fontSize,
+  fontFamily,
+  lineHeight,
+  canvasElement,
+}: {
+  text: string;
+  fontSize: number;
+  fontFamily: string;
+  lineHeight: number;
+  canvasElement: HTMLCanvasElement;
+}) => {
+  const ctx = canvasElement.getContext("2d");
+  invariant(ctx);
+
+  ctx.save();
+
+  const height = fontSize * lineHeight;
+  ctx.font = `${fontSize}px ${fontFamily}`;
+  const { fontBoundingBoxAscent, fontBoundingBoxDescent } =
+    ctx.measureText(text);
+  const lineGap = height - (fontBoundingBoxAscent + fontBoundingBoxDescent);
+
+  const lines = text.split("\n");
+  const maxWidth = lines.reduce((currentMaxWidth, currentText) => {
+    const { width } = ctx.measureText(currentText);
+    return Math.max(currentMaxWidth, width);
+  }, 0);
+
+  const devicePixelRatio = calculateDevicePixelRatio(canvasElement);
+
+  ctx.restore();
+
+  return {
+    width: maxWidth * devicePixelRatio,
+    height: height * lines.length * devicePixelRatio,
+    lineHeight: height * devicePixelRatio,
+    lineGap: lineGap * devicePixelRatio,
+    fontSize: fontSize * devicePixelRatio,
+  };
+};
+
+const calculateDevicePixelRatio = (canvasElement: HTMLCanvasElement) => {
+  return canvasElement.width / parseInt(canvasElement.style.width);
 };
 
 const platform =
@@ -376,14 +508,40 @@ export const isLinearElement = (
   return isLinearElementShape(element.shape);
 };
 
+export const isFreeDrawElementShape = (
+  shape: VisualizerElement["shape"]
+): shape is VisualizerFreeDrawElement["shape"] => {
+  return SHAPE_TYPES[shape] === "freedraw";
+};
+
+export const isFreeDrawElement = (
+  element: VisualizerElement
+): element is VisualizerFreeDrawElement => {
+  return isFreeDrawElementShape(element.shape);
+};
+
+export const isTextElementShape = (
+  shape: VisualizerElement["shape"]
+): shape is VisualizerTextElement["shape"] => {
+  return SHAPE_TYPES[shape] === "text";
+};
+
+export const isTextElement = (
+  element: VisualizerElement
+): element is VisualizerTextElement => {
+  return isTextElementShape(element.shape);
+};
+
 export const createElement = ({
   elementShape,
   drawStartPoint,
   elementOptions,
+  devicePixelRatio,
 }: {
   elementShape: VisualizerMachineContext["elementShape"];
   drawStartPoint: VisualizerMachineContext["drawStartPoint"];
   elementOptions: VisualizerMachineContext["elementOptions"];
+  devicePixelRatio: number;
 }): VisualizerElement => {
   const elementBase: VisualizerElementBase = {
     id: uuidv4(),
@@ -403,10 +561,26 @@ export const createElement = ({
     };
   }
 
-  // linear or freedraw
+  if (
+    isLinearElementShape(elementShape) ||
+    isFreeDrawElementShape(elementShape)
+  ) {
+    return {
+      ...elementBase,
+      shape: elementShape,
+      points: [[0, 0]],
+    };
+  }
+  const { fontSize, fontFamily } = elementOptions;
+
   return {
     ...elementBase,
+    y:
+      elementBase.y -
+      (fontSize * TEXTAREA_UNIT_LESS_LINE_HEIGHT * devicePixelRatio) / 2,
     shape: elementShape,
-    points: [[0, 0]],
+    fontSize,
+    fontFamily,
+    text: "",
   };
 };

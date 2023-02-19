@@ -1,245 +1,33 @@
-import { MouseEventHandler } from "react";
-import { Options } from "roughjs/bin/core";
 import invariant from "tiny-invariant";
 import { v4 as uuidv4 } from "uuid";
 import { assign, createMachine } from "xstate";
 import {
   calculateCenterPoint,
   calculateElementsAbsolutePoint,
-  calculateMousePoint,
+  calculateCanvasPoint,
   calculateNormalizedValue,
   calculateNormalizedZoom,
   isIntersecting,
-  Point,
   createElement,
   isGenericElement,
   isLinearElement,
   calculateFreeDrawElementAbsolutePoint,
-} from "../utils";
+  isTextElement,
+  isFreeDrawElement,
+  calculateClientPoint,
+  measureText,
+} from "../../utils";
 import debounce from "lodash.debounce";
-
-export type VisualizerElementBase = {
-  id: string;
-
-  // VisualizerGenericElement: left top point
-  // VisualizerLinearElement: start point
-  x: number;
-  y: number;
-
-  // VisualizerGenericElement: absolute width, height
-  // VisualizerLinearElement: absolute width, height
-  width: number;
-  height: number;
-
-  isSelected: boolean;
-  options: Options;
-  isDeleted: boolean;
-};
-
-type VisualizerSelectionElement = VisualizerElementBase & {
-  shape: "selection";
-};
-type VisualizerRectangleElement = VisualizerElementBase & {
-  shape: "rectangle";
-};
-type VisualizerEllipseElement = VisualizerElementBase & {
-  shape: "ellipse";
-};
-
-export type VisualizerGenericElement =
-  | VisualizerSelectionElement
-  | VisualizerRectangleElement
-  | VisualizerEllipseElement;
-
-type TuplePoint = [number, number];
-
-export type VisualizerLinearElement = VisualizerElementBase & {
-  shape: "line" | "arrow";
-  points: TuplePoint[];
-};
-
-export type VisualizerFreeDrawElement = VisualizerElementBase & {
-  shape: "freedraw";
-  points: TuplePoint[];
-};
-
-export type VisualizerElement =
-  | VisualizerGenericElement
-  | VisualizerLinearElement
-  | VisualizerFreeDrawElement;
-
-export const SHAPE_TYPES: Record<
-  VisualizerElement["shape"],
-  "generic" | "linear" | "freedraw"
-> = {
-  selection: "generic",
-  rectangle: "generic",
-  ellipse: "generic",
-  line: "linear",
-  arrow: "linear",
-  freedraw: "freedraw",
-};
-
-type Version = {
-  elements: VisualizerMachineContext["elements"];
-  elementOptions: VisualizerMachineContext["elementOptions"];
-};
-
-// context that is saved to localStorage
-type VisualizerMachinePersistedContext = {
-  elements: VisualizerElement[];
-  elementOptions: Options;
-
-  elementShape: VisualizerElement["shape"];
-  drawingElementId: VisualizerElement["id"] | null;
-  drawStartPoint: Point;
-  previousPoint: Point;
-  copiedElements: VisualizerElement[];
-  currentPoint: Point;
-  isElementShapeFixed: boolean;
-  zoom: number;
-  origin: {
-    x: number;
-    y: number;
-  };
-};
-
-export type VisualizerMachineContext = VisualizerMachinePersistedContext & {
-  // context that is **not** saved to localStorage
-  history: Version[];
-  historyStep: number;
-};
-
-/* #region events within machine  */
-export type VisualizerMachineEvents =
-  | {
-      type: "DRAW_START";
-      event: Parameters<MouseEventHandler<HTMLCanvasElement>>[0];
-      canvasElement: HTMLCanvasElement;
-    }
-  | {
-      type: "DRAW";
-      event: Parameters<MouseEventHandler<HTMLCanvasElement>>[0];
-      canvasElement: HTMLCanvasElement;
-    }
-  | {
-      type: "DRAW_END";
-      event: Parameters<MouseEventHandler<HTMLCanvasElement>>[0];
-      canvasElement: HTMLCanvasElement;
-    }
-  | {
-      type: "DELETE_SELECTION";
-    }
-  | {
-      type: "CHANGE_ELEMENT_SHAPE";
-      elementShape: VisualizerElement["shape"];
-    }
-  | {
-      type: "DRAG_START";
-      event: Parameters<MouseEventHandler<HTMLCanvasElement>>[0];
-      canvasElement: HTMLCanvasElement;
-    }
-  | {
-      type: "DRAG";
-      event: Parameters<MouseEventHandler<HTMLCanvasElement>>[0];
-      canvasElement: HTMLCanvasElement;
-    }
-  | {
-      type: "DRAG_END";
-      event: Parameters<MouseEventHandler<HTMLCanvasElement>>[0];
-      canvasElement: HTMLCanvasElement;
-    }
-  | {
-      type: "SELECTED_ELEMENTS.DELETE";
-    }
-  | {
-      type: "SELECTED_ELEMENTS.COPY";
-    }
-  | {
-      type: "SELECTED_ELEMENTS.CUT";
-    }
-  | {
-      type: "SELECTED_ELEMENTS.PASTE";
-      canvasElement: HTMLCanvasElement;
-    }
-  | {
-      type: "MOUSE_MOVE";
-      event: Parameters<MouseEventHandler<HTMLCanvasElement>>[0];
-      canvasElement: HTMLCanvasElement;
-    }
-  | {
-      type: "IS_ELEMENT_SHAPE_FIXED_TOGGLE";
-    }
-  | {
-      type: "CHANGE_ELEMENT_OPTIONS";
-      elementOptions: VisualizerMachineContext["elementOptions"];
-    }
-  | {
-      type: "CHANGE_ZOOM";
-      setZoom: (
-        zoom: VisualizerMachineContext["zoom"]
-      ) => VisualizerMachineContext["zoom"];
-      canvasElement: HTMLCanvasElement;
-    }
-  | {
-      type: "CHANGE_ZOOM_WITH_PINCH";
-      setZoom: (
-        zoom: VisualizerMachineContext["zoom"]
-      ) => VisualizerMachineContext["zoom"];
-    }
-  | {
-      type: "PAN";
-      event: WheelEvent;
-    }
-  | {
-      type: "HISTORY_UPDATE";
-      changedStep: 1 | -1;
-    };
-/* #endregion */
-
-// zoom in ratio
-export const ZOOM = {
-  DEFAULT: 1,
-  MINIMUM: 0.1,
-  MAXIMUM: 30,
-} as const;
-
-const PERSISTED_CONTEXT: VisualizerMachinePersistedContext = {
-  // track
-  elements: [],
-  elementOptions: {
-    stroke: "#000",
-    fill: "transparent",
-    strokeWidth: 2,
-  },
-
-  // untrack
-  elementShape: "selection",
-  copiedElements: [],
-  drawingElementId: null,
-  drawStartPoint: {
-    x: 0,
-    y: 0,
-  },
-  previousPoint: {
-    x: 0,
-    y: 0,
-  },
-  // cursor point in actual canvas size (not viewport)
-  currentPoint: {
-    x: 0,
-    y: 0,
-  },
-  isElementShapeFixed: false,
-  zoom: ZOOM.DEFAULT,
-  origin: {
-    x: 0,
-    y: 0,
-  },
-};
+import { TEXTAREA_UNIT_LESS_LINE_HEIGHT } from "../../constants";
+import {
+  VisualizerElement,
+  VisualizerMachineContext,
+  VisualizerMachineEvents,
+} from "./types";
+import { PERSISTED_CONTEXT } from "./constant";
 
 export const visualizerMachine =
-  /** @xstate-layout N4IgpgJg5mDOIC5QDcCWsCuBDANqgXmAE4AEAtlgMYAWqAdmAHSoQ5gDEAIgEoCCA6gH0AygBVe3UQG0ADAF1EoAA4B7WKgAuqFXUUgAHogBsAdhOMAnAEYALDIBMFmQA5T9kxYA0IAJ6IrzgCsMoyuNs4m4VZGMjJGgQC+Cd5omLgExORUtAzMrBwAwgASvAByAOIAooKVADKVALKVpaIiJQAKlbIKSCCq6lo6eoYIpubWdo4ubh7efgj2sYyRFqs2NgDMgYFWMjb2SSno2HiEpBQ09EwsbFx85SLikt16-Zraur0jY5a2Dk6uEzuLy+fyBDYWRgbDYxGRWdwxGIWQ4gVInDLnbJXPK3YR1SoFUSVTg1epNFrCRicfFEl69N6DT6gb5mX6TAEzEHzLZWRi7Cww+zOewxXaRFFo9JnLKXXI3Dh4+qE4mkxrNUSUgoAeXaAE06co1O8hl9jKyJv9pkDZqCEDZIowdoEjO5IvENhEJccpZkLjlrvl2IqCUSSfjyRrGO1eGIuvJXkbGcNEECbIx3JN3Bs7DYLCY5ohAiZedYLIFwkFnIKjF60qdfVi5YGGlqAKp4wQtgBqcZ6hoGH2TCA2xcYNnBVknHnBTg2BYQVhMwrH1i2wqszviJlr6Olfux8vYAElhKqI21eJ1BAAxI8ADRVoi15XK9QNfUTg9No3NfymgOBecjAsNMR1zMtHFWWINh3H1MVlANcXxZUwzJdVNVbaR43pT8TWZM1xj-DlrS5FMnFCIV4RMbMNxA5xYPreD-RxQoSgqapw3VQQdVEI8tVKYR3wZL98J-Qj2StQDbRA3kAhMQJ7B2OwyxdBiMRlZjD2KMoqkEAAtLUtQaITcKZAwCLZS0AJteZdhHRgjDsQILCrRyLCFejklRb1GI0g9A209j9MMhpBH4I9RCKQR2iPUpihMgc8PMsTLP-Tl50nIxeT2MZgkCZwIhHNS90bRCOGjUoEuNMyWXEqz0tteFnDTccNjiAUCpFRTiobBCWPYIoTyfbhdUEVt2k4XhaWw-tqqHEdAkddwxUWYD13newrBhdMeXtNrwkU7cvMlXz91yCAiCwAB3egoDuAQqqTb9djhRgZBMBxqICIwfosIwMsiZwxx5LY7DMaijqOOt1LOpgLuu277qEZpOEekTksnVw+Q8UwjFcKwQOdDKq3sCiq1sDNFgcHqmOxeGbroO6eAEGpSlRqw+w-RKav8RZFvCPYzDicdnA3DKXSB51FOsZw1mCKwab887LoZpmaWqYNCT4yqZq5ubvw8EIXVzZy2rMGxHIBpY8vtD7okcxJjp8mHSsYeGoCgRHmfKNGkpGeFTFCFYjC2csssCDL1l5eIXWibZHCLRXYbdy6Pa9+5WdR3XhL9sF4XTfZvp2AmFoy8ENj5GQQJDvYIUUmwk9dnAVCwCBEd9nmFlFqFTEXAr1hkDYrGJ1lgPHex7QnhShUbvqlGIdRYC0Rn2A7odVvMfL8tlvGPvkiPbW78DVmAstc3WTyod3XrmLANgyDAOgNBIWBqCweeSCIOAwA0Vfs9Moci58oOXCPsQeuYNjuCtkYSw44B4gXsCOAqs9mLIAXh8T+d8wBYFgJAP+nMc6d02sESwzgq5VjWM1RSVtzDrG2A4RcBMnCOy8nQFQEA4B6BOi7BCCZuZDgALT-VtEIt6sQ4TREXFsVYQ8UH+TYHw-Wol9ikwFDCKuQ9TCDygY1AqkJdibGzB6d6otIbeWhiVPq9NbqKKeqJOy5gCZbRJvyP6c5GqzmWITaEixiw8jkcrLAadGa2PRv7IUjj5ImBDlExSw9GpFhCHEOJLhhTZhrE7CxN9sTN1bjYnC-Dvz7GJnYPkhNJx5hcvsBumTr601yPPIgi9l5QFCbnBYm1Sa91MNsGSjh3HzFFjA-K9p4jllcBogJTAsEPyfi-N+H8v64I0G0zuG584T02q4YuAp5Li2XHQ3M8kfpLgCFMxgaCmkYK-mwHBkBVmAKCBXai6wbAbncCKdy+zSaHLzJuU5nkkhAA */
+  /** @xstate-layout N4IgpgJg5mDOIC5QDcCWsCuBDANqgXmAE4AEAtlgMYAWqAdmAHSoQ5gDEAIgEoCCA6gH0AygBVe3UQG0ADAF1EoAA4B7WKgAuqFXUUgAHogDsMo4wCcARgAspgKyXz1hwCYjAGhABPRJYAcMuaMLgBsAMwyYSGOLnYh1uYAvomeaJi4BMTkVLQMzKwcAMIAErwAcgDiAKKCVQAyVQCyVWWiIqUAClWyCkggqupaOnqGCCZmVrZGDk6uHt6ILjIyjNPLMksyzmHmdsmp6Nh4hKQUNPRMLGxcfBUi4pI9egOa2rp9o+MWNvaOzpZuTw+BBLfyMMJGFwuJzLEIBeL7EBpI6ZU45C75a7CepVQqiKqcWoNZqtYSMTg4-FPPovIbvUCfUzfKYzf6AhYIAGWMwuPwAsJhbnLMLWRHIjInbLnPJXDjYhp4glEpotURkwoAeQ6AE1qco1K9hh9jEzJr9ZgD5sCwi5rIxLHFYhEdn47EZLGLDhKsmdcpcCux5bj8YScSS1YwOrwxN15M8DXSRiaJj9pn85kDfIKwqsRWE7NY4XY-NYwn5Peljj70TKA40NQBVbGCesANVjvX1gzeSYQEMsjG2lnCsyMZbCmc55ihq15RkhO3ngr2KSRXqraOl-uuAElhMrw+1eF1BAAxHcADSVog1FQqDT1-QTPeNY1NqdZGY51iWjBCgQhZw7DiEITBXA5K1RKU-UxOUcUVUNiVVdUG2kOMaWfI0GWTZlzTZK1EAcMwZBCW1zH-d1rHnCsUUlX0MVldgSnKaoD1VQQtVEHcNTKYRH1pF9sLfFMWXTS1JxsSwVn8IwqNImRhzsCEaO9TcYMY5jKhqAAtDUNUafjMPpAwcLNNMLXZYF4hWQs-D8fMBQFEIQnAtdILomttyKUotMEXT9MEfgd1EYpBA6HcyhKQzuywkzhNw8z8MnMcQgsFxHDiEsrCMFyVI3aCGIDKMymiw1jMZES8K-YF7JzCE7FMez4nMPxSLyqD6Nra5ij3G9uG1QQGw6TheCpdCuzK3svjMz9xI5acgj8XlHBagIjHIj1V3FfLOq89h+G4YKajECQ0M7J8YvK0yPzEyzfBIlZGpcHZzGnZ6bXajyt1gpifNYsRtQaPjxouybX2mm6LIIzkGtS6y7HMeduULKJPurb6ICILAAHd6CgG4BFKxNXykkVGARpH0pa6Y-AksccyMVqpisZqHDRtSMUxnG8YJoQWk4InBLigFnuCPNGfMHZwksCTSLMHYZDdExAkVhEtvXDrPMYLncbofGeAEWoygFyxzoE2LRhFnNntLCWpcFCSAjtExBWmCJXuiUV1fc9GYJ1nmKQafERHgrieMFi3ECWlZSIapZ5xckwXFl11GFdZzyMlki3fZgq8i5qAoAD24I6uzlIgHUxIhCRGonMBToZiGPpzAnKHRMEJc927WscL4veDufnS97K2xdtvxJfIh2OSWWI-yhOcpNsLYu61nAVCwCAeeH19lvBUD0sieOdknUEJkFPwTG5JXplX76lGIdRYC0PX2B3oT0oiNPlpFSFnAUuwk4+Tk3WNnHKAQJ6d29rRX2GIwBsDIGAOgGgSCwGoFgB+JAiBwDABoN+INzZl2vgOUIwFyKuiksKR2Nc-wAVstOJaBY74wWQI-N4WD4FgCwLASA+CzZGV7J-FYS0+S-1tA1B0EkGo5ksACEs7p2411cttTW31sZEFeK-A6R0jYCwIQIkmUJrbiwnvbGWHIpJjnJgWEsdkXJuDCMkVcdAVAQDgHoFRX0-Txkur2AAtCEScfi7AWFegwpY0drC2BcMwwqbAfFgyEj+FwFgnKyIFIEcIgSZ4bDtP4fwk9LD5msDYWJ+csa6ygAk4mQlLErHdJfFKjVJEWNaikmIsl3SMzLFRMpTAC5Fz1tUoWlts5-m5OlWIS1SyOFPlsIIgQ7GuhdsOPpjB16bzxsMyOCAfwSVejmGZq16bdPLNA1SecmAPyIE-F+VSMK+N3qQ3CdkRS7AUpOcIfhaFRKRl0twazOGIOQag9BmDsE8I0NsohBYgjQjhE7N2izHbOHtABecUIfwI0cecnaWtWE3PYdgtg3DIDQpHpfVK+YHQNSogjV6tMLFUW+dENwE8oQkUFF7CCMCOZ5HUZo+5E0anC1MHaS+0irB2WvtYCSgRiLZh-FJCROLkhAA */
   createMachine(
     {
       id: "visualizer machine",
@@ -338,12 +126,17 @@ export const visualizerMachine =
 
             PAN: {
               target: "persisting",
-              actions: ["assignOrigin"],
+              actions: ["pan"],
             },
 
             HISTORY_UPDATE: {
               target: "persisting",
               actions: ["updateHistory"],
+            },
+
+            WRITE_START: {
+              target: "writing",
+              actions: ["assignDrawStartPoint", "addElement"],
             },
           },
         },
@@ -425,17 +218,27 @@ export const visualizerMachine =
 
           always: "persisting",
         },
+
+        writing: {
+          on: {
+            WRITE_END: {
+              target: "version released",
+              actions: "endWrite",
+            },
+          },
+        },
       },
 
       initial: "loading",
     },
     {
       actions: {
-        addElement: assign((context) => {
+        addElement: assign((context, { devicePixelRatio }) => {
           const newElement = createElement({
             elementShape: context.elementShape,
             elementOptions: context.elementOptions,
             drawStartPoint: context.drawStartPoint,
+            devicePixelRatio,
           });
 
           return {
@@ -455,9 +258,9 @@ export const visualizerMachine =
             elementShape,
           };
         }),
-        assignDrawStartPoint: assign((context, { canvasElement, event }) => {
-          const drawStartPoint = calculateMousePoint({
-            canvasElement,
+        assignDrawStartPoint: assign((context, { devicePixelRatio, event }) => {
+          const drawStartPoint = calculateCanvasPoint({
+            devicePixelRatio,
             event,
             zoom: context.zoom,
             origin: context.origin,
@@ -467,9 +270,9 @@ export const visualizerMachine =
             drawStartPoint,
           };
         }),
-        assignPreviousPoint: assign((context, { canvasElement, event }) => {
-          const previousPoint = calculateMousePoint({
-            canvasElement,
+        assignPreviousPoint: assign((context, { devicePixelRatio, event }) => {
+          const previousPoint = calculateCanvasPoint({
+            devicePixelRatio,
             event,
             zoom: context.zoom,
             origin: context.origin,
@@ -487,9 +290,9 @@ export const visualizerMachine =
             })),
           };
         }),
-        draw: assign((context, { canvasElement, event }) => {
-          const currentPoint = calculateMousePoint({
-            canvasElement,
+        draw: assign((context, { devicePixelRatio, event }) => {
+          const currentPoint = calculateCanvasPoint({
+            devicePixelRatio,
             event,
             zoom: context.zoom,
             origin: context.origin,
@@ -523,15 +326,18 @@ export const visualizerMachine =
                   };
                 }
 
-                // freedraw
-                const absolutePoint =
-                  calculateFreeDrawElementAbsolutePoint(element);
-                return {
-                  ...element,
-                  width: absolutePoint.maxX - absolutePoint.minX,
-                  height: absolutePoint.maxY - absolutePoint.minY,
-                  points: [...element.points, [dx, dy]],
-                };
+                if (isFreeDrawElement(element)) {
+                  const absolutePoint =
+                    calculateFreeDrawElementAbsolutePoint(element);
+                  return {
+                    ...element,
+                    width: absolutePoint.maxX - absolutePoint.minX,
+                    height: absolutePoint.maxY - absolutePoint.minY,
+                    points: [...element.points, [dx, dy]],
+                  };
+                }
+
+                return element;
               }
 
               return element;
@@ -573,9 +379,9 @@ export const visualizerMachine =
             }),
           };
         }),
-        drag: assign((context, { canvasElement, event }) => {
-          const currentPoint = calculateMousePoint({
-            canvasElement,
+        drag: assign((context, { devicePixelRatio, event }) => {
+          const currentPoint = calculateCanvasPoint({
+            devicePixelRatio,
             event,
             zoom: context.zoom,
             origin: context.origin,
@@ -663,9 +469,9 @@ export const visualizerMachine =
             ],
           };
         }),
-        assignCurrentPoint: assign((context, { canvasElement, event }) => {
-          const currentPoint = calculateMousePoint({
-            canvasElement,
+        assignCurrentPoint: assign((context, { devicePixelRatio, event }) => {
+          const currentPoint = calculateCanvasPoint({
+            devicePixelRatio,
             event,
             zoom: context.zoom,
             origin: context.origin,
@@ -720,12 +526,30 @@ export const visualizerMachine =
             },
           };
         }),
-        assignOrigin: assign((context, { event }) => {
-          return {
-            origin: {
-              x: context.origin.x - event.deltaX,
-              y: context.origin.y - event.deltaY,
+        pan: assign((context, { event, devicePixelRatio }) => {
+          const clientPoint = calculateClientPoint({
+            canvasPoint: context.currentPoint,
+            origin: context.origin,
+            zoom: context.zoom,
+            devicePixelRatio,
+          });
+          const updatedOrigin = {
+            x: context.origin.x - event.deltaX,
+            y: context.origin.y - event.deltaY,
+          };
+          const currentPoint = calculateCanvasPoint({
+            devicePixelRatio,
+            event: {
+              clientX: clientPoint.x,
+              clientY: clientPoint.y,
             },
+            origin: updatedOrigin,
+            zoom: context.zoom,
+          });
+
+          return {
+            origin: updatedOrigin,
+            currentPoint,
           };
         }),
         addVersionToHistory: assign((context) => {
@@ -756,18 +580,44 @@ export const visualizerMachine =
             value: context.historyStep + changedStep,
             minimum: 0,
           });
-          const { elements, elementOptions } =
-            context.history[updatedHistoryStep];
+          const version = context.history[updatedHistoryStep];
+          invariant(version);
 
           return {
-            elements,
-            elementOptions,
+            elements: version.elements,
+            elementOptions: version.elementOptions,
             historyStep: updatedHistoryStep,
           };
         }),
         resetDrawingElementId: assign((_) => ({
           drawingElementId: null,
         })),
+        endWrite: assign((context, { text, canvasElement }) => {
+          return {
+            elements: context.elements.map((element) => {
+              if (
+                element.id === context.drawingElementId &&
+                isTextElement(element)
+              ) {
+                const { width, height } = measureText({
+                  fontFamily: element.fontFamily,
+                  fontSize: element.fontSize,
+                  lineHeight: TEXTAREA_UNIT_LESS_LINE_HEIGHT,
+                  text,
+                  canvasElement,
+                });
+
+                return {
+                  ...element,
+                  text,
+                  width,
+                  height,
+                };
+              }
+              return element;
+            }),
+          };
+        }),
       },
       guards: {
         isElementShapeFixed: (context) => {
