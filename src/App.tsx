@@ -20,6 +20,7 @@ import {
   FontSize,
 } from "./machines/visualizerMachine";
 import {
+  Fill_STYLE_OPTIONS,
   FONT_SIZE_OPTIONS,
   HOT_KEY,
   HOT_KEYS,
@@ -438,7 +439,7 @@ function App() {
           >
             <ColorPicker
               label="Stroke Color"
-              value={elementOptions.stroke || "#000"}
+              value={elementOptions.stroke}
               onChange={(event) => {
                 send({
                   type: "CHANGE_ELEMENT_OPTIONS",
@@ -450,7 +451,7 @@ function App() {
             />
             <ColorPicker
               label="Fill Color"
-              value={elementOptions.fill || "#000"}
+              value={elementOptions.fill}
               onChange={(event) => {
                 send({
                   type: "CHANGE_ELEMENT_OPTIONS",
@@ -460,6 +461,25 @@ function App() {
                 });
               }}
             />
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              <span>Fill Style</span>
+              {Fill_STYLE_OPTIONS.map(({ label, value }) => (
+                <Radio
+                  key={label}
+                  label={label}
+                  value={String(value)}
+                  checked={elementOptions.fillStyle === value}
+                  onChange={(event) => {
+                    send({
+                      type: "CHANGE_ELEMENT_OPTIONS",
+                      elementOptions: {
+                        fillStyle: event.currentTarget.value,
+                      },
+                    });
+                  }}
+                />
+              ))}
+            </div>
             <div style={{ display: "flex", flexDirection: "column" }}>
               <span>Stroke Width</span>
               {STROKE_WIDTH_OPTIONS.map(({ label, value }) => (

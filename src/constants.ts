@@ -28,6 +28,15 @@ export const LABELS = {
   `(${HOT_KEY}) ${Capitalize<VisualizerElement["shape"]>}`
 >;
 
+export const Fill_STYLE_OPTIONS: {
+  label: string;
+  value: VisualizerMachineContext["elementOptions"]["fillStyle"];
+}[] = [
+  { label: "Hachure", value: "hachure" },
+  { label: "Cross-hatch", value: "cross-hatch" },
+  { label: "Solid", value: "solid" },
+];
+
 export const STROKE_WIDTH_OPTIONS: {
   label: string;
   value: VisualizerElement["options"]["strokeWidth"];

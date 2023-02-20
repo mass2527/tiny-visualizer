@@ -84,7 +84,10 @@ export type Version = {
 
 export type Point = { x: number; y: number };
 
-export type ElementOptions = RoughJSOptions & VisualizerTextElementOptions;
+export type ElementOptions = Required<
+  Pick<RoughJSOptions, "stroke" | "fill" | "fillStyle" | "strokeWidth">
+> &
+  VisualizerTextElementOptions;
 
 // context that is saved to localStorage
 export type VisualizerMachinePersistedContext = {

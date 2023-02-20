@@ -308,7 +308,7 @@ export const createDraw = (
       const endX = element.x + dx;
       const endY = element.y + dy;
 
-      let arrowDrawables: Drawable[] = [];
+      const arrowDrawables: Drawable[] = [];
 
       // \
       arrowDrawables.push(

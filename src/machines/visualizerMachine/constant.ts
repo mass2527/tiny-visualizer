@@ -11,8 +11,9 @@ export const PERSISTED_CONTEXT: VisualizerMachinePersistedContext = {
   // track
   elements: [],
   elementOptions: {
-    stroke: "#000",
-    fill: "transparent",
+    stroke: "#000000",
+    fill: "#ffffff",
+    fillStyle: "hachure",
     strokeWidth: 2,
     fontSize: 16,
     fontFamily: "serif",
