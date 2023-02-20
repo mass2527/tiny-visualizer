@@ -24,9 +24,11 @@ export type VisualizerSelectionElement = VisualizerElementBase & {
 };
 export type VisualizerRectangleElement = VisualizerElementBase & {
   shape: "rectangle";
+  seed: number;
 };
 export type VisualizerEllipseElement = VisualizerElementBase & {
   shape: "ellipse";
+  seed: number;
 };
 
 export type VisualizerGenericElement =
@@ -39,6 +41,7 @@ export type TuplePoint = [number, number];
 export type VisualizerLinearElement = VisualizerElementBase & {
   shape: "line" | "arrow";
   points: TuplePoint[];
+  seed: number;
 };
 
 export type VisualizerFreeDrawElement = VisualizerElementBase & {

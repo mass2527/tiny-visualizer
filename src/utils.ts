@@ -270,7 +270,7 @@ export const createDraw = (
       element.y,
       element.width,
       element.height,
-      element.options
+      { ...element.options, seed: element.seed }
     );
     return () => {
       roughCanvas.draw(rectangleDrawable);
@@ -281,7 +281,7 @@ export const createDraw = (
       element.y + element.height / 2,
       element.width,
       element.height,
-      element.options
+      { ...element.options, seed: element.seed }
     );
     return () => {
       roughCanvas.draw(ellipseDrawable);
@@ -297,7 +297,7 @@ export const createDraw = (
         element.y,
         element.x + dx,
         element.y + dy,
-        element.options
+        { ...element.options, seed: element.seed }
       );
       return () => {
         roughCanvas.draw(lineDrawable);
@@ -328,12 +328,15 @@ export const createDraw = (
             arrowSize * Math.cos(angleInRadians + convertDegreeToRadian(30)),
           endY -
             arrowSize * Math.sin(angleInRadians + convertDegreeToRadian(30)),
-          element.options
+          { ...element.options, seed: element.seed }
         )
       );
       // -
       arrowDrawables.push(
-        generator.line(startX, startY, endX, endY, element.options)
+        generator.line(startX, startY, endX, endY, {
+          ...element.options,
+          seed: element.seed,
+        })
       );
       // /
       arrowDrawables.push(
@@ -344,7 +347,7 @@ export const createDraw = (
             arrowSize * Math.cos(angleInRadians - convertDegreeToRadian(30)),
           endY -
             arrowSize * Math.sin(angleInRadians - convertDegreeToRadian(30)),
-          element.options
+          { ...element.options, seed: element.seed }
         )
       );
 
@@ -542,11 +545,13 @@ export const isTextElement = (
 };
 
 export const createElement = ({
+  elements,
   elementShape,
   drawStartPoint,
   elementOptions,
   devicePixelRatio,
 }: {
+  elements: VisualizerMachineContext["elements"];
   elementShape: VisualizerMachineContext["elementShape"];
   drawStartPoint: VisualizerMachineContext["drawStartPoint"];
   elementOptions: VisualizerMachineContext["elementOptions"];
@@ -563,22 +568,55 @@ export const createElement = ({
     isDeleted: false,
   };
 
+  const createdSeeds = new Set(
+    elements
+      .map((element) => {
+        if (
+          element.shape === "rectangle" ||
+          element.shape === "ellipse" ||
+          element.shape === "line" ||
+          element.shape === "arrow"
+        ) {
+          return element.seed;
+        }
+        return undefined;
+      })
+      .filter(isDefined)
+  );
+
   if (isGenericElementShape(elementShape)) {
-    return {
-      ...elementBase,
-      shape: elementShape,
-    };
+    if (elementShape === "selection") {
+      return {
+        ...elementBase,
+        shape: elementShape,
+      };
+    } else {
+      return {
+        ...elementBase,
+        shape: elementShape,
+        seed: createRandomSeed(createdSeeds),
+      };
+    }
   }
 
   if (
     isLinearElementShape(elementShape) ||
     isFreeDrawElementShape(elementShape)
   ) {
-    return {
-      ...elementBase,
-      shape: elementShape,
-      points: [[0, 0]],
-    };
+    if (isLinearElementShape(elementShape)) {
+      return {
+        ...elementBase,
+        shape: elementShape,
+        points: [[0, 0]],
+        seed: createRandomSeed(createdSeeds),
+      };
+    } else {
+      return {
+        ...elementBase,
+        shape: elementShape,
+        points: [[0, 0]],
+      };
+    }
   }
   const { fontSize, fontFamily } = elementOptions;
 
@@ -592,4 +630,24 @@ export const createElement = ({
     fontFamily,
     text: "",
   };
+};
+
+const createRandomNumber = (min: number, max: number) => {
+  return Math.floor(Math.random() * max) + min;
+};
+
+// https://github.com/rough-stuff/rough/wiki#seed
+const MIN_SEED = 1;
+const MAX_SEED = 2 ** 31;
+export const createRandomSeed = (createdSeeds: Set<number>) => {
+  let randomSeed: number;
+  do {
+    randomSeed = createRandomNumber(MIN_SEED, MAX_SEED);
+  } while (createdSeeds.has(randomSeed));
+
+  return randomSeed;
+};
+
+const isDefined = <T>(argument: T | undefined | null): argument is T => {
+  return argument !== undefined && argument !== null;
 };

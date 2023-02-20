@@ -235,6 +235,7 @@ export const visualizerMachine =
       actions: {
         addElement: assign((context, { devicePixelRatio }) => {
           const newElement = createElement({
+            elements: context.elements,
             elementShape: context.elementShape,
             elementOptions: context.elementOptions,
             drawStartPoint: context.drawStartPoint,
