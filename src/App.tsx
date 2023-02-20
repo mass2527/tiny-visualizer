@@ -25,6 +25,7 @@ import {
   HOT_KEY,
   HOT_KEYS,
   LABELS,
+  STROKE_LINE_DASH_OPTIONS,
   STROKE_WIDTH_OPTIONS,
   TEXTAREA_UNIT_LESS_LINE_HEIGHT,
 } from "./constants";
@@ -469,11 +470,11 @@ function App() {
                   label={label}
                   value={String(value)}
                   checked={elementOptions.fillStyle === value}
-                  onChange={(event) => {
+                  onChange={() => {
                     send({
                       type: "CHANGE_ELEMENT_OPTIONS",
                       elementOptions: {
-                        fillStyle: event.currentTarget.value,
+                        fillStyle: value,
                       },
                     });
                   }}
@@ -488,11 +489,33 @@ function App() {
                   label={label}
                   value={String(value)}
                   checked={elementOptions.strokeWidth === value}
-                  onChange={(event) => {
+                  onChange={() => {
                     send({
                       type: "CHANGE_ELEMENT_OPTIONS",
                       elementOptions: {
-                        strokeWidth: Number(event.currentTarget.value),
+                        strokeWidth: value,
+                      },
+                    });
+                  }}
+                />
+              ))}
+            </div>
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              <span>Stroke Line Dash</span>
+              {STROKE_LINE_DASH_OPTIONS.map(({ label, value }) => (
+                <Radio
+                  key={label}
+                  label={label}
+                  value={String(value)}
+                  checked={
+                    JSON.stringify(elementOptions.strokeLineDash) ===
+                    JSON.stringify(value)
+                  }
+                  onChange={() => {
+                    send({
+                      type: "CHANGE_ELEMENT_OPTIONS",
+                      elementOptions: {
+                        strokeLineDash: value,
                       },
                     });
                   }}

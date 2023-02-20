@@ -11,10 +11,13 @@ export const PERSISTED_CONTEXT: VisualizerMachinePersistedContext = {
   // track
   elements: [],
   elementOptions: {
+    // roughJS options
     stroke: "#000000",
     fill: "#ffffff",
     fillStyle: "hachure",
     strokeWidth: 2,
+    strokeLineDash: [],
+
     fontSize: 16,
     fontFamily: "serif",
   },

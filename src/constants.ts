@@ -39,7 +39,7 @@ export const Fill_STYLE_OPTIONS: {
 
 export const STROKE_WIDTH_OPTIONS: {
   label: string;
-  value: VisualizerElement["options"]["strokeWidth"];
+  value: VisualizerMachineContext["elementOptions"]["strokeWidth"];
 }[] = [
   {
     label: "Thin",
@@ -52,6 +52,21 @@ export const STROKE_WIDTH_OPTIONS: {
   {
     label: "Bold",
     value: 6,
+  },
+];
+
+export const STROKE_LINE_DASH_OPTIONS: {
+  label: string;
+  value: VisualizerMachineContext["elementOptions"]["strokeLineDash"];
+}[] = [
+  { label: "Solid", value: [] },
+  {
+    label: "Dashed",
+    value: [20, 5],
+  },
+  {
+    label: "Dotted",
+    value: [5, 10],
   },
 ];
 
