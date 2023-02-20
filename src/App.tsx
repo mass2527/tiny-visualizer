@@ -107,23 +107,26 @@ function App() {
   );
   const selectedElements = elements.filter((element) => element.isSelected);
 
-  const updateZoom = (change: number) => {
-    const canvasElement = canvasRef.current;
-    invariant(canvasElement);
+  const updateZoom = useCallback(
+    (change: number) => {
+      const canvasElement = canvasRef.current;
+      invariant(canvasElement);
 
-    const setZoom = (zoom: VisualizerMachineContext["zoom"]) => {
-      const zoomInPercent = convertToPercent(zoom);
-      const updatedZoom = convertToRatio(zoomInPercent + change);
+      const setZoom = (zoom: VisualizerMachineContext["zoom"]) => {
+        const zoomInPercent = convertToPercent(zoom);
+        const updatedZoom = convertToRatio(zoomInPercent + change);
 
-      return updatedZoom;
-    };
+        return updatedZoom;
+      };
 
-    send({
-      type: "CHANGE_ZOOM",
-      setZoom,
-      canvasElement,
-    });
-  };
+      send({
+        type: "CHANGE_ZOOM",
+        setZoom,
+        canvasElement,
+      });
+    },
+    [send]
+  );
 
   useLayoutEffect(() => {
     const canvasElement = canvasRef.current;
@@ -132,8 +135,11 @@ function App() {
     const ctx = canvasElement.getContext("2d");
     invariant(ctx);
 
-    // canvasElement width and height are dependent on windowSize, devicePixelRatio
-    ctx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+    const canvasElementSize = {
+      width: windowSize.width * devicePixelRatio,
+      height: windowSize.height * devicePixelRatio,
+    };
+    ctx.clearRect(0, 0, canvasElementSize.width, canvasElementSize.height);
 
     const drawnElements = elements.filter((element) => !element.isDeleted);
     drawnElements.forEach((element) => {
@@ -200,7 +206,7 @@ function App() {
     return () => {
       window.removeEventListener("wheel", handleWheel);
     };
-  }, [devicePixelRatio]);
+  }, [send, devicePixelRatio]);
 
   useEffect(() => {
     const canvasElement = canvasRef.current;
@@ -262,7 +268,7 @@ function App() {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, []);
+  }, [send, updateZoom]);
 
   useEffect(() => {
     if (elementShape === "selection") {
