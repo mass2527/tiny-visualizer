@@ -228,6 +228,15 @@ export const isIntersecting = (
   if (selectionAbsolutePoint.maxY < elementAbsolutePoint.minY) {
     return false;
   }
+  if (
+    selectionAbsolutePoint.maxX < elementAbsolutePoint.maxX &&
+    selectionAbsolutePoint.minX > elementAbsolutePoint.minX &&
+    selectionAbsolutePoint.maxY < elementAbsolutePoint.maxY &&
+    selectionAbsolutePoint.minY > elementAbsolutePoint.minY
+  ) {
+    return false;
+  }
+
   return true;
 };
 
