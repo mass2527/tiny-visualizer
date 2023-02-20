@@ -20,10 +20,13 @@ import {
   FontSize,
 } from "./machines/visualizerMachine";
 import {
+  Fill_STYLE_OPTIONS,
   FONT_SIZE_OPTIONS,
   HOT_KEY,
   HOT_KEYS,
   LABELS,
+  ROUGHNESS_OPTIONS,
+  STROKE_LINE_DASH_OPTIONS,
   STROKE_WIDTH_OPTIONS,
   TEXTAREA_UNIT_LESS_LINE_HEIGHT,
 } from "./constants";
@@ -438,7 +441,7 @@ function App() {
           >
             <ColorPicker
               label="Stroke Color"
-              value={elementOptions.stroke || "#000"}
+              value={elementOptions.stroke}
               onChange={(event) => {
                 send({
                   type: "CHANGE_ELEMENT_OPTIONS",
@@ -450,7 +453,7 @@ function App() {
             />
             <ColorPicker
               label="Fill Color"
-              value={elementOptions.fill || "#000"}
+              value={elementOptions.fill}
               onChange={(event) => {
                 send({
                   type: "CHANGE_ELEMENT_OPTIONS",
@@ -461,6 +464,25 @@ function App() {
               }}
             />
             <div style={{ display: "flex", flexDirection: "column" }}>
+              <span>Fill Style</span>
+              {Fill_STYLE_OPTIONS.map(({ label, value }) => (
+                <Radio
+                  key={label}
+                  label={label}
+                  value={String(value)}
+                  checked={elementOptions.fillStyle === value}
+                  onChange={() => {
+                    send({
+                      type: "CHANGE_ELEMENT_OPTIONS",
+                      elementOptions: {
+                        fillStyle: value,
+                      },
+                    });
+                  }}
+                />
+              ))}
+            </div>
+            <div style={{ display: "flex", flexDirection: "column" }}>
               <span>Stroke Width</span>
               {STROKE_WIDTH_OPTIONS.map(({ label, value }) => (
                 <Radio
@@ -468,11 +490,52 @@ function App() {
                   label={label}
                   value={String(value)}
                   checked={elementOptions.strokeWidth === value}
-                  onChange={(event) => {
+                  onChange={() => {
                     send({
                       type: "CHANGE_ELEMENT_OPTIONS",
                       elementOptions: {
-                        strokeWidth: Number(event.currentTarget.value),
+                        strokeWidth: value,
+                      },
+                    });
+                  }}
+                />
+              ))}
+            </div>
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              <span>Stroke Line Dash</span>
+              {STROKE_LINE_DASH_OPTIONS.map(({ label, value }) => (
+                <Radio
+                  key={label}
+                  label={label}
+                  value={String(value)}
+                  checked={
+                    JSON.stringify(elementOptions.strokeLineDash) ===
+                    JSON.stringify(value)
+                  }
+                  onChange={() => {
+                    send({
+                      type: "CHANGE_ELEMENT_OPTIONS",
+                      elementOptions: {
+                        strokeLineDash: value,
+                      },
+                    });
+                  }}
+                />
+              ))}
+            </div>
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              <span>Roughness</span>
+              {ROUGHNESS_OPTIONS.map(({ label, value }) => (
+                <Radio
+                  key={label}
+                  label={label}
+                  value={String(value)}
+                  checked={elementOptions.roughness === value}
+                  onChange={() => {
+                    send({
+                      type: "CHANGE_ELEMENT_OPTIONS",
+                      elementOptions: {
+                        roughness: value,
                       },
                     });
                   }}

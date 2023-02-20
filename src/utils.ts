@@ -239,7 +239,7 @@ export const convertDegreeToRadian = (angleInDegrees: number) => {
   return (Math.PI * angleInDegrees) / 180;
 };
 
-const ARROW_MAX_SIZE = 30;
+const ARROW_MAX_SIZE = 50;
 
 export const createDraw = (
   element: VisualizerElement,
@@ -308,7 +308,7 @@ export const createDraw = (
       const endX = element.x + dx;
       const endY = element.y + dy;
 
-      let arrowDrawables: Drawable[] = [];
+      const arrowDrawables: Drawable[] = [];
 
       // \
       arrowDrawables.push(
