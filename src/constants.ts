@@ -72,7 +72,7 @@ export const STROKE_LINE_DASH_OPTIONS: ElementOption<"strokeLineDash">[] = [
 export const ROUGHNESS_OPTIONS: ElementOption<"roughness">[] = [
   { label: "Architect", value: 0 },
   { label: "Artist", value: 1 },
-  { label: "Cartoonist", value: 2 },
+  { label: "Cartoonist", value: 3 },
 ];
 
 export const FONT_SIZE_OPTIONS: ElementOption<"fontSize">[] = [
