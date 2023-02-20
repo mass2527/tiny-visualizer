@@ -3,16 +3,16 @@
   "linter": {
     "enabled": true,
     "rules": {
-      "style":{
-        "useBlockStatements":"warn",
-        "useShorthandArrayType":"warn"
+      "style": {
+        "useBlockStatements": "warn",
+        "useShorthandArrayType": "warn"
       },
-      "nursery":{
-        "useExhaustiveDependencies":"error"
+      "nursery": {
+        "useExhaustiveDependencies": "error"
       }
     }
   },
-  "formatter":{
+  "formatter": {
     "enabled": true,
     "formatWithErrors": false,
     "indentStyle": "space",
@@ -20,8 +20,8 @@
     "lineWidth": 80,
     "ignore": []
   },
-  "javascript":{
-    "formatter":{
+  "javascript": {
+    "formatter": {
       "trailingComma": "es5"
     }
   }
