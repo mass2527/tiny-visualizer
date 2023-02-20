@@ -87,7 +87,12 @@ export type Point = { x: number; y: number };
 export type ElementOptions = Required<
   Pick<
     RoughJSOptions,
-    "stroke" | "fill" | "fillStyle" | "strokeWidth" | "strokeLineDash"
+    | "stroke"
+    | "fill"
+    | "fillStyle"
+    | "strokeWidth"
+    | "strokeLineDash"
+    | "roughness"
   >
 > &
   VisualizerTextElementOptions;

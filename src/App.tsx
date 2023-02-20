@@ -25,6 +25,7 @@ import {
   HOT_KEY,
   HOT_KEYS,
   LABELS,
+  ROUGHNESS_OPTIONS,
   STROKE_LINE_DASH_OPTIONS,
   STROKE_WIDTH_OPTIONS,
   TEXTAREA_UNIT_LESS_LINE_HEIGHT,
@@ -516,6 +517,25 @@ function App() {
                       type: "CHANGE_ELEMENT_OPTIONS",
                       elementOptions: {
                         strokeLineDash: value,
+                      },
+                    });
+                  }}
+                />
+              ))}
+            </div>
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              <span>Roughness</span>
+              {ROUGHNESS_OPTIONS.map(({ label, value }) => (
+                <Radio
+                  key={label}
+                  label={label}
+                  value={String(value)}
+                  checked={elementOptions.roughness === value}
+                  onChange={() => {
+                    send({
+                      type: "CHANGE_ELEMENT_OPTIONS",
+                      elementOptions: {
+                        roughness: value,
                       },
                     });
                   }}

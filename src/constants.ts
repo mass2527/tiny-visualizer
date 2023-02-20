@@ -28,19 +28,21 @@ export const LABELS = {
   `(${HOT_KEY}) ${Capitalize<VisualizerElement["shape"]>}`
 >;
 
-export const Fill_STYLE_OPTIONS: {
+type Option<T> = {
   label: string;
-  value: VisualizerMachineContext["elementOptions"]["fillStyle"];
-}[] = [
+  value: T;
+};
+
+type ElementOption<T extends keyof VisualizerMachineContext["elementOptions"]> =
+  Option<VisualizerMachineContext["elementOptions"][T]>;
+
+export const Fill_STYLE_OPTIONS: ElementOption<"fillStyle">[] = [
   { label: "Hachure", value: "hachure" },
   { label: "Cross-hatch", value: "cross-hatch" },
   { label: "Solid", value: "solid" },
 ];
 
-export const STROKE_WIDTH_OPTIONS: {
-  label: string;
-  value: VisualizerMachineContext["elementOptions"]["strokeWidth"];
-}[] = [
+export const STROKE_WIDTH_OPTIONS: ElementOption<"strokeWidth">[] = [
   {
     label: "Thin",
     value: 2,
@@ -55,10 +57,7 @@ export const STROKE_WIDTH_OPTIONS: {
   },
 ];
 
-export const STROKE_LINE_DASH_OPTIONS: {
-  label: string;
-  value: VisualizerMachineContext["elementOptions"]["strokeLineDash"];
-}[] = [
+export const STROKE_LINE_DASH_OPTIONS: ElementOption<"strokeLineDash">[] = [
   { label: "Solid", value: [] },
   {
     label: "Dashed",
@@ -70,10 +69,13 @@ export const STROKE_LINE_DASH_OPTIONS: {
   },
 ];
 
-export const FONT_SIZE_OPTIONS: {
-  label: string;
-  value: VisualizerMachineContext["elementOptions"]["fontSize"];
-}[] = [
+export const ROUGHNESS_OPTIONS: ElementOption<"roughness">[] = [
+  { label: "Architect", value: 0 },
+  { label: "Artist", value: 1 },
+  { label: "Cartoonist", value: 2 },
+];
+
+export const FONT_SIZE_OPTIONS: ElementOption<"fontSize">[] = [
   {
     label: "Small",
     value: 12,

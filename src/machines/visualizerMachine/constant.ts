@@ -17,6 +17,7 @@ export const PERSISTED_CONTEXT: VisualizerMachinePersistedContext = {
     fillStyle: "hachure",
     strokeWidth: 2,
     strokeLineDash: [],
+    roughness: 1,
 
     fontSize: 16,
     fontFamily: "serif",
