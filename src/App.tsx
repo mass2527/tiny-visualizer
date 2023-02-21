@@ -569,7 +569,7 @@ function App() {
                 <button
                   type="button"
                   onClick={() => updateZoom(-10)}
-                  disabled={zoom === ZOOM.MINIMUM}
+                  disabled={zoom === ZOOM.MIN}
                 >
                   -
                 </button>
@@ -590,7 +590,7 @@ function App() {
                 <button
                   type="button"
                   onClick={() => updateZoom(10)}
-                  disabled={zoom === ZOOM.MAXIMUM}
+                  disabled={zoom === ZOOM.MAX}
                 >
                   +
                 </button>

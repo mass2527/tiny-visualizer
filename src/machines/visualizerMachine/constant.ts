@@ -3,8 +3,8 @@ import { VisualizerMachinePersistedContext } from "./types";
 // zoom in ratio
 export const ZOOM = {
   DEFAULT: 1,
-  MINIMUM: 0.1,
-  MAXIMUM: 30,
+  MIN: 0.1,
+  MAX: 30,
 } as const;
 
 export const PERSISTED_CONTEXT: VisualizerMachinePersistedContext = {
