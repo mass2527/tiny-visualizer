@@ -110,15 +110,15 @@ const calculateGenericElementAbsolutePoint = (
 const calculateLinearElementAbsolutePoint = (
   element: VisualizerLinearElement
 ) => {
-  return element.points.reduce(
-    (result, point) => {
-      const [dx, dy] = point;
+  return element.changesInPoint.reduce(
+    (result, changeInPoint) => {
+      const [changeInX, changeInY] = changeInPoint;
 
       return {
-        minX: Math.min(result.minX, element.x + dx),
-        minY: Math.min(result.minY, element.y + dy),
-        maxX: Math.max(result.maxX, element.x + dx),
-        maxY: Math.max(result.maxY, element.y + dy),
+        minX: Math.min(result.minX, element.x + changeInX),
+        minY: Math.min(result.minY, element.y + changeInY),
+        maxX: Math.max(result.maxX, element.x + changeInX),
+        maxY: Math.max(result.maxY, element.y + changeInY),
       };
     },
     {
@@ -133,15 +133,15 @@ const calculateLinearElementAbsolutePoint = (
 export const calculateFreeDrawElementAbsolutePoint = (
   element: VisualizerFreeDrawElement
 ) => {
-  return element.points.reduce(
-    (result, point) => {
-      const [dx, dy] = point;
+  return element.changesInPoint.reduce(
+    (result, changeInPoint) => {
+      const [changeInX, changeInY] = changeInPoint;
 
       return {
-        minX: Math.min(result.minX, element.x + dx),
-        minY: Math.min(result.minY, element.y + dy),
-        maxX: Math.max(result.maxX, element.x + dx),
-        maxY: Math.max(result.maxY, element.y + dy),
+        minX: Math.min(result.minX, element.x + changeInX),
+        minY: Math.min(result.minY, element.y + changeInY),
+        maxX: Math.max(result.maxX, element.x + changeInX),
+        maxY: Math.max(result.maxY, element.y + changeInY),
       };
     },
     {
@@ -288,15 +288,15 @@ export const createDraw = (
     };
   } else if (isLinearElement(element)) {
     if (element.shape === "line") {
-      const point = element.points[element.points.length - 1];
+      const point = element.changesInPoint[element.changesInPoint.length - 1];
       invariant(point);
 
-      const [dx, dy] = point;
+      const [changeInX, changeInY] = point;
       const lineDrawable = generator.line(
         element.x,
         element.y,
-        element.x + dx,
-        element.y + dy,
+        element.x + changeInX,
+        element.y + changeInY,
         { ...element.options, seed: element.seed }
       );
       return () => {
@@ -305,17 +305,17 @@ export const createDraw = (
     } else {
       const distance = calculateDistance(element.width, element.height);
       const arrowSize = Math.min(ARROW_MAX_SIZE, distance / 2);
-      const point = element.points[element.points.length - 1];
+      const point = element.changesInPoint[element.changesInPoint.length - 1];
       invariant(point);
 
-      const [dx, dy] = point;
-      const angleInRadians = Math.atan2(dy, dx);
+      const [changeInX, changeInY] = point;
+      const angleInRadians = Math.atan2(changeInY, changeInX);
 
       const startX = element.x;
       const startY = element.y;
 
-      const endX = element.x + dx;
-      const endY = element.y + dy;
+      const endX = element.x + changeInX;
+      const endY = element.y + changeInY;
 
       const arrowDrawables: Drawable[] = [];
 
@@ -366,12 +366,12 @@ export const createDraw = (
       ctx.strokeStyle = element.options.stroke || "black";
 
       ctx.moveTo(element.x, element.y);
-      for (let i = 1; i < element.points.length; i++) {
-        const point = element.points[i];
+      for (let i = 1; i < element.changesInPoint.length; i++) {
+        const point = element.changesInPoint[i];
         invariant(point);
 
-        const [dx, dy] = point;
-        ctx.lineTo(element.x + dx, element.y + dy);
+        const [changeInX, changeInY] = point;
+        ctx.lineTo(element.x + changeInX, element.y + changeInY);
       }
       ctx.stroke();
 
@@ -475,24 +475,24 @@ export const convertToRatio = (percent: number) => {
 };
 
 export const calculateNormalizedValue = ({
-  maximum,
+  max,
   value,
-  minimum,
+  min,
 }: {
-  maximum: number;
+  max: number;
   value: number;
-  minimum: number;
+  min: number;
 }) => {
-  return Math.max(minimum, Math.min(value, maximum));
+  return Math.max(min, Math.min(value, max));
 };
 
 export const calculateNormalizedZoom = (
   zoom: VisualizerMachineContext["zoom"]
 ) => {
   return calculateNormalizedValue({
-    maximum: ZOOM.MAXIMUM,
+    max: ZOOM.MAX,
     value: zoom,
-    minimum: ZOOM.MINIMUM,
+    min: ZOOM.MIN,
   });
 };
 
@@ -568,7 +568,7 @@ export const createElement = ({
     isDeleted: false,
   };
 
-  const createdSeeds = new Set(
+  const existingSeeds = new Set(
     elements
       .map((element) => {
         if (
@@ -594,7 +594,7 @@ export const createElement = ({
       return {
         ...elementBase,
         shape: elementShape,
-        seed: createRandomSeed(createdSeeds),
+        seed: createRandomSeed(existingSeeds),
       };
     }
   }
@@ -607,14 +607,14 @@ export const createElement = ({
       return {
         ...elementBase,
         shape: elementShape,
-        points: [[0, 0]],
-        seed: createRandomSeed(createdSeeds),
+        changesInPoint: [[0, 0]],
+        seed: createRandomSeed(existingSeeds),
       };
     } else {
       return {
         ...elementBase,
         shape: elementShape,
-        points: [[0, 0]],
+        changesInPoint: [[0, 0]],
       };
     }
   }
@@ -637,13 +637,15 @@ const createRandomNumber = (min: number, max: number) => {
 };
 
 // https://github.com/rough-stuff/rough/wiki#seed
-const MIN_SEED = 1;
-const MAX_SEED = 2 ** 31;
-export const createRandomSeed = (createdSeeds: Set<number>) => {
+const SEED = {
+  MIN: 1,
+  MAX: 2 ** 31,
+};
+export const createRandomSeed = (existingSeeds: Set<number>) => {
   let randomSeed: number;
   do {
-    randomSeed = createRandomNumber(MIN_SEED, MAX_SEED);
-  } while (createdSeeds.has(randomSeed));
+    randomSeed = createRandomNumber(SEED.MIN, SEED.MAX);
+  } while (existingSeeds.has(randomSeed));
 
   return randomSeed;
 };

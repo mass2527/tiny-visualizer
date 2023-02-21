@@ -36,17 +36,17 @@ export type VisualizerGenericElement =
   | VisualizerRectangleElement
   | VisualizerEllipseElement;
 
-export type TuplePoint = [number, number];
+export type ChangeInPoint = [number, number];
 
 export type VisualizerLinearElement = VisualizerElementBase & {
   shape: "line" | "arrow";
-  points: TuplePoint[];
+  changesInPoint: ChangeInPoint[];
   seed: number;
 };
 
 export type VisualizerFreeDrawElement = VisualizerElementBase & {
   shape: "freedraw";
-  points: TuplePoint[];
+  changesInPoint: ChangeInPoint[];
 };
 
 export type FontSize = 12 | 16 | 20 | 24;

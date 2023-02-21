@@ -235,7 +235,7 @@ export const visualizerMachine =
     {
       actions: {
         addElement: assign((context, { devicePixelRatio }) => {
-          const newElement = createElement({
+          const element = createElement({
             elements: context.elements,
             elementShape: context.elementShape,
             elementOptions: context.elementOptions,
@@ -244,8 +244,8 @@ export const visualizerMachine =
           });
 
           return {
-            elements: [...context.elements, newElement],
-            drawingElementId: newElement.id,
+            elements: [...context.elements, element],
+            drawingElementId: element.id,
           };
         }),
         deleteSelection: assign((context) => {
@@ -303,27 +303,27 @@ export const visualizerMachine =
           return {
             elements: context.elements.map((element): VisualizerElement => {
               if (element.id === context.drawingElementId) {
-                const dx = currentPoint.x - context.drawStartPoint.x;
-                const dy = currentPoint.y - context.drawStartPoint.y;
+                const changeInX = currentPoint.x - context.drawStartPoint.x;
+                const changeInY = currentPoint.y - context.drawStartPoint.y;
 
                 if (isGenericElement(element)) {
                   return {
                     ...element,
                     x: Math.min(currentPoint.x, context.drawStartPoint.x),
                     y: Math.min(currentPoint.y, context.drawStartPoint.y),
-                    width: Math.abs(dx),
-                    height: Math.abs(dy),
+                    width: Math.abs(changeInX),
+                    height: Math.abs(changeInY),
                   };
                 }
 
                 if (isLinearElement(element)) {
                   return {
                     ...element,
-                    width: Math.abs(dx),
-                    height: Math.abs(dy),
-                    points: [
+                    width: Math.abs(changeInX),
+                    height: Math.abs(changeInY),
+                    changesInPoint: [
                       [0, 0],
-                      [dx, dy],
+                      [changeInX, changeInY],
                     ],
                   };
                 }
@@ -335,7 +335,10 @@ export const visualizerMachine =
                     ...element,
                     width: absolutePoint.maxX - absolutePoint.minX,
                     height: absolutePoint.maxY - absolutePoint.minY,
-                    points: [...element.points, [dx, dy]],
+                    changesInPoint: [
+                      ...element.changesInPoint,
+                      [changeInX, changeInY],
+                    ],
                   };
                 }
 
@@ -559,7 +562,7 @@ export const visualizerMachine =
           };
         }),
         addVersionToHistory: assign((context) => {
-          const newVersion = {
+          const version = {
             elementOptions: context.elementOptions,
             elements: context.elements,
           };
@@ -567,7 +570,7 @@ export const visualizerMachine =
           const isPresent = context.historyStep === context.history.length - 1;
           if (isPresent) {
             return {
-              history: [...context.history, newVersion],
+              history: [...context.history, version],
               historyStep: context.historyStep + 1,
             };
           }
@@ -575,16 +578,16 @@ export const visualizerMachine =
           return {
             history: [
               ...context.history.slice(0, context.historyStep + 1),
-              newVersion,
+              version,
             ],
             historyStep: context.historyStep + 1,
           };
         }),
         updateHistory: assign((context, { changedStep }) => {
           const updatedHistoryStep = calculateNormalizedValue({
-            maximum: context.history.length - 1,
+            max: context.history.length - 1,
             value: context.historyStep + changedStep,
-            minimum: 0,
+            min: 0,
           });
           const version = context.history[updatedHistoryStep];
           invariant(version);
