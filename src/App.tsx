@@ -227,7 +227,6 @@ function App() {
         } else if (event.key === "v") {
           send({
             type: "SELECTED_ELEMENTS.PASTE",
-            canvasElement,
           });
         } else if (event.key === "x") {
           send("SELECTED_ELEMENTS.CUT");
@@ -623,6 +622,15 @@ function App() {
                   disabled={historyStep === history.length - 1}
                 >
                   redo
+                </button>
+
+                <button
+                  onClick={async () => {
+                    const clipText = await navigator.clipboard.readText();
+                    console.info(clipText);
+                  }}
+                >
+                  Read
                 </button>
               </div>
             </div>

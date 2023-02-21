@@ -28,7 +28,7 @@ import {
 import { PERSISTED_CONTEXT } from "./constant";
 
 export const visualizerMachine =
-  /** @xstate-layout N4IgpgJg5mDOIC5QDcCWsCuBDANqgXmAE4AEAtlgMYAWqAdmAHSoQ5gDEAIgEoCCA6gH0AygBVe3UQG0ADAF1EoAA4B7WKgAuqFXUUgAHogBsAJgDsjAJwBGACwyjl02bMAOcwBoQAT0TWAzK4ArIwm1q6mJv62JpZBJgC+CV5omLgExORUtAzMrBwAwgASvAByAOIAooKVADKVALKVpaIiJQAKlbIKSCCq6lo6eoYIzlZ2Dk7mbp4+iCYyMoxmQYuL7uG2ZuZJKejYeISkFDT0TCxsXHzlIuKS3Xr9mtq6vSNjNvaOzjNmXr4IaxOSyMVyWGTReLxExGAK7ECpA4ZY7ZM55S7COqVAqiSqcGr1JotYSMThY3EPXpPQavUDvczjL5TFzuP5zQFBfwhIJuGQRfyWdyuFzwxHpI5ZU65C4cTH1HF4gmNZqiEkFADy7QAmpTlGpnkM3sYGZ9Jj9Wf9EP4TLZGNYgqZ7EFwq4JkZRftxZkTjlzvl2HLsbj8ViiarGO1eGIuvJHvqacNjRZTd9phb2dYjNbGBDrOEwmZLGZbIEPWlDt7UdL-Q11QBVTGCWsANRjPT1AxeiYQ-jM1kYtk51hhtlsRhkfbZAJWRlC-iMQSClhsfJs-jLSIlPrRMvYAElhEqw21eJ1BAAxPcADUVonV5XK9V1fXjXaNoxNbuZv0tCBiS3HSx538PNBwdaINy9FEpT9DEsQVENCRVNU62kWMqVfQ06STRkzTTWYAWdCwHBtYI+xkWJgkgitoN9dFChKCpqlDFVBE1UQ93VUphGfak32wj9ky-c0CL8bZXAHVwYhcJxh2o5FJTo3dijKKpBAALXVdUGl4zDaQMHCU2-dMASMewByMYUF1MCJLEHeStyrWCGNU6pNO0wR+D3UQikEdo91KYpdM7LCDME3DUxZUSEDMecrDCCI7GsGR7QnBzKxg+j2EjUpgoNfT6SEpkRKnRBXH8fxGF7Ww4j7Gxx0s9LaJ3f0igPO9uC1QQ63aTheApdCO3y7sPmE-DSoQSxYlBExXBkeIi38EjXCaxSWsufhuG86oxAkND2xfEKCsMsaoom5LhRzEDrDcKbbBW5IEU9Gi1tyCAiCwAB3egoCuAQ8oTd84n7CcIVmrNhQqyxfzzdxJJLe74mFe0Hr2csFO3N6Pu+uhfp4AQalKTgAf4sK8zim6nFi2wgVdBwYcCSqVjsBKuVWMxVsxph3q+n6uHJHb4I4riSdCkZiwAm0i3zXtC1sGGYX7V0bRqyybsWWxOacxgeagKA+fx8pReOwE7BCa0IXmijXRWeWM2FExQgukwgmCIFZq1zLdf13G-puZpicGw7hvfAJnUYR04imgI4iMGGiwsCZ7ooow+0cT26JwFQsAgPnje7Wb+3nOqTDCAJ5xLX83YHAUzFMPMZHuiIM7RJRiHUWAtF9-PQ8FEEYQdRwgJdqS7YBV1GFWNY+TBRuEZbrHedxkgVFIT6iGeZewDoCBIHYHuBMzGQQTMXMZ-I4-rBhiYc1TowF3tLM54XphkHbl4SCIMA2CwWA94PsmfdQjWSHtaV2o5r6nznDEMEeZizLk1o9MUL0uaMHXpvX6m1tqE0DgdPiYs-ABFnJTVOl8uTzhhhOSqi4xzmFTnNEU8I6AqF3vAXoyCMZOTjEdbsABaOO7JeEhGXCIsyMI3CWW2C-ei3CQ4CRiI7IC84SKcihhNMiEcwR11iDVGqQJpE8xxlAWRgMBKCkTmuIsZk5oTjHn4ECSxZ7xFhsuVO64kHPU4V7D6esfomNJiMWGStU4oz5I4Ey8w1gR0zLAl245ogcw8ejRymUs45z8RhHh74YhVxhFYWuS0eQOkboktGm4Mp0TbkQDuXdjGZLkWFMIZkqrOnAnZV24IBEAicLfV0UlORZhHNYAx2MforzXhvWpJBt67wgP4ghgJlHLG2ECUwK54j+AVsOKqpcpJrKiAuII0i37VI-l-H+f85n1NMWTamyxZ7WykiBTk19BzLGiNdMuLppHoNqfMk2y4i5bHvg6cwY4XDXyiFYKSs0poCg9kkBIQA */
+  /** @xstate-layout N4IgpgJg5mDOIC5QDcCWsCuBDANqgXmAE4AEAtlgMYAWqAdmAHSoQ5gDEAIgEoCCA6gH0AygBVe3UQG0ADAF1EoAA4B7WKgAuqFXUUgAHogDsMo4wCcARgAsM60fNGArADYnlgMwAaEAE9EAEwBboyWlkYeph7W5gAcDtYAvok+aJi4BMTkVLQMzKwcAMIAErwAcgDiAKKCVQAyVQCyVWWiIqUAClWyCkggqupaOnqGCCZmVrb2jq7u3n6BMjKMRjGOAbHmLjLm1k7JqejYeISkFDT0TCxsXHwVIuKSPXoDmtq6faPjFjZ2Ds5uTw+fwISyxcGMGROawucweYIBMLmA4gNLHTJnHKXfI3YT1KqFURVTi1BrNVrCRicfFE559V5DD6gL6mH5Tf6zIELUFOJzLSzmdzbWLWDxGcWxFFojKnbIXPLXDh4hqE4mkpotUSUwoAeQ6AE06co1G9hp9jKzJn8ZoD5iDYQFGE4PFYoryAuZzAEpUcZVlzrkrgV2MqCUSSfjyVrGB1eGJuvIXibGSMLRNftMAXNgYhPAFlgFrEFLE4jIjYh5Nj70id-ViFcHGjqAKp4wRNgBqCd6xsG71TCDFlkYew8nlMoqcFZc1hzCERW1CMUrsXLO2d1fRsoD2MV7AAksJ1VH2rwuoIAGL7gAaatEOoqFQaRv6yf75rGlozHNtc-h1lCVwAg8XktliFxYksTc-UxeUg1xfFVQjMlNW1ZtpETek3zNZk0zZa0sy5EFLBkDwPBWItEV5eIXHCIxoNrWDAxxIpSkqGpI01QQ9VEfcdTKYQXwZd9cM-dN2RtbNuUsGcXEYGcKycREZE8QUGIxOVmL3EpymqQQAC0dR1RohOwpkDDwq1M05O1ECLZZtjhB0tncLZ1O3et4NY3SakM4zBH4fdRGKQQOn3MoSlMvscIssT8Os39uXcMwZBcAJXChaFPAg9y6zglj2FjMootNczRnS1YnVXewRWsWJnWdOdC0q51K1FVYIiMKCUlRX1GM03dg2KQ9724fVBGbDpOF4WlMN7UqB2+Kyfyk4jRwo-MRRMfMrHonrpX6ncGxufhuCCmoxAkDCe1faKyss79JKIxYwUYSIaoFOqyO9fa+o0o6mAgIgsAAd3oKBbgEEqUw-EjaPk-5xXCGFESasFzHk2wINI7Hdg8XKmOxIHQfByGhBaThoZE2Lx1iSFTHMGQNiWewAiMJqNmHHZKy6+q7GsbrDhrf7PMYYmwboCHqQaIkREQ3j+KpmLRlXBzC0cExIM9WE0YFlYSLiEwrBsAmBryYmoCgUmeF4Colfu0FtgA97ViUwsZMcOdwkZt7VgrYIbDZ9LTYBsXgct627lqMpKbm26FthiszHquFwI10wwS9zYnDev5SK6scwh+oWtzy5icBULAIFJ+2B05t6XC6qxm7q2duSCKw3qU6F4jhPZkV+4WPPypRiHUWAtEl9ha4-II9hWPkcZcCCglMOdIJHT1BTAysyLFEPRfF8GSBUUgQaIN5JZIMA6AgSBp7j4TldzJPGBTytYXFDPYg5wVGA9WEaV0puCrIPUuhM8jIDHu8EgRAwBsCwLAe+M9RJzxzs4JYHhl4r3zOzaSjdhyWELFrWw+YwiSjATBM2TBz6Xwhqdc60dY43Sfg7Wm9MHBM1iCzMseCQT5jHCsSCGxwSMy9M4A+I9EGTwhhAHQVw6DIBUAAayYAdEWUiJ7gwQPQJRlAsCMh6CgmmkQ6ZLE4czP4bMvZjnIipaiHoiG40kcxJQ0jSbECIKfRgSgcAGIAGanzIIwdRw9XHuMljoxRKh9GGPkMY0Y7DzGM0sazPhuZgg53cK4LqTsdipRcdiTxp8SAVwjlPBJuYUZvw2PmUsTNHBei9nRCwXp8yOTqtCfGlDDqi0oCoJQvhSZyIVNE1RIS-phOxP0wZ2jdExIMe8Ixj8zIDiSQzLhPDrHcmXssIwmwdjgXVg4AeJcqGhxmUMqexSiA+L8RoQJRBgmhLLtMgZVyoBRL0YsnQyyWGrNhqYjhKTuFWPSZ+OmGxjaYOdDICshS8iUAwBoGR7ARkKKUeMl5ECmBIpRXM6JsSlnxJWXdNZQLkmbLBXOQUclSKui2nYPkLgEW4uRaim5dyAlBImUPV5iL2UEu+XEuQlTQQUo2ak3hXs7AYxiMWaI2xnSOGSD1OgKg77wD6Ni6hSYyUfgALQuDnEa+mSwlIVnAksD0rKWJ6oTqJSiFgyLCg2BBcC4Rf5mG2BVXYzguqFltUfSW9qYaiQNsnJY9V2QziIU1McZj7BLFSsECsZEg3hytiGrC+rw0zmWPVGSIEvQzmcOYL2Vg6b7KcQ4URopbUVyruDUN1NRhFg5svN+3ddrbxFCynpGjXHQK0dm+aYbYrAW4W-LBqUUm2BsLZBALhogjjqgKZdRY9gyQzSTK+JTaEyOvrfSALbn48kbmyEs4RyyFicBzawAEHCfytXEZd3Szm9PylAog6gdCwPgWARBJ6c0Oppp6YcbMQJ2DcIbdKXtZLyWIWlKYzo9ofsHdiA9zaQPjsSWEMwAdVxKWXulKcTVMr-1LK6MsrM6q2rcSOqAp62F2ALH7eE4QKxhEXUQxw-9KICkiF1EstqbmlJUOUpjOHW25icJ6EctE7CFndkJ5pooLBFjBHJ+q8QkgDqmYi952Gx0ydBDjSEJgQK0XVikucy8MbKrCLKyINh9j6f5Wy-Fo7464dzOZ0wpFXBELWEzGVJENpkJAoWgpqqgA */
   createMachine(
     {
       id: "visualizer machine",
@@ -42,6 +42,14 @@ export const visualizerMachine =
       schema: {
         context: {} as VisualizerMachineContext,
         events: {} as VisualizerMachineEvents,
+        services: {} as {
+          readClipboardText: {
+            data: { clipText: string };
+          };
+          copySelectedElements: {
+            data: void;
+          };
+        },
       },
 
       context: {
@@ -84,15 +92,9 @@ export const visualizerMachine =
               actions: ["deleteSelectedElements"],
             },
 
-            "SELECTED_ELEMENTS.COPY": {
-              target: "persisting",
-              actions: "copySelectedElements",
-            },
+            "SELECTED_ELEMENTS.COPY": "copying",
 
-            "SELECTED_ELEMENTS.PASTE": {
-              target: "version released",
-              actions: ["pasteSelectedElements"],
-            },
+            "SELECTED_ELEMENTS.PASTE": "pasting",
 
             MOUSE_MOVE: {
               target: "idle",
@@ -105,10 +107,7 @@ export const visualizerMachine =
               actions: "toggleIsElementShapeFixed",
             },
 
-            "SELECTED_ELEMENTS.CUT": {
-              target: "persisting",
-              actions: ["copySelectedElements", "deleteSelectedElements"],
-            },
+            "SELECTED_ELEMENTS.CUT": "cutting",
 
             CHANGE_ELEMENT_OPTIONS: {
               target: "version released",
@@ -209,6 +208,43 @@ export const visualizerMachine =
               target: "drawing or writing ended",
               actions: ["endWrite"],
             },
+          },
+        },
+
+        pasting: {
+          invoke: {
+            src: "readClipboardText",
+            onDone: {
+              target: "version released",
+              actions: "pasteSelectedElements",
+            },
+            onError: "error logging",
+          },
+        },
+
+        "error logging": {
+          always: "idle",
+          entry: "logError",
+        },
+
+        copying: {
+          invoke: {
+            src: "copySelectedElements",
+            onDone: "persisting",
+            onError: "error logging",
+          },
+        },
+
+        cutting: {
+          invoke: {
+            src: "copySelectedElements",
+
+            onDone: {
+              target: "persisting",
+              actions: "deleteSelectedElements",
+            },
+
+            onError: "error logging",
           },
         },
       },
@@ -412,20 +448,14 @@ export const visualizerMachine =
             }),
           };
         }),
-        copySelectedElements: assign((context) => {
-          return {
-            copiedElements: context.elements.filter(
-              (element) => element.isSelected
-            ),
+        pasteSelectedElements: assign((context, event) => {
+          // TODO: refactor using zod
+          const { elements } = JSON.parse(event.data.clipText) as {
+            elements: VisualizerElement[];
           };
-        }),
-        pasteSelectedElements: assign((context) => {
-          const absolutePoint = calculateElementsAbsolutePoint(
-            context.copiedElements
-          );
+          const absolutePoint = calculateElementsAbsolutePoint(elements);
           const centerPoint = calculateCenterPoint(absolutePoint);
-
-          const copiedElements = context.copiedElements.map((copiedElement) => {
+          const copiedElements = elements.map((copiedElement) => {
             const centerX = copiedElement.x + copiedElement.width / 2;
             const centerY = copiedElement.y + copiedElement.height / 2;
 
@@ -617,6 +647,29 @@ export const visualizerMachine =
               : "selection",
           };
         }),
+        logError: (_, event) => {
+          console.error(event.data);
+        },
+      },
+      services: {
+        readClipboardText: async () => {
+          const clipText = await navigator.clipboard.readText();
+
+          return {
+            clipText,
+          };
+        },
+        copySelectedElements: async (context) => {
+          const selectedElements = context.elements.filter(
+            (element) => element.isSelected
+          );
+          const newClipText = {
+            type: "visualizer/clipboard",
+            elements: selectedElements,
+            files: {},
+          };
+          navigator.clipboard.writeText(JSON.stringify(newClipText));
+        },
       },
     }
   );

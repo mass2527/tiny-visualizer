@@ -4,9 +4,41 @@ export interface Typegen0 {
   "@@xstate/typegen": true;
   internalEvents: {
     "": { type: "" };
+    "done.invoke.visualizer machine.copying:invocation[0]": {
+      type: "done.invoke.visualizer machine.copying:invocation[0]";
+      data: unknown;
+      __tip: "See the XState TS docs to learn how to strongly type this.";
+    };
+    "done.invoke.visualizer machine.cutting:invocation[0]": {
+      type: "done.invoke.visualizer machine.cutting:invocation[0]";
+      data: unknown;
+      __tip: "See the XState TS docs to learn how to strongly type this.";
+    };
+    "done.invoke.visualizer machine.pasting:invocation[0]": {
+      type: "done.invoke.visualizer machine.pasting:invocation[0]";
+      data: unknown;
+      __tip: "See the XState TS docs to learn how to strongly type this.";
+    };
+    "error.platform.visualizer machine.copying:invocation[0]": {
+      type: "error.platform.visualizer machine.copying:invocation[0]";
+      data: unknown;
+    };
+    "error.platform.visualizer machine.cutting:invocation[0]": {
+      type: "error.platform.visualizer machine.cutting:invocation[0]";
+      data: unknown;
+    };
+    "error.platform.visualizer machine.pasting:invocation[0]": {
+      type: "error.platform.visualizer machine.pasting:invocation[0]";
+      data: unknown;
+    };
     "xstate.init": { type: "xstate.init" };
   };
-  invokeSrcNameMap: {};
+  invokeSrcNameMap: {
+    copySelectedElements:
+      | "done.invoke.visualizer machine.copying:invocation[0]"
+      | "done.invoke.visualizer machine.cutting:invocation[0]";
+    readClipboardText: "done.invoke.visualizer machine.pasting:invocation[0]";
+  };
   missingImplementations: {
     actions: "loadSavedContext";
     delays: never;
@@ -20,7 +52,7 @@ export interface Typegen0 {
       | "CHANGE_ELEMENT_OPTIONS"
       | "DRAG_END"
       | "SELECTED_ELEMENTS.DELETE"
-      | "SELECTED_ELEMENTS.PASTE";
+      | "done.invoke.visualizer machine.pasting:invocation[0]";
     assignCurrentPoint: "MOUSE_MOVE";
     assignDrawStartPoint: "DRAW_START" | "WRITE_START";
     assignElementOptions: "CHANGE_ELEMENT_OPTIONS";
@@ -28,17 +60,20 @@ export interface Typegen0 {
     assignZoom: "CHANGE_ZOOM";
     assignZoomToCurrentPoint: "CHANGE_ZOOM_WITH_PINCH";
     changeElementShape: "CHANGE_ELEMENT_SHAPE";
-    copySelectedElements: "SELECTED_ELEMENTS.COPY" | "SELECTED_ELEMENTS.CUT";
     deleteSelectedElements:
-      | "SELECTED_ELEMENTS.CUT"
-      | "SELECTED_ELEMENTS.DELETE";
+      | "SELECTED_ELEMENTS.DELETE"
+      | "done.invoke.visualizer machine.cutting:invocation[0]";
     deleteSelection: "DELETE_SELECTION";
     drag: "DRAG" | "DRAG_END";
     draw: "DRAW" | "DRAW_END";
     endWrite: "WRITE_END";
     loadSavedContext: "xstate.init";
+    logError:
+      | "error.platform.visualizer machine.copying:invocation[0]"
+      | "error.platform.visualizer machine.cutting:invocation[0]"
+      | "error.platform.visualizer machine.pasting:invocation[0]";
     pan: "PAN";
-    pasteSelectedElements: "SELECTED_ELEMENTS.PASTE";
+    pasteSelectedElements: "done.invoke.visualizer machine.pasting:invocation[0]";
     persist:
       | ""
       | "CHANGE_ELEMENT_SHAPE"
@@ -47,8 +82,8 @@ export interface Typegen0 {
       | "HISTORY_UPDATE"
       | "IS_ELEMENT_SHAPE_FIXED_TOGGLE"
       | "PAN"
-      | "SELECTED_ELEMENTS.COPY"
-      | "SELECTED_ELEMENTS.CUT";
+      | "done.invoke.visualizer machine.copying:invocation[0]"
+      | "done.invoke.visualizer machine.cutting:invocation[0]";
     resetDrawingElementId: "DELETE_SELECTION" | "DRAW_END" | "WRITE_END";
     selectDrawingElement: "DRAW_END" | "WRITE_END";
     toggleIsElementShapeFixed: "IS_ELEMENT_SHAPE_FIXED_TOGGLE";
@@ -59,13 +94,20 @@ export interface Typegen0 {
   };
   eventsCausingDelays: {};
   eventsCausingGuards: {};
-  eventsCausingServices: {};
+  eventsCausingServices: {
+    copySelectedElements: "SELECTED_ELEMENTS.COPY" | "SELECTED_ELEMENTS.CUT";
+    readClipboardText: "SELECTED_ELEMENTS.PASTE";
+  };
   matchesStates:
+    | "copying"
+    | "cutting"
     | "dragging"
     | "drawing"
     | "drawing or writing ended"
+    | "error logging"
     | "idle"
     | "loading"
+    | "pasting"
     | "persisting"
     | "version released"
     | "writing";
