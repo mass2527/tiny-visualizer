@@ -651,3 +651,21 @@ export const createRandomSeed = (createdSeeds: Set<number>) => {
 const isDefined = <T>(argument: T | undefined | null): argument is T => {
   return argument !== undefined && argument !== null;
 };
+
+// https://user-images.githubusercontent.com/70563791/218030908-1405ee82-638b-4885-89f2-f72329dc55b7.png
+export const calculateChangeInPointOnZoom = ({
+  targetPoint,
+  updatedZoom,
+  previousZoom,
+}: {
+  targetPoint: Point;
+  updatedZoom: VisualizerMachineContext["zoom"];
+  previousZoom: VisualizerMachineContext["zoom"];
+}) => {
+  const changeInZoom = updatedZoom - previousZoom;
+
+  return {
+    changeInX: targetPoint.x * changeInZoom,
+    changeInY: targetPoint.y * changeInZoom,
+  };
+};

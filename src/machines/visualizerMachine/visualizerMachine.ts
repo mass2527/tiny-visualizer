@@ -16,6 +16,7 @@ import {
   isFreeDrawElement,
   calculateClientPoint,
   measureText,
+  calculateChangeInPointOnZoom,
 } from "../../utils";
 import debounce from "lodash.debounce";
 import { TEXTAREA_UNIT_LESS_LINE_HEIGHT } from "../../constants";
@@ -496,34 +497,38 @@ export const visualizerMachine =
           };
         }),
         assignZoom: assign((context, { setZoom, canvasElement }) => {
-          const normalizedZoom = calculateNormalizedZoom(setZoom(context.zoom));
+          const updatedZoom = calculateNormalizedZoom(setZoom(context.zoom));
           const targetPoint = {
             x: canvasElement.width / 2,
             y: canvasElement.height / 2,
           };
+          const changeInPoint = calculateChangeInPointOnZoom({
+            targetPoint,
+            previousZoom: context.zoom,
+            updatedZoom,
+          });
 
           return {
-            zoom: normalizedZoom,
+            zoom: updatedZoom,
             origin: {
-              x: -(targetPoint.x * normalizedZoom - targetPoint.x),
-              y: -(targetPoint.y * normalizedZoom - targetPoint.y),
+              x: context.origin.x - changeInPoint.changeInX,
+              y: context.origin.y - changeInPoint.changeInY,
             },
           };
         }),
         assignZoomToCurrentPoint: assign((context, { setZoom }) => {
-          const normalizedZoom = calculateNormalizedZoom(setZoom(context.zoom));
+          const updatedZoom = calculateNormalizedZoom(setZoom(context.zoom));
+          const changeInPoint = calculateChangeInPointOnZoom({
+            targetPoint: context.currentPoint,
+            previousZoom: context.zoom,
+            updatedZoom,
+          });
 
           return {
-            zoom: normalizedZoom,
+            zoom: updatedZoom,
             origin: {
-              x:
-                context.origin.x -
-                (context.currentPoint.x * normalizedZoom -
-                  context.currentPoint.x * context.zoom),
-              y:
-                context.origin.y -
-                (context.currentPoint.y * normalizedZoom -
-                  context.currentPoint.y * context.zoom),
+              x: context.origin.x - changeInPoint.changeInX,
+              y: context.origin.y - changeInPoint.changeInY,
             },
           };
         }),
