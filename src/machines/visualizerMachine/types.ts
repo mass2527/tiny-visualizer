@@ -109,7 +109,6 @@ export type VisualizerMachinePersistedContext = {
   drawingElementId: VisualizerElement["id"] | null;
   drawStartPoint: Point;
   previousPoint: Point;
-  copiedElements: VisualizerElement[];
   currentPoint: Point;
   isElementShapeFixed: boolean;
   zoom: number;
@@ -175,7 +174,6 @@ export type VisualizerMachineEvents =
     }
   | {
       type: "SELECTED_ELEMENTS.PASTE";
-      canvasElement: HTMLCanvasElement;
     }
   | {
       type: "MOUSE_MOVE";

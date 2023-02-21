@@ -25,7 +25,6 @@ export const PERSISTED_CONTEXT: VisualizerMachinePersistedContext = {
 
   // untrack
   elementShape: "selection",
-  copiedElements: [],
   drawingElementId: null,
   drawStartPoint: {
     x: 0,
