@@ -623,15 +623,6 @@ function App() {
                 >
                   redo
                 </button>
-
-                <button
-                  onClick={async () => {
-                    const clipText = await navigator.clipboard.readText();
-                    console.info(clipText);
-                  }}
-                >
-                  Read
-                </button>
               </div>
             </div>
           </div>
