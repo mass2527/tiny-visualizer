@@ -28,7 +28,7 @@ import {
 import { PERSISTED_CONTEXT } from "./constant";
 
 export const visualizerMachine =
-  /** @xstate-layout N4IgpgJg5mDOIC5QDcCWsCuBDANqgXmAE4AEAtlgMYAWqAdmAHSoQ5gDEAIgEoCCA6gH0AygBVe3UQG0ADAF1EoAA4B7WKgAuqFXUUgAHogDsMo4wCcARgAspgKyXz1hwCYjAGhABPRJYAcMuaMLgBsAMwyYSGOLnYh1uYAvomeaJi4BMTkVLQMzKwcAMIAErwAcgDiAKKCVQAyVQCyVWWiIqUAClWyCkggqupaOnqGCCZmVrZGDk6uHt6ILjIyjNPLMksyzmHmdsmp6Nh4hKQUNPRMLGxcfBUi4pI9egOa2rp9o+MWNvaOzpZuTw+BBLfyMMJGFwuJzLEIBeL7EBpI6ZU45C75a7CepVQqiKqcWoNZqtYSMTg4-FPPovIbvUCfUzfKYzf6AhYIAGWMwuPwAsJhbnLMLWRHIjInbLnPJXDjYhp4glEpotURkwoAeQ6AE1qco1K9hh9jEzJr9ZgD5sCwi5rIxLHFYhEdn47EZLGLDhKsmdcpcCux5bj8YScSS1YwOrwxN15M8DXSRiaJj9pn85kDfIKwqsRWE7NY4XY-NYwn5Peljj70TKA40NQBVbGCesANVjvX1gzeSYQEMsjG2lnCsyMZbCmc55ihq15RkhO3ngr2KSRXqraOl-uuAElhMrw+1eF1BAAxHcADSVog1FQqDT1-QTPeNY1NqdZGY51iWjBCgQhZw7DiEITBXA5K1RKU-UxOUcUVUNiVVdUG2kOMaWfI0GWTZlzTZK1EAcMwZBCW1zH-d1rHnCsUUlX0MVldgSnKaoD1VQQtVEHcNTKYRH1pF9sLfFMWXTS1JxsSwVn8IwqNImRhzsCEaO9TcYMY5jKhqAAtDUNUafjMPpAwcLNNMLXZYF4hWQs-D8fMBQFEIQnAtdILomttyKUotMEXT9MEfgd1EYpBA6HcyhKQzuywkzhNw8z8MnMcQgsFxHDiEsrCMFyVI3aCGIDKMymiw1jMZES8K-YF7JzCE7FMez4nMPxSLyqD6Nra5ij3G9uG1QQGw6TheCpdCuzK3svjMz9xI5acgj8XlHBagIjHIj1V3FfLOq89h+G4YKajECQ0M7J8YvK0yPzEyzfBIlZGpcHZzGnZ6bXajyt1gpifNYsRtQaPjxouybX2mm6LIIzkGtS6y7HMeduULKJPurb6ICILAAHd6CgG4BFKxNXykkVGARpH0pa6Y-AksccyMVqpisZqHDRtSMUxnG8YJoQWk4InBLigFnuCPNGfMHZwksCTSLMHYZDdExAkVhEtvXDrPMYLncbofGeAEWoygFyxzoE2LRhFnNntLCWpcFCSAjtExBWmCJXuiUV1fc9GYJ1nmKQafERHgrieMFi3ECWlZSIapZ5xckwXFl11GFdZzyMlki3fZgq8i5qAoAD24I6uzlIgHUxIhCRGonMBToZiGPpzAnKHRMEJc927WscL4veDufnS97K2xdtvxJfIh2OSWWI-yhOcpNsLYu61nAVCwCAeeH19lvBUD0sieOdknUEJkFPwTG5JXplX76lGIdRYC0PX2B3oT0oiNPlpFSFnAUuwk4+Tk3WNnHKAQJ6d29rRX2GIwBsDIGAOgGgSCwGoFgB+JAiBwDABoN+INzZl2vgOUIwFyKuiksKR2Nc-wAVstOJaBY74wWQI-N4WD4FgCwLASA+CzZGV7J-FYS0+S-1tA1B0EkGo5ksACEs7p2411cttTW31sZEFeK-A6R0jYCwIQIkmUJrbiwnvbGWHIpJjnJgWEsdkXJuDCMkVcdAVAQDgHoFRX0-Txkur2AAtCEScfi7AWFegwpY0drC2BcMwwqbAfFgyEj+FwFgnKyIFIEcIgSZ4bDtP4fwk9LD5msDYWJ+csa6ygAk4mQlLErHdJfFKjVJEWNaikmIsl3SMzLFRMpTAC5Fz1tUoWlts5-m5OlWIS1SyOFPlsIIgQ7GuhdsOPpjB16bzxsMyOCAfwSVejmGZq16bdPLNA1SecmAPyIE-F+VSMK+N3qQ3CdkRS7AUpOcIfhaFRKRl0twazOGIOQag9BmDsE8I0NsohBYgjQjhE7N2izHbOHtABecUIfwI0cecnaWtWE3PYdgtg3DIDQpHpfVK+YHQNSogjV6tMLFUW+dENwE8oQkUFF7CCMCOZ5HUZo+5E0anC1MHaS+0irB2WvtYCSgRiLZh-FJCROLkhAA */
+  /** @xstate-layout N4IgpgJg5mDOIC5QDcCWsCuBDANqgXmAE4AEAtlgMYAWqAdmAHSoQ5gDEAIgEoCCA6gH0AygBVe3UQG0ADAF1EoAA4B7WKgAuqFXUUgAHogBsAJgDsjAJwBGACwyjl02bMAOcwBoQAT0TWAzK4ArIwm1q6mJv62JpZBJgC+CV5omLgExORUtAzMrBwAwgASvAByAOIAooKVADKVALKVpaIiJQAKlbIKSCCq6lo6eoYIzlZ2Dk7mbp4+iCYyMoxmQYuL7uG2ZuZJKejYeISkFDT0TCxsXHzlIuKS3Xr9mtq6vSNjNvaOzjNmXr4IaxOSyMVyWGTReLxExGAK7ECpA4ZY7ZM55S7COqVAqiSqcGr1JotYSMThY3EPXpPQavUDvczjL5TFzuP5zQFBfwhIJuGQRfyWdyuFzwxHpI5ZU65C4cTH1HF4gmNZqiEkFADy7QAmpTlGpnkM3sYGZ9Jj9Wf9EP4TLZGNYgqZ7EFwq4JkZRftxZkTjlzvl2HLsbj8ViiarGO1eGIuvJHvqacNjRZTd9phb2dYjNbGBDrOEwmZLGZbIEPWlDt7UdL-Q11QBVTGCWsANRjPT1AxeiYQ-jM1kYtk51hhtlsRhkfbZAJWRlC-iMQSClhsfJs-jLSIlPrRMvYAElhEqw21eJ1BAAxPcADUVonV5XK9V1fXjXaNoxNbuZv0tCBiS3HSx538PNBwdaINy9FEpT9DEsQVENCRVNU62kWMqVfQ06STRkzTTWYAWdCwHBtYI+xkWJgkgitoN9dFChKCpqlDFVBE1UQ93VUphGfak32wj9ky-c0CL8bZXAHVwYhcJxh2o5FJTo3dijKKpBAALXVdUGl4zDaQMHCU2-dMASMewByMYUF1MCJLEHeStyrWCGNU6pNO0wR+D3UQikEdo91KYpdM7LCDME3DUxZUSEDMecrDCCI7GsGR7QnBzKxg+j2EjUpgoNfT6SEpkRKnRBXH8fxGF7Ww4j7Gxx0s9LaJ3f0igPO9uC1QQ63aTheApdCO3y7sPmE-DSoQSxYlBExXBkeIi38EjXCaxSWsufhuG86oxAkND2xfEKCsMsaoom5LhRzEDrDcKbbBW5IEU9Gi1tyCAiCwAB3egoCuAQ8oTd84n7CcIVmrNhQqyxfzzdxJJLe74mFe0Hr2csFO3N6Pu+uhfp4AQalKTgAf4sK8zim6nFi2wgVdBwYcCSqVjsBKuVWMxVsxph3q+n6uHJHb4I4riSdCkZiwAm0i3zXtC1sGGYX7V0bRqyybsWWxOacxgeagKA+fx8pReOwE7BCa0IXmijXRWeWM2FExQgukwgmCIFZq1zLdf13G-puZpicGw7hvfAJnUYR04imgI4iMGGiwsCZ7ooow+0cT26JwFQsAgPnje7Wb+3nOqTDCAJ5xLX83YHAUzFMPMZHuiIM7RJRiHUWAtF9-PQ8FEEYQdRwgJdqS7YBV1GFWNY+TBRuEZbrHedxkgVFIT6iGeZewDoCBIHYHuBMzGQQTMXMZ-I4-rBhiYc1TowF3tLM54XphkHbl4SCIMA2CwWA94PsmfdQjWSHtaV2o5r6nznDEMEeZizLk1o9MUL0uaMHXpvX6m1tqE0DgdPiYs-ABFnJTVOl8uTzhhhOSqi4xzmFTnNEU8I6AqF3vAXoyCMZOTjEdbsABaOO7JeEhGXCIsyMI3CWW2C-ei3CQ4CRiI7IC84SKcihhNMiEcwR11iDVGqQJpE8xxlAWRgMBKCkTmuIsZk5oTjHn4ECSxZ7xFhsuVO64kHPU4V7D6esfomNJiMWGStU4oz5I4Ey8w1gR0zLAl245ogcw8ejRymUs45z8RhHh74YhVxhFYWuS0eQOkboktGm4Mp0TbkQDuXdjGZLkWFMIZkqrOnAnZV24IBEAicLfV0UlORZhHNYAx2MforzXhvWpJBt67wgP4ghgJlHLG2ECUwK54j+AVsOKqpcpJrKiAuII0i37VI-l-H+f85n1NMWTamyxZ7WykiBTk19BzLGiNdMuLppHoNqfMk2y4i5bHvg6cwY4XDXyiFYKSs0poCg9kkBIQA */
   createMachine(
     {
       id: "visualizer machine",
@@ -150,29 +150,11 @@ export const visualizerMachine =
               actions: ["draw", "updateIntersecting"],
             },
 
-            DRAW_END: [
-              {
-                target: "version released",
+            DRAW_END: {
+              target: "drawing or writing ended",
 
-                actions: [
-                  "draw",
-                  "updateIntersecting",
-                  "selectDrawingElement",
-                  "resetDrawingElementId",
-                ],
-
-                cond: "isElementShapeFixed",
-              },
-              {
-                target: "element shape reset",
-                actions: [
-                  "draw",
-                  "updateIntersecting",
-                  "selectDrawingElement",
-                  "resetDrawingElementId",
-                ],
-              },
-            ],
+              actions: ["draw", "updateIntersecting"],
+            },
 
             DELETE_SELECTION: {
               target: "idle",
@@ -206,12 +188,13 @@ export const visualizerMachine =
           always: "idle",
         },
 
-        "element shape reset": {
-          entry: assign({
-            elementShape: "selection",
-          }),
-
+        "drawing or writing ended": {
           always: "version released",
+          entry: [
+            "selectDrawingElement",
+            "resetDrawingElementId",
+            "updateElementShape",
+          ],
         },
 
         "version released": {
@@ -223,8 +206,8 @@ export const visualizerMachine =
         writing: {
           on: {
             WRITE_END: {
-              target: "version released",
-              actions: "endWrite",
+              target: "drawing or writing ended",
+              actions: ["endWrite"],
             },
           },
         },
@@ -627,11 +610,13 @@ export const visualizerMachine =
             }),
           };
         }),
-      },
-      guards: {
-        isElementShapeFixed: (context) => {
-          return context.isElementShapeFixed;
-        },
+        updateElementShape: assign((context) => {
+          return {
+            elementShape: context.isElementShapeFixed
+              ? context.elementShape
+              : "selection",
+          };
+        }),
       },
     }
   );
