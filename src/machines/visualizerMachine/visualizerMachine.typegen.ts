@@ -19,10 +19,8 @@ export interface Typegen0 {
       | ""
       | "CHANGE_ELEMENT_OPTIONS"
       | "DRAG_END"
-      | "DRAW_END"
       | "SELECTED_ELEMENTS.DELETE"
-      | "SELECTED_ELEMENTS.PASTE"
-      | "WRITE_END";
+      | "SELECTED_ELEMENTS.PASTE";
     assignCurrentPoint: "MOUSE_MOVE";
     assignDrawStartPoint: "DRAW_START" | "WRITE_START";
     assignElementOptions: "CHANGE_ELEMENT_OPTIONS";
@@ -51,22 +49,21 @@ export interface Typegen0 {
       | "PAN"
       | "SELECTED_ELEMENTS.COPY"
       | "SELECTED_ELEMENTS.CUT";
-    resetDrawingElementId: "DELETE_SELECTION" | "DRAW_END";
-    selectDrawingElement: "DRAW_END";
+    resetDrawingElementId: "DELETE_SELECTION" | "DRAW_END" | "WRITE_END";
+    selectDrawingElement: "DRAW_END" | "WRITE_END";
     toggleIsElementShapeFixed: "IS_ELEMENT_SHAPE_FIXED_TOGGLE";
     unselectElements: "CHANGE_ELEMENT_SHAPE" | "DRAW_START";
+    updateElementShape: "DRAW_END" | "WRITE_END";
     updateHistory: "HISTORY_UPDATE";
     updateIntersecting: "DRAW" | "DRAW_END";
   };
   eventsCausingDelays: {};
-  eventsCausingGuards: {
-    isElementShapeFixed: "DRAW_END";
-  };
+  eventsCausingGuards: {};
   eventsCausingServices: {};
   matchesStates:
     | "dragging"
     | "drawing"
-    | "element shape reset"
+    | "drawing or writing ended"
     | "idle"
     | "loading"
     | "persisting"
