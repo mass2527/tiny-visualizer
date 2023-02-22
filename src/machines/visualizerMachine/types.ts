@@ -174,6 +174,7 @@ export type VisualizerMachineEvents =
     }
   | {
       type: "SELECTED_ELEMENTS.PASTE";
+      canvasElement: HTMLCanvasElement;
     }
   | {
       type: "MOUSE_MOVE";
@@ -218,5 +219,8 @@ export type VisualizerMachineEvents =
       type: "WRITE_END";
       text: string;
       canvasElement: HTMLCanvasElement;
+    }
+  | {
+      type: "ELEMENTS.SELECT_ALL";
     };
 /* #endregion */

@@ -110,47 +110,42 @@ const calculateGenericElementAbsolutePoint = (
 const calculateLinearElementAbsolutePoint = (
   element: VisualizerLinearElement
 ) => {
-  return element.changesInPoint.reduce(
-    (result, changeInPoint) => {
-      const [changeInX, changeInY] = changeInPoint;
+  const { changesInPoint } = element;
 
-      return {
-        minX: Math.min(result.minX, element.x + changeInX),
-        minY: Math.min(result.minY, element.y + changeInY),
-        maxX: Math.max(result.maxX, element.x + changeInX),
-        maxY: Math.max(result.maxY, element.y + changeInY),
-      };
-    },
-    {
-      minX: Infinity,
-      minY: Infinity,
-      maxX: -Infinity,
-      maxY: -Infinity,
-    }
-  );
+  return {
+    minX: Math.min(
+      ...changesInPoint.map(([changeInX]) => element.x + changeInX)
+    ),
+    minY: Math.min(
+      ...changesInPoint.map(([_, changeInY]) => element.y + changeInY)
+    ),
+    maxX: Math.max(
+      ...changesInPoint.map(([changeInX]) => element.x + changeInX)
+    ),
+    maxY: Math.max(
+      ...changesInPoint.map(([_, changeInY]) => element.y + changeInY)
+    ),
+  };
 };
 
 export const calculateFreeDrawElementAbsolutePoint = (
   element: VisualizerFreeDrawElement
 ) => {
-  return element.changesInPoint.reduce(
-    (result, changeInPoint) => {
-      const [changeInX, changeInY] = changeInPoint;
-
-      return {
-        minX: Math.min(result.minX, element.x + changeInX),
-        minY: Math.min(result.minY, element.y + changeInY),
-        maxX: Math.max(result.maxX, element.x + changeInX),
-        maxY: Math.max(result.maxY, element.y + changeInY),
-      };
-    },
-    {
-      minX: Infinity,
-      minY: Infinity,
-      maxX: -Infinity,
-      maxY: -Infinity,
-    }
-  );
+  const { changesInPoint } = element;
+  return {
+    minX: Math.min(
+      ...changesInPoint.map(([changeInX]) => element.x + changeInX)
+    ),
+    minY: Math.min(
+      ...changesInPoint.map(([_, changeInY]) => element.y + changeInY)
+    ),
+    maxX: Math.max(
+      ...changesInPoint.map(([changeInX]) => element.x + changeInX)
+    ),
+    maxY: Math.max(
+      ...changesInPoint.map(([_, changeInY]) => element.y + changeInY)
+    ),
+  };
 };
 
 const calculateTextElementAbsolutePoint = (element: VisualizerTextElement) => {
@@ -165,24 +160,20 @@ const calculateTextElementAbsolutePoint = (element: VisualizerTextElement) => {
 export const calculateElementsAbsolutePoint = (
   elements: VisualizerElement[]
 ) => {
-  return elements.reduce(
-    (result, copiedElement) => {
-      const elementAbsolutePoint = calculateElementAbsolutePoint(copiedElement);
-
-      return {
-        minX: Math.min(result.minX, elementAbsolutePoint.minX),
-        maxX: Math.max(result.maxX, elementAbsolutePoint.maxX),
-        minY: Math.min(result.minY, elementAbsolutePoint.minY),
-        maxY: Math.max(result.maxY, elementAbsolutePoint.maxY),
-      };
-    },
-    {
-      minX: Infinity,
-      minY: Infinity,
-      maxX: -Infinity,
-      maxY: -Infinity,
-    }
-  );
+  return {
+    minX: Math.min(
+      ...elements.map((element) => calculateElementAbsolutePoint(element).minX)
+    ),
+    minY: Math.min(
+      ...elements.map((element) => calculateElementAbsolutePoint(element).minY)
+    ),
+    maxX: Math.max(
+      ...elements.map((element) => calculateElementAbsolutePoint(element).maxX)
+    ),
+    maxY: Math.max(
+      ...elements.map((element) => calculateElementAbsolutePoint(element).maxY)
+    ),
+  };
 };
 
 export const calculateCenterPoint = (absolutePoint: AbsolutePoint) => {
@@ -430,10 +421,8 @@ export const measureText = ({
   const lineGap = height - (fontBoundingBoxAscent + fontBoundingBoxDescent);
 
   const lines = text.split("\n");
-  const maxWidth = lines.reduce((currentMaxWidth, currentText) => {
-    const { width } = ctx.measureText(currentText);
-    return Math.max(currentMaxWidth, width);
-  }, 0);
+  const widths = lines.map((text) => ctx.measureText(text).width);
+  const maxWidth = Math.max(...widths);
 
   const devicePixelRatio = calculateDevicePixelRatio(canvasElement);
 
@@ -581,7 +570,7 @@ export const createElement = ({
         }
         return undefined;
       })
-      .filter(isDefined)
+      .filter(Boolean)
   );
 
   if (isGenericElementShape(elementShape)) {
@@ -648,10 +637,6 @@ export const createRandomSeed = (existingSeeds: Set<number>) => {
   } while (existingSeeds.has(randomSeed));
 
   return randomSeed;
-};
-
-const isDefined = <T>(argument: T | undefined | null): argument is T => {
-  return argument !== undefined && argument !== null;
 };
 
 // https://user-images.githubusercontent.com/70563791/218030908-1405ee82-638b-4885-89f2-f72329dc55b7.png

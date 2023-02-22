@@ -1,3 +1,5 @@
+import "@total-typescript/ts-reset";
+
 import { useMachine } from "@xstate/react";
 import {
   MouseEventHandler,
@@ -227,6 +229,7 @@ function App() {
         } else if (event.key === "v") {
           send({
             type: "SELECTED_ELEMENTS.PASTE",
+            canvasElement,
           });
         } else if (event.key === "x") {
           send("SELECTED_ELEMENTS.CUT");
@@ -246,12 +249,15 @@ function App() {
             type: "HISTORY_UPDATE",
             changedStep: -1,
           });
+        } else if (event.key === "a") {
+          event.preventDefault();
+          send({
+            type: "ELEMENTS.SELECT_ALL",
+          });
         }
       }
 
-      const isShapeChangeHotKeys = Object.values(HOT_KEYS).includes(
-        event.key as HOT_KEY
-      );
+      const isShapeChangeHotKeys = Object.values(HOT_KEYS).includes(event.key);
       if (!isShapeChangeHotKeys) {
         return;
       }
