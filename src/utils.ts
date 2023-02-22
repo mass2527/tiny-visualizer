@@ -111,14 +111,14 @@ const calculateLinearElementAbsolutePoint = (
   element: VisualizerLinearElement
 ) => {
   return element.changesInPoint.reduce(
-    (result, changeInPoint) => {
+    (accumulator, changeInPoint) => {
       const [changeInX, changeInY] = changeInPoint;
 
       return {
-        minX: Math.min(result.minX, element.x + changeInX),
-        minY: Math.min(result.minY, element.y + changeInY),
-        maxX: Math.max(result.maxX, element.x + changeInX),
-        maxY: Math.max(result.maxY, element.y + changeInY),
+        minX: Math.min(accumulator.minX, element.x + changeInX),
+        minY: Math.min(accumulator.minY, element.y + changeInY),
+        maxX: Math.max(accumulator.maxX, element.x + changeInX),
+        maxY: Math.max(accumulator.maxY, element.y + changeInY),
       };
     },
     {
@@ -134,14 +134,14 @@ export const calculateFreeDrawElementAbsolutePoint = (
   element: VisualizerFreeDrawElement
 ) => {
   return element.changesInPoint.reduce(
-    (result, changeInPoint) => {
+    (accumulator, changeInPoint) => {
       const [changeInX, changeInY] = changeInPoint;
 
       return {
-        minX: Math.min(result.minX, element.x + changeInX),
-        minY: Math.min(result.minY, element.y + changeInY),
-        maxX: Math.max(result.maxX, element.x + changeInX),
-        maxY: Math.max(result.maxY, element.y + changeInY),
+        minX: Math.min(accumulator.minX, element.x + changeInX),
+        minY: Math.min(accumulator.minY, element.y + changeInY),
+        maxX: Math.max(accumulator.maxX, element.x + changeInX),
+        maxY: Math.max(accumulator.maxY, element.y + changeInY),
       };
     },
     {
@@ -166,14 +166,14 @@ export const calculateElementsAbsolutePoint = (
   elements: VisualizerElement[]
 ) => {
   return elements.reduce(
-    (result, copiedElement) => {
-      const elementAbsolutePoint = calculateElementAbsolutePoint(copiedElement);
+    (accumulator, element) => {
+      const elementAbsolutePoint = calculateElementAbsolutePoint(element);
 
       return {
-        minX: Math.min(result.minX, elementAbsolutePoint.minX),
-        maxX: Math.max(result.maxX, elementAbsolutePoint.maxX),
-        minY: Math.min(result.minY, elementAbsolutePoint.minY),
-        maxY: Math.max(result.maxY, elementAbsolutePoint.maxY),
+        minX: Math.min(accumulator.minX, elementAbsolutePoint.minX),
+        maxX: Math.max(accumulator.maxX, elementAbsolutePoint.maxX),
+        minY: Math.min(accumulator.minY, elementAbsolutePoint.minY),
+        maxY: Math.max(accumulator.maxY, elementAbsolutePoint.maxY),
       };
     },
     {
