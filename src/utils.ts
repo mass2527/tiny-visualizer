@@ -570,7 +570,7 @@ export const createElement = ({
         }
         return undefined;
       })
-      .filter(isDefined)
+      .filter(Boolean)
   );
 
   if (isGenericElementShape(elementShape)) {
@@ -637,10 +637,6 @@ export const createRandomSeed = (existingSeeds: Set<number>) => {
   } while (existingSeeds.has(randomSeed));
 
   return randomSeed;
-};
-
-const isDefined = <T>(argument: T | undefined | null): argument is T => {
-  return argument !== undefined && argument !== null;
 };
 
 // https://user-images.githubusercontent.com/70563791/218030908-1405ee82-638b-4885-89f2-f72329dc55b7.png

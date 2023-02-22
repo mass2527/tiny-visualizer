@@ -251,14 +251,12 @@ function App() {
         }
       }
 
-      const isShapeChangeHotKeys = Object.values(HOT_KEYS).includes(
-        event.key as HOT_KEY
-      );
+      const isShapeChangeHotKeys = Object.values(HOT_KEYS).includes(event.key);
       if (!isShapeChangeHotKeys) {
         return;
       }
 
-      const updatedElementShape = Object.entries(HOT_KEYS).find(
+      const updatedElementShape = Object.keys(HOT_KEYS).find(
         ([, hotkey]) => hotkey === event.key
       )![0];
 
