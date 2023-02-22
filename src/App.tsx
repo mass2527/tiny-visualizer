@@ -248,6 +248,11 @@ function App() {
             type: "HISTORY_UPDATE",
             changedStep: -1,
           });
+        } else if (event.key === "a") {
+          event.preventDefault();
+          send({
+            type: "ELEMENTS.SELECT_ALL",
+          });
         }
       }
 
@@ -256,7 +261,7 @@ function App() {
         return;
       }
 
-      const updatedElementShape = Object.keys(HOT_KEYS).find(
+      const updatedElementShape = Object.entries(HOT_KEYS).find(
         ([, hotkey]) => hotkey === event.key
       )![0];
 

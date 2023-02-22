@@ -79,12 +79,14 @@ export interface Typegen0 {
       | "CHANGE_ELEMENT_SHAPE"
       | "CHANGE_ZOOM"
       | "CHANGE_ZOOM_WITH_PINCH"
+      | "ELEMENTS.SELECT_ALL"
       | "HISTORY_UPDATE"
       | "IS_ELEMENT_SHAPE_FIXED_TOGGLE"
       | "PAN"
       | "done.invoke.visualizer machine.copying:invocation[0]"
       | "done.invoke.visualizer machine.cutting:invocation[0]";
     resetDrawingElementId: "DELETE_SELECTION" | "DRAW_END" | "WRITE_END";
+    selectAllElements: "ELEMENTS.SELECT_ALL";
     selectDrawingElement: "DRAW_END" | "WRITE_END";
     toggleIsElementShapeFixed: "IS_ELEMENT_SHAPE_FIXED_TOGGLE";
     unselectElements: "CHANGE_ELEMENT_SHAPE" | "DRAW_START";

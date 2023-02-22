@@ -218,5 +218,8 @@ export type VisualizerMachineEvents =
       type: "WRITE_END";
       text: string;
       canvasElement: HTMLCanvasElement;
+    }
+  | {
+      type: "ELEMENTS.SELECT_ALL";
     };
 /* #endregion */
