@@ -1,3 +1,5 @@
+import "@total-typescript/ts-reset";
+
 import { useMachine } from "@xstate/react";
 import {
   MouseEventHandler,
