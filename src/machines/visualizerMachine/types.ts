@@ -174,6 +174,7 @@ export type VisualizerMachineEvents =
     }
   | {
       type: "SELECTED_ELEMENTS.PASTE";
+      canvasElement: HTMLCanvasElement;
     }
   | {
       type: "MOUSE_MOVE";

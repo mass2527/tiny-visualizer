@@ -24,6 +24,7 @@ import {
   VisualizerElement,
   VisualizerMachineContext,
   VisualizerMachineEvents,
+  VisualizerTextElement,
 } from "./types";
 import { PERSISTED_CONTEXT } from "./constant";
 
@@ -44,7 +45,7 @@ export const visualizerMachine =
         events: {} as VisualizerMachineEvents,
         services: {} as {
           readClipboardText: {
-            data: { clipText: string };
+            data: { clipText: string; canvasElement: HTMLCanvasElement };
           };
           copySelectedElements: {
             data: void;
@@ -452,44 +453,77 @@ export const visualizerMachine =
             }),
           };
         }),
-        pasteSelectedElements: assign((context, event) => {
-          // TODO: refactor using zod
-          const { elements } = JSON.parse(event.data.clipText) as {
-            elements: VisualizerElement[];
-          };
-          const absolutePoint = calculateElementsAbsolutePoint(elements);
-          const centerPoint = calculateCenterPoint(absolutePoint);
-          const copiedElements = elements.map((copiedElement) => {
-            const centerX = copiedElement.x + copiedElement.width / 2;
-            const centerY = copiedElement.y + copiedElement.height / 2;
+        pasteSelectedElements: assign((context, { data }) => {
+          try {
+            const { elements } = JSON.parse(data.clipText) as {
+              elements: VisualizerElement[];
+            };
+            const absolutePoint = calculateElementsAbsolutePoint(elements);
+            const centerPoint = calculateCenterPoint(absolutePoint);
+            const copiedElements = elements.map((copiedElement) => {
+              const centerX = copiedElement.x + copiedElement.width / 2;
+              const centerY = copiedElement.y + copiedElement.height / 2;
+
+              return {
+                ...copiedElement,
+                id: uuidv4(),
+                x:
+                  context.currentPoint.x -
+                  copiedElement.width / 2 +
+                  centerX -
+                  centerPoint.x,
+                y:
+                  context.currentPoint.y -
+                  copiedElement.height / 2 +
+                  centerY -
+                  centerPoint.y,
+              };
+            });
 
             return {
-              ...copiedElement,
-              id: uuidv4(),
-              x:
-                context.currentPoint.x -
-                copiedElement.width / 2 +
-                centerX -
-                centerPoint.x,
-              y:
-                context.currentPoint.y -
-                copiedElement.height / 2 +
-                centerY -
-                centerPoint.y,
+              elements: [
+                ...context.elements.map((element) => {
+                  return {
+                    ...element,
+                    isSelected: false,
+                  };
+                }),
+                ...copiedElements,
+              ],
             };
-          });
+          } catch (error) {
+            console.error(error);
 
-          return {
-            elements: [
-              ...context.elements.map((element) => {
-                return {
-                  ...element,
-                  isSelected: false,
-                };
-              }),
-              ...copiedElements,
-            ],
-          };
+            const { fontFamily, fontSize } = context.elementOptions;
+            const text = data.clipText;
+
+            const { width, height } = measureText({
+              fontFamily,
+              fontSize,
+              lineHeight: TEXTAREA_UNIT_LESS_LINE_HEIGHT,
+              text,
+              canvasElement: data.canvasElement,
+            });
+
+            const textElement: VisualizerTextElement = {
+              id: uuidv4(),
+              shape: "text",
+              text,
+              x: context.currentPoint.x,
+              y: context.currentPoint.y,
+              fontFamily,
+              fontSize,
+              isSelected: true,
+              isDeleted: false,
+              options: context.elementOptions,
+              width,
+              height,
+            };
+
+            return {
+              elements: [...context.elements, textElement],
+            };
+          }
         }),
         assignCurrentPoint: assign((context, { devicePixelRatio, event }) => {
           const currentPoint = calculateCanvasPoint({
@@ -664,11 +698,12 @@ export const visualizerMachine =
         },
       },
       services: {
-        readClipboardText: async () => {
+        readClipboardText: async (_, { canvasElement }) => {
           const clipText = await navigator.clipboard.readText();
 
           return {
             clipText,
+            canvasElement,
           };
         },
         copySelectedElements: async (context) => {

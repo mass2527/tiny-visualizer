@@ -229,6 +229,7 @@ function App() {
         } else if (event.key === "v") {
           send({
             type: "SELECTED_ELEMENTS.PASTE",
+            canvasElement,
           });
         } else if (event.key === "x") {
           send("SELECTED_ELEMENTS.CUT");
