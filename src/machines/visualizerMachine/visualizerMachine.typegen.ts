@@ -60,6 +60,7 @@ export interface Typegen0 {
     assignZoom: "CHANGE_ZOOM";
     assignZoomToCurrentPoint: "CHANGE_ZOOM_WITH_PINCH";
     changeElementShape: "CHANGE_ELEMENT_SHAPE";
+    connect: "CONNECT";
     deleteSelectedElements:
       | "SELECTED_ELEMENTS.DELETE"
       | "done.invoke.visualizer machine.cutting:invocation[0]";
@@ -67,6 +68,7 @@ export interface Typegen0 {
     drag: "DRAG" | "DRAG_END";
     draw: "DRAW" | "DRAW_END";
     editWrite: "WRITE_EDIT";
+    endConnect: "CONNECT";
     loadSavedContext: "xstate.init";
     logError:
       | "error.platform.visualizer machine.copying:invocation[0]"
@@ -86,12 +88,16 @@ export interface Typegen0 {
       | "WRITE"
       | "done.invoke.visualizer machine.copying:invocation[0]"
       | "done.invoke.visualizer machine.cutting:invocation[0]";
-    resetDrawingElementId: "DELETE_SELECTION" | "DRAW_END" | "WRITE_END";
+    resetDrawingElementId:
+      | "CONNECT"
+      | "DELETE_SELECTION"
+      | "DRAW_END"
+      | "WRITE_END";
     selectAllElements: "ELEMENTS.SELECT_ALL";
-    selectDrawingElement: "DRAW_END" | "WRITE_END";
+    selectDrawingElement: "CONNECT" | "DRAW_END" | "WRITE_END";
     toggleIsElementShapeFixed: "IS_ELEMENT_SHAPE_FIXED_TOGGLE";
     unselectElements: "CHANGE_ELEMENT_SHAPE" | "DRAW_START";
-    updateElementShape: "DRAW_END" | "WRITE_END";
+    updateElementShape: "CONNECT" | "DRAW_END" | "WRITE_END";
     updateHistory: "HISTORY_UPDATE";
     updateIntersecting: "DRAW" | "DRAW_END";
     write: "WRITE";
@@ -99,12 +105,14 @@ export interface Typegen0 {
   eventsCausingDelays: {};
   eventsCausingGuards: {
     canEditText: "WRITE_EDIT";
+    shouldConnect: "CONNECT";
   };
   eventsCausingServices: {
     copySelectedElements: "SELECTED_ELEMENTS.COPY" | "SELECTED_ELEMENTS.CUT";
     readClipboardText: "SELECTED_ELEMENTS.PASTE";
   };
   matchesStates:
+    | "connecting"
     | "copying"
     | "cutting"
     | "dragging"

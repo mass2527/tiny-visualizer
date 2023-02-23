@@ -17,10 +17,14 @@ import {
   calculateClientPoint,
   measureText,
   calculateChangeInPointOnZoom,
+  setLastItem,
+  calculatePointCloseness,
+  getClosenessThreshold,
 } from "../../utils";
 import debounce from "lodash.debounce";
 import { TEXTAREA_UNIT_LESS_LINE_HEIGHT } from "../../constants";
 import {
+  ChangeInPoint,
   VisualizerElement,
   VisualizerMachineContext,
   VisualizerMachineEvents,
@@ -29,7 +33,7 @@ import {
 import { PERSISTED_CONTEXT } from "./constant";
 
 export const visualizerMachine =
-  /** @xstate-layout N4IgpgJg5mDOIC5QDcCWsCuBDANqgXmAE4AEAtlgMYAWqAdmAHSoQ5gDEAIgEoCCA6gH0AygBVe3UQG0ADAF1EoAA4B7WKgAuqFXUUgAHogDsMo4wCcARgAsM60fNGArADYnlgMwAaEAE9EAEwBboyWlkYeph7W5gAcDtYAvok+aJi4BMTkVLQMzKwcAMIAErwAcgDiAKKCVQAyVQCyVWWiIqUAClWyCkggqupaOnqGCCZmVrb2jq7u3n6BMjKMRjGOAbHmLjLm1k7JqejYeISkFDT0TCxsXHwVIuKSPXoDmtq6faPjFjZ2Ds5uTw+fwISyxcGMGROawucweYIBMLmA4gNLHTJnHKXfI3YT1KqFURVTi1BrNVrCRicfFE559V5DD6gL6mH5Tf6zIELUFOJzLSzmdzbWLWDxGcWxFFojKnbIXPLXDh4hqE4mkpotUSUwoAeQ6AE06co1G9hp9jKzJn8ZoD5iDYQFGE4PFYoryAuZzAEpUcZVlzrkrgV2MqCUSSfjyVrGB1eGJuvIXibGSMLRNftMAXNgYhPAFlgFrEFLE4jIjYh5Nj70id-ViFcHGjqAKp4wRNgBqCd6xsG71TCDFlkYew8nlMoqcFZc1hzCERW1CMUrsXLO2d1fRsoD2MV7AAksJ1VH2rwuoIAGL7gAaatEOoqFQaRv6yf75rGlozHNtc-h1lCVwAg8XktliFxYksTc-UxeUg1xfFVQjMlNW1ZtpETek3zNZk0zZa0sy5EFLBkDwPBWItEV5eIXHCIxoNrWDAxxIpSkqGpI01QQ9VEfcdTKYQXwZd9cM-dN2RtbNuUsGcXEYGcKycREZE8QUGIxOVmL3EpymqQQAC0dR1RohOwpkDDwq1M05O1ECLZZtjhB0tncLZ1O3et4NY3SakM4zBH4fdRGKQQOn3MoSlMvscIssT8Os39uXcMwZBcAJXChaFPAg9y6zglj2FjMootNczRnS1YnVXewRWsWJnWdOdC0q51K1FVYIiMKCUlRX1GM03dg2KQ9724fVBGbDpOF4WlMN7UqB2+Kyfyk4jRwo-MRRMfMrHonrpX6ncGxufhuCCmoxAkDCe1faKytzGREUhF13A2JZaKapZHUiUUNnBKFCw8XKmMGm5OIpRhQ0JQReDqOoSpTD8bHsCwyJnUxNkrSsmt2cix2CGJwNXVKgf2vqNKOrz2FO87ak4IKEZE2KK1iRh-1hQV-vcJw5zo8xQhccUthsQWINJw4awpzzGAgIgsAAd3oKBbgERmYtGMIuqqvlgJkcENhcFwmoFfnnFSqcaq24GBryWWFaVlWhBaTg1fu0FIlZpYHEe2IlnsAIjCajZhx2SsuvquxrG6iWtzy5i7cVuhlepBoiRERDeP412B2J+TC0cExIM9WFjajlYSLiEwrBsa3KZluWoCgB2eF4Cps6R7YAJ+1YlMLGTHF5722dWCtghsAP0tr6W7cb5u7lqMoXbm26FqRiszHquFwIL0wwV5zYnDZv5SK6scwm9MnJY8-KcBULAIAd9vRODtnBYFd-dhFIOrDZpToXiOEexkSX1jiDPIShiDqFgFoJO7An6xSCHsFYfJSKGwgkEUwc5IIjk9IKMCWMyJ7RjjBG2TAE5KxICoUg8siBvCTiQMAdAICQDgcvYS6tczr0YJvSssJxS71iN-Q+HpYRpXSm4KsICSF12QJA94JAiBgDYFgWALD4HlULIfM2qDDarnzIHaSb9QiFiLrYfMYRJRSMOtLGhdDlY0zTs7dRuYPaQlMOYH2fsywGJBPmMcKxIJ-U2DsAO+wrFS3yrYmB9izqzRuuwt2YRYQ-EFuKcIsIxxG2kt4xgwR4QQXWC4ECSRwnX2YkoFR0T2AQB0FcOgyAVAAGsmAHQieUypSsED0AaZQLAjIejOPdnrNx3s3p-ADrzMc5EVLUQ9JYYIvtgHEOsflCp0CHbECIFQxgSgcB9IAGZULIIwVpZTsRrOiV0+pKhen9PkIM8cnt3GePGT43MwRD7czfp3HYqUp75U2VQkgt9Z6wIeTCR0q5ialkeo4L0vM6IWC9PmRydVoTi16lfOO2JKAqCUL4B2NSFTXOaSc8mZy8i4vxZ07pNy+nvAGWwsyA5HkjI8WM-2byECG2WEYYJcQ0oxAcEszFoDSGMCpQS2BgKiA7L2RoQ5RBjmnOxZSvFUqoBXJ6fSnQjL4nMqRq4r27LfavLnIXXJmwwhLBAh7DFKqwFMEoBgDQVSiV1IaaSh14rnWuppdc25DL7lMruiyo1zyOXeLnIKOSpFXRbTsHyFw-zmK+qqTKuVByjlkqxY6iVLrLm0sDbq4N+rQ2GuGcal5nLeZ2H5jEYs0RtjOkcMkHqdAVDMPgH0b1lMkzltEgAWiySCYdbililgFbsLqvIU2gzAP21eolKKow8MKA24JaJcqCI4eSj1J32FLPMkpyy2nYnIUnRdiNRIVw3kseq7IZzzKamOT29glipQWWRe15LVVkIbk3S9WEB2xRkrYbhQoQJehnM4cwvMrCsz5fMwWcRNiijnXkW+98lZXqZqMIsQdDYQfSrtPBIpk2lL-TsuR6ygPzWvQgysyxpypXZbYGwtluXRBHHVAURSix7Bkhh-99t6FAqiRQxhzCIC4Y4TyQWbISzhHLJooO1gAIOD4eBHY4EyLCZOXInQCilFgBUZAWTiTPTDgDiBOwbhK7pV5rJPOdVBWJrFPpiTdGV4MY1uEByLoiyG3SlHQR0l6pmEnKuEeeS1KUbzRcnDwGl2gbsAWEe8JwgVjCJx+Zu7CzFjhLvEs+mZXApUKCqAFmWVOE9COWidgCtR0iFysIooLBFjBLV+q8QT2iukdLSVSX6N4YemuyEJgQK0Xzuyucht+YtutcuFSex9NpuGz50boJUETdIq4Y9npHq1pIhtcxIF6okQo8kIAA */
+  /** @xstate-layout N4IgpgJg5mDOIC5QDcCWsCuBDANqgXmAE4AEAtlgMYAWqAdmAHSoQ5gDEAIgEoCCA6gH0AygBVe3UQG0ADAF1EoAA4B7WKgAuqFXUUgAHogDsMo4wCcARgAsM60fNGArADYnlgMwAaEAE9EAEwBboyWlkYeph7W5gAcDtYAvok+aJi4BMTkVLQMzKwcAMIAErwAcgDiAKKCVQAyVQCyVWWiIqUAClWyCkggqupaOnqGCCZmVrb2jq7u3n6BMjKMRjGOAbHmLjLm1k7JqejYeISkFDT0TCxsXHwVIuKSPXoDmtq6faPjFjZ2Ds5uTw+fwISyxcGMGROawucweYIBMLmA4gNLHTJnHKXfI3YT1KqFURVTi1BrNVrCRicfFE559V5DD6gL6mH5Tf6zIELUFOJzLSzmdzbWLWDxGcWxFFojKnbIXPLXDh4hqE4mkpotUSUwoAeQ6AE06co1G9hp9jKzJn8ZoD5iDYQFGE4PFYoryAuZzAEpUcZVlzrkrgV2MqCUSSfjyVrGB1eGJuvIXibGSMLRNftMAXNgYhPAFlgFrEFLE4jIjYh5Nj70id-ViFcHGjqAKp4wRNgBqCd6xsG71TCDFlkYew8nlMoqcFZc1hzCERW1CMUrsXLO2d1fRsoD2MV7AAksJ1VH2rwuoIAGL7gAaatEOoqFQaRv6yf75rGlozHNtc-h1lCVwAg8XktliFxYksTc-UxeUg1xfFVQjMlNW1ZtpETek3zNZk0zZa0sy5EFLBkDwPBWItEV5eIXHCIxoNrWDAxxIpSkqGpI01QQ9VEfcdTKYQXwZd9cM-dN2RtbNuUsGcXEYGcKycREZE8QUGIxOVmL3EpymqQQAC0dR1RohOwpkDDwq1M05O1ECLZZtjhB0tncLZ1O3et4NY3SakM4zBH4fdRGKQQOn3MoSlMvscIssT8Os39uXcMwZBcAJXChaFPAg9y6zglj2FjMootNczRnS1YnVXewRWsWJnWdOdC0q51K1FVYIiMKCUlRX1GM03dg2KQ9724fVBGbDpOF4WlMN7UqB2+Kyfyk4jRwo-MRRMfMrHonrpX6ncGxufhuCCmoxAkDCe1faKytzGREUhF13A2JZaKapZHUiUUNnBKFCw8XKmMGm5OIpRhQ0JQReDqOoSpTD8bHsCwyJnUxNkrSsmt2cix2CGJwNXVKgf2vqNKOrz2FO87ak4IKEZE2KK1iRh-1hQV-vcJw5zo8xQhccUthsQWINJw4awpzzGAgIgsAAd3oKBbgERmYtGMIuqqvlgJkcENhcFwmoFfnnFSqcaq24GBryWWFaVlWhBaTg1fu0FIlZpYHEe2IlnsAIjCajZhx2SsuvquxrG6iWtzy5i7cVuhlepBoiRERDeP412B2J+TC0cExIM9WFjajlYSLiEwrBsa3KZluXE+V3UyjKMMHiu7OkZJtmtjSrqnC9RFA+5dKZxHTHCxNjwZ32MnJY8-K7agKAHZ4XgKk70SZLsNm-j2IIo9hYfiO9tnVgrYIbAD9La+lpeV6TlX7mdzfYrBMVGHquFwIL0wwV5zYThd72FIl1McYRvRz1jiDPIOAVBYAgA7V+5VIJs0FgKDBuwRRBysGzJS0J4hwj2MiKBMEbZMCUMQdQsAtCP2QYEQsQCzakUNhBIIpg5yoLWIKMCWMyJ7RjmQuuCclYkBUKQeWRA3hJxIGAOgEBIDsHoaCCsZgv6ViPuMf+I8PRAI9LCNKo8pwkMEYdaWyAqHvBIEQMAbAsCwEUcog+TC+QsMNqufMx9czoNCIWIuth8xhElKQsx+VJHSOVjTNOL85q3QWkjD2kJTDmB9n7MsXj5ykWHEYSCf1Ng7ADrPUxUswlSNoZEs6s0brCXVrmGS-MrCC3FOEWEY4jbSXSYwYI8IILrBcCBJIISSnMSUPY8p7AIA6CuHQZAKgADWTADrDOxKMmhSsED0FmZQLAjIejKPHJ7ZJqS-gB15mOciKlqIeksMEX2JjerzzjissZDtiBEHEYwJQOAdkADNxFkEYEsheIyXlJw2TMlQ2zdnyH2Ykr2KS3onIyTckI3N0HbFsCklwt98pvPESQOBy8kGxJqW7EWjpVzE1LI9RwXpeZ0QsIPVKOw6rQnFg86B5DGCUBUEoXwDtJkKghQswF5NgXYh5Xy9ZmzIU7PeHsklZkBwHKSd7RF-sMmG2WDklJcQ0oxAcPcoFTy8iSv5Y-PFRBPnfI0H8ogALjUwKYGa6VEKoXyphYqu6yq4VHPVekuchcumbDCEsECHt2WOq5ZQDAGhxmCumbMkVUa64xrja6rZcqdAKuqUqhJetVUIt9kiucgo5KkVdFtOwfJsVDPFaa2N4zLXWt+f80VjynXcsbRm2V0K5CwoLfC45GreZ2H5jEYs0RtjOkcDi5iPK6AMEoOMte-B9k7AcqYd6MRBY+yasWp0IE4jgkLu4OdEqdBLvGc3VuhJYWeF3syuqldHpNUNqbKcwc7A7C6ue01l6wDLodjesMUhLC5u9Qkh9kQn2bHiK+kevsAKIl+A4WqXpSY9ToCoBR8A+gps8kmSDokAC07SQRkaSX7Q26UxyUsGcU+tXkiPxNEpRVG089YG3BLRDJQRHDyUeqWXYzguqFj-UwERScWOIy3j+z+Sx6rshnDcpqdHIQgPercsikaxUmsk3LIl0msLEbfujT+Qoj0E2cOYXmVhWY5JRWhzYooJOMDgQgpWMmmajCLEHQ2Fn0q7R4SKWtjH9OfMsWs4z81ZOxWAr7T+nHYSPVsDYWyCB+kAWsHVAUWXGEyTc1JqAYiJFlNEXIhREBvO1J5ILNkJZwjlkYUHHLKwtiOHAjscCZE3MWKIOoHQ1jbFgHsZAGrZLPTDgDiBOwbhK7pV5rJPOdV9XVrFG58J5SJvKvCA5F0RYaNZViAA0sI4QKrnPt0tSdaIurO2yZ1jb9v1dPPvCcIFYwgZZuQJwsxY4R-xLG5y1BKVBGagDtpGA9x20TsH9qOkRkXpYsEWMEA96rxAYxyoR0sXUxbiXFjWLDIQmBArRfOCK5zvsPdXMdkQbBFOx6E+d3b8ekuVcTrdZOblrAQ8RFS2rKIqQu+4VKbmF1Xq849wnD0IKf0Jl7PWz6eYj2W+HOqfw9a0WSMkIAA */
   createMachine(
     {
       id: "visualizer machine",
@@ -170,6 +174,8 @@ export const visualizerMachine =
               target: "idle",
               actions: ["deleteSelection", "resetDrawingElementId"],
             },
+
+            CONNECT_START: "connecting",
           },
         },
 
@@ -261,6 +267,29 @@ export const visualizerMachine =
             onError: "error logging",
           },
         },
+
+        connecting: {
+          on: {
+            DRAW: {
+              target: "connecting",
+              internal: true,
+              actions: ["draw"],
+            },
+
+            CONNECT: [
+              {
+                target: "connecting",
+                internal: true,
+                actions: "connect",
+                cond: "shouldConnect",
+              },
+              {
+                target: "drawing or writing ended",
+                actions: "endConnect",
+              },
+            ],
+          },
+        },
       },
 
       initial: "loading",
@@ -350,14 +379,21 @@ export const visualizerMachine =
                 }
 
                 if (isLinearElement(element)) {
+                  const changesInPoint: ChangeInPoint[] =
+                    element.changesInPoint.length === 1
+                      ? [
+                          [0, 0],
+                          [changeInX, changeInY],
+                        ]
+                      : setLastItem(element.changesInPoint, [
+                          changeInX,
+                          changeInY,
+                        ]);
                   return {
                     ...element,
                     width: Math.abs(changeInX),
                     height: Math.abs(changeInY),
-                    changesInPoint: [
-                      [0, 0],
-                      [changeInX, changeInY],
-                    ],
+                    changesInPoint,
                   };
                 }
 
@@ -378,6 +414,74 @@ export const visualizerMachine =
                 return element;
               }
 
+              return element;
+            }),
+          };
+        }),
+        connect: assign((context, { event }) => {
+          const currentPoint = calculateCanvasPoint({
+            devicePixelRatio,
+            event,
+            zoom: context.zoom,
+            origin: context.origin,
+          });
+
+          return {
+            elements: context.elements.map((element): VisualizerElement => {
+              if (element.id === context.drawingElementId) {
+                invariant(isLinearElement(element));
+
+                const changeInX = currentPoint.x - context.drawStartPoint.x;
+                const changeInY = currentPoint.y - context.drawStartPoint.y;
+
+                return {
+                  ...element,
+                  width: Math.abs(changeInX),
+                  height: Math.abs(changeInY),
+                  changesInPoint: [
+                    ...element.changesInPoint,
+                    [changeInX, changeInY],
+                  ],
+                };
+              }
+
+              return element;
+            }),
+          };
+        }),
+        endConnect: assign((context) => {
+          const drawingElement = context.elements.find(
+            (element) => element.id === context.drawingElementId
+          );
+          invariant(drawingElement);
+          invariant(isLinearElement(drawingElement));
+
+          const threshold = getClosenessThreshold(context.zoom);
+          const { areLastTwoPointsClose, isLastPointCloseToStartPoint } =
+            calculatePointCloseness(drawingElement, threshold);
+
+          return {
+            elements: context.elements.map((element) => {
+              if (element.id === context.drawingElementId) {
+                invariant(isLinearElement(element));
+
+                let changesInPoint: ChangeInPoint[];
+                if (isLastPointCloseToStartPoint) {
+                  changesInPoint = setLastItem(element.changesInPoint, [0, 0]);
+                } else if (areLastTwoPointsClose) {
+                  changesInPoint = element.changesInPoint.slice(
+                    0,
+                    element.changesInPoint.length - 1
+                  );
+                } else {
+                  changesInPoint = [...element.changesInPoint];
+                }
+
+                return {
+                  ...element,
+                  changesInPoint,
+                };
+              }
               return element;
             }),
           };
@@ -768,6 +872,23 @@ export const visualizerMachine =
           invariant(selectedElement);
 
           return selectedElement.shape === "text";
+        },
+        shouldConnect: (context) => {
+          const drawingElement = context.elements.find(
+            (element) => element.id === context.drawingElementId
+          );
+          invariant(drawingElement);
+          invariant(isLinearElement(drawingElement));
+
+          const threshold = getClosenessThreshold(context.zoom);
+          const { areLastTwoPointsClose, isLastPointCloseToStartPoint } =
+            calculatePointCloseness(drawingElement, threshold);
+
+          if (isLastPointCloseToStartPoint || areLastTwoPointsClose) {
+            return false;
+          }
+
+          return true;
         },
       },
     }

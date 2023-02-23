@@ -229,5 +229,15 @@ export type VisualizerMachineEvents =
   | {
       type: "WRITE_EDIT";
       canvasElement: HTMLCanvasElement;
+    }
+  | {
+      type: "CONNECT_START";
+    }
+  | {
+      type: "CONNECT";
+      event: Parameters<MouseEventHandler<HTMLCanvasElement>>[0];
+    }
+  | {
+      type: "CONNECT_END";
     };
 /* #endregion */

@@ -279,19 +279,31 @@ export const createDraw = (
     };
   } else if (isLinearElement(element)) {
     if (element.shape === "line") {
-      const point = element.changesInPoint[element.changesInPoint.length - 1];
-      invariant(point);
+      const drawables: Drawable[] = [];
+      const startPoint = {
+        x: element.x,
+        y: element.y,
+      };
 
-      const [changeInX, changeInY] = point;
-      const lineDrawable = generator.line(
-        element.x,
-        element.y,
-        element.x + changeInX,
-        element.y + changeInY,
-        { ...element.options, seed: element.seed }
-      );
+      for (const changeInPoint of element.changesInPoint) {
+        const [changeInX, changeInY] = changeInPoint;
+        const lineDrawable = generator.line(
+          startPoint.x,
+          startPoint.y,
+          element.x + changeInX,
+          element.y + changeInY,
+          { ...element.options, seed: element.seed }
+        );
+        drawables.push(lineDrawable);
+
+        startPoint.x = element.x + changeInX;
+        startPoint.y = element.y + changeInY;
+      }
+
       return () => {
-        roughCanvas.draw(lineDrawable);
+        drawables.forEach((drawable) => {
+          roughCanvas.draw(drawable);
+        });
       };
     } else {
       const distance = calculateDistance(element.width, element.height);
@@ -655,4 +667,39 @@ export const calculateChangeInPointOnZoom = ({
     changeInX: targetPoint.x * changeInZoom,
     changeInY: targetPoint.y * changeInZoom,
   };
+};
+
+export const setLastItem = <T>(array: T[], item: T) => {
+  return [...array.slice(0, array.length - 1), item];
+};
+
+export const calculatePointCloseness = (
+  linearElement: VisualizerLinearElement,
+  threshold: number
+) => {
+  const { changesInPoint } = linearElement;
+  const lastPoint = changesInPoint[changesInPoint.length - 1];
+  invariant(lastPoint);
+  const secondLastPoint = changesInPoint[changesInPoint.length - 2];
+  invariant(secondLastPoint);
+
+  const distanceBetweenLastAndStartPoint = calculateDistance(
+    lastPoint[0],
+    lastPoint[1]
+  );
+  const distanceBetweenLastTwoPoints = calculateDistance(
+    lastPoint[0] - secondLastPoint[0],
+    lastPoint[1] - secondLastPoint[1]
+  );
+
+  return {
+    isLastPointCloseToStartPoint: distanceBetweenLastAndStartPoint <= threshold,
+    areLastTwoPointsClose: distanceBetweenLastTwoPoints <= threshold,
+  };
+};
+
+export const getClosenessThreshold = (
+  zoom: VisualizerMachineContext["zoom"]
+) => {
+  return 10 / zoom;
 };
