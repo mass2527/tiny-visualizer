@@ -66,7 +66,7 @@ export interface Typegen0 {
     deleteSelection: "DELETE_SELECTION";
     drag: "DRAG" | "DRAG_END";
     draw: "DRAW" | "DRAW_END";
-    endWrite: "WRITE_END";
+    editWrite: "WRITE_EDIT";
     loadSavedContext: "xstate.init";
     logError:
       | "error.platform.visualizer machine.copying:invocation[0]"
@@ -83,6 +83,7 @@ export interface Typegen0 {
       | "HISTORY_UPDATE"
       | "IS_ELEMENT_SHAPE_FIXED_TOGGLE"
       | "PAN"
+      | "WRITE"
       | "done.invoke.visualizer machine.copying:invocation[0]"
       | "done.invoke.visualizer machine.cutting:invocation[0]";
     resetDrawingElementId: "DELETE_SELECTION" | "DRAW_END" | "WRITE_END";
@@ -93,9 +94,12 @@ export interface Typegen0 {
     updateElementShape: "DRAW_END" | "WRITE_END";
     updateHistory: "HISTORY_UPDATE";
     updateIntersecting: "DRAW" | "DRAW_END";
+    write: "WRITE";
   };
   eventsCausingDelays: {};
-  eventsCausingGuards: {};
+  eventsCausingGuards: {
+    canEditText: "WRITE_EDIT";
+  };
   eventsCausingServices: {
     copySelectedElements: "SELECTED_ELEMENTS.COPY" | "SELECTED_ELEMENTS.CUT";
     readClipboardText: "SELECTED_ELEMENTS.PASTE";

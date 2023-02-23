@@ -24,7 +24,6 @@ import {
 import {
   Fill_STYLE_OPTIONS,
   FONT_SIZE_OPTIONS,
-  HOT_KEY,
   HOT_KEYS,
   LABELS,
   ROUGHNESS_OPTIONS,
@@ -51,6 +50,7 @@ function App() {
   const windowSize = useWindowSize();
   const devicePixelRatio = useDevicePixelRatio();
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const initialTextRef = useRef("");
   const [state, send] = useMachine(visualizerMachine, {
     actions: {
       loadSavedContext: assign(() => {
@@ -106,10 +106,21 @@ function App() {
     origin,
     zoom,
   });
-
   const drawingElement = elements.find(
     (element) => element.id === drawingElementId
   );
+
+  const isWritingState = state.matches("writing");
+
+  if (state.event.type === "WRITE_EDIT" && drawingElement?.shape === "text") {
+    initialTextRef.current = drawingElement.text;
+  }
+
+  const endWrite = useCallback(() => {
+    send("WRITE_END");
+    initialTextRef.current = "";
+  }, [send]);
+
   const selectedElements = elements.filter((element) => element.isSelected);
 
   const updateZoom = useCallback(
@@ -147,10 +158,21 @@ function App() {
     ctx.clearRect(0, 0, canvasElementSize.width, canvasElementSize.height);
 
     const drawnElements = elements.filter((element) => !element.isDeleted);
-    drawnElements.forEach((element) => {
+    for (const element of drawnElements) {
       ctx.save();
       ctx.translate(origin.x, origin.y);
       ctx.scale(zoom, zoom);
+
+      const drawingElement = elements.find(
+        (element) => element.id === drawingElementId
+      );
+      if (
+        isWritingState &&
+        drawingElement?.shape === "text" &&
+        drawingElementId === element.id
+      ) {
+        continue;
+      }
 
       const drawElement = createDraw(element, canvasElement);
       drawElement();
@@ -168,8 +190,16 @@ function App() {
       }
 
       ctx.restore();
-    });
-  }, [elements, origin, zoom, windowSize, devicePixelRatio]);
+    }
+  }, [
+    elements,
+    origin,
+    zoom,
+    windowSize,
+    devicePixelRatio,
+    drawingElementId,
+    isWritingState,
+  ]);
 
   useEffect(() => {
     const handleWheel = (event: WheelEvent) => {
@@ -220,6 +250,12 @@ function App() {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Backspace") {
         send("SELECTED_ELEMENTS.DELETE");
+        return;
+      } else if (event.key === "Enter") {
+        send({ type: "WRITE_EDIT", canvasElement });
+        return;
+      } else if (event.key === "Escape") {
+        endWrite();
         return;
       }
 
@@ -276,7 +312,7 @@ function App() {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [send, updateZoom]);
+  }, [send, updateZoom, endWrite]);
 
   useEffect(() => {
     if (elementShape === "selection") {
@@ -679,11 +715,11 @@ function App() {
               outline: 0,
               border: 0,
               overflow: "hidden",
-              whiteSpace: "nowrap",
+              whiteSpace: "pre-wrap",
               backgroundColor: "transparent",
               resize: "none",
               // initialize width = '1px' to show input caret
-              width: 1,
+              width: drawingElement.text === "" ? 1 : "auto",
               maxWidth: (windowSize.width - drawStartViewportPoint.x) / zoom,
               maxHeight: Math.max(
                 (windowSize.height -
@@ -698,38 +734,49 @@ function App() {
                 -(drawingElement.fontSize * TEXTAREA_UNIT_LESS_LINE_HEIGHT) / 2
               }px)`,
             }}
-            onBlur={(event) => {
-              const canvasElement = canvasRef.current;
-              invariant(canvasElement);
-
-              send({
-                type: "WRITE_END",
-                text: event.currentTarget.innerText,
-                canvasElement,
-              });
-            }}
-            onKeyDown={(event) => {
-              const canvasElement = canvasRef.current;
-              invariant(canvasElement);
-
-              if (event.key === "Escape") {
-                send({
-                  type: "WRITE_END",
-                  text: event.currentTarget.innerText,
-                  canvasElement,
-                });
-              }
+            onBlur={() => {
+              endWrite();
             }}
             onInput={(event) => {
-              const editableElement = event.currentTarget;
+              const canvasElement = canvasRef.current;
+              invariant(canvasElement);
 
+              const editableElement = event.currentTarget;
               if (editableElement.innerText === "") {
                 editableElement.style.width = "1px";
               } else {
                 editableElement.style.width = "auto";
               }
+
+              send({
+                type: "WRITE",
+                canvasElement,
+                text: editableElement.innerText,
+              });
             }}
-          />
+            onFocus={(event) => {
+              const editableElement = event.currentTarget;
+              if (editableElement.innerText.length === 0) {
+                return;
+              }
+
+              const range = document.createRange();
+              range.selectNodeContents(editableElement);
+
+              const selection = window.getSelection();
+              if (selection === null) {
+                return;
+              }
+
+              if (selection.rangeCount > 0) {
+                selection.removeAllRanges();
+              }
+              selection.addRange(range);
+            }}
+            suppressContentEditableWarning
+          >
+            {initialTextRef.current}
+          </div>
         )}
     </div>
   );
