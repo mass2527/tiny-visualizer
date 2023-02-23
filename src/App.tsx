@@ -716,7 +716,7 @@ function App() {
               outline: 0,
               border: 0,
               overflow: "hidden",
-              whiteSpace: "pre-wrap",
+              whiteSpace: "pre",
               backgroundColor: "transparent",
               resize: "none",
               // initialize width = '1px' to show input caret
