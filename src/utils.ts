@@ -437,7 +437,7 @@ export const measureText = ({
   };
 };
 
-const calculateDevicePixelRatio = (canvasElement: HTMLCanvasElement) => {
+export const calculateDevicePixelRatio = (canvasElement: HTMLCanvasElement) => {
   return canvasElement.width / parseInt(canvasElement.style.width);
 };
 

@@ -29,7 +29,7 @@ import {
 import { PERSISTED_CONTEXT } from "./constant";
 
 export const visualizerMachine =
-  /** @xstate-layout N4IgpgJg5mDOIC5QDcCWsCuBDANqgXmAE4AEAtlgMYAWqAdmAHSoQ5gDEAIgEoCCA6gH0AygBVe3UQG0ADAF1EoAA4B7WKgAuqFXUUgAHogDsMo4wCcARgAsM60fNGArADYnlgMwAaEAE9EAEwBboyWlkYeph7W5gAcDtYAvok+aJi4BMTkVLQMzKwcAMIAErwAcgDiAKKCVQAyVQCyVWWiIqUAClWyCkggqupaOnqGCCZmVrb2jq7u3n6BMjKMRjGOAbHmLjLm1k7JqejYeISkFDT0TCxsXHwVIuKSPXoDmtq6faPjFjZ2Ds5uTw+fwISyxcGMGROawucweYIBMLmA4gNLHTJnHKXfI3YT1KqFURVTi1BrNVrCRicfFE559V5DD6gL6mH5Tf6zIELUFOJzLSzmdzbWLWDxGcWxFFojKnbIXPLXDh4hqE4mkpotUSUwoAeQ6AE06co1G9hp9jKzJn8ZoD5iDYQFGE4PFYoryAuZzAEpUcZVlzrkrgV2MqCUSSfjyVrGB1eGJuvIXibGSMLRNftMAXNgYhPAFlgFrEFLE4jIjYh5Nj70id-ViFcHGjqAKp4wRNgBqCd6xsG71TCDFlkYew8nlMoqcFZc1hzCERW1CMUrsXLO2d1fRsoD2MV7AAksJ1VH2rwuoIAGL7gAaatEOoqFQaRv6yf75rGlozHNtc-h1lCVwAg8XktliFxYksTc-UxeUg1xfFVQjMlNW1ZtpETek3zNZk0zZa0sy5EFLBkDwPBWItEV5eIXHCIxoNrWDAxxIpSkqGpI01QQ9VEfcdTKYQXwZd9cM-dN2RtbNuUsGcXEYGcKycREZE8QUGIxOVmL3EpymqQQAC0dR1RohOwpkDDwq1M05O1ECLZZtjhB0tncLZ1O3et4NY3SakM4zBH4fdRGKQQOn3MoSlMvscIssT8Os39uXcMwZBcAJXChaFPAg9y6zglj2FjMootNczRnS1YnVXewRWsWJnWdOdC0q51K1FVYIiMKCUlRX1GM03dg2KQ9724fVBGbDpOF4WlMN7UqB2+Kyfyk4jRwo-MRRMfMrHonrpX6ncGxufhuCCmoxAkDCe1faKyss79JKIxYwUYSIaoFOqyO9fa+o0o6mAgIgsAAd3oKBbgEEqUw-EjaPk-5xXCGFESasFzHk2wINI7Hdg8XKmOxIHQfByGhBaThoZE2Lx1iSFTHMGQNiWewAiMJqNmHHZKy6+q7GsbrDhrf7PMYYmwboCHqQaIkREQ3j+KpmLRlXBzC0cExIM9WE0YFlYSLiEwrBsAmBryYmoCgUmeF4Colfu0FtgA97ViUwsZMcOdwkZt7VgrYIbDZ9LTYBsXgct627lqMpKbm26FthiszHquFwI10wwS9zYnDev5SK6scwh+oWtzy5icBULAIFJ+2B05t6XC6qxm7q2duSCKw3qU6F4jhPZkV+4WPPypRiHUWAtEl9ha4-II9hWPkcZcCCglMOdIJHT1BTAysyLFEPRfF8GSBUUgQaIN5JZIMA6AgSBp7j4TldzJPGBTytYXFDPYg5wVGA9WEaV0puCrIPUuhM8jIDHu8EgRAwBsCwLAe+M9RJzxzs4JYHhl4r3zOzaSjdhyWELFrWw+YwiSjATBM2TBz6Xwhqdc60dY43Sfg7Wm9MHBM1iCzMseCQT5jHCsSCGxwSMy9M4A+I9EGTwhhAHQVw6DIBUAAayYAdEWUiJ7gwQPQJRlAsCMh6CgmmkQ6ZLE4czP4bMvZjnIipaiHoiG40kcxJQ0jSbECIKfRgSgcAGIAGanzIIwdRw9XHuMljoxRKh9GGPkMY0Y7DzGM0sazPhuZgg53cK4LqTsdipRcdiTxp8SAVwjlPBJuYUZvw2PmUsTNHBei9nRCwXp8yOTqtCfGlDDqi0oCoJQvhSZyIVNE1RIS-phOxP0wZ2jdExIMe8Ixj8zIDiSQzLhPDrHcmXssIwmwdjgXVg4AeJcqGhxmUMqexSiA+L8RoQJRBgmhLLtMgZVyoBRL0YsnQyyWGrNhqYjhKTuFWPSZ+OmGxjaYOdDICshS8iUAwBoGR7ARkKKUeMl5ECmBIpRXM6JsSlnxJWXdNZQLkmbLBXOQUclSKui2nYPkLgEW4uRaim5dyAlBImUPV5iL2UEu+XEuQlTQQUo2ak3hXs7AYxiMWaI2xnSOFZQVTiFJGChkJIIXgdQ6hipsPYCwZEZymE2LvH+7c8ZvScTEcCqsXDdJ6nQFQd94B9GxdQpMZKPwAFoXBzn9fTJYApU7OhkkEVVipvUJ1EpRY1WC4UbAguBcIv8zDbAqrsZwXVCyqqPpLGNMNRIG2Tkseq7IZxEKamOMx9glipWCBWMi+bw5W0LVhH1JbTVvyFCBL0M5nDmC9lYOm+ynEOFEaKVVFcq7gyLdTUYRYObL17elXa28RQsp6Ro1x0CtEdvmsW2KwFuFv0TbCJmtgbC2QQI6gC1g6oCnvYWIUraSZXxKbQmR19b6QAXc-Hkjc2QlnCOWV9HNH0rC2I4cChzHXdLOb0-KUCiDqB0LA+BYBEH-s7bGmmnphxsxAnYNwht0pe1kvJYhaUpjOj2kh3d2Jv3zrw8exJYQzAB1XEpZe6UpxNUyv-UsroyyszqqqtxB6oAAbYXYAsft4ThArGEW9RDHD-0ogKSIXUSyqpuaUlQ5SZNscXbmJwnoRy0TsIWd2OnmmigsEWMEFn6rxCSDuqZiL3msaPWZ0EONIQmBArRdWKS5zLwxsqsIsrIg2H2J5-lbL8WHvjux3MgXTCkVcEQtYTMZUkQ2mQkC9U4bJGSEAA */
+  /** @xstate-layout N4IgpgJg5mDOIC5QDcCWsCuBDANqgXmAE4AEAtlgMYAWqAdmAHSoQ5gDEAIgEoCCA6gH0AygBVe3UQG0ADAF1EoAA4B7WKgAuqFXUUgAHogDsMo4wCcARgAsM60fNGArADYnlgMwAaEAE9EAEwBboyWlkYeph7W5gAcDtYAvok+aJi4BMTkVLQMzKwcAMIAErwAcgDiAKKCVQAyVQCyVWWiIqUAClWyCkggqupaOnqGCCZmVrb2jq7u3n6BMjKMRjGOAbHmLjLm1k7JqejYeISkFDT0TCxsXHwVIuKSPXoDmtq6faPjFjZ2Ds5uTw+fwISyxcGMGROawucweYIBMLmA4gNLHTJnHKXfI3YT1KqFURVTi1BrNVrCRicfFE559V5DD6gL6mH5Tf6zIELUFOJzLSzmdzbWLWDxGcWxFFojKnbIXPLXDh4hqE4mkpotUSUwoAeQ6AE06co1G9hp9jKzJn8ZoD5iDYQFGE4PFYoryAuZzAEpUcZVlzrkrgV2MqCUSSfjyVrGB1eGJuvIXibGSMLRNftMAXNgYhPAFlgFrEFLE4jIjYh5Nj70id-ViFcHGjqAKp4wRNgBqCd6xsG71TCDFlkYew8nlMoqcFZc1hzCERW1CMUrsXLO2d1fRsoD2MV7AAksJ1VH2rwuoIAGL7gAaatEOoqFQaRv6yf75rGlozHNtc-h1lCVwAg8XktliFxYksTc-UxeUg1xfFVQjMlNW1ZtpETek3zNZk0zZa0sy5EFLBkDwPBWItEV5eIXHCIxoNrWDAxxIpSkqGpI01QQ9VEfcdTKYQXwZd9cM-dN2RtbNuUsGcXEYGcKycREZE8QUGIxOVmL3EpymqQQAC0dR1RohOwpkDDwq1M05O1ECLZZtjhB0tncLZ1O3et4NY3SakM4zBH4fdRGKQQOn3MoSlMvscIssT8Os39uXcMwZBcAJXChaFPAg9y6zglj2FjMootNczRnS1YnVXewRWsWJnWdOdC0q51K1FVYIiMKCUlRX1GM03dg2KQ9724fVBGbDpOF4WlMN7UqB2+Kyfyk4jRwo-MRRMfMrHonrpX6ncGxufhuCCmoxAkDCe1faKytzGREUhF13A2JZaKapZHUiUUNnBKFCw8XKmMGm5OIpRhQ0JQReDqOoSpTD8bHsCwyJnUxNkrSsmt2cix2CGJwNXVKgf2vqNKOrz2FO87ak4IKEZE2KK1iRh-1hQV-vcJw5zo8xQhccUthsQWINJw4awpzzGAgIgsAAd3oKBbgERmYtGMIuqqvlgJkcENhcFwmoFfnnFSqcaq24GBryWWFaVlWhBaTg1fu0FIlZpYHEe2IlnsAIjCajZhx2SsuvquxrG6iWtzy5i7cVuhlepBoiRERDeP412B2J+TC0cExIM9WFjajlYSLiEwrBsa3KZluWoCgB2eF4Cps6R7YAJ+1YlMLGTHF5722dWCtghsAP0tr6W7cb5u7lqMoXbm26FqRiszHquFwIL0wwV5zYnDZv5SK6scwm9MnJY8-KcBULAIAd9vRODtnBYFd-dhFIOrDZpToXiOEexkSX1jiDPIShiDqFgFoJO7An6xSCHsFYfJSKGwgkEUwc5IIjk9IKMCWMyJ7RjjBG2TAE5KxICoUg8siBvCTiQMAdAICQDgcvYS6tczr0YJvSssJxS71iN-Q+HpYRpXSm4KsICSF12QJA94JAiBgDYFgWALD4HlULIfM2qDDarnzIHaSb9QiFiLrYfMYRJRSMOtLGhdDlY0zTs7dRuYPaQlMOYH2fsywGJBPmMcKxIJ-U2DsAO+wrFS3yrYmB9izqzRuuwt2YRYQ-EFuKcIsIxxG2kt4xgwR4QQXWC4ECSRwnX2YkoFR0T2AQB0FcOgyAVAAGsmAHQieUypSsED0AaZQLAjIejOPdnrNx3s3p-ADrzMc5EVLUQ9JYYIvtgHEOsflCp0CHbECIFQxgSgcB9IAGZULIIwVpZTsRrOiV0+pKhen9PkIM8cnt3GePGT43MwRD7czfp3HYqUp75U2VQkgt9Z6wIeTCR0q5ialkeo4L0vM6IWC9PmRydVoTi16lfOO2JKAqCUL4B2NSFTXOaSc8mZy8i4vxZ07pNy+nvAGWwsyA5HkjI8WM-2byECG2WEYYJcQ0oxAcEszFoDSGMCpQS2BgKiA7L2RoQ5RBjmnOxZSvFUqoBXJ6fSnQjL4nMqRq4r27LfavLnIXXJmwwhLBAh7DFKqwFMEoBgDQVSiV1IaaSh14rnWuppdc25DL7lMruiyo1zyOXeLnIKOSpFXRbTsHyFw-zmK+qqTKuVByjlkqxY6iVLrLm0sDbq4N+rQ2GuGcal5nLeZ2H5jEYs0RtjOkcMkHqdAVDMPgH0b1lMkzltEgAWiySCYdbililgFbsLqvIU2gzAP21eolKKow8MKA24JaJcqCI4eSj1J32FLPMkpyy2nYnIUnRdiNRIVw3kseq7IZzzKamOT29glipQWWRe15LVVkIbk3S9WEB2xRkrYbhQoQJehnM4cwvMrCsz5fMwWcRNiijnXkW+98lZXqZqMIsQdDYQfSrtPBIpk2lL-TsuR6ygPzWvQgysyxpypXZbYGwtluXRBHHVAURSix7Bkhh-99t6FAqiRQxhzCIC4Y4TyQWbISzhHLJooO1gAIOD4eBHY4EyLCZOXInQCilFgBUZAWTiTPTDgDiBOwbhK7pV5rJPOdVBWJrFPpiTdGV4MY1uEByLoiyG3SlHQR0l6pmEnKuEeeS1KUbzRcnDwGl2gbsAWEe8JwgVjCJx+Zu7CzFjhLvEs+mZXApUKCqAFmWVOE9COWidgCtR0iFysIooLBFjBLV+q8QT2iukdLSVSX6N4YemuyEJgQK0Xzuyucht+YtutcuFSex9NpuGz50boJUETdIq4Y9npHq1pIhtcxIF6okQo8kIAA */
   createMachine(
     {
       id: "visualizer machine",
@@ -143,6 +143,12 @@ export const visualizerMachine =
               target: "persisting",
               actions: "selectAllElements",
             },
+
+            WRITE_EDIT: {
+              target: "writing",
+              actions: "editWrite",
+              cond: "canEditText",
+            },
           },
         },
 
@@ -209,9 +215,12 @@ export const visualizerMachine =
 
         writing: {
           on: {
-            WRITE_END: {
-              target: "drawing or writing ended",
-              actions: ["endWrite"],
+            WRITE_END: "drawing or writing ended",
+
+            WRITE: {
+              target: "writing",
+              actions: ["write", "persist"],
+              internal: true,
             },
           },
         },
@@ -652,7 +661,7 @@ export const visualizerMachine =
         resetDrawingElementId: assign((_) => ({
           drawingElementId: null,
         })),
-        endWrite: assign((context, { text, canvasElement }) => {
+        write: assign((context, { text, canvasElement }) => {
           return {
             elements: context.elements.map((element) => {
               if (
@@ -693,6 +702,34 @@ export const visualizerMachine =
             })),
           };
         }),
+        editWrite: assign((context, { canvasElement }) => {
+          const selectedElements = context.elements.filter(
+            (element) => element.isSelected
+          );
+
+          const element = selectedElements[0];
+          invariant(element);
+
+          if (element.shape !== "text") {
+            return {};
+          }
+
+          const { lineHeight } = measureText({
+            canvasElement,
+            fontSize: element.fontSize,
+            fontFamily: element.fontFamily,
+            text: element.text,
+            lineHeight: TEXTAREA_UNIT_LESS_LINE_HEIGHT,
+          });
+          const drawingElementId = element.id;
+          return {
+            drawingElementId,
+            drawStartPoint: {
+              x: element.x,
+              y: element.y + lineHeight / 2,
+            },
+          };
+        }),
         logError: (_, event) => {
           console.error(event.data);
         },
@@ -716,6 +753,21 @@ export const visualizerMachine =
             files: {},
           };
           navigator.clipboard.writeText(JSON.stringify(newClipText));
+        },
+      },
+      guards: {
+        canEditText: (context) => {
+          const selectedElements = context.elements.filter(
+            (element) => element.isSelected
+          );
+          if (selectedElements.length !== 1) {
+            return false;
+          }
+
+          const selectedElement = selectedElements[0];
+          invariant(selectedElement);
+
+          return selectedElement.shape === "text";
         },
       },
     }

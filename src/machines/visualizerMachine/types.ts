@@ -216,11 +216,18 @@ export type VisualizerMachineEvents =
       devicePixelRatio: number;
     }
   | {
-      type: "WRITE_END";
+      type: "WRITE";
       text: string;
       canvasElement: HTMLCanvasElement;
     }
   | {
+      type: "WRITE_END";
+    }
+  | {
       type: "ELEMENTS.SELECT_ALL";
+    }
+  | {
+      type: "WRITE_EDIT";
+      canvasElement: HTMLCanvasElement;
     };
 /* #endregion */
