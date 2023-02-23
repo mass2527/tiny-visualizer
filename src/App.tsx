@@ -399,6 +399,13 @@ function App() {
   const endDraw: MouseEventHandler<HTMLCanvasElement> = (event) => {
     invariant(drawingElement);
 
+    if (drawingElement.shape === "line" || drawingElement.shape === "arrow") {
+      if (drawingElement.width === 0 && drawingElement.height === 0) {
+        send("CONNECT_START");
+        return;
+      }
+    }
+
     if (drawingElement.shape === "selection") {
       send("DELETE_SELECTION");
     } else {
@@ -408,6 +415,13 @@ function App() {
         devicePixelRatio,
       });
     }
+  };
+
+  const connect: MouseEventHandler<HTMLCanvasElement> = (event) => {
+    send({
+      type: "CONNECT",
+      event,
+    });
   };
 
   const moveMouse: MouseEventHandler<HTMLCanvasElement> = (event) => {
@@ -684,7 +698,7 @@ function App() {
         height={Math.floor(windowSize.height * devicePixelRatio)}
         onMouseDown={state.matches("idle") ? handleMouseDown : undefined}
         onMouseMove={
-          state.matches("drawing")
+          state.matches("drawing") || state.matches("connecting")
             ? draw
             : state.matches("dragging")
             ? drag
@@ -695,9 +709,12 @@ function App() {
             ? endDraw
             : state.matches("dragging")
             ? endDrag
+            : state.matches("connecting")
+            ? connect
             : undefined
         }
       />
+
       {state.matches("writing") &&
         drawingElement &&
         isTextElement(drawingElement) && (
