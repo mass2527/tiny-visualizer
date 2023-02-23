@@ -232,7 +232,7 @@ export const isIntersecting = (
 };
 
 export const calculateDistance = (width: number, height: number) => {
-  return Math.sqrt(width ** 2 + height ** 2);
+  return Math.hypot(width, height);
 };
 
 export const convertDegreeToRadian = (angleInDegrees: number) => {
