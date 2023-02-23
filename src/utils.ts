@@ -2,6 +2,7 @@ import invariant from "tiny-invariant";
 import rough from "roughjs";
 import { Drawable } from "roughjs/bin/core";
 import {
+  ChangeInPoint,
   Point,
   SHAPE_TYPES,
   VisualizerElement,
@@ -306,53 +307,78 @@ export const createDraw = (
         });
       };
     } else {
-      const distance = calculateDistance(element.width, element.height);
-      const arrowSize = Math.min(ARROW_MAX_SIZE, distance / 2);
-      const point = element.changesInPoint[element.changesInPoint.length - 1];
-      invariant(point);
-
-      const [changeInX, changeInY] = point;
-      const angleInRadians = Math.atan2(changeInY, changeInX);
-
-      const startX = element.x;
-      const startY = element.y;
-
-      const endX = element.x + changeInX;
-      const endY = element.y + changeInY;
-
       const arrowDrawables: Drawable[] = [];
+      const startPoint = {
+        x: element.x,
+        y: element.y,
+      };
 
-      // \
-      arrowDrawables.push(
-        generator.line(
-          endX,
-          endY,
-          endX -
-            arrowSize * Math.cos(angleInRadians + convertDegreeToRadian(30)),
-          endY -
-            arrowSize * Math.sin(angleInRadians + convertDegreeToRadian(30)),
-          { ...element.options, seed: element.seed }
-        )
-      );
-      // -
-      arrowDrawables.push(
-        generator.line(startX, startY, endX, endY, {
-          ...element.options,
-          seed: element.seed,
-        })
-      );
-      // /
-      arrowDrawables.push(
-        generator.line(
-          endX,
-          endY,
-          endX -
-            arrowSize * Math.cos(angleInRadians - convertDegreeToRadian(30)),
-          endY -
-            arrowSize * Math.sin(angleInRadians - convertDegreeToRadian(30)),
-          { ...element.options, seed: element.seed }
-        )
-      );
+      let index = 0;
+      let previousChangeInPoint: ChangeInPoint | undefined;
+      for (const changeInPoint of element.changesInPoint) {
+        const [changeInX, changeInY] = changeInPoint;
+        const endX = element.x + changeInX;
+        const endY = element.y + changeInY;
+
+        // -
+        arrowDrawables.push(
+          generator.line(startPoint.x, startPoint.y, endX, endY, {
+            ...element.options,
+            seed: element.seed,
+          })
+        );
+
+        startPoint.x = endX;
+        startPoint.y = endY;
+
+        const isLastIteration = index === element.changesInPoint.length - 1;
+        if (!isLastIteration) {
+          index++;
+          previousChangeInPoint = changeInPoint;
+          continue;
+        }
+
+        if (previousChangeInPoint === undefined) {
+          continue;
+        }
+
+        const [previousChangeInX, previousChangeInY] = previousChangeInPoint;
+        const angleInRadians = Math.atan2(
+          changeInY - previousChangeInY,
+          changeInX - previousChangeInX
+        );
+
+        const distance = calculateDistance(
+          changeInX - previousChangeInX,
+          changeInY - previousChangeInY
+        );
+        const arrowSize = Math.min(ARROW_MAX_SIZE, distance / 2);
+
+        // \
+        arrowDrawables.push(
+          generator.line(
+            endX,
+            endY,
+            endX -
+              arrowSize * Math.cos(angleInRadians + convertDegreeToRadian(30)),
+            endY -
+              arrowSize * Math.sin(angleInRadians + convertDegreeToRadian(30)),
+            { ...element.options, seed: element.seed }
+          )
+        );
+        // /
+        arrowDrawables.push(
+          generator.line(
+            endX,
+            endY,
+            endX -
+              arrowSize * Math.cos(angleInRadians - convertDegreeToRadian(30)),
+            endY -
+              arrowSize * Math.sin(angleInRadians - convertDegreeToRadian(30)),
+            { ...element.options, seed: element.seed }
+          )
+        );
+      }
 
       return () => {
         arrowDrawables.forEach((drawable) => {

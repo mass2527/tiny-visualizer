@@ -399,8 +399,7 @@ function App() {
   const endDraw: MouseEventHandler<HTMLCanvasElement> = (event) => {
     invariant(drawingElement);
 
-    if (drawingElement.shape === "line") {
-      // first
+    if (drawingElement.shape === "line" || drawingElement.shape === "arrow") {
       if (drawingElement.width === 0 && drawingElement.height === 0) {
         send("CONNECT_START");
         return;
