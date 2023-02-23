@@ -171,6 +171,7 @@ function App() {
         drawingElement?.shape === "text" &&
         drawingElementId === element.id
       ) {
+        ctx.restore();
         continue;
       }
 
