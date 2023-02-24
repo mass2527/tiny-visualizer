@@ -1,4 +1,4 @@
-import { MouseEventHandler } from "react";
+import { MouseEvent, MouseEventHandler } from "react";
 import { Options as RoughJSOptions } from "roughjs/bin/core";
 
 export type VisualizerElementBase = {
@@ -106,6 +106,10 @@ export type VisualizerMachinePersistedContext = {
   elementOptions: ElementOptions;
 
   elementShape: VisualizerElement["shape"];
+  resizingElement: {
+    changeInPointIndex: number;
+  };
+  resizeStartPoint: Point;
   drawingElementId: VisualizerElement["id"] | null;
   drawStartPoint: Point;
   previousPoint: Point;
@@ -239,5 +243,19 @@ export type VisualizerMachineEvents =
     }
   | {
       type: "CONNECT_END";
+    }
+  | {
+      type: "RESIZE_START";
+      resizingElement: VisualizerMachineContext["resizingElement"];
+      event: MouseEvent;
+      devicePixelRatio: number;
+    }
+  | {
+      type: "RESIZE";
+      event: Parameters<MouseEventHandler<HTMLCanvasElement>>[0];
+      devicePixelRatio: number;
+    }
+  | {
+      type: "RESIZE_END";
     };
 /* #endregion */

@@ -325,7 +325,7 @@ export const createDraw = (
         invariant(secondLastChangeInPoint);
 
         if (haveSameItems(lastChangeInPoint, secondLastChangeInPoint)) {
-          changesInPoint = changesInPoint.slice(0, changesInPoint.length - 1);
+          changesInPoint = removeLastItem(changesInPoint);
         }
       }
 
@@ -713,7 +713,8 @@ export const calculateChangeInPointOnZoom = ({
 };
 
 export const setLastItem = <T>(array: T[], item: T) => {
-  return [...array.slice(0, array.length - 1), item];
+  const arrayWithoutLastItem = removeLastItem(array);
+  return [...arrayWithoutLastItem, item];
 };
 
 export const calculatePointCloseness = (
@@ -759,4 +760,29 @@ export const haveSameItems = (array1: unknown[], array2: unknown[]) => {
   }
 
   return true;
+};
+
+export const removeLastItem = <T extends unknown>(array: T[]) => {
+  return array.slice(0, array.length - 1);
+};
+
+// TODO: delete this function after remove isSelected, isDeleted
+export const getSelectedElements = (elements: VisualizerElement[]) => {
+  return elements.filter((element) => {
+    return !element.isDeleted && element.isSelected;
+  });
+};
+
+export const replaceNthItem = <T extends unknown>({
+  array,
+  item,
+  index,
+}: {
+  array: T[];
+  item: T;
+  index: number;
+}) => {
+  const newArray = [...array];
+  newArray[index] = item;
+  return newArray;
 };

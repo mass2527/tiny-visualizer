@@ -20,6 +20,9 @@ import {
   setLastItem,
   calculatePointCloseness,
   getClosenessThreshold,
+  getSelectedElements,
+  removeLastItem,
+  replaceNthItem,
 } from "../../utils";
 import debounce from "lodash.debounce";
 import { TEXTAREA_UNIT_LESS_LINE_HEIGHT } from "../../constants";
@@ -33,7 +36,7 @@ import {
 import { PERSISTED_CONTEXT } from "./constant";
 
 export const visualizerMachine =
-  /** @xstate-layout N4IgpgJg5mDOIC5QDcCWsCuBDANqgXmAE4AEAtlgMYAWqAdmAHSoQ5gDEAIgEoCCA6gH0AygBVe3UQG0ADAF1EoAA4B7WKgAuqFXUUgAHogDsMo4wCcARgAsM60fNGArADYnlgMwAaEAE9EAEwBboyWlkYeph7W5gAcDtYAvok+aJi4BMTkVLQMzKwcAMIAErwAcgDiAKKCVQAyVQCyVWWiIqUAClWyCkggqupaOnqGCCZmVrb2jq7u3n6BMjKMRjGOAbHmLjLm1k7JqejYeISkFDT0TCxsXHwVIuKSPXoDmtq6faPjFjZ2Ds5uTw+fwISyxcGMGROawucweYIBMLmA4gNLHTJnHKXfI3YT1KqFURVTi1BrNVrCRicfFE559V5DD6gL6mH5Tf6zIELUFOJzLSzmdzbWLWDxGcWxFFojKnbIXPLXDh4hqE4mkpotUSUwoAeQ6AE06co1G9hp9jKzJn8ZoD5iDYQFGE4PFYoryAuZzAEpUcZVlzrkrgV2MqCUSSfjyVrGB1eGJuvIXibGSMLRNftMAXNgYhPAFlgFrEFLE4jIjYh5Nj70id-ViFcHGjqAKp4wRNgBqCd6xsG71TCDFlkYew8nlMoqcFZc1hzCERW1CMUrsXLO2d1fRsoD2MV7AAksJ1VH2rwuoIAGL7gAaatEOoqFQaRv6yf75rGlozHNtc-h1lCVwAg8XktliFxYksTc-UxeUg1xfFVQjMlNW1ZtpETek3zNZk0zZa0sy5EFLBkDwPBWItEV5eIXHCIxoNrWDAxxIpSkqGpI01QQ9VEfcdTKYQXwZd9cM-dN2RtbNuUsGcXEYGcKycREZE8QUGIxOVmL3EpymqQQAC0dR1RohOwpkDDwq1M05O1ECLZZtjhB0tncLZ1O3et4NY3SakM4zBH4fdRGKQQOn3MoSlMvscIssT8Os39uXcMwZBcAJXChaFPAg9y6zglj2FjMootNczRnS1YnVXewRWsWJnWdOdC0q51K1FVYIiMKCUlRX1GM03dg2KQ9724fVBGbDpOF4WlMN7UqB2+Kyfyk4jRwo-MRRMfMrHonrpX6ncGxufhuCCmoxAkDCe1faKytzGREUhF13A2JZaKapZHUiUUNnBKFCw8XKmMGm5OIpRhQ0JQReDqOoSpTD8bHsCwyJnUxNkrSsmt2cix2CGJwNXVKgf2vqNKOrz2FO87ak4IKEZE2KK1iRh-1hQV-vcJw5zo8xQhccUthsQWINJw4awpzzGAgIgsAAd3oKBbgERmYtGMIuqqvlgJkcENhcFwmoFfnnFSqcaq24GBryWWFaVlWhBaTg1fu0FIlZpYHEe2IlnsAIjCajZhx2SsuvquxrG6iWtzy5i7cVuhlepBoiRERDeP412B2J+TC0cExIM9WFjajlYSLiEwrBsa3KZluXE+V3UyjKMMHiu7OkZJtmtjSrqnC9RFA+5dKZxHTHCxNjwZ32MnJY8-K7agKAHZ4XgKk70SZLsNm-j2IIo9hYfiO9tnVgrYIbAD9La+lpeV6TlX7mdzfYrBMVGHquFwIL0wwV5zYThd72FIl1McYRvRz1jiDPIOAVBYAgA7V+5VIJs0FgKDBuwRRBysGzJS0J4hwj2MiKBMEbZMCUMQdQsAtCP2QYEQsQCzakUNhBIIpg5yoLWIKMCWMyJ7RjmQuuCclYkBUKQeWRA3hJxIGAOgEBIDsHoaCCsZgv6ViPuMf+I8PRAI9LCNKo8pwkMEYdaWyAqHvBIEQMAbAsCwEUcog+TC+QsMNqufMx9czoNCIWIuth8xhElKQsx+VJHSOVjTNOL85q3QWkjD2kJTDmB9n7MsXj5ykWHEYSCf1Ng7ADrPUxUswlSNoZEs6s0brCXVrmGS-MrCC3FOEWEY4jbSXSYwYI8IILrBcCBJIISSnMSUPY8p7AIA6CuHQZAKgADWTADrDOxKMmhSsED0FmZQLAjIejKPHJ7ZJqS-gB15mOciKlqIeksMEX2JjerzzjissZDtiBEHEYwJQOAdkADNxFkEYEsheIyXlJw2TMlQ2zdnyH2Ykr2KS3onIyTckI3N0HbFsCklwt98pvPESQOBy8kGxJqW7EWjpVzE1LI9RwXpeZ0QsIPVKOw6rQnFg86B5DGCUBUEoXwDtJkKghQswF5NgXYh5Xy9ZmzIU7PeHsklZkBwHKSd7RF-sMmG2WDklJcQ0oxAcPcoFTy8iSv5Y-PFRBPnfI0H8ogALjUwKYGa6VEKoXyphYqu6yq4VHPVekuchcumbDCEsECHt2WOq5ZQDAGhxmCumbMkVUa64xrja6rZcqdAKuqUqhJetVUIt9kiucgo5KkVdFtOwfJsVDPFaa2N4zLXWt+f80VjynXcsbRm2V0K5CwoLfC45GreZ2H5jEYs0RtjOkcDi5iPK6AMEoOMte-B9k7AcqYd6MRBY+yasWp0IE4jgkLu4OdEqdBLvGc3VuhJYWeF3syuqldHpNUNqbKcwc7A7C6ue01l6wDLodjesMUhLC5u9Qkh9kQn2bHiK+kevsAKIl+A4WqXpSY9ToCoBR8A+gps8kmSDokAC07SQRkaSX7Q26UxyUsGcU+tXkiPxNEpRVG089YG3BLRDJQRHDyUeqWXYzguqFj-UwERScWOIy3j+z+Sx6rshnDcpqdHIQgPercsikaxUmsk3LIl0msLEbfujT+Qoj0E2cOYXmVhWY5JRWhzYooJOMDgQgpWMmmajCLEHQ2Fn0q7R4SKWtjH9OfMsWs4z81ZOxWAr7T+nHYSPVsDYWyCB+kAWsHVAUWXGEyTc1JqAYiJFlNEXIhREBvO1J5ILNkJZwjlkYUHHLKwtiOHAjscCZE3MWKIOoHQ1jbFgHsZAGrZLPTDgDiBOwbhK7pV5rJPOdV9XVrFG58J5SJvKvCA5F0RYaNZViAA0sI4QKrnPt0tSdaIurO2yZ1jb9v1dPPvCcIFYwgZZuQJwsxY4R-xLG5y1BKVBGagDtpGA9x20TsH9qOkRkXpYsEWMEA96rxAYxyoR0sXUxbiXFjWLDIQmBArRfOCK5zvsPdXMdkQbBFOx6E+d3b8ekuVcTrdZOblrAQ8RFS2rKIqQu+4VKbmF1Xq849wnD0IKf0Jl7PWz6eYj2W+HOqfw9a0WSMkIAA */
+  /** @xstate-layout N4IgpgJg5mDOIC5QDcCWsCuBDANqgXmAE4AEAtlgMYAWqAdmAHSoQ5gDEAIgEoCCA6gH0AygBVe3UQG0ADAF1EoAA4B7WKgAuqFXUUgAHogDsMo4wCcARgAsM60fNGArADYnlgMwAaEAE9EAEwBboyWlkYeph7W5gAcDtYAvok+aJi4BMTkVLQMzKwcAMIAErwAcgDiAKKCVQAyVQCyVWWiIqUAClWyCkggqupaOnqGCCZmVrb2jq7u3n6BMjKMRjGOAbHmLjLm1k7JqejYeISkFDT0TCxsXHwVIuKSPXoDmtq6faPjFjZ2Ds5uTw+fwISyxcGMGROawucweYIBMLmA4gNLHTJnHKXfI3YT1KqFURVTi1BrNVrCRicfFE559V5DD6gL6mH5Tf6zIELUFOJzLSzmdzbWLWDxGcWxFFojKnbIXPLXDh4hqE4mkpotUSUwoAeQ6AE06co1G9hp9jKzJn8ZoD5iDYQFGE4PFYoryAuZzAEpUcZVlzrkrgV2MqCUSSfjyVrGB1eGJuvIXibGSMLRNftMAXNgYhPAFlgFrEFLE4jIjYh5Nj70id-ViFcHGjqAKp4wRNgBqCd6xsG71TCDFlkYew8nlMoqcFZc1hzCERW1CMUrsXLO2d1fRsoD2MV7AAksJ1VH2rwuoIAGL7gAaatEOoqFQaRv6yf75rGlozHNtc-h1lCVwAg8XktliFxYksTc-UxeUg1xfFVQjMlNW1ZtpETek3zNZk0zZa0sy5EFLBkDwPBWItEV5eIXHCIxoNrWDAxxIpSkqGpI01QQ9VEfcdTKYQXwZd9cM-dN2RtbNuUsGcXEYGcKycREZE8QUGIxOVmL3EpymqQQAC0dR1RohOwpkDDwq1M05O1ECLZZtjhB0tncLZ1O3et4NY3SakM4zBH4fdRGKQQOn3MoSlMvscIssT8Os39uXcMwZBcAJXChaFPAg9y6zglj2FjMootNczRnS1YnVXewRWsWJnWdOdC0q51K1FVYIiMKCUlRX1GM03dg2KQ9724fVBGbDpOF4WlMN7UqB2+Kyfyk4jRwo-MRRMfMrHonrpX6ncGxufhuCCmoxAkDCe1faKytzGREUhF13A2JZaKapZHUiUUNnBKFCw8XKmMGm5OIpRhQ0JQReDqOoSpTD8bHsCwyJnUxNkrSsmt2cix2CGJwNXVKgf2vqNKOrz2FO87ak4IKEZE2KK1iRh-1hQV-vcJw5zo8xQhccUthsQWINJw4awpzyCu4KphH3fSLsea6kzugcFMYYCZOsUUwgq2duXxsxVzBJY7BnXZgYGvIICILAAHd6CgW4BEZmLRjCLqqr5YCZHBDYXBcJqBX55xUqnGqtqtynGFth2nZdoQWk4N37tBSJWaWBxHtiJZ7ACIwmo2YcdkrLr6rsaxuolrc8uYuPHboZ3qQaIkREQ3j+NTgdifkwtHBMSDPVhYOq5WEi4hMKwbGj6WG4T3UyjKMMHiu7ukZJtmtjSrqnC9RFC+5dKZxHTHCxDjwZ32MnJY8-K46gKAE54XgKnX0SZLsNm-j2IIq9hQ+xFs5s1WBWYINgC7pVnvfO2j9n53FqGUFOc1boLSRhWY2e9KwAPGGCXmmwnDf3sKRLqY49bQOYjgFQWAIAJ3frFYubNBYChYbsEURcrBsyUtCeIcI9jIhvrXEGeQlDEHULALQTd2D0PKoWQhYdSKBwgkEUwc5IIjk9IKMCWMyJ7RrjBa2TB55NxICoUg9siBvBMWAOgEBIDSJQcJd2uYMGMHqnCcCA9TB4KPh6QhHpYRpWPlOAR+jDrS2QGI94JAiBgDYFgWA9iZGBDkSsPkijA6rnzIA3MzDQiFiHrYfMYRJSCIMTHCxVjnY0zbsnZJ6c-aQlMOYHOecyw5PnKRYcRhIJ-U2DsAu18wlS3ypUyR1SzqzRuk4tOYRYQ-EFuKcIsIxxB2ku0zWLh4QQXWFs6EFDsRKASeM9gEAdBXDoMgFQABrJgB0RnMSORIp2CB6BXMoFgRkPR6njkzs01pfwC68zHORFS1EPSWGCLnUJvVb510OcchOxAiBmMYEoHAnyABmZiyCMHuXfR5iKm6vMuSoD5Xz5A-Izk07Ob1AUdMhSEbmzDti2BaS4A5eRkVmJIFQuBUifkwkdKuYmpZHqOC9LzOiFh96pR2HVaE4tYVCMMYwSgKglC+ATmchUpLbl4vJgS7E6rNUvLeWSz57xvmOLMgOX5NKWl0vzh0wOywektLiGlGIDgYX4vhXkE1WqpHcqIGijFGhsVEFxX64RTBA1mtJeSq1lKbVqyRtSrOjrc70rnIPTWmwwhLBAhnJVMbVWUAwBoE5OqLlXP1WWmOFaq0JveZanQ1rpm2vTY0zNALnVzkFHJUirotp2D5Bysp4T8pNpOSGsNWKcUGrhbGtVlbxkktbRSuQVKe3-Kde03mdh+YxGLNEbYzpHCcrjToBglATkv34D8nYDlTDvRiILHOTVs1OhAnEcEg93BXrVTesAd6F78WXoSKlnhv5yrqpPR6TVA6hynMXOwOwupAfVXQW9JzF6QekJYTtaaP4gtg6yzY8RENH1zgBREvwHC1S9KWw1-qmCxPUPgBOst5aK3qS08izoiyMeCJzWyg5ghmC2VRMczoSFAY4wQbjcsFbdCI6rNBokvRyRItsQO4pggvT-KKci-CZw6w9PmVwCm4BKakTx1TiDkHEc07FQtw5ogD1khsIwM4-yQuNgfXYnhwirOSD1OgKg7HwD6A2zyGnEaiQALRrJBClppRa3BzFImKJIk6HmgzAAlpmoxKKo0vn7AO4JaIdKCI4eSj1Sy7GcF1QsQHjFQGK840EGG3FLHquyGckKmpjkzsQ96UKyIseXaqh+T8m5ddmejNxQpf0E2cOYXmVhWY9MZYxzYoogNUJoU7RbA4ixF0Dit9Ku0tEigncMo1IionPIW1hEjDDKzLGnKlR1tgbDia2QBHWQ8gdyJku1u2jcoCmPMZY8ZJAbF2IgGdpGrhxIlnCOWORRcdYrC2I4cCOxwJkSA5Eog6gdAxLiWABJkBUcf09MOAuIFzZ73iOlXmsk+51S9WOsUQGxmnfe65j24QHIuiLIHdKVdYj4NLCOECq5QGGbUvlp7TAnnjIZ259DmtQHwnCBWMI4nIX1cLMWOE3iSxAZDbylQ-LOsi8S25vex7aJ2At1XSIDKAcWCLGCdnU5VhYY1UGp380Xce0UZCEwIFaL90dXOZDP7p5HsiDYIZyrynSxncLyPJWHqX1j6RVwkK1jUeIipN1lEVJK-cKlUPOHQPa+d4XnrEE3GEyzn7eDPMj7c-LnVP4ftaI2c4-n1BUfECOrcXzrJbuVL+YLm48sApikAPC4kIAA */
   createMachine(
     {
       id: "visualizer machine",
@@ -152,6 +155,11 @@ export const visualizerMachine =
               target: "writing",
               actions: "editWrite",
               cond: "canEditText",
+            },
+
+            RESIZE_START: {
+              target: "resizing",
+              actions: ["assignResizingStartPoint", "assignResizingElement"],
             },
           },
         },
@@ -288,6 +296,25 @@ export const visualizerMachine =
                 actions: "endConnect",
               },
             ],
+          },
+        },
+
+        resizing: {
+          on: {
+            RESIZE: [
+              {
+                target: "resizing",
+                internal: true,
+                cond: "isOnlyOneElementSelected",
+                actions: "resize",
+              },
+              {
+                target: "resizing",
+                internal: true,
+              },
+            ],
+
+            RESIZE_END: "version released",
           },
         },
       },
@@ -834,6 +861,148 @@ export const visualizerMachine =
             },
           };
         }),
+        assignResizingElement: assign((_, { resizingElement }) => {
+          return {
+            resizingElement,
+          };
+        }),
+        assignResizingStartPoint: assign(
+          (context, { event, devicePixelRatio }) => {
+            const resizeStartPoint = calculateCanvasPoint({
+              devicePixelRatio,
+              event,
+              zoom: context.zoom,
+              origin: context.origin,
+            });
+
+            return {
+              resizeStartPoint,
+            };
+          }
+        ),
+        resize: assign((context, { event, devicePixelRatio }) => {
+          const selectedElements = getSelectedElements(context.elements);
+          const resizingElement = selectedElements[0];
+          invariant(resizingElement);
+
+          const currentCanvasPoint = calculateCanvasPoint({
+            devicePixelRatio,
+            event,
+            zoom: context.zoom,
+            origin: context.origin,
+          });
+          const dx = currentCanvasPoint.x - context.resizeStartPoint.x;
+          const dy = currentCanvasPoint.y - context.resizeStartPoint.y;
+
+          if (!isLinearElement(resizingElement)) {
+            return {};
+          }
+
+          return {
+            elements: context.elements.map((element) => {
+              if (element.id !== resizingElement.id) {
+                return element;
+              }
+
+              invariant(isLinearElement(element));
+
+              const isResizingStartPoint =
+                context.resizingElement.changeInPointIndex === 0;
+
+              const firstChangeInPoint = element.changesInPoint[0];
+              invariant(firstChangeInPoint);
+              const lastChangesInPoint =
+                element.changesInPoint[element.changesInPoint.length - 1];
+              invariant(lastChangesInPoint);
+
+              const hasMoreThan2Points =
+                resizingElement.changesInPoint.length > 2;
+              if (!hasMoreThan2Points) {
+                if (isResizingStartPoint) {
+                  const changesInPoint: ChangeInPoint[] =
+                    element.changesInPoint.map(([x, y], index) => {
+                      if (index === 0) {
+                        return [x, y];
+                      }
+
+                      return [x - dx, y - dy];
+                    });
+                  return {
+                    ...element,
+                    x: element.x + dx,
+                    y: element.y + dy,
+                    changesInPoint,
+                  };
+                }
+
+                const isResizingVirtualCenterPoint =
+                  context.resizingElement.changeInPointIndex === 1;
+                if (isResizingVirtualCenterPoint) {
+                  const virtualCenterPoint = {
+                    x: firstChangeInPoint[0] + lastChangesInPoint[0] / 2,
+                    y: firstChangeInPoint[1] + lastChangesInPoint[1] / 2,
+                  };
+
+                  const changesInPoint: ChangeInPoint[] = [
+                    firstChangeInPoint,
+                    [dx + virtualCenterPoint.x, dy + virtualCenterPoint.y],
+                    lastChangesInPoint,
+                  ];
+
+                  return {
+                    ...element,
+                    changesInPoint,
+                  };
+                }
+
+                // resizing end point (context.resizingElement.changeInPointIndex = 2)
+                const changesInPoint: ChangeInPoint[] = [
+                  ...removeLastItem(element.changesInPoint),
+                  [dx + lastChangesInPoint[0], dy + lastChangesInPoint[1]],
+                ];
+                return {
+                  ...element,
+                  changesInPoint,
+                };
+              }
+
+              if (isResizingStartPoint) {
+                const changesInPoint: ChangeInPoint[] =
+                  element.changesInPoint.map(([x, y], index) => {
+                    if (index === 0) {
+                      return [x, y];
+                    }
+
+                    return [x - dx, y - dy];
+                  });
+                return {
+                  ...element,
+                  x: element.x + dx,
+                  y: element.y + dy,
+                  changesInPoint,
+                };
+              }
+
+              const changeInPoint =
+                element.changesInPoint[
+                  context.resizingElement.changeInPointIndex
+                ];
+              invariant(changeInPoint);
+
+              const changesInPoint: ChangeInPoint[] = replaceNthItem({
+                array: element.changesInPoint,
+                index: context.resizingElement.changeInPointIndex,
+                item: [changeInPoint[0] + dx, changeInPoint[1] + dy],
+              });
+
+              return {
+                ...element,
+                changesInPoint,
+              };
+            }),
+            resizeStartPoint: currentCanvasPoint,
+          };
+        }),
         logError: (_, event) => {
           console.error(event.data);
         },
@@ -889,6 +1058,13 @@ export const visualizerMachine =
           }
 
           return true;
+        },
+        isOnlyOneElementSelected: (context) => {
+          const selectedElements = context.elements.filter(
+            (element) => !element.isDeleted && element.isSelected
+          );
+
+          return selectedElements.length === 1;
         },
       },
     }

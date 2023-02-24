@@ -51,12 +51,15 @@ export interface Typegen0 {
       | ""
       | "CHANGE_ELEMENT_OPTIONS"
       | "DRAG_END"
+      | "RESIZE_END"
       | "SELECTED_ELEMENTS.DELETE"
       | "done.invoke.visualizer machine.pasting:invocation[0]";
     assignCurrentPoint: "MOUSE_MOVE";
     assignDrawStartPoint: "DRAW_START" | "WRITE_START";
     assignElementOptions: "CHANGE_ELEMENT_OPTIONS";
     assignPreviousPoint: "DRAG" | "DRAG_START";
+    assignResizingElement: "RESIZE_START";
+    assignResizingStartPoint: "RESIZE_START";
     assignZoom: "CHANGE_ZOOM";
     assignZoomToCurrentPoint: "CHANGE_ZOOM_WITH_PINCH";
     changeElementShape: "CHANGE_ELEMENT_SHAPE";
@@ -93,6 +96,7 @@ export interface Typegen0 {
       | "DELETE_SELECTION"
       | "DRAW_END"
       | "WRITE_END";
+    resize: "RESIZE";
     selectAllElements: "ELEMENTS.SELECT_ALL";
     selectDrawingElement: "CONNECT" | "DRAW_END" | "WRITE_END";
     toggleIsElementShapeFixed: "IS_ELEMENT_SHAPE_FIXED_TOGGLE";
@@ -102,9 +106,11 @@ export interface Typegen0 {
     updateIntersecting: "DRAW" | "DRAW_END";
     write: "WRITE";
   };
+  // rome-ignore lint/nursery/noBannedTypes: <explanation>
   eventsCausingDelays: {};
   eventsCausingGuards: {
     canEditText: "WRITE_EDIT";
+    isOnlyOneElementSelected: "RESIZE";
     shouldConnect: "CONNECT";
   };
   eventsCausingServices: {
@@ -123,6 +129,7 @@ export interface Typegen0 {
     | "loading"
     | "pasting"
     | "persisting"
+    | "resizing"
     | "version released"
     | "writing";
   tags: never;
