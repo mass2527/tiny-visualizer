@@ -313,9 +313,26 @@ export const createDraw = (
         y: element.y,
       };
 
+      // if last and second last have same items, arrow will be disappear
+      // so need to remove last item to continue showing previous arrow
+      let changesInPoint = element.changesInPoint;
+      if (changesInPoint.length > 1) {
+        const lastChangeInPoint = changesInPoint[changesInPoint.length - 1];
+        invariant(lastChangeInPoint);
+
+        const secondLastChangeInPoint =
+          changesInPoint[changesInPoint.length - 2];
+        invariant(secondLastChangeInPoint);
+
+        if (haveSameItems(lastChangeInPoint, secondLastChangeInPoint)) {
+          changesInPoint = changesInPoint.slice(0, changesInPoint.length - 1);
+        }
+      }
+
       let index = 0;
       let previousChangeInPoint: ChangeInPoint | undefined;
-      for (const changeInPoint of element.changesInPoint) {
+
+      for (const changeInPoint of changesInPoint) {
         const [changeInX, changeInY] = changeInPoint;
         const endX = element.x + changeInX;
         const endY = element.y + changeInY;
@@ -331,7 +348,7 @@ export const createDraw = (
         startPoint.x = endX;
         startPoint.y = endY;
 
-        const isLastIteration = index === element.changesInPoint.length - 1;
+        const isLastIteration = index === changesInPoint.length - 1;
         if (!isLastIteration) {
           index++;
           previousChangeInPoint = changeInPoint;
@@ -728,4 +745,18 @@ export const getClosenessThreshold = (
   zoom: VisualizerMachineContext["zoom"]
 ) => {
   return 10 / zoom;
+};
+
+export const haveSameItems = (array1: unknown[], array2: unknown[]) => {
+  if (array1.length !== array2.length) {
+    return false;
+  }
+
+  for (let i = 0; i < array1.length; i++) {
+    if (array1[i] !== array2[i]) {
+      return false;
+    }
+  }
+
+  return true;
 };
