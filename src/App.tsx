@@ -15,13 +15,6 @@ import Radio from "./components/Radio";
 import { useDevicePixelRatio, useWindowSize } from "./hooks";
 
 import {
-  visualizerMachine,
-  VisualizerMachineContext,
-  VisualizerElement,
-  ZOOM,
-  FontSize,
-} from "./machines/visualizerMachine";
-import {
   Fill_STYLE_OPTIONS,
   FONT_SIZE_OPTIONS,
   HOT_KEYS,
@@ -31,17 +24,27 @@ import {
   STROKE_WIDTH_OPTIONS,
   TEXTAREA_UNIT_LESS_LINE_HEIGHT,
 } from "./constants";
-
 import {
-  calculateElementAbsolutePoint,
+  FontSize,
+  VisualizerElement,
+  visualizerMachine,
+  VisualizerMachineContext,
+  ZOOM,
+} from "./machines/visualizerMachine";
+
+import LinearElementResizer from "./components/LinearElementResizer";
+import {
   calculateCanvasPoint,
+  calculateElementAbsolutePoint,
   convertToPercent,
   convertToRatio,
+  convertToViewportPoint,
   createDraw,
+  getSelectedElements,
+  isLinearElement,
   isPointInsideOfElement,
   isTextElement,
   isWithPlatformMetaKey,
-  convertToViewportPoint,
 } from "./utils";
 
 const MARGIN = 8;
@@ -121,7 +124,7 @@ function App() {
     initialTextRef.current = "";
   }, [send]);
 
-  const selectedElements = elements.filter((element) => element.isSelected);
+  const selectedElements = getSelectedElements(elements);
 
   const updateZoom = useCallback(
     (change: number) => {
@@ -424,6 +427,14 @@ function App() {
     });
   };
 
+  const resize: MouseEventHandler<HTMLCanvasElement> = (event) => {
+    send({
+      type: "RESIZE",
+      event,
+      devicePixelRatio,
+    });
+  };
+
   const moveMouse: MouseEventHandler<HTMLCanvasElement> = (event) => {
     send({
       type: "MOUSE_MOVE",
@@ -702,6 +713,8 @@ function App() {
             ? draw
             : state.matches("dragging")
             ? drag
+            : state.matches("resizing")
+            ? resize
             : moveMouse
         }
         onMouseUp={
@@ -795,6 +808,30 @@ function App() {
           >
             {initialTextRef.current}
           </div>
+        )}
+
+      {selectedElements.length === 1 &&
+        selectedElements[0] &&
+        isLinearElement(selectedElements[0]) && (
+          <LinearElementResizer
+            linearElement={selectedElements[0]}
+            devicePixelRatio={devicePixelRatio}
+            origin={origin}
+            zoom={zoom}
+            onMouseDown={(event, changeInPointIndex) => {
+              send({
+                type: "RESIZE_START",
+                resizingElement: {
+                  changeInPointIndex,
+                },
+                devicePixelRatio,
+                event,
+              });
+            }}
+            onMouseUp={() => {
+              send("RESIZE_END");
+            }}
+          />
         )}
     </div>
   );
