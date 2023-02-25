@@ -20,7 +20,6 @@ import {
   setLastItem,
   calculatePointCloseness,
   getClosenessThreshold,
-  getSelectedElements,
   removeLastItem,
   replaceNthItem,
 } from "../../utils";
@@ -33,7 +32,7 @@ import {
   VisualizerMachineEvents,
   VisualizerTextElement,
 } from "./types";
-import { PERSISTED_CONTEXT } from "./constant";
+import { ELEMENT_STATUS, PERSISTED_CONTEXT } from "./constant";
 
 export const visualizerMachine =
   /** @xstate-layout N4IgpgJg5mDOIC5QDcCWsCuBDANqgXmAE4AEAtlgMYAWqAdmAHSoQ5gDEAIgEoCCA6gH0AygBVe3UQG0ADAF1EoAA4B7WKgAuqFXUUgAHogDsMo4wCcARgAsM60fNGArADYnlgMwAaEAE9EAEwBboyWlkYeph7W5gAcDtYAvok+aJi4BMTkVLQMzKwcAMIAErwAcgDiAKKCVQAyVQCyVWWiIqUAClWyCkggqupaOnqGCCZmVrb2jq7u3n6BMjKMRjGOAbHmLjLm1k7JqejYeISkFDT0TCxsXHwVIuKSPXoDmtq6faPjFjZ2Ds5uTw+fwISyxcGMGROawucweYIBMLmA4gNLHTJnHKXfI3YT1KqFURVTi1BrNVrCRicfFE559V5DD6gL6mH5Tf6zIELUFOJzLSzmdzbWLWDxGcWxFFojKnbIXPLXDh4hqE4mkpotUSUwoAeQ6AE06co1G9hp9jKzJn8ZoD5iDYQFGE4PFYoryAuZzAEpUcZVlzrkrgV2MqCUSSfjyVrGB1eGJuvIXibGSMLRNftMAXNgYhPAFlgFrEFLE4jIjYh5Nj70id-ViFcHGjqAKp4wRNgBqCd6xsG71TCDFlkYew8nlMoqcFZc1hzCERW1CMUrsXLO2d1fRsoD2MV7AAksJ1VH2rwuoIAGL7gAaatEOoqFQaRv6yf75rGlozHNtc-h1lCVwAg8XktliFxYksTc-UxeUg1xfFVQjMlNW1ZtpETek3zNZk0zZa0sy5EFLBkDwPBWItEV5eIXHCIxoNrWDAxxIpSkqGpI01QQ9VEfcdTKYQXwZd9cM-dN2RtbNuUsGcXEYGcKycREZE8QUGIxOVmL3EpymqQQAC0dR1RohOwpkDDwq1M05O1ECLZZtjhB0tncLZ1O3et4NY3SakM4zBH4fdRGKQQOn3MoSlMvscIssT8Os39uXcMwZBcAJXChaFPAg9y6zglj2FjMootNczRnS1YnVXewRWsWJnWdOdC0q51K1FVYIiMKCUlRX1GM03dg2KQ9724fVBGbDpOF4WlMN7UqB2+Kyfyk4jRwo-MRRMfMrHonrpX6ncGxufhuCCmoxAkDCe1faKytzGREUhF13A2JZaKapZHUiUUNnBKFCw8XKmMGm5OIpRhQ0JQReDqOoSpTD8bHsCwyJnUxNkrSsmt2cix2CGJwNXVKgf2vqNKOrz2FO87ak4IKEZE2KK1iRh-1hQV-vcJw5zo8xQhccUthsQWINJw4awpzyCu4KphH3fSLsea6kzugcFMYYCZOsUUwgq2duXxsxVzBJY7BnXZgYGvIICILAAHd6CgW4BEZmLRjCLqqr5YCZHBDYXBcJqBX55xUqnGqtqtynGFth2nZdoQWk4N37tBSJWaWBxHtiJZ7ACIwmo2YcdkrLr6rsaxuolrc8uYuPHboZ3qQaIkREQ3j+NTgdifkwtHBMSDPVhYOq5WEi4hMKwbGj6WG4T3UyjKMMHiu7ukZJtmtjSrqnC9RFC+5dKZxHTHCxDjwZ32MnJY8-K46gKAE54XgKnX0SZLsNm-j2IIq9hQ+xFs5s1WBWYINgC7pVnvfO2j9n53FqGUFOc1boLSRhWY2e9KwAPGGCXmmwnDf3sKRLqY49bQOYjgFQWAIAJ3frFYubNBYChYbsEURcrBsyUtCeIcI9jIhvrXEGeQlDEHULALQTd2D0PKoWQhYdSKBwgkEUwc5IIjk9IKMCWMyJ7RrjBa2TB55NxICoUg9siBvBMWAOgEBIDSJQcJd2uYMGMHqnCcCA9TB4KPh6QhHpYRpWPlOAR+jDrS2QGI94JAiBgDYFgWA9iZGBDkSsPkijA6rnzIA3MzDQiFiHrYfMYRJSCIMTHCxVjnY0zbsnZJ6c-aQlMOYHOecyw5PnKRYcRhIJ-U2DsAu18wlS3ypUyR1SzqzRuk4tOYRYQ-EFuKcIsIxxB2ku0zWLh4QQXWFs6EFDsRKASeM9gEAdBXDoMgFQABrJgB0RnMSORIp2CB6BXMoFgRkPR6njkzs01pfwC68zHORFS1EPSWGCLnUJvVb510OcchOxAiBmMYEoHAnyABmZiyCMHuXfR5iKm6vMuSoD5Xz5A-Izk07Ob1AUdMhSEbmzDti2BaS4A5eRkVmJIFQuBUifkwkdKuYmpZHqOC9LzOiFh96pR2HVaE4tYVCMMYwSgKglC+ATmchUpLbl4vJgS7E6rNUvLeWSz57xvmOLMgOX5NKWl0vzh0wOywektLiGlGIDgYX4vhXkE1WqpHcqIGijFGhsVEFxX64RTBA1mtJeSq1lKbVqyRtSrOjrc70rnIPTWmwwhLBAhnJVMbVWUAwBoE5OqLlXP1WWmOFaq0JveZanQ1rpm2vTY0zNALnVzkFHJUirotp2D5Bysp4T8pNpOSGsNWKcUGrhbGtVlbxkktbRSuQVKe3-Kde03mdh+YxGLNEbYzpHCcrjToBglATkv34D8nYDlTDvRiILHOTVs1OhAnEcEg93BXrVTesAd6F78WXoSKlnhv5yrqpPR6TVA6hynMXOwOwupAfVXQW9JzF6QekJYTtaaP4gtg6yzY8RENH1zgBREvwHC1S9KWw1-qmCxPUPgBOst5aK3qS08izoiyMeCJzWyg5ghmC2VRMczoSFAY4wQbjcsFbdCI6rNBokvRyRItsQO4pggvT-KKci-CZw6w9PmVwCm4BKakTx1TiDkHEc07FQtw5ogD1khsIwM4-yQuNgfXYnhwirOSD1OgKg7HwD6A2zyGnEaiQALRrJBClppRa3BzFImKJIk6HmgzAAlpmoxKKo0vn7AO4JaIdKCI4eSj1Sy7GcF1QsQHjFQGK840EGG3FLHquyGckKmpjkzsQ96UKyIseXaqh+T8m5ddmejNxQpf0E2cOYXmVhWY9MZYxzYoogNUJoU7RbA4ixF0Dit9Ku0tEigncMo1IionPIW1hEjDDKzLGnKlR1tgbDia2QBHWQ8gdyJku1u2jcoCmPMZY8ZJAbF2IgGdpGrhxIlnCOWORRcdYrC2I4cCOxwJkSA5Eog6gdAxLiWABJkBUcf09MOAuIFzZ73iOlXmsk+51S9WOsUQGxmnfe65j24QHIuiLIHdKVdYj4NLCOECq5QGGbUvlp7TAnnjIZ259DmtQHwnCBWMI4nIX1cLMWOE3iSxAZDbylQ-LOsi8S25vex7aJ2At1XSIDKAcWCLGCdnU5VhYY1UGp380Xce0UZCEwIFaL90dXOZDP7p5HsiDYIZyrynSxncLyPJWHqX1j6RVwkK1jUeIipN1lEVJK-cKlUPOHQPa+d4XnrEE3GEyzn7eDPMj7c-LnVP4ftaI2c4-n1BUfECOrcXzrJbuVL+YLm48sApikAPC4kIAA */
@@ -375,10 +374,16 @@ export const visualizerMachine =
         }),
         unselectElements: assign((context) => {
           return {
-            elements: context.elements.map((element) => ({
-              ...element,
-              isSelected: false,
-            })),
+            elements: context.elements.map((element) => {
+              if (element.status === "selected") {
+                return {
+                  ...element,
+                  status: ELEMENT_STATUS["idle"],
+                };
+              }
+
+              return element;
+            }),
           };
         }),
         draw: assign((context, { devicePixelRatio, event }) => {
@@ -526,10 +531,19 @@ export const visualizerMachine =
                   return element;
                 }
 
-                return {
-                  ...element,
-                  isSelected: isIntersecting(drawingElement, element),
-                };
+                if (
+                  element.status === "idle" ||
+                  element.status === "selected"
+                ) {
+                  return {
+                    ...element,
+                    status: isIntersecting(drawingElement, element)
+                      ? ELEMENT_STATUS["selected"]
+                      : ELEMENT_STATUS["idle"],
+                  };
+                }
+
+                return element;
               }),
             };
           }
@@ -541,7 +555,7 @@ export const visualizerMachine =
               if (element.id === context.drawingElementId) {
                 return {
                   ...element,
-                  isSelected: true,
+                  status: ELEMENT_STATUS["selected"],
                 };
               }
               return element;
@@ -558,7 +572,7 @@ export const visualizerMachine =
 
           return {
             elements: context.elements.map((element) => {
-              if (element.isSelected) {
+              if (element.status === "selected") {
                 return {
                   ...element,
                   x: element.x + (currentPoint.x - context.previousPoint.x),
@@ -581,11 +595,10 @@ export const visualizerMachine =
         deleteSelectedElements: assign((context) => {
           return {
             elements: context.elements.map((element) => {
-              if (element.isSelected) {
+              if (element.status === "selected") {
                 return {
                   ...element,
-                  isDeleted: true,
-                  isSelected: false,
+                  status: ELEMENT_STATUS["deleted"],
                 };
               }
 
@@ -623,10 +636,14 @@ export const visualizerMachine =
             return {
               elements: [
                 ...context.elements.map((element) => {
-                  return {
-                    ...element,
-                    isSelected: false,
-                  };
+                  if (element.status === "selected") {
+                    return {
+                      ...element,
+                      status: ELEMENT_STATUS["idle"],
+                    };
+                  }
+
+                  return element;
                 }),
                 ...copiedElements,
               ],
@@ -653,8 +670,7 @@ export const visualizerMachine =
               y: context.currentPoint.y,
               fontFamily,
               fontSize,
-              isSelected: true,
-              isDeleted: false,
+              status: ELEMENT_STATUS["selected"],
               options: context.elementOptions,
               width,
               height,
@@ -827,15 +843,21 @@ export const visualizerMachine =
         }),
         selectAllElements: assign((context) => {
           return {
-            elements: context.elements.map((element) => ({
-              ...element,
-              isSelected: true,
-            })),
+            elements: context.elements.map((element) => {
+              if (element.status === "idle") {
+                return {
+                  ...element,
+                  status: ELEMENT_STATUS["selected"],
+                };
+              }
+
+              return element;
+            }),
           };
         }),
         editWrite: assign((context, { canvasElement }) => {
           const selectedElements = context.elements.filter(
-            (element) => element.isSelected
+            (element) => element.status === "selected"
           );
 
           const element = selectedElements[0];
@@ -881,7 +903,9 @@ export const visualizerMachine =
           }
         ),
         resize: assign((context, { event, devicePixelRatio }) => {
-          const selectedElements = getSelectedElements(context.elements);
+          const selectedElements = context.elements.filter(
+            (element) => element.status === "selected"
+          );
           const resizingElement = selectedElements[0];
           invariant(resizingElement);
 
@@ -1018,7 +1042,7 @@ export const visualizerMachine =
         },
         copySelectedElements: async (context) => {
           const selectedElements = context.elements.filter(
-            (element) => element.isSelected
+            (element) => element.status === "selected"
           );
           const newClipText = {
             type: "visualizer/clipboard",
@@ -1031,7 +1055,7 @@ export const visualizerMachine =
       guards: {
         canEditText: (context) => {
           const selectedElements = context.elements.filter(
-            (element) => element.isSelected
+            (element) => element.status === "selected"
           );
           if (selectedElements.length !== 1) {
             return false;
@@ -1061,7 +1085,7 @@ export const visualizerMachine =
         },
         isOnlyOneElementSelected: (context) => {
           const selectedElements = context.elements.filter(
-            (element) => !element.isDeleted && element.isSelected
+            (element) => element.status === "selected"
           );
 
           return selectedElements.length === 1;
