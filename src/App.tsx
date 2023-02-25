@@ -114,14 +114,14 @@ function App() {
 
   const isWritingState = state.matches("writing");
 
-  if (state.event.type === "WRITE_EDIT" && drawingElement?.shape === "text") {
-    initialTextRef.current = drawingElement.text;
-  }
+  if (state.event.type === "WRITE_EDIT") {
+    invariant(drawingElement);
+    invariant(isTextElement(drawingElement));
 
-  const endWrite = useCallback(() => {
-    send("WRITE_END");
+    initialTextRef.current = drawingElement.text;
+  } else if (state.event.type === "WRITE_END") {
     initialTextRef.current = "";
-  }, [send]);
+  }
 
   const selectedElements = elements.filter(
     (element) => element.status === "selected"
@@ -262,7 +262,7 @@ function App() {
         send({ type: "WRITE_EDIT", canvasElement });
         return;
       } else if (event.key === "Escape") {
-        endWrite();
+        send("WRITE_END");
         return;
       }
 
@@ -319,7 +319,7 @@ function App() {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [send, updateZoom, endWrite]);
+  }, [send, updateZoom]);
 
   useEffect(() => {
     if (elementShape === "selection") {
@@ -769,7 +769,7 @@ function App() {
               }px)`,
             }}
             onBlur={() => {
-              endWrite();
+              send("WRITE_END");
             }}
             onInput={(event) => {
               const canvasElement = canvasRef.current;
