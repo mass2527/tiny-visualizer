@@ -607,9 +607,8 @@ export const createElement = ({
     y: drawStartPoint.y,
     width: 0,
     height: 0,
-    isSelected: false,
+    status: "idle",
     options: elementOptions,
-    isDeleted: false,
   };
 
   const existingSeeds = new Set(
@@ -764,13 +763,6 @@ export const haveSameItems = (array1: unknown[], array2: unknown[]) => {
 
 export const removeLastItem = <T extends unknown>(array: T[]) => {
   return array.slice(0, array.length - 1);
-};
-
-// TODO: delete this function after remove isSelected, isDeleted
-export const getSelectedElements = (elements: VisualizerElement[]) => {
-  return elements.filter((element) => {
-    return !element.isDeleted && element.isSelected;
-  });
 };
 
 export const replaceNthItem = <T extends unknown>({

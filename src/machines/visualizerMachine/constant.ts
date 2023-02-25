@@ -1,4 +1,4 @@
-import { VisualizerMachinePersistedContext } from "./types";
+import { VisualizerElement, VisualizerMachinePersistedContext } from "./types";
 
 // zoom in ratio
 export const ZOOM = {
@@ -6,6 +6,12 @@ export const ZOOM = {
   MIN: 0.1,
   MAX: 30,
 } as const;
+
+export const ELEMENT_STATUS = {
+  idle: "idle",
+  selected: "selected",
+  deleted: "deleted",
+} satisfies Record<VisualizerElement["status"], VisualizerElement["status"]>;
 
 export const PERSISTED_CONTEXT: VisualizerMachinePersistedContext = {
   // track
