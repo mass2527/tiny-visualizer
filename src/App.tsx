@@ -40,6 +40,7 @@ import {
   convertToRatio,
   convertToViewportPoint,
   createDraw,
+  getSelectedElements,
   isLinearElement,
   isPointInsideOfElement,
   isTextElement,
@@ -114,18 +115,16 @@ function App() {
 
   const isWritingState = state.matches("writing");
 
-  if (state.event.type === "WRITE_EDIT") {
-    invariant(drawingElement);
-    invariant(isTextElement(drawingElement));
-
+  if (state.event.type === "WRITE_EDIT" && drawingElement?.shape === "text") {
     initialTextRef.current = drawingElement.text;
-  } else if (state.event.type === "WRITE_END") {
-    initialTextRef.current = "";
   }
 
-  const selectedElements = elements.filter(
-    (element) => element.status === "selected"
-  );
+  const endWrite = useCallback(() => {
+    send("WRITE_END");
+    initialTextRef.current = "";
+  }, [send]);
+
+  const selectedElements = getSelectedElements(elements);
 
   const updateZoom = useCallback(
     (change: number) => {
@@ -161,10 +160,8 @@ function App() {
     };
     ctx.clearRect(0, 0, canvasElementSize.width, canvasElementSize.height);
 
-    const nonDeletedElements = elements.filter(
-      (element) => element.status !== "deleted"
-    );
-    for (const element of nonDeletedElements) {
+    const drawnElements = elements.filter((element) => !element.isDeleted);
+    for (const element of drawnElements) {
       ctx.save();
       ctx.translate(origin.x, origin.y);
       ctx.scale(zoom, zoom);
@@ -185,7 +182,7 @@ function App() {
       drawElement();
 
       const absolutePoint = calculateElementAbsolutePoint(element);
-      if (element.status === "selected") {
+      if (element.isSelected) {
         ctx.setLineDash([8, 4]);
         ctx.strokeRect(
           absolutePoint.minX - MARGIN,
@@ -262,7 +259,7 @@ function App() {
         send({ type: "WRITE_EDIT", canvasElement });
         return;
       } else if (event.key === "Escape") {
-        send("WRITE_END");
+        endWrite();
         return;
       }
 
@@ -319,7 +316,7 @@ function App() {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [send, updateZoom]);
+  }, [send, updateZoom, endWrite]);
 
   useEffect(() => {
     if (elementShape === "selection") {
@@ -769,7 +766,7 @@ function App() {
               }px)`,
             }}
             onBlur={() => {
-              send("WRITE_END");
+              endWrite();
             }}
             onInput={(event) => {
               const canvasElement = canvasRef.current;

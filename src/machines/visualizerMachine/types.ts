@@ -3,7 +3,6 @@ import { Options as RoughJSOptions } from "roughjs/bin/core";
 
 export type VisualizerElementBase = {
   id: string;
-  status: "idle" | "selected" | "deleted";
 
   // VisualizerGenericElement: left top point
   // VisualizerLinearElement: start point
@@ -15,7 +14,9 @@ export type VisualizerElementBase = {
   width: number;
   height: number;
 
+  isSelected: boolean;
   options: RoughJSOptions;
+  isDeleted: boolean;
 };
 
 export type VisualizerSelectionElement = VisualizerElementBase & {
