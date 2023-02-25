@@ -374,10 +374,16 @@ export const visualizerMachine =
         }),
         unselectElements: assign((context) => {
           return {
-            elements: context.elements.map((element) => ({
-              ...element,
-              status: ELEMENT_STATUS["idle"],
-            })),
+            elements: context.elements.map((element) => {
+              if (element.status === "selected") {
+                return {
+                  ...element,
+                  status: ELEMENT_STATUS["idle"],
+                };
+              }
+
+              return element;
+            }),
           };
         }),
         draw: assign((context, { devicePixelRatio, event }) => {
@@ -525,12 +531,19 @@ export const visualizerMachine =
                   return element;
                 }
 
-                return {
-                  ...element,
-                  status: isIntersecting(drawingElement, element)
-                    ? ELEMENT_STATUS["selected"]
-                    : ELEMENT_STATUS["idle"],
-                };
+                if (
+                  element.status === "idle" ||
+                  element.status === "selected"
+                ) {
+                  return {
+                    ...element,
+                    status: isIntersecting(drawingElement, element)
+                      ? ELEMENT_STATUS["selected"]
+                      : ELEMENT_STATUS["idle"],
+                  };
+                }
+
+                return element;
               }),
             };
           }
@@ -623,10 +636,14 @@ export const visualizerMachine =
             return {
               elements: [
                 ...context.elements.map((element) => {
-                  return {
-                    ...element,
-                    status: ELEMENT_STATUS["idle"],
-                  };
+                  if (element.status === "selected") {
+                    return {
+                      ...element,
+                      status: ELEMENT_STATUS["idle"],
+                    };
+                  }
+
+                  return element;
                 }),
                 ...copiedElements,
               ],
@@ -826,10 +843,16 @@ export const visualizerMachine =
         }),
         selectAllElements: assign((context) => {
           return {
-            elements: context.elements.map((element) => ({
-              ...element,
-              status: ELEMENT_STATUS["selected"],
-            })),
+            elements: context.elements.map((element) => {
+              if (element.status === "idle") {
+                return {
+                  ...element,
+                  status: ELEMENT_STATUS["selected"],
+                };
+              }
+
+              return element;
+            }),
           };
         }),
         editWrite: assign((context, { canvasElement }) => {
