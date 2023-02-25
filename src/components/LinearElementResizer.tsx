@@ -52,7 +52,7 @@ function LinearElementResizer({
       {changesInPoint.map((changesInPoint, index) => {
         const [changeInX, changeInY] = changesInPoint;
 
-        const drawStartViewportPoint = convertToViewportPoint({
+        const resizingStartViewportPoint = convertToViewportPoint({
           canvasPoint: {
             x: linearElement.x + changeInX,
             y: linearElement.y + changeInY,
@@ -68,8 +68,8 @@ function LinearElementResizer({
             role='button'
             style={{
               position: "absolute",
-              left: drawStartViewportPoint.x - WIDTH / 2,
-              top: drawStartViewportPoint.y - HEIGHT / 2,
+              left: resizingStartViewportPoint.x - WIDTH / 2,
+              top: resizingStartViewportPoint.y - HEIGHT / 2,
               width: WIDTH,
               height: HEIGHT,
               borderRadius: "50%",
