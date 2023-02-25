@@ -106,7 +106,6 @@ export interface Typegen0 {
     updateIntersecting: "DRAW" | "DRAW_END";
     write: "WRITE";
   };
-  // rome-ignore lint/nursery/noBannedTypes: <explanation>
   eventsCausingDelays: {};
   eventsCausingGuards: {
     canEditText: "WRITE_EDIT";

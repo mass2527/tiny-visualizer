@@ -40,7 +40,6 @@ import {
   convertToRatio,
   convertToViewportPoint,
   createDraw,
-  getSelectedElements,
   isLinearElement,
   isPointInsideOfElement,
   isTextElement,
@@ -124,7 +123,9 @@ function App() {
     initialTextRef.current = "";
   }, [send]);
 
-  const selectedElements = getSelectedElements(elements);
+  const selectedElements = elements.filter(
+    (element) => element.status === "selected"
+  );
 
   const updateZoom = useCallback(
     (change: number) => {
@@ -160,8 +161,10 @@ function App() {
     };
     ctx.clearRect(0, 0, canvasElementSize.width, canvasElementSize.height);
 
-    const drawnElements = elements.filter((element) => !element.isDeleted);
-    for (const element of drawnElements) {
+    const nonDeletedElements = elements.filter(
+      (element) => element.status !== "deleted"
+    );
+    for (const element of nonDeletedElements) {
       ctx.save();
       ctx.translate(origin.x, origin.y);
       ctx.scale(zoom, zoom);
@@ -182,7 +185,7 @@ function App() {
       drawElement();
 
       const absolutePoint = calculateElementAbsolutePoint(element);
-      if (element.isSelected) {
+      if (element.status === "selected") {
         ctx.setLineDash([8, 4]);
         ctx.strokeRect(
           absolutePoint.minX - MARGIN,
