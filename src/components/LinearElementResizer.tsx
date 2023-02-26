@@ -19,7 +19,7 @@ function LinearElementResizer({
   linearElement: VisualizerLinearElement;
   onMouseDown: (
     event: React.MouseEvent<HTMLDivElement, MouseEvent>,
-    changeInPointIndex: number
+    pointIndex: number
   ) => void;
   onMouseUp: VoidFunction;
 
@@ -27,35 +27,32 @@ function LinearElementResizer({
   origin: VisualizerMachineContext["origin"];
   zoom: VisualizerMachineContext["zoom"];
 }) {
-  let { changesInPoint } = linearElement;
+  let { points } = linearElement;
 
   // linearElement has at least two point
-  const firstChangesInPoint = changesInPoint[0];
-  invariant(firstChangesInPoint);
-  const lastChangesInPoint = changesInPoint[changesInPoint.length - 1];
-  invariant(lastChangesInPoint);
+  const firstPoint = points[0];
+  invariant(firstPoint);
+  const lastPoint = points[points.length - 1];
+  invariant(lastPoint);
 
   // if linearElement with 2 points, insert virtual center point
-  if (changesInPoint.length === 2) {
-    changesInPoint = [
-      firstChangesInPoint,
-      [
-        firstChangesInPoint[0] + lastChangesInPoint[0] / 2,
-        firstChangesInPoint[1] + lastChangesInPoint[1] / 2,
-      ],
-      lastChangesInPoint,
+  if (points.length === 2) {
+    points = [
+      firstPoint,
+      [firstPoint[0] + lastPoint[0] / 2, firstPoint[1] + lastPoint[1] / 2],
+      lastPoint,
     ];
   }
 
   return (
     <>
-      {changesInPoint.map((changesInPoint, index) => {
-        const [changeInX, changeInY] = changesInPoint;
+      {points.map((point, index) => {
+        const [x, y] = point;
 
         const resizingStartViewportPoint = convertToViewportPoint({
           canvasPoint: {
-            x: linearElement.x + changeInX,
-            y: linearElement.y + changeInY,
+            x: linearElement.x + x,
+            y: linearElement.y + y,
           },
           devicePixelRatio,
           origin,

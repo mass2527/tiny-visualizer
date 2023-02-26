@@ -2,7 +2,7 @@ import invariant from "tiny-invariant";
 import rough from "roughjs";
 import { Drawable } from "roughjs/bin/core";
 import {
-  ChangeInPoint,
+  LinearElementPoint,
   Point,
   SHAPE_TYPES,
   VisualizerElement,
@@ -111,41 +111,25 @@ const calculateGenericElementAbsolutePoint = (
 const calculateLinearElementAbsolutePoint = (
   element: VisualizerLinearElement
 ) => {
-  const { changesInPoint } = element;
+  const { points } = element;
 
   return {
-    minX: Math.min(
-      ...changesInPoint.map(([changeInX]) => element.x + changeInX)
-    ),
-    minY: Math.min(
-      ...changesInPoint.map(([_, changeInY]) => element.y + changeInY)
-    ),
-    maxX: Math.max(
-      ...changesInPoint.map(([changeInX]) => element.x + changeInX)
-    ),
-    maxY: Math.max(
-      ...changesInPoint.map(([_, changeInY]) => element.y + changeInY)
-    ),
+    minX: Math.min(...points.map(([x]) => element.x + x)),
+    minY: Math.min(...points.map(([_, y]) => element.y + y)),
+    maxX: Math.max(...points.map(([x]) => element.x + x)),
+    maxY: Math.max(...points.map(([_, y]) => element.y + y)),
   };
 };
 
 export const calculateFreeDrawElementAbsolutePoint = (
   element: VisualizerFreeDrawElement
 ) => {
-  const { changesInPoint } = element;
+  const { points } = element;
   return {
-    minX: Math.min(
-      ...changesInPoint.map(([changeInX]) => element.x + changeInX)
-    ),
-    minY: Math.min(
-      ...changesInPoint.map(([_, changeInY]) => element.y + changeInY)
-    ),
-    maxX: Math.max(
-      ...changesInPoint.map(([changeInX]) => element.x + changeInX)
-    ),
-    maxY: Math.max(
-      ...changesInPoint.map(([_, changeInY]) => element.y + changeInY)
-    ),
+    minX: Math.min(...points.map(([x]) => element.x + x)),
+    minY: Math.min(...points.map(([_, y]) => element.y + y)),
+    maxX: Math.max(...points.map(([x]) => element.x + x)),
+    maxY: Math.max(...points.map(([_, y]) => element.y + y)),
   };
 };
 
@@ -286,19 +270,19 @@ export const createDraw = (
         y: element.y,
       };
 
-      for (const changeInPoint of element.changesInPoint) {
-        const [changeInX, changeInY] = changeInPoint;
+      for (const point of element.points) {
+        const [x, y] = point;
         const lineDrawable = generator.line(
           startPoint.x,
           startPoint.y,
-          element.x + changeInX,
-          element.y + changeInY,
+          element.x + x,
+          element.y + y,
           { ...element.options, seed: element.seed }
         );
         drawables.push(lineDrawable);
 
-        startPoint.x = element.x + changeInX;
-        startPoint.y = element.y + changeInY;
+        startPoint.x = element.x + x;
+        startPoint.y = element.y + y;
       }
 
       return () => {
@@ -315,27 +299,26 @@ export const createDraw = (
 
       // if last and second last have same items, arrow will be disappear
       // so need to remove last item to continue showing previous arrow
-      let changesInPoint = element.changesInPoint;
-      if (changesInPoint.length > 1) {
-        const lastChangeInPoint = changesInPoint[changesInPoint.length - 1];
-        invariant(lastChangeInPoint);
+      let { points } = element;
+      if (points.length > 1) {
+        const lastPoint = points[points.length - 1];
+        invariant(lastPoint);
 
-        const secondLastChangeInPoint =
-          changesInPoint[changesInPoint.length - 2];
-        invariant(secondLastChangeInPoint);
+        const secondLastPoint = points[points.length - 2];
+        invariant(secondLastPoint);
 
-        if (haveSameItems(lastChangeInPoint, secondLastChangeInPoint)) {
-          changesInPoint = removeLastItem(changesInPoint);
+        if (haveSameItems(lastPoint, secondLastPoint)) {
+          points = removeLastItem(points);
         }
       }
 
       let index = 0;
-      let previousChangeInPoint: ChangeInPoint | undefined;
+      let previousPoint: LinearElementPoint | undefined;
 
-      for (const changeInPoint of changesInPoint) {
-        const [changeInX, changeInY] = changeInPoint;
-        const endX = element.x + changeInX;
-        const endY = element.y + changeInY;
+      for (const point of points) {
+        const [x, y] = point;
+        const endX = element.x + x;
+        const endY = element.y + y;
 
         // -
         arrowDrawables.push(
@@ -348,27 +331,21 @@ export const createDraw = (
         startPoint.x = endX;
         startPoint.y = endY;
 
-        const isLastIteration = index === changesInPoint.length - 1;
-        if (!isLastIteration) {
+        const isLastPoint = index === points.length - 1;
+        if (!isLastPoint) {
           index++;
-          previousChangeInPoint = changeInPoint;
+          previousPoint = point;
           continue;
         }
 
-        if (previousChangeInPoint === undefined) {
+        if (previousPoint === undefined) {
           continue;
         }
 
-        const [previousChangeInX, previousChangeInY] = previousChangeInPoint;
-        const angleInRadians = Math.atan2(
-          changeInY - previousChangeInY,
-          changeInX - previousChangeInX
-        );
+        const [previousX, previousY] = previousPoint;
+        const angleInRadians = Math.atan2(y - previousY, x - previousX);
 
-        const distance = calculateDistance(
-          changeInX - previousChangeInX,
-          changeInY - previousChangeInY
-        );
+        const distance = calculateDistance(x - previousX, y - previousY);
         const arrowSize = Math.min(ARROW_MAX_SIZE, distance / 2);
 
         // \
@@ -412,12 +389,12 @@ export const createDraw = (
       ctx.strokeStyle = element.options.stroke || "black";
 
       ctx.moveTo(element.x, element.y);
-      for (let i = 1; i < element.changesInPoint.length; i++) {
-        const point = element.changesInPoint[i];
+      for (let i = 1; i < element.points.length; i++) {
+        const point = element.points[i];
         invariant(point);
 
-        const [changeInX, changeInY] = point;
-        ctx.lineTo(element.x + changeInX, element.y + changeInY);
+        const [x, y] = point;
+        ctx.lineTo(element.x + x, element.y + y);
       }
       ctx.stroke();
 
@@ -650,14 +627,14 @@ export const createElement = ({
       return {
         ...elementBase,
         shape: elementShape,
-        changesInPoint: [[0, 0]],
+        points: [[0, 0]],
         seed: createRandomSeed(existingSeeds),
       };
     } else {
       return {
         ...elementBase,
         shape: elementShape,
-        changesInPoint: [[0, 0]],
+        points: [[0, 0]],
       };
     }
   }
@@ -720,10 +697,10 @@ export const calculatePointCloseness = (
   linearElement: VisualizerLinearElement,
   threshold: number
 ) => {
-  const { changesInPoint } = linearElement;
-  const lastPoint = changesInPoint[changesInPoint.length - 1];
+  const { points } = linearElement;
+  const lastPoint = points[points.length - 1];
   invariant(lastPoint);
-  const secondLastPoint = changesInPoint[changesInPoint.length - 2];
+  const secondLastPoint = points[points.length - 2];
   invariant(secondLastPoint);
 
   const distanceBetweenLastAndStartPoint = calculateDistance(

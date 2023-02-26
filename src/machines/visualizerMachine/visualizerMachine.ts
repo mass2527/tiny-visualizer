@@ -26,7 +26,7 @@ import {
 import debounce from "lodash.debounce";
 import { TEXTAREA_UNIT_LESS_LINE_HEIGHT } from "../../constants";
 import {
-  ChangeInPoint,
+  LinearElementPoint,
   VisualizerElement,
   VisualizerMachineContext,
   VisualizerMachineEvents,
@@ -411,21 +411,18 @@ export const visualizerMachine =
                 }
 
                 if (isLinearElement(element)) {
-                  const changesInPoint: ChangeInPoint[] =
-                    element.changesInPoint.length === 1
+                  const points: LinearElementPoint[] =
+                    element.points.length === 1
                       ? [
                           [0, 0],
                           [changeInX, changeInY],
                         ]
-                      : setLastItem(element.changesInPoint, [
-                          changeInX,
-                          changeInY,
-                        ]);
+                      : setLastItem(element.points, [changeInX, changeInY]);
                   return {
                     ...element,
                     width: Math.abs(changeInX),
                     height: Math.abs(changeInY),
-                    changesInPoint,
+                    points,
                   };
                 }
 
@@ -436,10 +433,7 @@ export const visualizerMachine =
                     ...element,
                     width: absolutePoint.maxX - absolutePoint.minX,
                     height: absolutePoint.maxY - absolutePoint.minY,
-                    changesInPoint: [
-                      ...element.changesInPoint,
-                      [changeInX, changeInY],
-                    ],
+                    points: [...element.points, [changeInX, changeInY]],
                   };
                 }
 
@@ -470,10 +464,7 @@ export const visualizerMachine =
                   ...element,
                   width: Math.abs(changeInX),
                   height: Math.abs(changeInY),
-                  changesInPoint: [
-                    ...element.changesInPoint,
-                    [changeInX, changeInY],
-                  ],
+                  points: [...element.points, [changeInX, changeInY]],
                 };
               }
 
@@ -497,21 +488,18 @@ export const visualizerMachine =
               if (element.id === context.drawingElementId) {
                 invariant(isLinearElement(element));
 
-                let changesInPoint: ChangeInPoint[];
+                let points: LinearElementPoint[];
                 if (isLastPointCloseToStartPoint) {
-                  changesInPoint = setLastItem(element.changesInPoint, [0, 0]);
+                  points = setLastItem(element.points, [0, 0]);
                 } else if (areLastTwoPointsClose) {
-                  changesInPoint = element.changesInPoint.slice(
-                    0,
-                    element.changesInPoint.length - 1
-                  );
+                  points = element.points.slice(0, element.points.length - 1);
                 } else {
-                  changesInPoint = [...element.changesInPoint];
+                  points = [...element.points];
                 }
 
                 return {
                   ...element,
-                  changesInPoint,
+                  points,
                 };
               }
               return element;
@@ -930,98 +918,96 @@ export const visualizerMachine =
 
               invariant(isLinearElement(element));
 
-              const isResizingStartPoint =
-                context.resizingElement.changeInPointIndex === 0;
+              const isUpdatingStartPoint =
+                context.resizingElement.pointIndex === 0;
 
-              const firstChangeInPoint = element.changesInPoint[0];
-              invariant(firstChangeInPoint);
-              const lastChangesInPoint =
-                element.changesInPoint[element.changesInPoint.length - 1];
-              invariant(lastChangesInPoint);
+              const firstPoint = element.points[0];
+              invariant(firstPoint);
+              const lastPoint = element.points[element.points.length - 1];
+              invariant(lastPoint);
 
-              const hasMoreThan2Points =
-                resizingElement.changesInPoint.length > 2;
+              const hasMoreThan2Points = resizingElement.points.length > 2;
               if (!hasMoreThan2Points) {
-                if (isResizingStartPoint) {
-                  const changesInPoint: ChangeInPoint[] =
-                    element.changesInPoint.map(([x, y], index) => {
+                if (isUpdatingStartPoint) {
+                  const points: LinearElementPoint[] = element.points.map(
+                    ([x, y], index) => {
                       if (index === 0) {
                         return [x, y];
                       }
 
                       return [x - dx, y - dy];
-                    });
+                    }
+                  );
                   return {
                     ...element,
                     x: element.x + dx,
                     y: element.y + dy,
-                    changesInPoint,
+                    points,
                   };
                 }
 
-                const isResizingVirtualCenterPoint =
-                  context.resizingElement.changeInPointIndex === 1;
-                if (isResizingVirtualCenterPoint) {
+                const isUpdatingVirtualCenterPoint =
+                  context.resizingElement.pointIndex === 1;
+                if (isUpdatingVirtualCenterPoint) {
                   const virtualCenterPoint = {
-                    x: firstChangeInPoint[0] + lastChangesInPoint[0] / 2,
-                    y: firstChangeInPoint[1] + lastChangesInPoint[1] / 2,
+                    x: firstPoint[0] + lastPoint[0] / 2,
+                    y: firstPoint[1] + lastPoint[1] / 2,
                   };
 
-                  const changesInPoint: ChangeInPoint[] = [
-                    firstChangeInPoint,
+                  const points: LinearElementPoint[] = [
+                    firstPoint,
                     [dx + virtualCenterPoint.x, dy + virtualCenterPoint.y],
-                    lastChangesInPoint,
+                    lastPoint,
                   ];
 
                   return {
                     ...element,
-                    changesInPoint,
+                    points,
                   };
                 }
 
-                // resizing end point (context.resizingElement.changeInPointIndex = 2)
-                const changesInPoint: ChangeInPoint[] = [
-                  ...removeLastItem(element.changesInPoint),
-                  [dx + lastChangesInPoint[0], dy + lastChangesInPoint[1]],
+                // resizing end point (context.resizingElement.pointIndex = 2)
+                const points: LinearElementPoint[] = [
+                  ...removeLastItem(element.points),
+                  [dx + lastPoint[0], dy + lastPoint[1]],
                 ];
                 return {
                   ...element,
-                  changesInPoint,
+                  points,
                 };
               }
 
-              if (isResizingStartPoint) {
-                const changesInPoint: ChangeInPoint[] =
-                  element.changesInPoint.map(([x, y], index) => {
+              if (isUpdatingStartPoint) {
+                const points: LinearElementPoint[] = element.points.map(
+                  ([x, y], index) => {
                     if (index === 0) {
                       return [x, y];
                     }
 
                     return [x - dx, y - dy];
-                  });
+                  }
+                );
                 return {
                   ...element,
                   x: element.x + dx,
                   y: element.y + dy,
-                  changesInPoint,
+                  points,
                 };
               }
 
-              const changeInPoint =
-                element.changesInPoint[
-                  context.resizingElement.changeInPointIndex
-                ];
-              invariant(changeInPoint);
+              const updatingPoint =
+                element.points[context.resizingElement.pointIndex];
+              invariant(updatingPoint);
 
-              const changesInPoint: ChangeInPoint[] = replaceNthItem({
-                array: element.changesInPoint,
-                index: context.resizingElement.changeInPointIndex,
-                item: [changeInPoint[0] + dx, changeInPoint[1] + dy],
+              const points: LinearElementPoint[] = replaceNthItem({
+                array: element.points,
+                index: context.resizingElement.pointIndex,
+                item: [updatingPoint[0] + dx, updatingPoint[1] + dy],
               });
 
               return {
                 ...element,
-                changesInPoint,
+                points,
               };
             }),
             resizeStartPoint: currentCanvasPoint,

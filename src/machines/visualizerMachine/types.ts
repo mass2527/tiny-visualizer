@@ -35,17 +35,17 @@ export type VisualizerGenericElement =
   | VisualizerRectangleElement
   | VisualizerEllipseElement;
 
-export type ChangeInPoint = [number, number];
+export type LinearElementPoint = [number, number];
 
 export type VisualizerLinearElement = VisualizerElementBase & {
   shape: "line" | "arrow";
-  changesInPoint: ChangeInPoint[];
+  points: LinearElementPoint[];
   seed: number;
 };
 
 export type VisualizerFreeDrawElement = VisualizerElementBase & {
   shape: "freedraw";
-  changesInPoint: ChangeInPoint[];
+  points: LinearElementPoint[];
 };
 
 export type FontSize = 12 | 16 | 20 | 24;
@@ -106,7 +106,7 @@ export type VisualizerMachinePersistedContext = {
 
   elementShape: VisualizerElement["shape"];
   resizingElement: {
-    changeInPointIndex: number;
+    pointIndex: number;
   };
   resizeStartPoint: Point;
   drawingElementId: VisualizerElement["id"] | null;
