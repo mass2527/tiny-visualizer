@@ -39,7 +39,7 @@ function LinearElementResizer({
   if (points.length === 2) {
     points = [
       firstPoint,
-      [firstPoint[0] + lastPoint[0] / 2, firstPoint[1] + lastPoint[1] / 2],
+      { x: firstPoint.x + lastPoint.x / 2, y: firstPoint.y + lastPoint.y / 2 },
       lastPoint,
     ];
   }
@@ -47,7 +47,7 @@ function LinearElementResizer({
   return (
     <>
       {points.map((point, index) => {
-        const [x, y] = point;
+        const { x, y } = point;
 
         const resizingStartViewportPoint = convertToViewportPoint({
           canvasPoint: {

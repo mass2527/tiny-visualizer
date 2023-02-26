@@ -2,7 +2,6 @@ import invariant from "tiny-invariant";
 import rough from "roughjs";
 import { Drawable } from "roughjs/bin/core";
 import {
-  LinearElementPoint,
   Point,
   SHAPE_TYPES,
   VisualizerElement,
@@ -114,10 +113,10 @@ const calculateLinearElementAbsolutePoint = (
   const { points } = element;
 
   return {
-    minX: Math.min(...points.map(([x]) => element.x + x)),
-    minY: Math.min(...points.map(([_, y]) => element.y + y)),
-    maxX: Math.max(...points.map(([x]) => element.x + x)),
-    maxY: Math.max(...points.map(([_, y]) => element.y + y)),
+    minX: Math.min(...points.map((point) => element.x + point.x)),
+    minY: Math.min(...points.map((point) => element.y + point.y)),
+    maxX: Math.max(...points.map((point) => element.x + point.x)),
+    maxY: Math.max(...points.map((point) => element.y + point.y)),
   };
 };
 
@@ -126,10 +125,10 @@ export const calculateFreeDrawElementAbsolutePoint = (
 ) => {
   const { points } = element;
   return {
-    minX: Math.min(...points.map(([x]) => element.x + x)),
-    minY: Math.min(...points.map(([_, y]) => element.y + y)),
-    maxX: Math.max(...points.map(([x]) => element.x + x)),
-    maxY: Math.max(...points.map(([_, y]) => element.y + y)),
+    minX: Math.min(...points.map((point) => element.x + point.x)),
+    minY: Math.min(...points.map((point) => element.y + point.y)),
+    maxX: Math.max(...points.map((point) => element.x + point.x)),
+    maxY: Math.max(...points.map((point) => element.y + point.y)),
   };
 };
 
@@ -271,7 +270,7 @@ export const createDraw = (
       };
 
       for (const point of element.points) {
-        const [x, y] = point;
+        const { x, y } = point;
         const lineDrawable = generator.line(
           startPoint.x,
           startPoint.y,
@@ -307,16 +306,16 @@ export const createDraw = (
         const secondLastPoint = points[points.length - 2];
         invariant(secondLastPoint);
 
-        if (haveSameItems(lastPoint, secondLastPoint)) {
+        if (haveSamePoint(lastPoint, secondLastPoint)) {
           points = removeLastItem(points);
         }
       }
 
       let index = 0;
-      let previousPoint: LinearElementPoint | undefined;
+      let previousPoint: Point | undefined;
 
       for (const point of points) {
-        const [x, y] = point;
+        const { x, y } = point;
         const endX = element.x + x;
         const endY = element.y + y;
 
@@ -342,10 +341,15 @@ export const createDraw = (
           continue;
         }
 
-        const [previousX, previousY] = previousPoint;
-        const angleInRadians = Math.atan2(y - previousY, x - previousX);
+        const angleInRadians = Math.atan2(
+          y - previousPoint.y,
+          x - previousPoint.x
+        );
 
-        const distance = calculateDistance(x - previousX, y - previousY);
+        const distance = calculateDistance(
+          x - previousPoint.x,
+          y - previousPoint.y
+        );
         const arrowSize = Math.min(ARROW_MAX_SIZE, distance / 2);
 
         // \
@@ -393,7 +397,7 @@ export const createDraw = (
         const point = element.points[i];
         invariant(point);
 
-        const [x, y] = point;
+        const { x, y } = point;
         ctx.lineTo(element.x + x, element.y + y);
       }
       ctx.stroke();
@@ -627,14 +631,14 @@ export const createElement = ({
       return {
         ...elementBase,
         shape: elementShape,
-        points: [[0, 0]],
+        points: [{ x: 0, y: 0 }],
         seed: createRandomSeed(existingSeeds),
       };
     } else {
       return {
         ...elementBase,
         shape: elementShape,
-        points: [[0, 0]],
+        points: [{ x: 0, y: 0 }],
       };
     }
   }
@@ -704,12 +708,12 @@ export const calculatePointCloseness = (
   invariant(secondLastPoint);
 
   const distanceBetweenLastAndStartPoint = calculateDistance(
-    lastPoint[0],
-    lastPoint[1]
+    lastPoint.x,
+    lastPoint.y
   );
   const distanceBetweenLastTwoPoints = calculateDistance(
-    lastPoint[0] - secondLastPoint[0],
-    lastPoint[1] - secondLastPoint[1]
+    lastPoint.x - secondLastPoint.x,
+    lastPoint.y - secondLastPoint.y
   );
 
   return {
@@ -724,18 +728,12 @@ export const getClosenessThreshold = (
   return 10 / zoom;
 };
 
-export const haveSameItems = (array1: unknown[], array2: unknown[]) => {
-  if (array1.length !== array2.length) {
-    return false;
+export const haveSamePoint = (point1: Point, point2: Point) => {
+  if (point1.x === point2.x && point1.y === point2.y) {
+    return true;
   }
 
-  for (let i = 0; i < array1.length; i++) {
-    if (array1[i] !== array2[i]) {
-      return false;
-    }
-  }
-
-  return true;
+  return false;
 };
 
 export const removeLastItem = <T extends unknown>(array: T[]) => {

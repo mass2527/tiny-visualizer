@@ -35,17 +35,16 @@ export type VisualizerGenericElement =
   | VisualizerRectangleElement
   | VisualizerEllipseElement;
 
-export type LinearElementPoint = [number, number];
-
 export type VisualizerLinearElement = VisualizerElementBase & {
   shape: "line" | "arrow";
-  points: LinearElementPoint[];
+  // first point always starts with {x:0, y:0} since origin is element.x, element.y
+  points: Point[];
   seed: number;
 };
 
 export type VisualizerFreeDrawElement = VisualizerElementBase & {
   shape: "freedraw";
-  points: LinearElementPoint[];
+  points: Point[];
 };
 
 export type FontSize = 12 | 16 | 20 | 24;

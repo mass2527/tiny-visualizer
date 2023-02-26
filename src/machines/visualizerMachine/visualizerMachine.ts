@@ -26,7 +26,7 @@ import {
 import debounce from "lodash.debounce";
 import { TEXTAREA_UNIT_LESS_LINE_HEIGHT } from "../../constants";
 import {
-  LinearElementPoint,
+  Point,
   VisualizerElement,
   VisualizerMachineContext,
   VisualizerMachineEvents,
@@ -411,13 +411,16 @@ export const visualizerMachine =
                 }
 
                 if (isLinearElement(element)) {
-                  const points: LinearElementPoint[] =
+                  const points: Point[] =
                     element.points.length === 1
                       ? [
-                          [0, 0],
-                          [changeInX, changeInY],
+                          { x: 0, y: 0 },
+                          { x: changeInX, y: changeInY },
                         ]
-                      : setLastItem(element.points, [changeInX, changeInY]);
+                      : setLastItem(element.points, {
+                          x: changeInX,
+                          y: changeInY,
+                        });
                   return {
                     ...element,
                     width: Math.abs(changeInX),
@@ -433,7 +436,7 @@ export const visualizerMachine =
                     ...element,
                     width: absolutePoint.maxX - absolutePoint.minX,
                     height: absolutePoint.maxY - absolutePoint.minY,
-                    points: [...element.points, [changeInX, changeInY]],
+                    points: [...element.points, { x: changeInX, y: changeInY }],
                   };
                 }
 
@@ -464,7 +467,7 @@ export const visualizerMachine =
                   ...element,
                   width: Math.abs(changeInX),
                   height: Math.abs(changeInY),
-                  points: [...element.points, [changeInX, changeInY]],
+                  points: [...element.points, { x: changeInX, y: changeInY }],
                 };
               }
 
@@ -488,9 +491,9 @@ export const visualizerMachine =
               if (element.id === context.drawingElementId) {
                 invariant(isLinearElement(element));
 
-                let points: LinearElementPoint[];
+                let points: Point[];
                 if (isLastPointCloseToStartPoint) {
-                  points = setLastItem(element.points, [0, 0]);
+                  points = setLastItem(element.points, { x: 0, y: 0 });
                 } else if (areLastTwoPointsClose) {
                   points = element.points.slice(0, element.points.length - 1);
                 } else {
@@ -929,13 +932,13 @@ export const visualizerMachine =
               const hasMoreThan2Points = resizingElement.points.length > 2;
               if (!hasMoreThan2Points) {
                 if (isUpdatingStartPoint) {
-                  const points: LinearElementPoint[] = element.points.map(
-                    ([x, y], index) => {
+                  const points: Point[] = element.points.map(
+                    ({ x, y }, index) => {
                       if (index === 0) {
-                        return [x, y];
+                        return { x, y };
                       }
 
-                      return [x - dx, y - dy];
+                      return { x: x - dx, y: y - dy };
                     }
                   );
                   return {
@@ -950,13 +953,16 @@ export const visualizerMachine =
                   context.resizingElement.pointIndex === 1;
                 if (isUpdatingVirtualCenterPoint) {
                   const virtualCenterPoint = {
-                    x: firstPoint[0] + lastPoint[0] / 2,
-                    y: firstPoint[1] + lastPoint[1] / 2,
+                    x: firstPoint.x + lastPoint.x / 2,
+                    y: firstPoint.y + lastPoint.y / 2,
                   };
 
-                  const points: LinearElementPoint[] = [
+                  const points: Point[] = [
                     firstPoint,
-                    [dx + virtualCenterPoint.x, dy + virtualCenterPoint.y],
+                    {
+                      x: dx + virtualCenterPoint.x,
+                      y: dy + virtualCenterPoint.y,
+                    },
                     lastPoint,
                   ];
 
@@ -967,9 +973,9 @@ export const visualizerMachine =
                 }
 
                 // resizing end point (context.resizingElement.pointIndex = 2)
-                const points: LinearElementPoint[] = [
+                const points: Point[] = [
                   ...removeLastItem(element.points),
-                  [dx + lastPoint[0], dy + lastPoint[1]],
+                  { x: dx + lastPoint.x, y: dy + lastPoint.y },
                 ];
                 return {
                   ...element,
@@ -978,13 +984,16 @@ export const visualizerMachine =
               }
 
               if (isUpdatingStartPoint) {
-                const points: LinearElementPoint[] = element.points.map(
-                  ([x, y], index) => {
+                const points: Point[] = element.points.map(
+                  ({ x, y }, index) => {
                     if (index === 0) {
-                      return [x, y];
+                      return { x, y };
                     }
 
-                    return [x - dx, y - dy];
+                    return {
+                      x: x - dx,
+                      y: y - dy,
+                    };
                   }
                 );
                 return {
@@ -999,10 +1008,10 @@ export const visualizerMachine =
                 element.points[context.resizingElement.pointIndex];
               invariant(updatingPoint);
 
-              const points: LinearElementPoint[] = replaceNthItem({
+              const points: Point[] = replaceNthItem({
                 array: element.points,
                 index: context.resizingElement.pointIndex,
-                item: [updatingPoint[0] + dx, updatingPoint[1] + dy],
+                item: { x: updatingPoint.x + dx, y: updatingPoint.y + dy },
               });
 
               return {
