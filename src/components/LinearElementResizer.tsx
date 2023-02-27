@@ -5,8 +5,8 @@ import {
 } from "../machines/visualizerMachine";
 import { convertToViewportPoint } from "../utils";
 
-const WIDTH = 10;
-const HEIGHT = 10;
+const WIDTH = 8;
+const HEIGHT = 8;
 
 function LinearElementResizer({
   linearElement,
@@ -73,7 +73,10 @@ function LinearElementResizer({
               backgroundColor: "dodgerblue",
               cursor: "pointer",
             }}
-            onMouseDown={(event) => onMouseDown(event, index)}
+            onMouseDown={(event) => {
+              event.preventDefault();
+              onMouseDown(event, index);
+            }}
             onMouseUp={onMouseUp}
           />
         );
