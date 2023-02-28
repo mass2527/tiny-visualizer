@@ -109,7 +109,7 @@ export interface Typegen0 {
   eventsCausingDelays: {};
   eventsCausingGuards: {
     canEditText: "WRITE_EDIT";
-    isOnlyOneElementSelected: "RESIZE";
+    isOnlyOneElementSelected: "RESIZE" | "RESIZE_END" | "RESIZE_START";
     shouldConnect: "CONNECT";
   };
   eventsCausingServices: {
