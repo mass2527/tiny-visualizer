@@ -1,5 +1,6 @@
 import { MouseEvent } from "react";
 import {
+  Point,
   VisualizerGenericElement,
   VisualizerMachineContext,
 } from "../machines/visualizerMachine";
@@ -8,49 +9,15 @@ import {
   convertToViewportPoint,
 } from "../utils";
 
-const WIDTH = 8;
-const HEIGHT = 8;
-
-type HorizontalDirection = "left" | "right";
-type VerticalDirection = "up" | "down";
-export type OrthogonalDirection = HorizontalDirection | VerticalDirection;
-export type DiagonalDirection = `${VerticalDirection}-${HorizontalDirection}`;
-export type Direction =
-  | HorizontalDirection
-  | VerticalDirection
-  | DiagonalDirection;
-
-function GenericElementResizer({
-  genericElement,
-  devicePixelRatio,
-  origin,
-  zoom,
-  onMouseDown,
+const createVirtualPoints = ({
+  elementViewportPoint,
+  elementViewportWidth,
+  elementViewportHeight,
 }: {
-  genericElement: VisualizerGenericElement;
-  devicePixelRatio: number;
-  origin: VisualizerMachineContext["origin"];
-  zoom: VisualizerMachineContext["zoom"];
-  onMouseDown: (
-    event: MouseEvent<HTMLDivElement>,
-    direction: Direction
-  ) => void;
-}) {
-  const absolutePoint = calculateElementAbsolutePoint(genericElement);
-  const elementViewportPoint = convertToViewportPoint({
-    canvasPoint: {
-      x: absolutePoint.minX,
-      y: absolutePoint.minY,
-    },
-    devicePixelRatio,
-    origin,
-    zoom,
-  });
-
-  const elementViewportWidth = (genericElement.width / devicePixelRatio) * zoom;
-  const elementViewportHeight =
-    (genericElement.height / devicePixelRatio) * zoom;
-
+  elementViewportPoint: Point;
+  elementViewportWidth: number;
+  elementViewportHeight: number;
+}) => {
   const virtualPoints: {
     direction: Direction;
     left: number;
@@ -109,6 +76,58 @@ function GenericElementResizer({
       }
     );
   }
+
+  return virtualPoints;
+};
+
+const WIDTH = 8;
+const HEIGHT = 8;
+
+type HorizontalDirection = "left" | "right";
+type VerticalDirection = "up" | "down";
+export type OrthogonalDirection = HorizontalDirection | VerticalDirection;
+export type DiagonalDirection = `${VerticalDirection}-${HorizontalDirection}`;
+export type Direction =
+  | HorizontalDirection
+  | VerticalDirection
+  | DiagonalDirection;
+
+function GenericElementResizer({
+  genericElement,
+  devicePixelRatio,
+  origin,
+  zoom,
+  onMouseDown,
+}: {
+  genericElement: VisualizerGenericElement;
+  devicePixelRatio: number;
+  origin: VisualizerMachineContext["origin"];
+  zoom: VisualizerMachineContext["zoom"];
+  onMouseDown: (
+    event: MouseEvent<HTMLDivElement>,
+    direction: Direction
+  ) => void;
+}) {
+  const absolutePoint = calculateElementAbsolutePoint(genericElement);
+  const elementViewportPoint = convertToViewportPoint({
+    canvasPoint: {
+      x: absolutePoint.minX,
+      y: absolutePoint.minY,
+    },
+    devicePixelRatio,
+    origin,
+    zoom,
+  });
+
+  const elementViewportWidth = (genericElement.width / devicePixelRatio) * zoom;
+  const elementViewportHeight =
+    (genericElement.height / devicePixelRatio) * zoom;
+
+  const virtualPoints = createVirtualPoints({
+    elementViewportPoint,
+    elementViewportWidth,
+    elementViewportHeight,
+  });
 
   return (
     <>
