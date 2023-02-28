@@ -860,13 +860,13 @@ function App() {
             devicePixelRatio={devicePixelRatio}
             origin={origin}
             zoom={zoom}
-            onMouseDown={(event, alignment) => {
+            onMouseDown={(event, direction) => {
               send({
                 type: "RESIZE_START",
                 event,
                 devicePixelRatio,
                 resizingElement: {
-                  alignment,
+                  direction,
                 },
               });
             }}

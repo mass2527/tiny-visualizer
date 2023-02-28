@@ -24,10 +24,10 @@ import {
   replaceNthItem,
   calculateFixedPoint,
   resizeGenericElementIntoDiagonalDirection,
-  resizeGenericElementIntoMiddleDirection,
-  isDiagonalAlignment,
-  calculateDiagonalAlignment,
-  calculateMiddleAlignment,
+  isDiagonalDirection,
+  calculateDiagonalDirection,
+  calculateOrthogonalDirection,
+  resizeGenericElementIntoOrthogonalDirection,
 } from "../../utils";
 import debounce from "lodash.debounce";
 import { TEXTAREA_UNIT_LESS_LINE_HEIGHT } from "../../constants";
@@ -891,12 +891,12 @@ export const visualizerMachine =
           const selectedElement = selectedElements[0];
           invariant(selectedElement);
 
-          if ("alignment" in resizingElement) {
+          if ("direction" in resizingElement) {
             invariant(isGenericElement(selectedElement));
 
             const resizeFixedPoint = calculateFixedPoint(
               selectedElement,
-              resizingElement.alignment
+              resizingElement.direction
             );
 
             return {
@@ -948,7 +948,7 @@ export const visualizerMachine =
               elements: context.elements.map((element) => {
                 invariant(isGenericElement(element));
 
-                invariant("alignment" in context.resizingElement);
+                invariant("direction" in context.resizingElement);
 
                 if (element.id !== resizingElement.id) {
                   return element;
@@ -958,15 +958,15 @@ export const visualizerMachine =
                   return element;
                 }
 
-                if (isDiagonalAlignment(context.resizingElement.alignment)) {
-                  const alignment = calculateDiagonalAlignment(
+                if (isDiagonalDirection(context.resizingElement.direction)) {
+                  const direction = calculateDiagonalDirection(
                     currentCanvasPoint,
                     context.resizeFixedPoint
                   );
                   const resizedElement =
                     resizeGenericElementIntoDiagonalDirection({
                       element,
-                      alignment,
+                      direction,
                       currentCanvasPoint,
                       resizeFixedPoint: context.resizeFixedPoint,
                     });
@@ -974,17 +974,18 @@ export const visualizerMachine =
                   return resizedElement;
                 }
 
-                const alignment = calculateMiddleAlignment({
-                  alignment: context.resizingElement.alignment,
+                const direction = calculateOrthogonalDirection({
+                  direction: context.resizingElement.direction,
                   currentCanvasPoint,
                   resizeFixedPoint: context.resizeFixedPoint,
                 });
-                const resizedElement = resizeGenericElementIntoMiddleDirection({
-                  element,
-                  alignment,
-                  currentCanvasPoint,
-                  resizeFixedPoint: context.resizeFixedPoint,
-                });
+                const resizedElement =
+                  resizeGenericElementIntoOrthogonalDirection({
+                    element,
+                    direction,
+                    currentCanvasPoint,
+                    resizeFixedPoint: context.resizeFixedPoint,
+                  });
 
                 return resizedElement;
               }),

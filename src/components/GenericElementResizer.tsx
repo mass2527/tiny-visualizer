@@ -11,17 +11,14 @@ import {
 const WIDTH = 8;
 const HEIGHT = 8;
 
-type VerticalAlignment = "top" | "middle" | "bottom";
-type HorizontalAlignment = "left" | "center" | "right";
-export type Alignment = Exclude<
-  `${VerticalAlignment}-${HorizontalAlignment}`,
-  "middle-center"
->;
-export type DiagonalAlignment = `${Exclude<
-  VerticalAlignment,
-  "middle"
->}-${Exclude<HorizontalAlignment, "center">}`;
-export type MiddleAlignment = Exclude<Alignment, DiagonalAlignment>;
+type HorizontalDirection = "left" | "right";
+type VerticalDirection = "up" | "down";
+export type OrthogonalDirection = HorizontalDirection | VerticalDirection;
+export type DiagonalDirection = `${VerticalDirection}-${HorizontalDirection}`;
+export type Direction =
+  | HorizontalDirection
+  | VerticalDirection
+  | DiagonalDirection;
 
 function GenericElementResizer({
   genericElement,
@@ -36,7 +33,7 @@ function GenericElementResizer({
   zoom: VisualizerMachineContext["zoom"];
   onMouseDown: (
     event: MouseEvent<HTMLDivElement>,
-    alignment: Alignment
+    direction: Direction
   ) => void;
 }) {
   const absolutePoint = calculateElementAbsolutePoint(genericElement);
@@ -55,27 +52,27 @@ function GenericElementResizer({
     (genericElement.height / devicePixelRatio) * zoom;
 
   const virtualPoints: {
-    alignment: Alignment;
+    direction: Direction;
     left: number;
     top: number;
   }[] = [
     {
-      alignment: "top-left",
+      direction: "up-left",
       left: elementViewportPoint.x - WIDTH / 2,
       top: elementViewportPoint.y - HEIGHT / 2,
     },
     {
-      alignment: "top-right",
+      direction: "up-right",
       left: elementViewportPoint.x + elementViewportWidth - WIDTH / 2,
       top: elementViewportPoint.y - HEIGHT / 2,
     },
     {
-      alignment: "bottom-left",
+      direction: "down-left",
       left: elementViewportPoint.x - WIDTH / 2,
       top: elementViewportPoint.y + elementViewportHeight - HEIGHT / 2,
     },
     {
-      alignment: "bottom-right",
+      direction: "down-right",
       left: elementViewportPoint.x + elementViewportWidth - WIDTH / 2,
       top: elementViewportPoint.y + elementViewportHeight - HEIGHT / 2,
     },
@@ -85,12 +82,12 @@ function GenericElementResizer({
   if (haveEnoughWidth) {
     virtualPoints.push(
       {
-        alignment: "top-center",
+        direction: "up",
         left: elementViewportPoint.x + elementViewportWidth / 2 - WIDTH / 2,
         top: elementViewportPoint.y - HEIGHT / 2,
       },
       {
-        alignment: "bottom-center",
+        direction: "down",
         left: elementViewportPoint.x + elementViewportWidth / 2 - WIDTH / 2,
         top: elementViewportPoint.y + elementViewportHeight - HEIGHT / 2,
       }
@@ -101,12 +98,12 @@ function GenericElementResizer({
   if (haveEnoughHeight) {
     virtualPoints.push(
       {
-        alignment: "middle-left",
+        direction: "left",
         left: elementViewportPoint.x - WIDTH / 2,
         top: elementViewportPoint.y + elementViewportHeight / 2 - HEIGHT / 2,
       },
       {
-        alignment: "middle-right",
+        direction: "right",
         left: elementViewportPoint.x + elementViewportWidth - WIDTH / 2,
         top: elementViewportPoint.y + elementViewportHeight / 2 - HEIGHT / 2,
       }
@@ -118,7 +115,7 @@ function GenericElementResizer({
       {virtualPoints.map((virtualPoint) => {
         return (
           <div
-            key={virtualPoint.alignment}
+            key={virtualPoint.direction}
             role='button'
             style={{
               position: "absolute",
@@ -131,7 +128,7 @@ function GenericElementResizer({
             }}
             onMouseDown={(event) => {
               event.preventDefault();
-              onMouseDown(event, virtualPoint.alignment);
+              onMouseDown(event, virtualPoint.direction);
             }}
           />
         );

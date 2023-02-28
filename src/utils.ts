@@ -16,9 +16,9 @@ import {
 import { v4 as uuidv4 } from "uuid";
 import { TEXTAREA_UNIT_LESS_LINE_HEIGHT } from "./constants";
 import {
-  Alignment,
-  DiagonalAlignment,
-  MiddleAlignment,
+  OrthogonalDirection,
+  DiagonalDirection,
+  Direction,
 } from "./components/GenericElementResizer";
 
 export const calculateCanvasPoint = ({
@@ -761,45 +761,45 @@ export const replaceNthItem = <T extends unknown>({
 
 export const calculateFixedPoint = (
   selectedElement: VisualizerGenericElement,
-  alignment: Alignment
+  direction: Direction
 ): Point => {
-  switch (alignment) {
-    case "top-left":
+  switch (direction) {
+    case "up-left":
       return {
         x: selectedElement.x + selectedElement.width,
         y: selectedElement.y + selectedElement.height,
       };
-    case "top-right":
+    case "up-right":
       return {
         x: selectedElement.x,
         y: selectedElement.y + selectedElement.height,
       };
-    case "bottom-left":
+    case "down-left":
       return {
         x: selectedElement.x + selectedElement.width,
         y: selectedElement.y,
       };
-    case "bottom-right":
+    case "down-right":
       return {
         x: selectedElement.x,
         y: selectedElement.y,
       };
-    case "top-center":
+    case "up":
       return {
         x: selectedElement.x + selectedElement.width / 2,
         y: selectedElement.y + selectedElement.height,
       };
-    case "middle-left":
+    case "left":
       return {
         x: selectedElement.x + selectedElement.width,
         y: selectedElement.y + selectedElement.height / 2,
       };
-    case "middle-right":
+    case "right":
       return {
         x: selectedElement.x,
         y: selectedElement.y + selectedElement.height / 2,
       };
-    case "bottom-center":
+    case "down":
       return {
         x: selectedElement.x + selectedElement.width / 2,
         y: selectedElement.y,
@@ -809,17 +809,17 @@ export const calculateFixedPoint = (
 
 export const resizeGenericElementIntoDiagonalDirection = ({
   element,
-  alignment,
+  direction,
   currentCanvasPoint,
   resizeFixedPoint,
 }: {
   element: VisualizerGenericElement;
-  alignment: DiagonalAlignment;
+  direction: DiagonalDirection;
   currentCanvasPoint: Point;
   resizeFixedPoint: Point;
-}) => {
-  switch (alignment) {
-    case "top-left":
+}): VisualizerGenericElement => {
+  switch (direction) {
+    case "up-left":
       return {
         ...element,
         x: currentCanvasPoint.x,
@@ -827,7 +827,7 @@ export const resizeGenericElementIntoDiagonalDirection = ({
         width: resizeFixedPoint.x - currentCanvasPoint.x,
         height: resizeFixedPoint.y - currentCanvasPoint.y,
       };
-    case "top-right":
+    case "up-right":
       return {
         ...element,
         x: resizeFixedPoint.x,
@@ -835,7 +835,7 @@ export const resizeGenericElementIntoDiagonalDirection = ({
         width: currentCanvasPoint.x - resizeFixedPoint.x,
         height: resizeFixedPoint.y - currentCanvasPoint.y,
       };
-    case "bottom-left":
+    case "down-left":
       return {
         ...element,
         x: currentCanvasPoint.x,
@@ -843,7 +843,7 @@ export const resizeGenericElementIntoDiagonalDirection = ({
         width: resizeFixedPoint.x - currentCanvasPoint.x,
         height: currentCanvasPoint.y - resizeFixedPoint.y,
       };
-    case "bottom-right":
+    case "down-right":
       return {
         ...element,
         x: resizeFixedPoint.x,
@@ -854,37 +854,37 @@ export const resizeGenericElementIntoDiagonalDirection = ({
   }
 };
 
-export const resizeGenericElementIntoMiddleDirection = ({
+export const resizeGenericElementIntoOrthogonalDirection = ({
   element,
-  alignment,
+  direction,
   currentCanvasPoint,
   resizeFixedPoint,
 }: {
   element: VisualizerGenericElement;
-  alignment: MiddleAlignment;
+  direction: OrthogonalDirection;
   currentCanvasPoint: Point;
   resizeFixedPoint: Point;
 }) => {
-  switch (alignment) {
-    case "top-center":
+  switch (direction) {
+    case "up":
       return {
         ...element,
         y: currentCanvasPoint.y,
         height: resizeFixedPoint.y - currentCanvasPoint.y,
       };
-    case "middle-left":
+    case "left":
       return {
         ...element,
         x: currentCanvasPoint.x,
         width: resizeFixedPoint.x - currentCanvasPoint.x,
       };
-    case "middle-right":
+    case "right":
       return {
         ...element,
         x: resizeFixedPoint.x,
         width: currentCanvasPoint.x - resizeFixedPoint.x,
       };
-    case "bottom-center":
+    case "down":
       return {
         ...element,
         y: resizeFixedPoint.y,
@@ -893,14 +893,14 @@ export const resizeGenericElementIntoMiddleDirection = ({
   }
 };
 
-export const isDiagonalAlignment = (
-  alignment: Alignment
-): alignment is DiagonalAlignment => {
+export const isDiagonalDirection = (
+  direction: Direction
+): direction is DiagonalDirection => {
   return (
-    alignment === "top-left" ||
-    alignment === "top-right" ||
-    alignment === "bottom-left" ||
-    alignment === "bottom-right"
+    direction === "up-left" ||
+    direction === "up-right" ||
+    direction === "down-left" ||
+    direction === "down-right"
   );
 };
 
@@ -921,56 +921,56 @@ const calculateQuadrant = (point: Point, origin: Point): Quadrant => {
   return 4;
 };
 
-export const calculateDiagonalAlignment = (
+export const calculateDiagonalDirection = (
   currentCanvasPoint: Point,
   resizeFixedPoint: Point
-): DiagonalAlignment => {
+): DiagonalDirection => {
   const quadrant = calculateQuadrant(currentCanvasPoint, resizeFixedPoint);
 
   switch (quadrant) {
     case 1:
-      return "bottom-right";
+      return "down-right";
     case 2:
-      return "bottom-left";
+      return "down-left";
     case 3:
-      return "top-right";
+      return "up-right";
     case 4:
-      return "top-left";
+      return "up-left";
   }
 };
 
-export const calculateMiddleAlignment = ({
+export const calculateOrthogonalDirection = ({
   currentCanvasPoint,
   resizeFixedPoint,
-  alignment,
+  direction,
 }: {
   currentCanvasPoint: Point;
   resizeFixedPoint: Point;
-  alignment: MiddleAlignment;
-}): MiddleAlignment => {
+  direction: OrthogonalDirection;
+}): OrthogonalDirection => {
   const quadrant = calculateQuadrant(currentCanvasPoint, resizeFixedPoint);
 
-  switch (alignment) {
-    case "middle-left":
-    case "middle-right":
+  switch (direction) {
+    case "left":
+    case "right":
       switch (quadrant) {
         case 1:
         case 3:
-          return "middle-right";
+          return "right";
         case 2:
         case 4:
-          return "middle-left";
+          return "left";
       }
 
-    case "top-center":
-    case "bottom-center":
+    case "up":
+    case "down":
       switch (quadrant) {
         case 1:
         case 2:
-          return "bottom-center";
+          return "down";
         case 3:
         case 4:
-          return "top-center";
+          return "up";
       }
   }
 };

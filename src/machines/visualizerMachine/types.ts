@@ -1,6 +1,6 @@
 import { MouseEvent, MouseEventHandler } from "react";
 import { Options as RoughJSOptions } from "roughjs/bin/core";
-import { Alignment } from "../../components/GenericElementResizer";
+import { Direction } from "../../components/GenericElementResizer";
 
 export type VisualizerElementBase = {
   id: string;
@@ -110,7 +110,7 @@ export type VisualizerMachinePersistedContext = {
         pointIndex: number;
       }
     | {
-        alignment: Alignment;
+        direction: Direction;
       };
   resizeStartPoint: Point;
   resizeFixedPoint: Point;
