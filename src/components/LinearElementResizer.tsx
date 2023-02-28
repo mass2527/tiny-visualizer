@@ -11,7 +11,6 @@ const HEIGHT = 8;
 function LinearElementResizer({
   linearElement,
   onMouseDown,
-  onMouseUp,
   devicePixelRatio,
   origin,
   zoom,
@@ -21,7 +20,6 @@ function LinearElementResizer({
     event: React.MouseEvent<HTMLDivElement, MouseEvent>,
     pointIndex: number
   ) => void;
-  onMouseUp: VoidFunction;
 
   devicePixelRatio: number;
   origin: VisualizerMachineContext["origin"];
@@ -77,7 +75,6 @@ function LinearElementResizer({
               event.preventDefault();
               onMouseDown(event, index);
             }}
-            onMouseUp={onMouseUp}
           />
         );
       })}
