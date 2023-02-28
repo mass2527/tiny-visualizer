@@ -165,7 +165,7 @@ export const visualizerMachine =
             RESIZE_START: {
               target: "resizing",
               actions: ["assignResizingStartPoint", "assignResizingElement"],
-              cond: "isOnlyOneElementSelected",
+              cond: "isSingleElementSelected",
             },
           },
         },
@@ -311,7 +311,7 @@ export const visualizerMachine =
               {
                 target: "resizing",
                 internal: true,
-                cond: "isOnlyOneElementSelected",
+                cond: "isSingleElementSelected",
                 actions: "resize",
               },
               {
@@ -322,7 +322,7 @@ export const visualizerMachine =
 
             RESIZE_END: {
               target: "version released",
-              cond: "isOnlyOneElementSelected",
+              cond: "isSingleElementSelected",
             },
           },
         },
@@ -1159,7 +1159,7 @@ export const visualizerMachine =
 
           return true;
         },
-        isOnlyOneElementSelected: (context) => {
+        isSingleElementSelected: (context) => {
           const selectedElements = context.elements.filter(
             (element) => element.status === "selected"
           );
