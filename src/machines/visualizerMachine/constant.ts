@@ -40,6 +40,10 @@ export const PERSISTED_CONTEXT: VisualizerMachinePersistedContext = {
     x: 0,
     y: 0,
   },
+  resizeFixedPoint: {
+    x: 0,
+    y: 0,
+  },
   previousPoint: {
     x: 0,
     y: 0,
@@ -56,6 +60,6 @@ export const PERSISTED_CONTEXT: VisualizerMachinePersistedContext = {
     y: 0,
   },
   resizingElement: {
-    changeInPointIndex: 0,
+    pointIndex: 0,
   },
 };

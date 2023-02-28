@@ -22,11 +22,17 @@ import {
   getClosenessThreshold,
   removeLastItem,
   replaceNthItem,
+  calculateFixedPoint,
+  resizeGenericElementIntoDiagonalDirection,
+  isDiagonalDirection,
+  calculateDiagonalDirection,
+  calculateOrthogonalDirection,
+  resizeGenericElementIntoOrthogonalDirection,
 } from "../../utils";
 import debounce from "lodash.debounce";
 import { TEXTAREA_UNIT_LESS_LINE_HEIGHT } from "../../constants";
 import {
-  ChangeInPoint,
+  Point,
   VisualizerElement,
   VisualizerMachineContext,
   VisualizerMachineEvents,
@@ -35,7 +41,7 @@ import {
 import { ELEMENT_STATUS, PERSISTED_CONTEXT } from "./constant";
 
 export const visualizerMachine =
-  /** @xstate-layout N4IgpgJg5mDOIC5QDcCWsCuBDANqgXmAE4AEAtlgMYAWqAdmAHSoQ5gDEAIgEoCCA6gH0AygBVe3UQG0ADAF1EoAA4B7WKgAuqFXUUgAHogDsMo4wCcARgAsM60fNGArADYnlgMwAaEAE9EAEwBboyWlkYeph7W5gAcDtYAvok+aJi4BMTkVLQMzKwcAMIAErwAcgDiAKKCVQAyVQCyVWWiIqUAClWyCkggqupaOnqGCCZmVrb2jq7u3n6BMjKMRjGOAbHmLjLm1k7JqejYeISkFDT0TCxsXHwVIuKSPXoDmtq6faPjFjZ2Ds5uTw+fwISyxcGMGROawucweYIBMLmA4gNLHTJnHKXfI3YT1KqFURVTi1BrNVrCRicfFE559V5DD6gL6mH5Tf6zIELUFOJzLSzmdzbWLWDxGcWxFFojKnbIXPLXDh4hqE4mkpotUSUwoAeQ6AE06co1G9hp9jKzJn8ZoD5iDYQFGE4PFYoryAuZzAEpUcZVlzrkrgV2MqCUSSfjyVrGB1eGJuvIXibGSMLRNftMAXNgYhPAFlgFrEFLE4jIjYh5Nj70id-ViFcHGjqAKp4wRNgBqCd6xsG71TCDFlkYew8nlMoqcFZc1hzCERW1CMUrsXLO2d1fRsoD2MV7AAksJ1VH2rwuoIAGL7gAaatEOoqFQaRv6yf75rGlozHNtc-h1lCVwAg8XktliFxYksTc-UxeUg1xfFVQjMlNW1ZtpETek3zNZk0zZa0sy5EFLBkDwPBWItEV5eIXHCIxoNrWDAxxIpSkqGpI01QQ9VEfcdTKYQXwZd9cM-dN2RtbNuUsGcXEYGcKycREZE8QUGIxOVmL3EpymqQQAC0dR1RohOwpkDDwq1M05O1ECLZZtjhB0tncLZ1O3et4NY3SakM4zBH4fdRGKQQOn3MoSlMvscIssT8Os39uXcMwZBcAJXChaFPAg9y6zglj2FjMootNczRnS1YnVXewRWsWJnWdOdC0q51K1FVYIiMKCUlRX1GM03dg2KQ9724fVBGbDpOF4WlMN7UqB2+Kyfyk4jRwo-MRRMfMrHonrpX6ncGxufhuCCmoxAkDCe1faKytzGREUhF13A2JZaKapZHUiUUNnBKFCw8XKmMGm5OIpRhQ0JQReDqOoSpTD8bHsCwyJnUxNkrSsmt2cix2CGJwNXVKgf2vqNKOrz2FO87ak4IKEZE2KK1iRh-1hQV-vcJw5zo8xQhccUthsQWINJw4awpzyCu4KphH3fSLsea6kzugcFMYYCZOsUUwgq2duXxsxVzBJY7BnXZgYGvIICILAAHd6CgW4BEZmLRjCLqqr5YCZHBDYXBcJqBX55xUqnGqtqtynGFth2nZdoQWk4N37tBSJWaWBxHtiJZ7ACIwmo2YcdkrLr6rsaxuolrc8uYuPHboZ3qQaIkREQ3j+NTgdifkwtHBMSDPVhYOq5WEi4hMKwbGj6WG4T3UyjKMMHiu7ukZJtmtjSrqnC9RFC+5dKZxHTHCxDjwZ32MnJY8-K46gKAE54XgKnX0SZLsNm-j2IIq9hQ+xFs5s1WBWYINgC7pVnvfO2j9n53FqGUFOc1boLSRhWY2e9KwAPGGCXmmwnDf3sKRLqY49bQOYjgFQWAIAJ3frFYubNBYChYbsEURcrBsyUtCeIcI9jIhvrXEGeQlDEHULALQTd2D0PKoWQhYdSKBwgkEUwc5IIjk9IKMCWMyJ7RrjBa2TB55NxICoUg9siBvBMWAOgEBIDSJQcJd2uYMGMHqnCcCA9TB4KPh6QhHpYRpWPlOAR+jDrS2QGI94JAiBgDYFgWA9iZGBDkSsPkijA6rnzIA3MzDQiFiHrYfMYRJSCIMTHCxVjnY0zbsnZJ6c-aQlMOYHOecyw5PnKRYcRhIJ-U2DsAu18wlS3ypUyR1SzqzRuk4tOYRYQ-EFuKcIsIxxB2ku0zWLh4QQXWFs6EFDsRKASeM9gEAdBXDoMgFQABrJgB0RnMSORIp2CB6BXMoFgRkPR6njkzs01pfwC68zHORFS1EPSWGCLnUJvVb510OcchOxAiBmMYEoHAnyABmZiyCMHuXfR5iKm6vMuSoD5Xz5A-Izk07Ob1AUdMhSEbmzDti2BaS4A5eRkVmJIFQuBUifkwkdKuYmpZHqOC9LzOiFh96pR2HVaE4tYVCMMYwSgKglC+ATmchUpLbl4vJgS7E6rNUvLeWSz57xvmOLMgOX5NKWl0vzh0wOywektLiGlGIDgYX4vhXkE1WqpHcqIGijFGhsVEFxX64RTBA1mtJeSq1lKbVqyRtSrOjrc70rnIPTWmwwhLBAhnJVMbVWUAwBoE5OqLlXP1WWmOFaq0JveZanQ1rpm2vTY0zNALnVzkFHJUirotp2D5Bysp4T8pNpOSGsNWKcUGrhbGtVlbxkktbRSuQVKe3-Kde03mdh+YxGLNEbYzpHCcrjToBglATkv34D8nYDlTDvRiILHOTVs1OhAnEcEg93BXrVTesAd6F78WXoSKlnhv5yrqpPR6TVA6hynMXOwOwupAfVXQW9JzF6QekJYTtaaP4gtg6yzY8RENH1zgBREvwHC1S9KWw1-qmCxPUPgBOst5aK3qS08izoiyMeCJzWyg5ghmC2VRMczoSFAY4wQbjcsFbdCI6rNBokvRyRItsQO4pggvT-KKci-CZw6w9PmVwCm4BKakTx1TiDkHEc07FQtw5ogD1khsIwM4-yQuNgfXYnhwirOSD1OgKg7HwD6A2zyGnEaiQALRrJBClppRa3BzFImKJIk6HmgzAAlpmoxKKo0vn7AO4JaIdKCI4eSj1Sy7GcF1QsQHjFQGK840EGG3FLHquyGckKmpjkzsQ96UKyIseXaqh+T8m5ddmejNxQpf0E2cOYXmVhWY9MZYxzYoogNUJoU7RbA4ixF0Dit9Ku0tEigncMo1IionPIW1hEjDDKzLGnKlR1tgbDia2QBHWQ8gdyJku1u2jcoCmPMZY8ZJAbF2IgGdpGrhxIlnCOWORRcdYrC2I4cCOxwJkSA5Eog6gdAxLiWABJkBUcf09MOAuIFzZ73iOlXmsk+51S9WOsUQGxmnfe65j24QHIuiLIHdKVdYj4NLCOECq5QGGbUvlp7TAnnjIZ259DmtQHwnCBWMI4nIX1cLMWOE3iSxAZDbylQ-LOsi8S25vex7aJ2At1XSIDKAcWCLGCdnU5VhYY1UGp380Xce0UZCEwIFaL90dXOZDP7p5HsiDYIZyrynSxncLyPJWHqX1j6RVwkK1jUeIipN1lEVJK-cKlUPOHQPa+d4XnrEE3GEyzn7eDPMj7c-LnVP4ftaI2c4-n1BUfECOrcXzrJbuVL+YLm48sApikAPC4kIAA */
+  /** @xstate-layout N4IgpgJg5mDOIC5QDcCWsCuBDANqgXmAE4AEAtlgMYAWqAdmAHSoQ5gDEAIgEoCCA6gH0AygBVe3UQG0ADAF1EoAA4B7WKgAuqFXUUgAHogDsMo4wCcARgAsM60fNGArADYnlgMwAaEAE9EAEwBboyWlkYeph7W5gAcDtYAvok+aJi4BMTkVLQMzKwcAMIAErwAcgDiAKKCVQAyVQCyVWWiIqUAClWyCkggqupaOnqGCCZmVrb2jq7u3n6BMjKMRjGOAbHmLjLm1k7JqejYeISkFDT0TCxsXHwVIuKSPXoDmtq6faPjFjZ2Ds5uTw+fwISyxcGMGROawucweYIBMLmA4gNLHTJnHKXfI3YT1KqFURVTi1BrNVrCRicfFE559V5DD6gL6mH5Tf6zIELUFOJzLSzmdzbWLWDxGcWxFFojKnbIXPLXDh4hqE4mkpotUSUwoAeQ6AE06co1G9hp9jKzJn8ZoD5iDYQFGE4PFYoryAuZzAEpUcZVlzrkrgV2MqCUSSfjyVrGB1eGJuvIXibGSMLRNftMAXNgYhPAFlgFrEFLE4jIjYh5Nj70id-ViFcHGjqAKp4wRNgBqCd6xsG71TCDFlkYew8nlMoqcFZc1hzCERW1CMUrsXLO2d1fRsoD2MV7AAksJ1VH2rwuoIAGL7gAaatEOoqFQaRv6yf75rGlozHNtc-h1lCVwAg8XktliFxYksTc-UxeUg1xfFVQjMlNW1ZtpETek3zNZk0zZa0sy5EFLBkDwPBWItEV5eIXHCIxoNrWDAxxIpSkqGpI01QQ9VEfcdTKYQXwZd9cM-dN2RtbNuUsGcXEYGcKycREZE8QUGIxOVmL3EpymqQQAC0dR1RohOwpkDDwq1M05O1ECLZZtjhB0tncLZ1O3et4NY3SakM4zBH4fdRGKQQOn3MoSlMvscIssT8Os39uXcMwZBcAJXChaFPAg9y6zglj2FjMootNczRnS1YnVXewRWsWJnWdOdC0q51K1FVYIiMKCUlRX1GM03dg2KQ9724fVBGbDpOF4WlMN7UqB2+Kyfyk4jRwo-MRRMfMrHonrpX6ncGxufhuCCmoxAkDCe1faKytzGREUhF13A2JZaKapZHUiUUNnBKFCw8XKmMGm5OIpRhQ0JQReDqOoSpTD8bHsCwyJnUxNkrSsmt2cix2CGJwNXVKgf2vqNKOrz2FO87ak4IKEZE2KK1iRh-1hQV-vcJw5zo8xQhccUthsQWINJw4awpzyCu4KphH3fSLsea6kzugcFMYYCZOsUUwgq2duXxsxVzBJY7BnXZgYGvIICILAAHd6CgW4BEZmLRjCLqqr5YCZHBDYXBcJqBX55xUqnGqtqtynGFth2nZdoQWk4N37tBSJWaWBxHtiJZ7ACIwmo2YcdkrLr6rsaxuolrc8uYuPHboZ3qQaIkREQ3j+NTgdifkwtHBMSDPVhYOq5WEi4hMKwbGj6WG4T3UyjKMMHiu7ukZJtmtjSrqnC9RFC+5dKZxHTHCxDjwZ32MnJY8-K46gKAE54XgKnX0SZLsNm-j2IIq9hQ+xFs5s1WBWYINgC7pVnvfO2j9n53FqGUFOc1boLSRhWY2e9KwAPGGCXmmwnDf3sKRLqY49bQOYjgFQWAIAJ3frFYubNBYChYbsEURcrBsyUtCeIcI9jIhvrXEGeQlDEHULALQTd2D0PKoWQhYdSKBwgkEUwc5IIjk9IKMCWMyJ7RrjBa2TB55NxICoUg9siBvBMWAOgEBIDSJQcJd2uYMGMHqnCcCA9TB4KPh6QhHpYRpWPlOAR+jDrS2QGI94JAiBgDYFgWA9iZGBDkSsPkijA6rnzIA3MzDQiFiHrYfMYRJSCIMTHCxVjnY0zbsnZJ6c-aQlMOYHOecyw5PnKRYcRhIJ-U2DsAu18wlS3ypUyR1SzqzRuk4tOYRYQ-EFuKcIsIxxB2ku0zWLh4QQXWFs6EFDsRKASeM9gEAdBXDoMgFQABrJgB0RnMSORIp2CB6BXMoFgRkPR6njkzs01pfwC68zHORFS1EPSWGCLnUJvVb510OcchOxAiBmMYEoHAnyABmZiyCMHuXfR5iKm6vMuSoD5Xz5A-Izk07Ob1AUdMhSEbmzDti2BaS4A5eRkVmJIFQuBUifkwkdKuYmpZHqOC9LzOiFh96pR2HVaE4tYVCMMYwSgKglC+ATmchUpLbl4vJgS7E6rNUvLeWSz57xvmOLMgOX5NKWl0vzh0wOywektLiGlGIDgYX4vhXkE1WqpHcqIGijFGhsVEFxX64RTBA1mtJeSq1lKbVqyRtSrOjrc70rnIPTWmwwhLBAhnJVMbVWUAwBoE5OqLlXP1WWmOFaq0JveZanQ1rpm2vTY0zNALnVzkFHJUirotp2D5Bysp4T8pNpOSGsNWKcUGrhbGtVlbxkktbRSuQVKe3-Kde03mdh+YxGLNEbYzpHCcrjToBglATkv34D8nYDlTDvRiILHOTVs1OhAnEcEg93BXrVTesAd6F78WXoSKlnhv5yrqpPR6TVA6hynMXOwOwupAfVXQW9JzF6QekJYTtaaP4gtg6yzY8RENH1zgBREvwHC1S9KWw1-qmCxPUPgBOst5aK3qS08izoiyMeCJzWyg5ghmC2VRMczoSFAY4wQbjcsFbdCI6rNBokvRyRItsQO4pggvT-KKci-CZw6w9PmVwCm4BKakTx1TiDkHEc07FQtw5ogD1khsIwM4-yQuNgfXYnhwirOSD1OgKg7HwD6A2zyGnEaiQALRrJBClpp70oR6YKasIDioEtM1GJRVGl8-YB3BLRDpQRHDyUeqWXYzguqFiA8YqABXnGggw24pY9V2QzkhU1McmdiHvShWRFjy7VUPyfk3drsz0ZuKFL+gmzhzC8ysKzHpjLGObFFEBqhNCnZzYHEWIugdFvpV2lokUE7hlGpEVE55s2sIkYYZWZY05UqOtsDYcTWyAI6yHv9uRMkWt20blAUx5jLHjJIDYuxEBjtI1cOJEs4RyxyKLjrFYWxHDgR2OBMiQHIlEHUDoGJcSwAJMgEjj+nphwFxAubPe8R0q81kn3OqXqx1iiA2Mo7L3XMe3CA5F0RZA7pSrrEfBpYRwgVXKAwzalJ0PIRU9trgvEtufQ5rUB8JwgVjCOJyFNXCzFjhN4ksQGQ28pUPyjX80tcez3se2idgzdV0iAy37FgixghZ1OXLKv7vXtNc9x3hWHqX0hCYECtF+6OrnMhn908j2RBsEM5V5TpYzoFxHjrJFo+vrj5CtY1HiIqTdZRFS8v3CpSwyBsD4fUFO4ehBNxhMs5+3gzzI+HPy51T+H7WiNnON55b5HhAjq3Hc6yS7lS-mC5uPLAKYpADwuJCAA */
   createMachine(
     {
       id: "visualizer machine",
@@ -159,6 +165,7 @@ export const visualizerMachine =
             RESIZE_START: {
               target: "resizing",
               actions: ["assignResizingStartPoint", "assignResizingElement"],
+              cond: "isOnlyOneElementSelected",
             },
           },
         },
@@ -313,7 +320,10 @@ export const visualizerMachine =
               },
             ],
 
-            RESIZE_END: "version released",
+            RESIZE_END: {
+              target: "version released",
+              cond: "isOnlyOneElementSelected",
+            },
           },
         },
       },
@@ -411,21 +421,21 @@ export const visualizerMachine =
                 }
 
                 if (isLinearElement(element)) {
-                  const changesInPoint: ChangeInPoint[] =
-                    element.changesInPoint.length === 1
+                  const points: Point[] =
+                    element.points.length === 1
                       ? [
-                          [0, 0],
-                          [changeInX, changeInY],
+                          { x: 0, y: 0 },
+                          { x: changeInX, y: changeInY },
                         ]
-                      : setLastItem(element.changesInPoint, [
-                          changeInX,
-                          changeInY,
-                        ]);
+                      : setLastItem(element.points, {
+                          x: changeInX,
+                          y: changeInY,
+                        });
                   return {
                     ...element,
                     width: Math.abs(changeInX),
                     height: Math.abs(changeInY),
-                    changesInPoint,
+                    points,
                   };
                 }
 
@@ -436,10 +446,7 @@ export const visualizerMachine =
                     ...element,
                     width: absolutePoint.maxX - absolutePoint.minX,
                     height: absolutePoint.maxY - absolutePoint.minY,
-                    changesInPoint: [
-                      ...element.changesInPoint,
-                      [changeInX, changeInY],
-                    ],
+                    points: [...element.points, { x: changeInX, y: changeInY }],
                   };
                 }
 
@@ -470,10 +477,7 @@ export const visualizerMachine =
                   ...element,
                   width: Math.abs(changeInX),
                   height: Math.abs(changeInY),
-                  changesInPoint: [
-                    ...element.changesInPoint,
-                    [changeInX, changeInY],
-                  ],
+                  points: [...element.points, { x: changeInX, y: changeInY }],
                 };
               }
 
@@ -497,21 +501,18 @@ export const visualizerMachine =
               if (element.id === context.drawingElementId) {
                 invariant(isLinearElement(element));
 
-                let changesInPoint: ChangeInPoint[];
+                let points: Point[];
                 if (isLastPointCloseToStartPoint) {
-                  changesInPoint = setLastItem(element.changesInPoint, [0, 0]);
+                  points = setLastItem(element.points, { x: 0, y: 0 });
                 } else if (areLastTwoPointsClose) {
-                  changesInPoint = element.changesInPoint.slice(
-                    0,
-                    element.changesInPoint.length - 1
-                  );
+                  points = element.points.slice(0, element.points.length - 1);
                 } else {
-                  changesInPoint = [...element.changesInPoint];
+                  points = [...element.points];
                 }
 
                 return {
                   ...element,
-                  changesInPoint,
+                  points,
                 };
               }
               return element;
@@ -883,7 +884,27 @@ export const visualizerMachine =
             },
           };
         }),
-        assignResizingElement: assign((_, { resizingElement }) => {
+        assignResizingElement: assign((context, { resizingElement }) => {
+          const selectedElements = context.elements.filter(
+            (element) => element.status === "selected"
+          );
+          const selectedElement = selectedElements[0];
+          invariant(selectedElement);
+
+          if ("direction" in resizingElement) {
+            invariant(isGenericElement(selectedElement));
+
+            const resizeFixedPoint = calculateFixedPoint(
+              selectedElement,
+              resizingElement.direction
+            );
+
+            return {
+              resizingElement,
+              resizeFixedPoint,
+            };
+          }
+
           return {
             resizingElement,
           };
@@ -919,7 +940,57 @@ export const visualizerMachine =
           const dy = currentCanvasPoint.y - context.resizeStartPoint.y;
 
           if (!isLinearElement(resizingElement)) {
-            return {};
+            if (!isGenericElement(resizingElement)) {
+              return {};
+            }
+
+            return {
+              elements: context.elements.map((element) => {
+                invariant(isGenericElement(element));
+
+                invariant("direction" in context.resizingElement);
+
+                if (element.id !== resizingElement.id) {
+                  return element;
+                }
+
+                if (element.width + dx === 0 || element.height + dy === 0) {
+                  return element;
+                }
+
+                if (isDiagonalDirection(context.resizingElement.direction)) {
+                  const direction = calculateDiagonalDirection(
+                    currentCanvasPoint,
+                    context.resizeFixedPoint
+                  );
+                  const resizedElement =
+                    resizeGenericElementIntoDiagonalDirection({
+                      element,
+                      direction,
+                      currentCanvasPoint,
+                      resizeFixedPoint: context.resizeFixedPoint,
+                    });
+
+                  return resizedElement;
+                }
+
+                const direction = calculateOrthogonalDirection({
+                  direction: context.resizingElement.direction,
+                  currentCanvasPoint,
+                  resizeFixedPoint: context.resizeFixedPoint,
+                });
+                const resizedElement =
+                  resizeGenericElementIntoOrthogonalDirection({
+                    element,
+                    direction,
+                    currentCanvasPoint,
+                    resizeFixedPoint: context.resizeFixedPoint,
+                  });
+
+                return resizedElement;
+              }),
+              resizeStartPoint: currentCanvasPoint,
+            };
           }
 
           return {
@@ -929,99 +1000,104 @@ export const visualizerMachine =
               }
 
               invariant(isLinearElement(element));
+              invariant("pointIndex" in context.resizingElement);
 
-              const isResizingStartPoint =
-                context.resizingElement.changeInPointIndex === 0;
+              const isUpdatingStartPoint =
+                context.resizingElement.pointIndex === 0;
 
-              const firstChangeInPoint = element.changesInPoint[0];
-              invariant(firstChangeInPoint);
-              const lastChangesInPoint =
-                element.changesInPoint[element.changesInPoint.length - 1];
-              invariant(lastChangesInPoint);
+              const firstPoint = element.points[0];
+              invariant(firstPoint);
+              const lastPoint = element.points[element.points.length - 1];
+              invariant(lastPoint);
 
-              const hasMoreThan2Points =
-                resizingElement.changesInPoint.length > 2;
+              const hasMoreThan2Points = resizingElement.points.length > 2;
               if (!hasMoreThan2Points) {
-                if (isResizingStartPoint) {
-                  const changesInPoint: ChangeInPoint[] =
-                    element.changesInPoint.map(([x, y], index) => {
+                if (isUpdatingStartPoint) {
+                  const points: Point[] = element.points.map(
+                    ({ x, y }, index) => {
                       if (index === 0) {
-                        return [x, y];
+                        return { x, y };
                       }
 
-                      return [x - dx, y - dy];
-                    });
+                      return { x: x - dx, y: y - dy };
+                    }
+                  );
                   return {
                     ...element,
                     x: element.x + dx,
                     y: element.y + dy,
-                    changesInPoint,
+                    points,
                   };
                 }
 
-                const isResizingVirtualCenterPoint =
-                  context.resizingElement.changeInPointIndex === 1;
-                if (isResizingVirtualCenterPoint) {
+                const isUpdatingVirtualCenterPoint =
+                  context.resizingElement.pointIndex === 1;
+                if (isUpdatingVirtualCenterPoint) {
                   const virtualCenterPoint = {
-                    x: firstChangeInPoint[0] + lastChangesInPoint[0] / 2,
-                    y: firstChangeInPoint[1] + lastChangesInPoint[1] / 2,
+                    x: firstPoint.x + lastPoint.x / 2,
+                    y: firstPoint.y + lastPoint.y / 2,
                   };
 
-                  const changesInPoint: ChangeInPoint[] = [
-                    firstChangeInPoint,
-                    [dx + virtualCenterPoint.x, dy + virtualCenterPoint.y],
-                    lastChangesInPoint,
+                  const points: Point[] = [
+                    firstPoint,
+                    {
+                      x: dx + virtualCenterPoint.x,
+                      y: dy + virtualCenterPoint.y,
+                    },
+                    lastPoint,
                   ];
 
                   return {
                     ...element,
-                    changesInPoint,
+                    points,
                   };
                 }
 
-                // resizing end point (context.resizingElement.changeInPointIndex = 2)
-                const changesInPoint: ChangeInPoint[] = [
-                  ...removeLastItem(element.changesInPoint),
-                  [dx + lastChangesInPoint[0], dy + lastChangesInPoint[1]],
+                // resizing end point (context.resizingElement.pointIndex = 2)
+                const points: Point[] = [
+                  ...removeLastItem(element.points),
+                  { x: dx + lastPoint.x, y: dy + lastPoint.y },
                 ];
                 return {
                   ...element,
-                  changesInPoint,
+                  points,
                 };
               }
 
-              if (isResizingStartPoint) {
-                const changesInPoint: ChangeInPoint[] =
-                  element.changesInPoint.map(([x, y], index) => {
+              if (isUpdatingStartPoint) {
+                const points: Point[] = element.points.map(
+                  ({ x, y }, index) => {
                     if (index === 0) {
-                      return [x, y];
+                      return { x, y };
                     }
 
-                    return [x - dx, y - dy];
-                  });
+                    return {
+                      x: x - dx,
+                      y: y - dy,
+                    };
+                  }
+                );
                 return {
                   ...element,
                   x: element.x + dx,
                   y: element.y + dy,
-                  changesInPoint,
+                  points,
                 };
               }
 
-              const changeInPoint =
-                element.changesInPoint[
-                  context.resizingElement.changeInPointIndex
-                ];
-              invariant(changeInPoint);
+              const updatingPoint =
+                element.points[context.resizingElement.pointIndex];
+              invariant(updatingPoint);
 
-              const changesInPoint: ChangeInPoint[] = replaceNthItem({
-                array: element.changesInPoint,
-                index: context.resizingElement.changeInPointIndex,
-                item: [changeInPoint[0] + dx, changeInPoint[1] + dy],
+              const points: Point[] = replaceNthItem({
+                array: element.points,
+                index: context.resizingElement.pointIndex,
+                item: { x: updatingPoint.x + dx, y: updatingPoint.y + dy },
               });
 
               return {
                 ...element,
-                changesInPoint,
+                points,
               };
             }),
             resizeStartPoint: currentCanvasPoint,

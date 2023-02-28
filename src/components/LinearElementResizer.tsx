@@ -5,13 +5,12 @@ import {
 } from "../machines/visualizerMachine";
 import { convertToViewportPoint } from "../utils";
 
-const WIDTH = 10;
-const HEIGHT = 10;
+const WIDTH = 8;
+const HEIGHT = 8;
 
 function LinearElementResizer({
   linearElement,
   onMouseDown,
-  onMouseUp,
   devicePixelRatio,
   origin,
   zoom,
@@ -19,43 +18,39 @@ function LinearElementResizer({
   linearElement: VisualizerLinearElement;
   onMouseDown: (
     event: React.MouseEvent<HTMLDivElement, MouseEvent>,
-    changeInPointIndex: number
+    pointIndex: number
   ) => void;
-  onMouseUp: VoidFunction;
 
   devicePixelRatio: number;
   origin: VisualizerMachineContext["origin"];
   zoom: VisualizerMachineContext["zoom"];
 }) {
-  let { changesInPoint } = linearElement;
+  let { points } = linearElement;
 
   // linearElement has at least two point
-  const firstChangesInPoint = changesInPoint[0];
-  invariant(firstChangesInPoint);
-  const lastChangesInPoint = changesInPoint[changesInPoint.length - 1];
-  invariant(lastChangesInPoint);
+  const firstPoint = points[0];
+  invariant(firstPoint);
+  const lastPoint = points[points.length - 1];
+  invariant(lastPoint);
 
   // if linearElement with 2 points, insert virtual center point
-  if (changesInPoint.length === 2) {
-    changesInPoint = [
-      firstChangesInPoint,
-      [
-        firstChangesInPoint[0] + lastChangesInPoint[0] / 2,
-        firstChangesInPoint[1] + lastChangesInPoint[1] / 2,
-      ],
-      lastChangesInPoint,
+  if (points.length === 2) {
+    points = [
+      firstPoint,
+      { x: firstPoint.x + lastPoint.x / 2, y: firstPoint.y + lastPoint.y / 2 },
+      lastPoint,
     ];
   }
 
   return (
     <>
-      {changesInPoint.map((changesInPoint, index) => {
-        const [changeInX, changeInY] = changesInPoint;
+      {points.map((point, index) => {
+        const { x, y } = point;
 
-        const drawStartViewportPoint = convertToViewportPoint({
+        const resizingStartViewportPoint = convertToViewportPoint({
           canvasPoint: {
-            x: linearElement.x + changeInX,
-            y: linearElement.y + changeInY,
+            x: linearElement.x + x,
+            y: linearElement.y + y,
           },
           devicePixelRatio,
           origin,
@@ -68,16 +63,18 @@ function LinearElementResizer({
             role='button'
             style={{
               position: "absolute",
-              left: drawStartViewportPoint.x - WIDTH / 2,
-              top: drawStartViewportPoint.y - HEIGHT / 2,
+              left: resizingStartViewportPoint.x - WIDTH / 2,
+              top: resizingStartViewportPoint.y - HEIGHT / 2,
               width: WIDTH,
               height: HEIGHT,
               borderRadius: "50%",
               backgroundColor: "dodgerblue",
               cursor: "pointer",
             }}
-            onMouseDown={(event) => onMouseDown(event, index)}
-            onMouseUp={onMouseUp}
+            onMouseDown={(event) => {
+              event.preventDefault();
+              onMouseDown(event, index);
+            }}
           />
         );
       })}

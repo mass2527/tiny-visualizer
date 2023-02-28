@@ -1,5 +1,6 @@
 import { MouseEvent, MouseEventHandler } from "react";
 import { Options as RoughJSOptions } from "roughjs/bin/core";
+import { Direction } from "../../components/GenericElementResizer";
 
 export type VisualizerElementBase = {
   id: string;
@@ -35,17 +36,16 @@ export type VisualizerGenericElement =
   | VisualizerRectangleElement
   | VisualizerEllipseElement;
 
-export type ChangeInPoint = [number, number];
-
 export type VisualizerLinearElement = VisualizerElementBase & {
   shape: "line" | "arrow";
-  changesInPoint: ChangeInPoint[];
+  // first point always starts with {x:0, y:0} since origin is element.x, element.y
+  points: Point[];
   seed: number;
 };
 
 export type VisualizerFreeDrawElement = VisualizerElementBase & {
   shape: "freedraw";
-  changesInPoint: ChangeInPoint[];
+  points: Point[];
 };
 
 export type FontSize = 12 | 16 | 20 | 24;
@@ -105,10 +105,15 @@ export type VisualizerMachinePersistedContext = {
   elementOptions: ElementOptions;
 
   elementShape: VisualizerElement["shape"];
-  resizingElement: {
-    changeInPointIndex: number;
-  };
+  resizingElement:
+    | {
+        pointIndex: number;
+      }
+    | {
+        direction: Direction;
+      };
   resizeStartPoint: Point;
+  resizeFixedPoint: Point;
   drawingElementId: VisualizerElement["id"] | null;
   drawStartPoint: Point;
   previousPoint: Point;

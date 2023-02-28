@@ -2,7 +2,6 @@ import invariant from "tiny-invariant";
 import rough from "roughjs";
 import { Drawable } from "roughjs/bin/core";
 import {
-  ChangeInPoint,
   Point,
   SHAPE_TYPES,
   VisualizerElement,
@@ -16,6 +15,11 @@ import {
 } from "./machines/visualizerMachine";
 import { v4 as uuidv4 } from "uuid";
 import { TEXTAREA_UNIT_LESS_LINE_HEIGHT } from "./constants";
+import {
+  OrthogonalDirection,
+  DiagonalDirection,
+  Direction,
+} from "./components/GenericElementResizer";
 
 export const calculateCanvasPoint = ({
   devicePixelRatio,
@@ -111,41 +115,25 @@ const calculateGenericElementAbsolutePoint = (
 const calculateLinearElementAbsolutePoint = (
   element: VisualizerLinearElement
 ) => {
-  const { changesInPoint } = element;
+  const { points } = element;
 
   return {
-    minX: Math.min(
-      ...changesInPoint.map(([changeInX]) => element.x + changeInX)
-    ),
-    minY: Math.min(
-      ...changesInPoint.map(([_, changeInY]) => element.y + changeInY)
-    ),
-    maxX: Math.max(
-      ...changesInPoint.map(([changeInX]) => element.x + changeInX)
-    ),
-    maxY: Math.max(
-      ...changesInPoint.map(([_, changeInY]) => element.y + changeInY)
-    ),
+    minX: Math.min(...points.map((point) => element.x + point.x)),
+    minY: Math.min(...points.map((point) => element.y + point.y)),
+    maxX: Math.max(...points.map((point) => element.x + point.x)),
+    maxY: Math.max(...points.map((point) => element.y + point.y)),
   };
 };
 
 export const calculateFreeDrawElementAbsolutePoint = (
   element: VisualizerFreeDrawElement
 ) => {
-  const { changesInPoint } = element;
+  const { points } = element;
   return {
-    minX: Math.min(
-      ...changesInPoint.map(([changeInX]) => element.x + changeInX)
-    ),
-    minY: Math.min(
-      ...changesInPoint.map(([_, changeInY]) => element.y + changeInY)
-    ),
-    maxX: Math.max(
-      ...changesInPoint.map(([changeInX]) => element.x + changeInX)
-    ),
-    maxY: Math.max(
-      ...changesInPoint.map(([_, changeInY]) => element.y + changeInY)
-    ),
+    minX: Math.min(...points.map((point) => element.x + point.x)),
+    minY: Math.min(...points.map((point) => element.y + point.y)),
+    maxX: Math.max(...points.map((point) => element.x + point.x)),
+    maxY: Math.max(...points.map((point) => element.y + point.y)),
   };
 };
 
@@ -286,19 +274,19 @@ export const createDraw = (
         y: element.y,
       };
 
-      for (const changeInPoint of element.changesInPoint) {
-        const [changeInX, changeInY] = changeInPoint;
+      for (const point of element.points) {
+        const { x, y } = point;
         const lineDrawable = generator.line(
           startPoint.x,
           startPoint.y,
-          element.x + changeInX,
-          element.y + changeInY,
+          element.x + x,
+          element.y + y,
           { ...element.options, seed: element.seed }
         );
         drawables.push(lineDrawable);
 
-        startPoint.x = element.x + changeInX;
-        startPoint.y = element.y + changeInY;
+        startPoint.x = element.x + x;
+        startPoint.y = element.y + y;
       }
 
       return () => {
@@ -315,27 +303,26 @@ export const createDraw = (
 
       // if last and second last have same items, arrow will be disappear
       // so need to remove last item to continue showing previous arrow
-      let changesInPoint = element.changesInPoint;
-      if (changesInPoint.length > 1) {
-        const lastChangeInPoint = changesInPoint[changesInPoint.length - 1];
-        invariant(lastChangeInPoint);
+      let { points } = element;
+      if (points.length > 1) {
+        const lastPoint = points[points.length - 1];
+        invariant(lastPoint);
 
-        const secondLastChangeInPoint =
-          changesInPoint[changesInPoint.length - 2];
-        invariant(secondLastChangeInPoint);
+        const secondLastPoint = points[points.length - 2];
+        invariant(secondLastPoint);
 
-        if (haveSameItems(lastChangeInPoint, secondLastChangeInPoint)) {
-          changesInPoint = removeLastItem(changesInPoint);
+        if (haveSamePoint(lastPoint, secondLastPoint)) {
+          points = removeLastItem(points);
         }
       }
 
       let index = 0;
-      let previousChangeInPoint: ChangeInPoint | undefined;
+      let previousPoint: Point | undefined;
 
-      for (const changeInPoint of changesInPoint) {
-        const [changeInX, changeInY] = changeInPoint;
-        const endX = element.x + changeInX;
-        const endY = element.y + changeInY;
+      for (const point of points) {
+        const { x, y } = point;
+        const endX = element.x + x;
+        const endY = element.y + y;
 
         // -
         arrowDrawables.push(
@@ -348,26 +335,25 @@ export const createDraw = (
         startPoint.x = endX;
         startPoint.y = endY;
 
-        const isLastIteration = index === changesInPoint.length - 1;
-        if (!isLastIteration) {
+        const isLastPoint = index === points.length - 1;
+        if (!isLastPoint) {
           index++;
-          previousChangeInPoint = changeInPoint;
+          previousPoint = point;
           continue;
         }
 
-        if (previousChangeInPoint === undefined) {
+        if (previousPoint === undefined) {
           continue;
         }
 
-        const [previousChangeInX, previousChangeInY] = previousChangeInPoint;
         const angleInRadians = Math.atan2(
-          changeInY - previousChangeInY,
-          changeInX - previousChangeInX
+          y - previousPoint.y,
+          x - previousPoint.x
         );
 
         const distance = calculateDistance(
-          changeInX - previousChangeInX,
-          changeInY - previousChangeInY
+          x - previousPoint.x,
+          y - previousPoint.y
         );
         const arrowSize = Math.min(ARROW_MAX_SIZE, distance / 2);
 
@@ -412,12 +398,12 @@ export const createDraw = (
       ctx.strokeStyle = element.options.stroke || "black";
 
       ctx.moveTo(element.x, element.y);
-      for (let i = 1; i < element.changesInPoint.length; i++) {
-        const point = element.changesInPoint[i];
+      for (let i = 1; i < element.points.length; i++) {
+        const point = element.points[i];
         invariant(point);
 
-        const [changeInX, changeInY] = point;
-        ctx.lineTo(element.x + changeInX, element.y + changeInY);
+        const { x, y } = point;
+        ctx.lineTo(element.x + x, element.y + y);
       }
       ctx.stroke();
 
@@ -650,14 +636,14 @@ export const createElement = ({
       return {
         ...elementBase,
         shape: elementShape,
-        changesInPoint: [[0, 0]],
+        points: [{ x: 0, y: 0 }],
         seed: createRandomSeed(existingSeeds),
       };
     } else {
       return {
         ...elementBase,
         shape: elementShape,
-        changesInPoint: [[0, 0]],
+        points: [{ x: 0, y: 0 }],
       };
     }
   }
@@ -720,19 +706,19 @@ export const calculatePointCloseness = (
   linearElement: VisualizerLinearElement,
   threshold: number
 ) => {
-  const { changesInPoint } = linearElement;
-  const lastPoint = changesInPoint[changesInPoint.length - 1];
+  const { points } = linearElement;
+  const lastPoint = points[points.length - 1];
   invariant(lastPoint);
-  const secondLastPoint = changesInPoint[changesInPoint.length - 2];
+  const secondLastPoint = points[points.length - 2];
   invariant(secondLastPoint);
 
   const distanceBetweenLastAndStartPoint = calculateDistance(
-    lastPoint[0],
-    lastPoint[1]
+    lastPoint.x,
+    lastPoint.y
   );
   const distanceBetweenLastTwoPoints = calculateDistance(
-    lastPoint[0] - secondLastPoint[0],
-    lastPoint[1] - secondLastPoint[1]
+    lastPoint.x - secondLastPoint.x,
+    lastPoint.y - secondLastPoint.y
   );
 
   return {
@@ -747,18 +733,12 @@ export const getClosenessThreshold = (
   return 10 / zoom;
 };
 
-export const haveSameItems = (array1: unknown[], array2: unknown[]) => {
-  if (array1.length !== array2.length) {
-    return false;
+export const haveSamePoint = (point1: Point, point2: Point) => {
+  if (point1.x === point2.x && point1.y === point2.y) {
+    return true;
   }
 
-  for (let i = 0; i < array1.length; i++) {
-    if (array1[i] !== array2[i]) {
-      return false;
-    }
-  }
-
-  return true;
+  return false;
 };
 
 export const removeLastItem = <T extends unknown>(array: T[]) => {
@@ -777,4 +757,220 @@ export const replaceNthItem = <T extends unknown>({
   const newArray = [...array];
   newArray[index] = item;
   return newArray;
+};
+
+export const calculateFixedPoint = (
+  selectedElement: VisualizerGenericElement,
+  direction: Direction
+): Point => {
+  switch (direction) {
+    case "up-left":
+      return {
+        x: selectedElement.x + selectedElement.width,
+        y: selectedElement.y + selectedElement.height,
+      };
+    case "up-right":
+      return {
+        x: selectedElement.x,
+        y: selectedElement.y + selectedElement.height,
+      };
+    case "down-left":
+      return {
+        x: selectedElement.x + selectedElement.width,
+        y: selectedElement.y,
+      };
+    case "down-right":
+      return {
+        x: selectedElement.x,
+        y: selectedElement.y,
+      };
+    case "up":
+      return {
+        x: selectedElement.x + selectedElement.width / 2,
+        y: selectedElement.y + selectedElement.height,
+      };
+    case "left":
+      return {
+        x: selectedElement.x + selectedElement.width,
+        y: selectedElement.y + selectedElement.height / 2,
+      };
+    case "right":
+      return {
+        x: selectedElement.x,
+        y: selectedElement.y + selectedElement.height / 2,
+      };
+    case "down":
+      return {
+        x: selectedElement.x + selectedElement.width / 2,
+        y: selectedElement.y,
+      };
+  }
+};
+
+export const resizeGenericElementIntoDiagonalDirection = ({
+  element,
+  direction,
+  currentCanvasPoint,
+  resizeFixedPoint,
+}: {
+  element: VisualizerGenericElement;
+  direction: DiagonalDirection;
+  currentCanvasPoint: Point;
+  resizeFixedPoint: Point;
+}): VisualizerGenericElement => {
+  switch (direction) {
+    case "up-left":
+      return {
+        ...element,
+        x: currentCanvasPoint.x,
+        y: currentCanvasPoint.y,
+        width: resizeFixedPoint.x - currentCanvasPoint.x,
+        height: resizeFixedPoint.y - currentCanvasPoint.y,
+      };
+    case "up-right":
+      return {
+        ...element,
+        x: resizeFixedPoint.x,
+        y: currentCanvasPoint.y,
+        width: currentCanvasPoint.x - resizeFixedPoint.x,
+        height: resizeFixedPoint.y - currentCanvasPoint.y,
+      };
+    case "down-left":
+      return {
+        ...element,
+        x: currentCanvasPoint.x,
+        y: resizeFixedPoint.y,
+        width: resizeFixedPoint.x - currentCanvasPoint.x,
+        height: currentCanvasPoint.y - resizeFixedPoint.y,
+      };
+    case "down-right":
+      return {
+        ...element,
+        x: resizeFixedPoint.x,
+        y: resizeFixedPoint.y,
+        width: currentCanvasPoint.x - resizeFixedPoint.x,
+        height: currentCanvasPoint.y - resizeFixedPoint.y,
+      };
+  }
+};
+
+export const resizeGenericElementIntoOrthogonalDirection = ({
+  element,
+  direction,
+  currentCanvasPoint,
+  resizeFixedPoint,
+}: {
+  element: VisualizerGenericElement;
+  direction: OrthogonalDirection;
+  currentCanvasPoint: Point;
+  resizeFixedPoint: Point;
+}) => {
+  switch (direction) {
+    case "up":
+      return {
+        ...element,
+        y: currentCanvasPoint.y,
+        height: resizeFixedPoint.y - currentCanvasPoint.y,
+      };
+    case "left":
+      return {
+        ...element,
+        x: currentCanvasPoint.x,
+        width: resizeFixedPoint.x - currentCanvasPoint.x,
+      };
+    case "right":
+      return {
+        ...element,
+        x: resizeFixedPoint.x,
+        width: currentCanvasPoint.x - resizeFixedPoint.x,
+      };
+    case "down":
+      return {
+        ...element,
+        y: resizeFixedPoint.y,
+        height: currentCanvasPoint.y - resizeFixedPoint.y,
+      };
+  }
+};
+
+export const isDiagonalDirection = (
+  direction: Direction
+): direction is DiagonalDirection => {
+  return (
+    direction === "up-left" ||
+    direction === "up-right" ||
+    direction === "down-left" ||
+    direction === "down-right"
+  );
+};
+
+type Quadrant = 1 | 2 | 3 | 4;
+const calculateQuadrant = (point: Point, origin: Point): Quadrant => {
+  if (point.x > origin.x && point.y > origin.y) {
+    return 1;
+  }
+
+  if (point.x < origin.x && point.y > origin.y) {
+    return 2;
+  }
+
+  if (point.x > origin.x && point.y < origin.y) {
+    return 3;
+  }
+
+  return 4;
+};
+
+export const calculateDiagonalDirection = (
+  currentCanvasPoint: Point,
+  resizeFixedPoint: Point
+): DiagonalDirection => {
+  const quadrant = calculateQuadrant(currentCanvasPoint, resizeFixedPoint);
+
+  switch (quadrant) {
+    case 1:
+      return "down-right";
+    case 2:
+      return "down-left";
+    case 3:
+      return "up-right";
+    case 4:
+      return "up-left";
+  }
+};
+
+export const calculateOrthogonalDirection = ({
+  currentCanvasPoint,
+  resizeFixedPoint,
+  direction,
+}: {
+  currentCanvasPoint: Point;
+  resizeFixedPoint: Point;
+  direction: OrthogonalDirection;
+}): OrthogonalDirection => {
+  const quadrant = calculateQuadrant(currentCanvasPoint, resizeFixedPoint);
+
+  switch (direction) {
+    case "left":
+    case "right":
+      switch (quadrant) {
+        case 1:
+        case 3:
+          return "right";
+        case 2:
+        case 4:
+          return "left";
+      }
+
+    case "up":
+    case "down":
+      switch (quadrant) {
+        case 1:
+        case 2:
+          return "down";
+        case 3:
+        case 4:
+          return "up";
+      }
+  }
 };

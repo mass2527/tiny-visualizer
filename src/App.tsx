@@ -40,11 +40,13 @@ import {
   convertToRatio,
   convertToViewportPoint,
   createDraw,
+  isGenericElement,
   isLinearElement,
   isPointInsideOfElement,
   isTextElement,
   isWithPlatformMetaKey,
 } from "./utils";
+import GenericElementResizer from "./components/GenericElementResizer";
 
 const MARGIN = 8;
 
@@ -328,6 +330,22 @@ function App() {
       document.body.style.cursor = "crosshair";
     }
   }, [elementShape]);
+
+  const isResizingState = state.matches("resizing");
+  useEffect(() => {
+    if (!isResizingState) {
+      return;
+    }
+
+    const handleMouseUp = () => {
+      send("RESIZE_END");
+    };
+
+    document.addEventListener("mouseup", handleMouseUp);
+    return () => {
+      document.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, [isResizingState, send]);
 
   const handleMouseDown: MouseEventHandler<HTMLCanvasElement> = (event) => {
     const mousePoint = calculateCanvasPoint({
@@ -821,18 +839,36 @@ function App() {
             devicePixelRatio={devicePixelRatio}
             origin={origin}
             zoom={zoom}
-            onMouseDown={(event, changeInPointIndex) => {
+            onMouseDown={(event, pointIndex) => {
               send({
                 type: "RESIZE_START",
                 resizingElement: {
-                  changeInPointIndex,
+                  pointIndex,
                 },
                 devicePixelRatio,
                 event,
               });
             }}
-            onMouseUp={() => {
-              send("RESIZE_END");
+          />
+        )}
+
+      {selectedElements.length === 1 &&
+        selectedElements[0] &&
+        isGenericElement(selectedElements[0]) && (
+          <GenericElementResizer
+            genericElement={selectedElements[0]}
+            devicePixelRatio={devicePixelRatio}
+            origin={origin}
+            zoom={zoom}
+            onMouseDown={(event, direction) => {
+              send({
+                type: "RESIZE_START",
+                event,
+                devicePixelRatio,
+                resizingElement: {
+                  direction,
+                },
+              });
             }}
           />
         )}
