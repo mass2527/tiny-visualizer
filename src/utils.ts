@@ -760,49 +760,49 @@ export const replaceNthItem = <T extends unknown>({
 };
 
 export const calculateFixedPoint = (
-  selectedElement: VisualizerGenericElement,
+  element: VisualizerElement,
   direction: Direction
 ): Point => {
   switch (direction) {
     case "up-left":
       return {
-        x: selectedElement.x + selectedElement.width,
-        y: selectedElement.y + selectedElement.height,
+        x: element.x + element.width,
+        y: element.y + element.height,
       };
     case "up-right":
       return {
-        x: selectedElement.x,
-        y: selectedElement.y + selectedElement.height,
+        x: element.x,
+        y: element.y + element.height,
       };
     case "down-left":
       return {
-        x: selectedElement.x + selectedElement.width,
-        y: selectedElement.y,
+        x: element.x + element.width,
+        y: element.y,
       };
     case "down-right":
       return {
-        x: selectedElement.x,
-        y: selectedElement.y,
+        x: element.x,
+        y: element.y,
       };
     case "up":
       return {
-        x: selectedElement.x + selectedElement.width / 2,
-        y: selectedElement.y + selectedElement.height,
+        x: element.x + element.width / 2,
+        y: element.y + element.height,
       };
     case "left":
       return {
-        x: selectedElement.x + selectedElement.width,
-        y: selectedElement.y + selectedElement.height / 2,
+        x: element.x + element.width,
+        y: element.y + element.height / 2,
       };
     case "right":
       return {
-        x: selectedElement.x,
-        y: selectedElement.y + selectedElement.height / 2,
+        x: element.x,
+        y: element.y + element.height / 2,
       };
     case "down":
       return {
-        x: selectedElement.x + selectedElement.width / 2,
-        y: selectedElement.y,
+        x: element.x + element.width / 2,
+        y: element.y,
       };
   }
 };
@@ -972,5 +972,101 @@ export const calculateOrthogonalDirection = ({
         case 4:
           return "up";
       }
+  }
+};
+
+export const calculateElementViewportSize = ({
+  element,
+  devicePixelRatio,
+  zoom,
+}: {
+  element: VisualizerElement;
+  devicePixelRatio: number;
+  zoom: number;
+}) => {
+  return {
+    width: (element.width / devicePixelRatio) * zoom,
+    height: (element.height / devicePixelRatio) * zoom,
+  };
+};
+
+export const resizeTextElementIntoDiagonalDirection = ({
+  element,
+  direction,
+  currentCanvasPoint,
+  resizeFixedPoint,
+  canvasElement,
+}: {
+  element: VisualizerTextElement;
+  direction: DiagonalDirection;
+  currentCanvasPoint: Point;
+  resizeFixedPoint: Point;
+  canvasElement: HTMLCanvasElement;
+}) => {
+  const { height: previousHeight, lineHeight: previousLineHeight } =
+    measureText({
+      canvasElement,
+      fontSize: element.fontSize,
+      fontFamily: element.fontFamily,
+      text: element.text,
+      lineHeight: TEXTAREA_UNIT_LESS_LINE_HEIGHT,
+    });
+
+  const previousNumberOfLines = previousHeight / previousLineHeight;
+  const minHeight = 30 * previousNumberOfLines;
+  const resizedHeight = direction.startsWith("up")
+    ? Math.max(minHeight, resizeFixedPoint.y - currentCanvasPoint.y)
+    : Math.max(minHeight, currentCanvasPoint.y - resizeFixedPoint.y);
+
+  // previousHeight : previousFontSize = resizedHeight : resizedFontSize
+  // ∴ resizedFontSize = previousFontSize * resizedHeight / previousHeight
+  const resizedFontSize = (element.fontSize * resizedHeight) / previousHeight;
+
+  const { width, height } = measureText({
+    canvasElement,
+    fontSize: resizedFontSize,
+    fontFamily: element.fontFamily,
+    text: element.text,
+    lineHeight: TEXTAREA_UNIT_LESS_LINE_HEIGHT,
+  });
+
+  const resizedElement = {
+    ...element,
+    width,
+    height,
+    fontSize: resizedFontSize,
+  };
+
+  switch (direction) {
+    case "up-left": {
+      return {
+        ...resizedElement,
+        x: resizeFixedPoint.x - width,
+        y: resizeFixedPoint.y - height,
+      };
+    }
+    case "up-right": {
+      return {
+        ...resizedElement,
+        x: resizeFixedPoint.x,
+        y: resizeFixedPoint.y - height,
+      };
+    }
+    case "down-left": {
+      return {
+        ...resizedElement,
+        x: resizeFixedPoint.x - width,
+        y: resizeFixedPoint.y,
+      };
+    }
+    case "down-right": {
+      return {
+        ...resizedElement,
+        x: resizeFixedPoint.x,
+        y: resizeFixedPoint.y,
+      };
+    }
+    default:
+      return element;
   }
 };

@@ -25,7 +25,6 @@ import {
   TEXTAREA_UNIT_LESS_LINE_HEIGHT,
 } from "./constants";
 import {
-  FontSize,
   VisualizerElement,
   visualizerMachine,
   VisualizerMachineContext,
@@ -46,7 +45,8 @@ import {
   isTextElement,
   isWithPlatformMetaKey,
 } from "./utils";
-import GenericElementResizer from "./components/GenericElementResizer";
+import GenericElementResizer, {} from "./components/GenericElementResizer";
+import TextElementResizer from "./components/TextElementResizer";
 
 const MARGIN = 8;
 
@@ -449,11 +449,44 @@ function App() {
   };
 
   const resize: MouseEventHandler<HTMLCanvasElement> = (event) => {
-    send({
-      type: "RESIZE",
-      event,
-      devicePixelRatio,
-    });
+    const canvasElement = canvasRef.current;
+    invariant(canvasElement);
+
+    if (selectedElements.length !== 1) {
+      return;
+    }
+
+    const selectedElement = selectedElements[0];
+    if (selectedElement === undefined) {
+      return;
+    }
+
+    switch (selectedElement.shape) {
+      case "rectangle":
+      case "ellipse":
+        send({
+          type: "GENERIC_ELEMENT.RESIZE",
+          event,
+          devicePixelRatio,
+        });
+        break;
+      case "line":
+      case "arrow":
+        send({
+          type: "LINEAR_ELEMENT.RESIZE",
+          event,
+          devicePixelRatio,
+        });
+        break;
+      case "text":
+        send({
+          type: "TEXT_ELEMENT.RESIZE",
+          event,
+          devicePixelRatio,
+          canvasElement,
+        });
+        break;
+    }
   };
 
   const moveMouse: MouseEventHandler<HTMLCanvasElement> = (event) => {
@@ -643,7 +676,7 @@ function App() {
                     send({
                       type: "CHANGE_ELEMENT_OPTIONS",
                       elementOptions: {
-                        fontSize: Number(event.currentTarget.value) as FontSize,
+                        fontSize: Number(event.currentTarget.value),
                       },
                     });
                   }}
@@ -841,7 +874,7 @@ function App() {
             zoom={zoom}
             onMouseDown={(event, pointIndex) => {
               send({
-                type: "RESIZE_START",
+                type: "LINEAR_ELEMENT.RESIZE_START",
                 resizingElement: {
                   pointIndex,
                 },
@@ -862,7 +895,29 @@ function App() {
             zoom={zoom}
             onMouseDown={(event, direction) => {
               send({
-                type: "RESIZE_START",
+                type: "GENERIC_ELEMENT.RESIZE_START",
+                event,
+                devicePixelRatio,
+                resizingElement: {
+                  direction,
+                },
+              });
+            }}
+          />
+        )}
+
+      {!state.matches("writing") &&
+        selectedElements.length === 1 &&
+        selectedElements[0] &&
+        isTextElement(selectedElements[0]) && (
+          <TextElementResizer
+            textElement={selectedElements[0]}
+            devicePixelRatio={devicePixelRatio}
+            origin={origin}
+            zoom={zoom}
+            onMouseDown={(event, direction) => {
+              send({
+                type: "TEXT_ELEMENT.RESIZE_START",
                 event,
                 devicePixelRatio,
                 resizingElement: {

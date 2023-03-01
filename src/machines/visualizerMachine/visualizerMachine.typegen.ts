@@ -58,8 +58,17 @@ export interface Typegen0 {
     assignDrawStartPoint: "DRAW_START" | "WRITE_START";
     assignElementOptions: "CHANGE_ELEMENT_OPTIONS";
     assignPreviousPoint: "DRAG" | "DRAG_START";
-    assignResizingElement: "RESIZE_START";
-    assignResizingStartPoint: "RESIZE_START";
+    assignResizeFixedPoint:
+      | "GENERIC_ELEMENT.RESIZE_START"
+      | "TEXT_ELEMENT.RESIZE_START";
+    assignResizingElement:
+      | "GENERIC_ELEMENT.RESIZE_START"
+      | "LINEAR_ELEMENT.RESIZE_START"
+      | "TEXT_ELEMENT.RESIZE_START";
+    assignResizingStartPoint:
+      | "GENERIC_ELEMENT.RESIZE_START"
+      | "LINEAR_ELEMENT.RESIZE_START"
+      | "TEXT_ELEMENT.RESIZE_START";
     assignZoom: "CHANGE_ZOOM";
     assignZoomToCurrentPoint: "CHANGE_ZOOM_WITH_PINCH";
     changeElementShape: "CHANGE_ELEMENT_SHAPE";
@@ -84,6 +93,7 @@ export interface Typegen0 {
       | "CHANGE_ELEMENT_SHAPE"
       | "CHANGE_ZOOM"
       | "CHANGE_ZOOM_WITH_PINCH"
+      | "DELETE_SELECTION"
       | "ELEMENTS.SELECT_ALL"
       | "HISTORY_UPDATE"
       | "IS_ELEMENT_SHAPE_FIXED_TOGGLE"
@@ -96,7 +106,9 @@ export interface Typegen0 {
       | "DELETE_SELECTION"
       | "DRAW_END"
       | "WRITE_END";
-    resize: "RESIZE";
+    resizeGenericElement: "GENERIC_ELEMENT.RESIZE";
+    resizeLinearElement: "LINEAR_ELEMENT.RESIZE";
+    resizeTextElement: "TEXT_ELEMENT.RESIZE";
     selectAllElements: "ELEMENTS.SELECT_ALL";
     selectDrawingElement: "CONNECT" | "DRAW_END" | "WRITE_END";
     toggleIsElementShapeFixed: "IS_ELEMENT_SHAPE_FIXED_TOGGLE";
@@ -109,7 +121,6 @@ export interface Typegen0 {
   eventsCausingDelays: {};
   eventsCausingGuards: {
     canEditText: "WRITE_EDIT";
-    isSingleElementSelected: "RESIZE" | "RESIZE_END" | "RESIZE_START";
     shouldConnect: "CONNECT";
   };
   eventsCausingServices: {
