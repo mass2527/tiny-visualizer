@@ -6,6 +6,7 @@ import {
 } from "../machines/visualizerMachine";
 import {
   calculateElementAbsolutePoint,
+  calculateElementViewportSize,
   convertToViewportPoint,
 } from "../utils";
 import VirtualPoint, {
@@ -13,14 +14,14 @@ import VirtualPoint, {
   VIRTUAL_POINT_WIDTH,
 } from "./VirtualPoint";
 
-const createVirtualPoints = ({
-  elementViewportPoint,
-  elementViewportWidth,
-  elementViewportHeight,
+const createElementVirtualPoints = ({
+  point,
+  width,
+  height,
 }: {
-  elementViewportPoint: Point;
-  elementViewportWidth: number;
-  elementViewportHeight: number;
+  point: Point;
+  width: number;
+  height: number;
 }) => {
   const virtualPoints: {
     direction: Direction;
@@ -29,56 +30,54 @@ const createVirtualPoints = ({
   }[] = [
     {
       direction: "up-left",
-      left: elementViewportPoint.x,
-      top: elementViewportPoint.y,
+      left: point.x,
+      top: point.y,
     },
     {
       direction: "up-right",
-      left: elementViewportPoint.x + elementViewportWidth,
-      top: elementViewportPoint.y,
+      left: point.x + width,
+      top: point.y,
     },
     {
       direction: "down-left",
-      left: elementViewportPoint.x,
-      top: elementViewportPoint.y + elementViewportHeight,
+      left: point.x,
+      top: point.y + height,
     },
     {
       direction: "down-right",
-      left: elementViewportPoint.x + elementViewportWidth,
-      top: elementViewportPoint.y + elementViewportHeight,
+      left: point.x + width,
+      top: point.y + height,
     },
   ];
 
-  const haveEnoughWidth =
-    Math.abs(elementViewportWidth) >= 2 * (3 * VIRTUAL_POINT_WIDTH);
+  const haveEnoughWidth = Math.abs(width) >= 2 * (3 * VIRTUAL_POINT_WIDTH);
   if (haveEnoughWidth) {
     virtualPoints.push(
       {
         direction: "up",
-        left: elementViewportPoint.x + elementViewportWidth / 2,
-        top: elementViewportPoint.y,
+        left: point.x + width / 2,
+        top: point.y,
       },
       {
         direction: "down",
-        left: elementViewportPoint.x + elementViewportWidth / 2,
-        top: elementViewportPoint.y + elementViewportHeight,
+        left: point.x + width / 2,
+        top: point.y + height,
       }
     );
   }
 
-  const haveEnoughHeight =
-    Math.abs(elementViewportHeight) >= 2 * (3 * VIRTUAL_POINT_HEIGHT);
+  const haveEnoughHeight = Math.abs(height) >= 2 * (3 * VIRTUAL_POINT_HEIGHT);
   if (haveEnoughHeight) {
     virtualPoints.push(
       {
         direction: "left",
-        left: elementViewportPoint.x,
-        top: elementViewportPoint.y + elementViewportHeight / 2,
+        left: point.x,
+        top: point.y + height / 2,
       },
       {
         direction: "right",
-        left: elementViewportPoint.x + elementViewportWidth,
-        top: elementViewportPoint.y + elementViewportHeight / 2,
+        left: point.x + width,
+        top: point.y + height / 2,
       }
     );
   }
@@ -122,19 +121,21 @@ function GenericElementResizer({
     zoom,
   });
 
-  const elementViewportWidth = (genericElement.width / devicePixelRatio) * zoom;
-  const elementViewportHeight =
-    (genericElement.height / devicePixelRatio) * zoom;
+  const elementViewportSize = calculateElementViewportSize({
+    element: genericElement,
+    devicePixelRatio,
+    zoom,
+  });
 
-  const virtualPoints = createVirtualPoints({
-    elementViewportPoint,
-    elementViewportWidth,
-    elementViewportHeight,
+  const elementVirtualPoints = createElementVirtualPoints({
+    point: elementViewportPoint,
+    width: elementViewportSize.width,
+    height: elementViewportSize.height,
   });
 
   return (
     <>
-      {virtualPoints.map((virtualPoint) => {
+      {elementVirtualPoints.map((virtualPoint) => {
         return (
           <VirtualPoint
             key={virtualPoint.direction}

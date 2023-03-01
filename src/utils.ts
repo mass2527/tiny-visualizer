@@ -974,3 +974,18 @@ export const calculateOrthogonalDirection = ({
       }
   }
 };
+
+export const calculateElementViewportSize = ({
+  element,
+  devicePixelRatio,
+  zoom,
+}: {
+  element: VisualizerElement;
+  devicePixelRatio: number;
+  zoom: number;
+}) => {
+  return {
+    width: (element.width / devicePixelRatio) * zoom,
+    height: (element.height / devicePixelRatio) * zoom,
+  };
+};
