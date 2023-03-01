@@ -20,6 +20,10 @@ import {
   DiagonalDirection,
   Direction,
 } from "./components/GenericElementResizer";
+import {
+  VIRTUAL_POINT_HEIGHT,
+  VIRTUAL_POINT_WIDTH,
+} from "./components/VirtualPoint";
 
 export const calculateCanvasPoint = ({
   devicePixelRatio,
@@ -1069,4 +1073,136 @@ export const resizeTextElementIntoDiagonalDirection = ({
     default:
       return element;
   }
+};
+
+export const createDiagonalDirectionVirtualPoints = ({
+  element,
+  devicePixelRatio,
+  origin,
+  zoom,
+}: {
+  element: VisualizerTextElement | VisualizerGenericElement;
+  devicePixelRatio: number;
+  origin: VisualizerMachineContext["origin"];
+  zoom: VisualizerMachineContext["zoom"];
+}) => {
+  const absolutePoint = calculateElementAbsolutePoint(element);
+  const elementViewportPoint = convertToViewportPoint({
+    canvasPoint: {
+      x: absolutePoint.minX,
+      y: absolutePoint.minY,
+    },
+    devicePixelRatio,
+    origin,
+    zoom,
+  });
+  const elementViewportSize = calculateElementViewportSize({
+    element,
+    devicePixelRatio,
+    zoom,
+  });
+
+  const virtualPoints: {
+    direction: DiagonalDirection;
+    left: number;
+    top: number;
+  }[] = [
+    {
+      direction: "up-left",
+      left: elementViewportPoint.x,
+      top: elementViewportPoint.y,
+    },
+    {
+      direction: "up-right",
+      left: elementViewportPoint.x + elementViewportSize.width,
+      top: elementViewportPoint.y,
+    },
+    {
+      direction: "down-left",
+      left: elementViewportPoint.x,
+      top: elementViewportPoint.y + elementViewportSize.height,
+    },
+    {
+      direction: "down-right",
+      left: elementViewportPoint.x + elementViewportSize.width,
+      top: elementViewportPoint.y + elementViewportSize.height,
+    },
+  ];
+
+  return virtualPoints;
+};
+
+export const createAllDirectionVirtualPoints = ({
+  element,
+  devicePixelRatio,
+  origin,
+  zoom,
+}: {
+  element: VisualizerGenericElement;
+  devicePixelRatio: number;
+  origin: VisualizerMachineContext["origin"];
+  zoom: VisualizerMachineContext["zoom"];
+}) => {
+  const absolutePoint = calculateElementAbsolutePoint(element);
+  const elementViewportPoint = convertToViewportPoint({
+    canvasPoint: {
+      x: absolutePoint.minX,
+      y: absolutePoint.minY,
+    },
+    devicePixelRatio,
+    origin,
+    zoom,
+  });
+  const elementViewportSize = calculateElementViewportSize({
+    element,
+    devicePixelRatio,
+    zoom,
+  });
+
+  const virtualPoints: {
+    direction: Direction;
+    left: number;
+    top: number;
+  }[] = createDiagonalDirectionVirtualPoints({
+    element,
+    devicePixelRatio,
+    origin,
+    zoom,
+  });
+
+  const haveEnoughWidth =
+    Math.abs(elementViewportSize.width) >= 2 * (3 * VIRTUAL_POINT_WIDTH);
+  if (haveEnoughWidth) {
+    virtualPoints.push(
+      {
+        direction: "up",
+        left: elementViewportPoint.x + elementViewportSize.width / 2,
+        top: elementViewportPoint.y,
+      },
+      {
+        direction: "down",
+        left: elementViewportPoint.x + elementViewportSize.width / 2,
+        top: elementViewportPoint.y + elementViewportSize.height,
+      }
+    );
+  }
+
+  const haveEnoughHeight =
+    Math.abs(elementViewportSize.height) >= 2 * (3 * VIRTUAL_POINT_HEIGHT);
+  if (haveEnoughHeight) {
+    virtualPoints.push(
+      {
+        direction: "left",
+        left: elementViewportPoint.x,
+        top: elementViewportPoint.y + elementViewportSize.height / 2,
+      },
+      {
+        direction: "right",
+        left: elementViewportPoint.x + elementViewportSize.width,
+        top: elementViewportPoint.y + elementViewportSize.height / 2,
+      }
+    );
+  }
+
+  return virtualPoints;
 };
