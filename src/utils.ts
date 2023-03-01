@@ -19,7 +19,7 @@ import {
   OrthogonalDirection,
   DiagonalDirection,
   Direction,
-} from "./components/GenericElementResizer";
+} from "./components/AllDirectionResizer";
 import {
   VIRTUAL_POINT_HEIGHT,
   VIRTUAL_POINT_WIDTH,
@@ -1081,7 +1081,10 @@ export const createDiagonalDirectionVirtualPoints = ({
   origin,
   zoom,
 }: {
-  element: VisualizerTextElement | VisualizerGenericElement;
+  element:
+    | VisualizerTextElement
+    | VisualizerGenericElement
+    | VisualizerFreeDrawElement;
   devicePixelRatio: number;
   origin: VisualizerMachineContext["origin"];
   zoom: VisualizerMachineContext["zoom"];
@@ -1132,7 +1135,7 @@ export const createDiagonalDirectionVirtualPoints = ({
   return virtualPoints;
 };
 
-export const createAllDirectionVirtualPoints = ({
+export const createOrthogonalDirectionVirtualPoints = ({
   element,
   devicePixelRatio,
   origin,
@@ -1160,15 +1163,10 @@ export const createAllDirectionVirtualPoints = ({
   });
 
   const virtualPoints: {
-    direction: Direction;
+    direction: OrthogonalDirection;
     left: number;
     top: number;
-  }[] = createDiagonalDirectionVirtualPoints({
-    element,
-    devicePixelRatio,
-    origin,
-    zoom,
-  });
+  }[] = [];
 
   const haveEnoughWidth =
     Math.abs(elementViewportSize.width) >= 2 * (3 * VIRTUAL_POINT_WIDTH);

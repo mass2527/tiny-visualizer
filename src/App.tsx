@@ -45,8 +45,8 @@ import {
   isTextElement,
   isWithPlatformMetaKey,
 } from "./utils";
-import GenericElementResizer, {} from "./components/GenericElementResizer";
-import TextElementResizer from "./components/TextElementResizer";
+import AllDirectionResizer from "./components/AllDirectionResizer";
+import DiagonalDirectionResizer from "./components/DiagonalDirectionResizer";
 
 const MARGIN = 8;
 
@@ -888,8 +888,8 @@ function App() {
       {selectedElements.length === 1 &&
         selectedElements[0] &&
         isGenericElement(selectedElements[0]) && (
-          <GenericElementResizer
-            genericElement={selectedElements[0]}
+          <AllDirectionResizer
+            element={selectedElements[0]}
             devicePixelRatio={devicePixelRatio}
             origin={origin}
             zoom={zoom}
@@ -910,8 +910,8 @@ function App() {
         selectedElements.length === 1 &&
         selectedElements[0] &&
         isTextElement(selectedElements[0]) && (
-          <TextElementResizer
-            textElement={selectedElements[0]}
+          <DiagonalDirectionResizer
+            element={selectedElements[0]}
             devicePixelRatio={devicePixelRatio}
             origin={origin}
             zoom={zoom}

@@ -3,7 +3,8 @@ import {
   VisualizerGenericElement,
   VisualizerMachineContext,
 } from "../machines/visualizerMachine";
-import { createAllDirectionVirtualPoints } from "../utils";
+import { createOrthogonalDirectionVirtualPoints } from "../utils";
+import DiagonalDirectionResizer from "./DiagonalDirectionResizer";
 import VirtualPoint from "./VirtualPoint";
 
 type HorizontalDirection = "left" | "right";
@@ -15,14 +16,14 @@ export type Direction =
   | VerticalDirection
   | DiagonalDirection;
 
-function GenericElementResizer({
-  genericElement,
+function AllDirectionResizer({
+  element,
   devicePixelRatio,
   origin,
   zoom,
   onMouseDown,
 }: {
-  genericElement: VisualizerGenericElement;
+  element: VisualizerGenericElement;
   devicePixelRatio: number;
   origin: VisualizerMachineContext["origin"];
   zoom: VisualizerMachineContext["zoom"];
@@ -31,8 +32,8 @@ function GenericElementResizer({
     direction: Direction
   ) => void;
 }) {
-  const virtualPoints = createAllDirectionVirtualPoints({
-    element: genericElement,
+  const virtualPoints = createOrthogonalDirectionVirtualPoints({
+    element,
     devicePixelRatio,
     origin,
     zoom,
@@ -40,6 +41,13 @@ function GenericElementResizer({
 
   return (
     <>
+      <DiagonalDirectionResizer
+        element={element}
+        devicePixelRatio={devicePixelRatio}
+        origin={origin}
+        zoom={zoom}
+        onMouseDown={onMouseDown}
+      />
       {virtualPoints.map((virtualPoint) => {
         return (
           <VirtualPoint
@@ -57,4 +65,4 @@ function GenericElementResizer({
   );
 }
 
-export default GenericElementResizer;
+export default AllDirectionResizer;

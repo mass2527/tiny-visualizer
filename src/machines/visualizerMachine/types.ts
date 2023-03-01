@@ -1,6 +1,6 @@
 import { MouseEvent, MouseEventHandler } from "react";
 import { Options as RoughJSOptions } from "roughjs/bin/core";
-import { Direction } from "../../components/GenericElementResizer";
+import { Direction } from "../../components/AllDirectionResizer";
 
 export type VisualizerElementBase = {
   id: string;

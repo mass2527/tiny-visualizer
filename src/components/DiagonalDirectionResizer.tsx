@@ -1,20 +1,25 @@
 import { MouseEvent } from "react";
 import {
+  VisualizerFreeDrawElement,
+  VisualizerGenericElement,
   VisualizerMachineContext,
   VisualizerTextElement,
 } from "../machines/visualizerMachine";
 import { createDiagonalDirectionVirtualPoints } from "../utils";
-import { DiagonalDirection } from "./GenericElementResizer";
+import { DiagonalDirection } from "./AllDirectionResizer";
 import VirtualPoint from "./VirtualPoint";
 
-function TextElementResizer({
-  textElement,
+function DiagonalDirectionResizer({
+  element,
   devicePixelRatio,
   origin,
   zoom,
   onMouseDown,
 }: {
-  textElement: VisualizerTextElement;
+  element:
+    | VisualizerGenericElement
+    | VisualizerTextElement
+    | VisualizerFreeDrawElement;
   devicePixelRatio: number;
   origin: VisualizerMachineContext["origin"];
   zoom: VisualizerMachineContext["zoom"];
@@ -24,7 +29,7 @@ function TextElementResizer({
   ) => void;
 }) {
   const virtualPoints = createDiagonalDirectionVirtualPoints({
-    element: textElement,
+    element,
     devicePixelRatio,
     origin,
     zoom,
@@ -47,4 +52,4 @@ function TextElementResizer({
   );
 }
 
-export default TextElementResizer;
+export default DiagonalDirectionResizer;
