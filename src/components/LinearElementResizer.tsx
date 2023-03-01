@@ -4,9 +4,7 @@ import {
   VisualizerMachineContext,
 } from "../machines/visualizerMachine";
 import { convertToViewportPoint } from "../utils";
-
-const WIDTH = 8;
-const HEIGHT = 8;
+import VirtualPoint from "./VirtualPoint";
 
 function LinearElementResizer({
   linearElement,
@@ -58,19 +56,11 @@ function LinearElementResizer({
         });
 
         return (
-          <div
+          <VirtualPoint
             key={String(index)}
-            role='button'
-            style={{
-              position: "absolute",
-              left: resizingStartViewportPoint.x - WIDTH / 2,
-              top: resizingStartViewportPoint.y - HEIGHT / 2,
-              width: WIDTH,
-              height: HEIGHT,
-              borderRadius: "50%",
-              backgroundColor: "dodgerblue",
-              cursor: "pointer",
-            }}
+            type='circle'
+            left={resizingStartViewportPoint.x}
+            top={resizingStartViewportPoint.y}
             onMouseDown={(event) => {
               event.preventDefault();
               onMouseDown(event, index);

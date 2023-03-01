@@ -8,6 +8,10 @@ import {
   calculateElementAbsolutePoint,
   convertToViewportPoint,
 } from "../utils";
+import VirtualPoint, {
+  VIRTUAL_POINT_HEIGHT,
+  VIRTUAL_POINT_WIDTH,
+} from "./VirtualPoint";
 
 const createVirtualPoints = ({
   elementViewportPoint,
@@ -25,63 +29,62 @@ const createVirtualPoints = ({
   }[] = [
     {
       direction: "up-left",
-      left: elementViewportPoint.x - WIDTH / 2,
-      top: elementViewportPoint.y - HEIGHT / 2,
+      left: elementViewportPoint.x,
+      top: elementViewportPoint.y,
     },
     {
       direction: "up-right",
-      left: elementViewportPoint.x + elementViewportWidth - WIDTH / 2,
-      top: elementViewportPoint.y - HEIGHT / 2,
+      left: elementViewportPoint.x + elementViewportWidth,
+      top: elementViewportPoint.y,
     },
     {
       direction: "down-left",
-      left: elementViewportPoint.x - WIDTH / 2,
-      top: elementViewportPoint.y + elementViewportHeight - HEIGHT / 2,
+      left: elementViewportPoint.x,
+      top: elementViewportPoint.y + elementViewportHeight,
     },
     {
       direction: "down-right",
-      left: elementViewportPoint.x + elementViewportWidth - WIDTH / 2,
-      top: elementViewportPoint.y + elementViewportHeight - HEIGHT / 2,
+      left: elementViewportPoint.x + elementViewportWidth,
+      top: elementViewportPoint.y + elementViewportHeight,
     },
   ];
 
-  const haveEnoughWidth = Math.abs(elementViewportWidth) >= 2 * (3 * WIDTH);
+  const haveEnoughWidth =
+    Math.abs(elementViewportWidth) >= 2 * (3 * VIRTUAL_POINT_WIDTH);
   if (haveEnoughWidth) {
     virtualPoints.push(
       {
         direction: "up",
-        left: elementViewportPoint.x + elementViewportWidth / 2 - WIDTH / 2,
-        top: elementViewportPoint.y - HEIGHT / 2,
+        left: elementViewportPoint.x + elementViewportWidth / 2,
+        top: elementViewportPoint.y,
       },
       {
         direction: "down",
-        left: elementViewportPoint.x + elementViewportWidth / 2 - WIDTH / 2,
-        top: elementViewportPoint.y + elementViewportHeight - HEIGHT / 2,
+        left: elementViewportPoint.x + elementViewportWidth / 2,
+        top: elementViewportPoint.y + elementViewportHeight,
       }
     );
   }
 
-  const haveEnoughHeight = Math.abs(elementViewportHeight) >= 2 * (3 * HEIGHT);
+  const haveEnoughHeight =
+    Math.abs(elementViewportHeight) >= 2 * (3 * VIRTUAL_POINT_HEIGHT);
   if (haveEnoughHeight) {
     virtualPoints.push(
       {
         direction: "left",
-        left: elementViewportPoint.x - WIDTH / 2,
-        top: elementViewportPoint.y + elementViewportHeight / 2 - HEIGHT / 2,
+        left: elementViewportPoint.x,
+        top: elementViewportPoint.y + elementViewportHeight / 2,
       },
       {
         direction: "right",
-        left: elementViewportPoint.x + elementViewportWidth - WIDTH / 2,
-        top: elementViewportPoint.y + elementViewportHeight / 2 - HEIGHT / 2,
+        left: elementViewportPoint.x + elementViewportWidth,
+        top: elementViewportPoint.y + elementViewportHeight / 2,
       }
     );
   }
 
   return virtualPoints;
 };
-
-const WIDTH = 8;
-const HEIGHT = 8;
 
 type HorizontalDirection = "left" | "right";
 type VerticalDirection = "up" | "down";
@@ -133,18 +136,10 @@ function GenericElementResizer({
     <>
       {virtualPoints.map((virtualPoint) => {
         return (
-          <div
+          <VirtualPoint
             key={virtualPoint.direction}
-            role='button'
-            style={{
-              position: "absolute",
-              left: virtualPoint.left,
-              top: virtualPoint.top,
-              width: WIDTH,
-              height: HEIGHT,
-              backgroundColor: "dodgerblue",
-              cursor: "pointer",
-            }}
+            left={virtualPoint.left}
+            top={virtualPoint.top}
             onMouseDown={(event) => {
               event.preventDefault();
               onMouseDown(event, virtualPoint.direction);
