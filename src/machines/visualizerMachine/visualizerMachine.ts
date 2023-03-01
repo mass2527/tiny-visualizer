@@ -42,7 +42,7 @@ import {
 import { ELEMENT_STATUS, PERSISTED_CONTEXT } from "./constant";
 
 export const visualizerMachine =
-  /** @xstate-layout N4IgpgJg5mDOIC5QDcCWsCuBDANqgXmAE4AEAtlgMYAWqAdmAHSoQ5gDEAIgEoCCA6gH0AygBVe3UQG0ADAF1EoAA4B7WKgAuqFXUUgAHogDsMo4wCcARgAsM60fNGArADYnlgMwAaEAE9EAEwBboyWlkYeph7W5gAcDtYAvok+aJi4BMTkVLQMzKwcAMIAErwAcgDiAKKCVQAyVQCyVWWiIqUAClWyCkggqupaOnqGCCZmVrb2jq7u3n6BMjKMRjGOAbHmLjLm1k7JqejYeISkFDT0TCxsXHwVIuKSPXoDmtq6faPjFjZ2Ds5uTw+fwISyxcGMGROawucweYIBMLmA4gNLHTJnHKXfI3YT1KqFURVTi1BrNVrCRicfFE559V5DD6gL6mH5Tf6zIELUFOJzLSzmdzbWLWDxGcWxFFojKnbIXPLXDh4hqE4mkpotUSUwoAeQ6AE06co1G9hp9jKzJn8ZoD5iDYQFGE4PFYoryAuZzAEpUcZVlzrkrgV2MqCUSSfjyVrGB1eGJuvIXibGSMLRNftMAXNgYhPAFlgFrEFLE4jIjYh5Nj70id-ViFcHGjqAKp4wRNgBqCd6xsG71TCDFlkYew8nlMoqcFZc1hzCERW1CMUrsXLO2d1fRsoD2MV7AAksJ1VH2rwuoIAGL7gAaatEOoqFQaRv6yf75rGlozHNtc-h1lCVwAg8XktliFxYksTc-UxeUg1xfFVQjMlNW1ZtpETek3zNZk0zZa0sy5EFLBkDwPBWItEV5eIXHCIxoNrWDAxxIpSkqGpI01QQ9VEfcdTKYQXwZd9cM-dN2RtbNuUsGcXEYGcKycREZE8QUGIxOVmL3EpymqQQAC0dR1RohOwpkDDwq1M05O1ECLZZtjhB0tncLZ1O3et4NY3SakM4zBH4fdRGKQQOn3MoSlMvscIssT8Os39uXcMwZBcAJXChaFPAg9y6zglj2FjMootNczRnS1YnVXewRWsWJnWdOdC0q51K1FVYIiMKCUlRX1GM03dg2KQ9724fVBGbDpOF4WlMN7UqB2+Kyfyk4jRwo-MRRMfMrHonrpX6ncGxufhuCCmoxAkDCe1faKytzGREUhF13A2JZaKapZHUiUUNnBKFCw8XKmMGm5OIpRhQ0JQReDqOoSpTD8bHsCwyJnUxNkrSsmt2cix2CGJwNXVKgf2vqNKOrz2FO87ak4IKEZE2KK1iRh-1hQV-vcJw5zo8xQhccUthsQWINJw4awpzyCu4KphH3fSLsea6kzugd3FZ6x7IdOqXFswdLACMxVzBJY7BnXZgYGvIICILAAHd6CgW4BEZmLRjCLqqr5YCZHBDYXBcJqBX55xUqnGqtqtynGFth2nZdoQWk4N37tBSJWaWBxHtiJZ7CNpqNmHHZKy6+q7GsbqJa3PLmLjx26Gd6kGiJEREN4-jU4HYn5MLRwTEgz1YWDyuVhIuITCsGxo+l+uE91MoyjDB4rq7pGSbZrY0q6pwvURIwmtcAC6rhQsQ48Gd9jJyWPPyuOoCgBOeF4Co19EmS7DZv49iCSvYQP6S2c2arArMEGwRt0ozzvnbB+T87i1DKCnOat0FpIwrMbXelZ-7jDBLzTYTgv72FIl1McYRvTXxriDPIOAVBYAgAnN+sUi5s0FgKNhuwRSFysGzJS0J4hwj2MiChMFrZMCUMQdQsAtCN3YIw8qhYCFh1IoHCCQRTBzkgiOT0gowJYzIntauIiY5z0biQFQpB7ZEDeKYsAdAICQFkcg4S7tczoMYPVOE4F+6mFwdyIIgpGAelhGldKbgqzCMOtLZAEj3gkCIGANgWBYAOLkYEBRKw+TKMDqufMADiKsNCIWQeth8xhElBEqW+VLHWOdjTVuydUnpz9pCUw5gc55zLHkxYY4ViQT+psHYRsr6GMiVUqx0jalnVmjdZxacwiwh+ILcU4RYRjiDoAo2gS9bBE2GWPW0IoHMSUEkiZ7AIA6CuHQZAKgADWTADqVKOScp2CB6DXMoFgRkPRGnjkzq09pfwC7STHORFS1EPSGwgjsQ52JjlSITsQIg5jGBKBwJ8gAZuYsgjAHm3yefCxuryrkqA+V8+QPyM4tOzm9QFXTQTBAIdzVh2xbBtJcDCvIiLzEkBobAmRPyYSOlXMTUsj1HBel5nRCwe9Uo7DqtCcWvUb612xJQFQShfAJ3OQqYldycXkzxaq9VmrCVvJJZ8943ynFmQHL8qlbSaX5zpYHZYRgBlxDSjEBwQiRmPKNRqhFRAkVEBRWijQmKiDYtxSqvIaqA2muJaSy15LrVqyRpSrODrc60rnAPQJmwwhLBAhnRV0aqFMEoBgDQpztWXOuXqstojGCVurS8s1SadBWpmTa9NzTM0AqdXOQUclSKui2nYPk7KKmGtjVW05XKQ2ooxVi-Vyry3NrnW2xNFrO0pu7Wm9+Gb-mOs6bzOw-MYjFmiNsZ0jgOUVp0AwSgpzn78B+TsByph3oxEFjnJq2anQgTiOCAe7h73NsfWAZ989+JL0JBSzwX9ZUn3iI9JqgdQ5TiLnYHYXVwNqroE+05C84PSEsPu1Bh7EORGQ5sVDAR-2f0RL8BwtUvSloNTGpg8T1D4ATrLeWitGltPIs6IsrHgic31vCQW8l4QljHM6Yh4GeMEH43LBW3RyOq0o7FL0ckSLbEDuKYIL0-yinIoImcWsPT5lcCpuAamZECc0wgpBFHEbvxIsOaI-dZIbCMDOP8htjb712J4cIazwN7iJNeNo4NRCMBc4rFeTxU26fKqRNm4FnAD1sEpdK-69aBMFFCF0lYwTlN9TO7jjm+MyNi-FlCrQksaaE+lzzzNFzQiIahuq3m-yPVE4KN14JubrmSD1OgKh7HwD6I2ymOnOujAALTrJBGtlpRaVEiz-sMpVlCm2KiW0zUYlFUYXz9gHcEtE6X+LMNsCquxcuGySNOrjsc7YNygCdlxoJcPuKWPVdkM5DZNTHJnIh70dlkQ42upt99H6N1+3M9G7ihRAYJs4cwvMrCszdZC1jmxRTgZoXQp2KOBxFkLoHdH6Vdo6JFFO6rH3xFEEkRMynH5gK53cZd2Ej1bA2H1nrY+-WtjRAUTJcDJioBmIseMp2JBbH2IgFz9+rhxIlnCOWBRhctYrC2I4cCOxwJkXA9E9nsT4mJOSWrrCB7Yoh2HEbEC5td7xEK9JWSvddaFgnWKcD1TOcO4y7mcIDkXRFkDulSusQ8GlhHCBVcIDTNqXe+uuFIf5rLYerYQJID5NutIfrQ2jhAmUQFJELqJZwMLp5SoPlP3Q+555J6EctE7CFjPtXyVooLBFjBB7qcqx8PGopy307D0L6QhMCBWifcHVzgw4Bqe57Ig2H2wt6WLbs8oNbyRGfX75+vc9Gh6SKlXWURUsn9wqUx+Eag3v2ZtrUqsxFHELOfsT48z8T7sudUfwfstEDmvGE+OeU+CADq7inqV29ObSlgwWmyJsg8pS-8k2iQQAA */
+  /** @xstate-layout N4IgpgJg5mDOIC5QDcCWsCuBDANqgXmAE4AEAtlgMYAWqAdmAHSoQ5gDEAIgEoCCA6gH0AygBVe3UQG0ADAF1EoAA4B7WKgAuqFXUUgAHogDsMo4wCcARgAsM60fNGArADYnlgMwAaEAE9EAEwBboyWlkYeph7W5gAcDtYAvok+aJi4BMTkVLQMzKwcAMIAErwAcgDiAKKCVQAyVQCyVWWiIqUAClWyCkggqupaOnqGCCZmVrb2jq7u3n6BMjKMRjGOAbHmLjLm1k7JqejYeISkFDT0TCxsXHwVIuKSPXoDmtq6faPjFjZ2Ds5uTw+fwISyxcGMGROawucweYIBMLmA4gNLHTJnHKXfI3YT1KqFURVTi1BrNVrCRicfFE559V5DD6gL6mH5Tf6zIELUFOJzLSzmdzbWLWDxGcWxFFojKnbIXPLXDh4hqE4mkpotUSUwoAeQ6AE06co1G9hp9jKzJn8ZoD5iDYQFGE4PFYoryAuZzAEpUcZVlzrkrgV2MqCUSSfjyVrGB1eGJuvIXibGSMLRNftMAXNgYhPAFlgFrEFLE4jIjYh5Nj70id-ViFcHGjqAKp4wRNgBqCd6xsG71TCDFlkYew8nlMoqcFZc1hzCERW1CMUrsXLO2d1fRsoD2MV7AAksJ1VH2rwuoIAGL7gAaatEOoqFQaRv6yf75rGlozHNtc-h1lCVwAg8XktliFxYksTc-UxeUg1xfFVQjMlNW1ZtpETek3zNZk0zZa0sy5EFLBkDwPBWItEV5eIXHCIxoNrWDAxxIpSkqGpI01QQ9VEfcdTKYQXwZd9cM-dN2RtbNuUsGcXEYGcKycREZE8QUGIxOVmL3EpymqQQAC0dR1RohOwpkDDwq1M05O1ECLZZtjhB0tncLZ1O3et4NY3SakM4zBH4fdRGKQQOn3MoSlMvscIssT8Os39uXcMwZBcAJXChaFPAg9y6zglj2FjMootNczRnS1YnVXewRWsWJnWdOdC0q51K1FVYIiMKCUlRX1GM03dg2KQ9724fVBGbDpOF4WlMN7UqB2+Kyfyk4jRwo-MRRMfMrHonrpX6ncGxufhuCCmoxAkDCe1faKytzGREUhF13A2JZaKapZHUiUUNnBKFCw8XKmMGm5OIpRhQ0JQReDqOoSpTD8bHsCwyJnUxNkrSsmt2cix2CGJwNXVKgf2vqNKOrz2FO87ak4IKEZE2KK1iRh-1hQV-vcJw5zo8xQhccUthsQWINJw4awpzyCu4KphH3fSLsea6kzugd3FZ6x7IdOqXFswdLACMxVzBJY7BnXZgYG46OCJa82nB0RGFl+XFYeK7GZi8rSLZ8DnBMEUAfSprwPIj0+WdOFIPBK3KYK6oyiqM7CmPTVnblhWlY9ubboWj8AFpDf5itgglEVNmcAI-wFACoUFOFeS1pT9jJyWPPyiAiCwAB3egoFuARPfu0FwmHKc+WAmRwQ2FwXCagV+ecVKpxqrbY+lzue77gehBaTgh4HcdWaWBxHtiJZ7CNpqNmHHZKy6+q7GsbqJa3PLmM33u6H76kGiJEREK8X4gfD8xN5KFkcAHBesJ57PxWCROIJgrA2HXh3LuX9+66jKInaGl0ng52El7B6es2ZbDSl1JwXpERGCaq4ACdU4SFgXh4GcLdX4wWtkwTeUAoDbx4LwCoIDRIyTsGzP4ewgjP1hDQ6Sp82arBLrRIsZY2G9Tbu-bE3DeHfwHvcPeQjYpgjFIweqUdpHjDBLzTYTgxH2FIl1McYRvStzfiDPIOAVBYAgNvAx5VIJs0FgKIJuwRTXysGzZudUHDREoag5iShiDqFgFoHRvjAiFhsUvUis8IJBFMHOfxax65iwrGRPa7DDob3QX3EgKhSDdyIG8b+JAwB0AgJAdgaTQQVmNpQys5jTCWO5EEQUjAPSwjSulNwVYXEcLjsgRJ7wSBEDAGwLAsAOldMkZkvk2TZ6rnzDI4igTQiFkgrsR6KkwRxOxA0pp-cab-30QQsyh9IjH1MOYM+F8yxHMWGOFYkE-qbB2EbVRB0pb5TuSkh5Z1Zo3UIcPMIsIfiC3FOEWEY456yKNmMvWwQK7BBAkkWZlT8pKHWTC9gEAdBXDoMgFQABrJgEL27xMpX3BA9AGWUCwIyHoXSj6Qk+d8v4V9pJjnIipaiHpDYQR2DcvIFLknb2IEQOpjAlA4D5QAMzqWQRgrKNFKo5d-Ll9KVC8v5fIQV7zhWnzemKv5oJgg2O5oE7YtgvkuEVUwNVdSSAeJ4T4l5askYwkdKuYmpZHqOC9LzOiFgqGpR2HVaE4s1GuM4YwSgKglC+G3jShUFrmWGvJmy7Eub82cu5Zavl7wBWhrzsIu1J8vmOsvs62eywjAgriGlGIDhkSkshcxKtBadH+qIJq7VGg9VEANUatxTBx01otVahtNqm2IxbVPe17bz5OrnAHMZmwwhLBAu8jNS7s2UAwBoKlRa6UMtLTeuOd6H1rp5fWnQjaEWvKRq2kVHbflzkFHJUirotp2D5D6kdFa8gfqpVOmdur9VlvUcunN96YXmu-dauQtq91ttFZ23mdh+YxGLNEbYkdymZrmdLXNdAGCUCpfw-ggqdgOVMO9GIgsz4hyWE6ECcRwQB3cL6nNOhWNUqwTglWWEw0ts8GIlNDD4iPSarPReU4b52B2F1KTzHZPb3k2GKQlh-3KcMZKtTnrNiaarsM8+AFES-AcLVL017y3GqYCs9Q+Bt4u0zl0r55FnTKLiMETm+t4SC3kvCEsY5nT2KkwFggwWM6K0s9Z5tsUvRyRItsWe4oiWCj-KKciewthayLF6KEcGKmjuxBloLOiQtu2eXlndhiSLDmiJA2SGwjAzmrrik2CRPDhCxeluAmWdF2wdihVo6dXbdlVvl0Y9UzAZKNv+TwAI-wmGHHmTqcRPQvwY2S5ibXt4JyTvuFOjs1uhe3UzUY8I8ZfXsEKRzzqWGGxWGjYl+Z4TDp6nQFQ7T4B9DfZ5TbvXRiF3FCY+LZcGGVznPnGxnpLtwhO8pGIUnFSI4+3ZIIqMWFTxnuCWizqRlmG2BVXY-tDYkuawhrh1Tv5k6IaCQzJilj1XZDOQ2TUxzHzse9AlZEfOYezVovufOkXoxMUKUTBNnDmF5lYVmva5Wec2KKKTHivHK6U1tin19Z7q-SrteuIomvXZa0qxZKreeW6R4ESsyxpypXbbYGw+s9b0LqgKUPGSZJSc-jUgN0KamtPaRAFXh9XDiRLOEcsGTr5axWFsRw4Edih3l1m+ZiydDLNWWAdZkBU9I0u2MiIfIYSUPiMHaSslwG60LDBsUUmE+e-mt7keJhEu7GCGlLKsQrGlhHCBVcCjyvgt81h5VML6-CIM03uqSXe2OP1kXXblEBSRC6iWKTU7A0qGDUP3OI+SyehHLROwhYmFn4TaKCwRYwRt6nKsYzPNCdKATfQxbJSEEwECWiCBdtOcHTETZBCjSIGwFfBXd9HDC3YfcnAXFhCA0iVwdnT0LTaSFSHtSiFSBfdwVKQAljMANjTA+-bA4rVmEUOIE+KeBhHmYZLvB+OqP4KeWiObQLBgxFAcdtExAdGne3L5SwcbY2csAUfMGSRwZIZIIAA */
   createMachine(
     {
       id: "visualizer machine",
@@ -170,6 +170,15 @@ export const visualizerMachine =
             },
 
             "TEXT_ELEMENT.RESIZE_START": {
+              target: "resizing",
+              actions: [
+                "assignResizingStartPoint",
+                "assignResizingElement2",
+                "assignResizeFixedPoint",
+              ],
+            },
+
+            "GENERIC_ELEMENT.RESIZE_START": {
               target: "resizing",
               actions: [
                 "assignResizingStartPoint",
@@ -339,6 +348,12 @@ export const visualizerMachine =
               target: "resizing",
               internal: true,
               actions: "resizeTextElement",
+            },
+
+            "GENERIC_ELEMENT.RESIZE": {
+              target: "resizing",
+              internal: true,
+              actions: "resizeGenericElement",
             },
           },
         },
@@ -977,57 +992,7 @@ export const visualizerMachine =
           const dy = currentCanvasPoint.y - context.resizeStartPoint.y;
 
           if (!isLinearElement(resizingElement)) {
-            if (!isGenericElement(resizingElement)) {
-              return {};
-            }
-
-            return {
-              elements: context.elements.map((element) => {
-                invariant(isGenericElement(element));
-
-                invariant("direction" in context.resizingElement);
-
-                if (element.id !== resizingElement.id) {
-                  return element;
-                }
-
-                if (element.width + dx === 0 || element.height + dy === 0) {
-                  return element;
-                }
-
-                if (isDiagonalDirection(context.resizingElement.direction)) {
-                  const direction = calculateDiagonalDirection(
-                    currentCanvasPoint,
-                    context.resizeFixedPoint
-                  );
-                  const resizedElement =
-                    resizeGenericElementIntoDiagonalDirection({
-                      element,
-                      direction,
-                      currentCanvasPoint,
-                      resizeFixedPoint: context.resizeFixedPoint,
-                    });
-
-                  return resizedElement;
-                }
-
-                const direction = calculateOrthogonalDirection({
-                  direction: context.resizingElement.direction,
-                  currentCanvasPoint,
-                  resizeFixedPoint: context.resizeFixedPoint,
-                });
-                const resizedElement =
-                  resizeGenericElementIntoOrthogonalDirection({
-                    element,
-                    direction,
-                    currentCanvasPoint,
-                    resizeFixedPoint: context.resizeFixedPoint,
-                  });
-
-                return resizedElement;
-              }),
-              resizeStartPoint: currentCanvasPoint,
-            };
+            return {};
           }
 
           return {
@@ -1136,6 +1101,69 @@ export const visualizerMachine =
                 ...element,
                 points,
               };
+            }),
+            resizeStartPoint: currentCanvasPoint,
+          };
+        }),
+        resizeGenericElement: assign((context, { devicePixelRatio, event }) => {
+          const selectedElements = context.elements.filter(
+            (element) => element.status === "selected"
+          );
+          const resizingElement = selectedElements[0];
+          invariant(resizingElement);
+
+          const currentCanvasPoint = calculateCanvasPoint({
+            devicePixelRatio,
+            event,
+            zoom: context.zoom,
+            origin: context.origin,
+          });
+          const dx = currentCanvasPoint.x - context.resizeStartPoint.x;
+          const dy = currentCanvasPoint.y - context.resizeStartPoint.y;
+
+          return {
+            elements: context.elements.map((element) => {
+              if (element.id !== resizingElement.id) {
+                return element;
+              }
+
+              invariant(isGenericElement(element));
+              invariant("direction" in context.resizingElement);
+
+              if (element.width + dx === 0 || element.height + dy === 0) {
+                return element;
+              }
+
+              if (isDiagonalDirection(context.resizingElement.direction)) {
+                const direction = calculateDiagonalDirection(
+                  currentCanvasPoint,
+                  context.resizeFixedPoint
+                );
+                const resizedElement =
+                  resizeGenericElementIntoDiagonalDirection({
+                    element,
+                    direction,
+                    currentCanvasPoint,
+                    resizeFixedPoint: context.resizeFixedPoint,
+                  });
+
+                return resizedElement;
+              }
+
+              const direction = calculateOrthogonalDirection({
+                direction: context.resizingElement.direction,
+                currentCanvasPoint,
+                resizeFixedPoint: context.resizeFixedPoint,
+              });
+              const resizedElement =
+                resizeGenericElementIntoOrthogonalDirection({
+                  element,
+                  direction,
+                  currentCanvasPoint,
+                  resizeFixedPoint: context.resizeFixedPoint,
+                });
+
+              return resizedElement;
             }),
             resizeStartPoint: currentCanvasPoint,
           };

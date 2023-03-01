@@ -58,10 +58,17 @@ export interface Typegen0 {
     assignDrawStartPoint: "DRAW_START" | "WRITE_START";
     assignElementOptions: "CHANGE_ELEMENT_OPTIONS";
     assignPreviousPoint: "DRAG" | "DRAG_START";
-    assignResizeFixedPoint: "TEXT_ELEMENT.RESIZE_START";
+    assignResizeFixedPoint:
+      | "GENERIC_ELEMENT.RESIZE_START"
+      | "TEXT_ELEMENT.RESIZE_START";
     assignResizingElement: "RESIZE_START";
-    assignResizingElement2: "TEXT_ELEMENT.RESIZE_START";
-    assignResizingStartPoint: "RESIZE_START" | "TEXT_ELEMENT.RESIZE_START";
+    assignResizingElement2:
+      | "GENERIC_ELEMENT.RESIZE_START"
+      | "TEXT_ELEMENT.RESIZE_START";
+    assignResizingStartPoint:
+      | "GENERIC_ELEMENT.RESIZE_START"
+      | "RESIZE_START"
+      | "TEXT_ELEMENT.RESIZE_START";
     assignZoom: "CHANGE_ZOOM";
     assignZoomToCurrentPoint: "CHANGE_ZOOM_WITH_PINCH";
     changeElementShape: "CHANGE_ELEMENT_SHAPE";
@@ -99,6 +106,7 @@ export interface Typegen0 {
       | "DRAW_END"
       | "WRITE_END";
     resize: "RESIZE";
+    resizeGenericElement: "GENERIC_ELEMENT.RESIZE";
     resizeTextElement: "TEXT_ELEMENT.RESIZE";
     selectAllElements: "ELEMENTS.SELECT_ALL";
     selectDrawingElement: "CONNECT" | "DRAW_END" | "WRITE_END";

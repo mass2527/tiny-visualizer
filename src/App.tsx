@@ -462,6 +462,14 @@ function App() {
     }
 
     switch (selectedElement.shape) {
+      case "rectangle":
+      case "ellipse":
+        send({
+          type: "GENERIC_ELEMENT.RESIZE",
+          event,
+          devicePixelRatio,
+        });
+        break;
       case "text":
         send({
           type: "TEXT_ELEMENT.RESIZE",
@@ -885,7 +893,7 @@ function App() {
             zoom={zoom}
             onMouseDown={(event, direction) => {
               send({
-                type: "RESIZE_START",
+                type: "GENERIC_ELEMENT.RESIZE_START",
                 event,
                 devicePixelRatio,
                 resizingElement: {
