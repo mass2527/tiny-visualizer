@@ -42,7 +42,7 @@ import {
 import { ELEMENT_STATUS, PERSISTED_CONTEXT } from "./constant";
 
 export const visualizerMachine =
-  /** @xstate-layout N4IgpgJg5mDOIC5QDcCWsCuBDANqgXmAE4AEAtlgMYAWqAdmAHSoQ5gDEAIgEoCCA6gH0AygBVe3UQG0ADAF1EoAA4B7WKgAuqFXUUgAHogDsMo4wCcARgAsM60fNGArADYnlgMwAaEAE9EAEwBboyWlkYeph7W5gAcDtYAvok+aJi4BMTkVLQMzKwcAMIAErwAcgDiAKKCVQAyVQCyVWWiIqUAClWyCkggqupaOnqGCCZmVrb2jq7u3n6BMjKMRjGOAbHmLjLm1k7JqejYeISkFDT0TCxsXHwVIuKSPXoDmtq6faPjFjZ2Ds5uTw+fwISyxcGMGROawucweYIBMLmA4gNLHTJnHKXfI3YT1KqFURVTi1BrNVrCRicfFE559V5DD6gL6mH5Tf6zIELUFOJzLSzmdzbWLWDxGcWxFFojKnbIXPLXDh4hqE4mkpotUSUwoAeQ6AE06co1G9hp9jKzJn8ZoD5iDYQFGE4PFYoryAuZzAEpUcZVlzrkrgV2MqCUSSfjyVrGB1eGJuvIXibGSMLRNftMAXNgYhPAFlgFrEFLE4jIjYh5Nj70id-ViFcHGjqAKp4wRNgBqCd6xsG71TCDFlkYew8nlMoqcFZc1hzCERW1CMUrsXLO2d1fRsoD2MV7AAksJ1VH2rwuoIAGL7gAaatEOoqFQaRv6yf75rGlozHNtc-h1lCVwAg8XktliFxYksTc-UxeUg1xfFVQjMlNW1ZtpETek3zNZk0zZa0sy5EFLBkDwPBWItEV5eIXHCIxoNrWDAxxIpSkqGpI01QQ9VEfcdTKYQXwZd9cM-dN2RtbNuUsGcXEYGcKycREZE8QUGIxOVmL3EpymqQQAC0dR1RohOwpkDDwq1M05O1ECLZZtjhB0tncLZ1O3et4NY3SakM4zBH4fdRGKQQOn3MoSlMvscIssT8Os39uXcMwZBcAJXChaFPAg9y6zglj2FjMootNczRnS1YnVXewRWsWJnWdOdC0q51K1FVYIiMKCUlRX1GM03dg2KQ9724fVBGbDpOF4WlMN7UqB2+Kyfyk4jRwo-MRRMfMrHonrpX6ncGxufhuCCmoxAkDCe1faKytzGREUhF13A2JZaKapZHUiUUNnBKFCw8XKmMGm5OIpRhQ0JQReDqOoSpTD8bHsCwyJnUxNkrSsmt2cix2CGJwNXVKgf2vqNKOrz2FO87ak4IKEZE2KK1iRh-1hQV-vcJw5zo8xQhccUthsQWINJw4awpzyCu4KphH3fSLsea6kzugd3FZ6x7IdOqXFswdLACMxVzBJY7BnXZgYG46OCJa82nB0RGFl+XFYeK7GZi8rSLZ8DnBMEUAfSprwPIj0+WdOFIPBK3KYK6oyiqM7CmPTVnblhWlY9ubboWpHjd+4DtihCsrD-AUnEYD1wRhREjfhcXesljz8ogIgsAAd3oKBbgET37tBcJhynPlgJkcENhcFwmoFfnnFSqcaq22Ppbbzvu97oQWk4fuB3HVmlgcR7YiWewjaajZhx2SsuvquxrG6iWtzy5i167uge+pBoiRERDeP43eH5ibyULI4AOs9YQzwfisEicQTBWBsCvVu7d34911GURO0NLpPBzsJL2D09Zsy2GlLqTgvSIiME1VwAE6pwkLLPDwM59hk2bi-bEa8oBQA3jwXgFRAGiRknYNmfw9hBAfrCSh0kj5s1WBWYINgjbpSQa-dunDuF3FqGUHeuCzJ7wrMbMhlYJHjDBLzTYlcfomCHGOMI3oWHPxBnkHAKgsAQA3vw2Kl82aCwFL43YIoL5WDZkpaE8Q4R7GRPYmC1smBKGIOoWAWgP7sA8eVQsld56kSnhBIIpg5yQRHJ6QUYEsZkT2k-aJcc37dxICoUgHciBvA-iQMAdAICQBSTotWSN9GMHqlHYxphTHciCIKKuWwthBFmFWKJh1pbIHie8EgRAwBsCwLADpqTAjpJWHyLJU9Vz5kkcRHxoRCyQV2I9FSYJlHYgaU0nuNMf7by2aCSIB9TDmGPqfMsxzFhjhWJBP6mwdhG2YRUuZ+V7lJMeWdWaN08EDzCLCH4gtxThFhGOaeUijZVz1sETYZY9bQluXkJQ6yYXsAgDoK4dBkAqAANZMAOlLfK5LEndwQPQellAsCMh6K8-ekJPnfL+OfaSY5yIqWoh6Q2EEdiktiRSjexAiB1MYEoHAfKABmdSyCMBZS3Zi7KYVcrpSoXl-L5CCvecKo+b0xV-NBMESu3MfHbFsF8lwirGCqrqSQZxajkmCtrn0jY+ZSyPUcF6XmdELDkNSjsOq0JG6GrYXkSgKglC+A3tShU5qmUGvJka7Embs2cu5Ravl7wBVdLzgI21h8vkOrPk6qeywjAgriGlGIDhIkQtZcxMtObkl+qIBqrVGhdVEH1WmxxTBh0VvNZamt1q62IwbePO1zaT6OrnAHKumwwhLBAu81Nxb00LowBoSlebaX0sLXOmJjBKDXtNZWldOha0It0UjRtIqW2-LnIKOSpFXRbTsHyb1szB2lrfSqogarx2ap1XqotrD50vvgx-M1PLq1frXT+7pm6Pn2t3a23mdh+YxGLNEbYkdylNwcc+zNdAGCUEpTw-ggqdgOVMO9GIgtj4hyWE6ECcRwQB3cD61j7HKXoMwSrLCxHYqeE8MIxNtD4iPSalPOeU5L52B2F1GTOg5MbwU2GKQlgiP1tU5KjTHrNjaYCCJgCiJfgOFql6c9GHn0rPUPgDeLtM6vK+eRZ0RYvPBE5vreEgt5LwhLGOZ0pFGNPrjgFggwWM6K2s7ZjdsUvRyRItsKe4pggvT-KKciESZxaw9BG6DA6S15Cy0F5JIW3YvPXUzUYx7hzRDAbJDYRgZzl1xSbBIamIgyR9e1jedsHYoVaOnV23ZVZ2dGPVMw6T670LFK4P8Jhhx5k6nET0j8mOVOlgt5JCck77hTo7NboXev4MHMBDTzUhTOadYww2Kw0YgXsvCft13IVaWDHUcKVQJCp1W11rOOCCt9bsqleS04SIll2MXWcIzGH8ketscNaVETzbgNl5JMPE7w5e0j15Dg5JzHsKKSCyUeYjK9JXWEJZXDkMEcwnqdAVDtPgH0DLnlNuFdGAAWkiIBNFetPTiJ2HOWXoGzbdtSmlSIaUfWKml2jhAlFUaE9XETcC4RAlmBJ6WXY-tDZJBg61pg1SP5G4+7A42Sx6rshnIbJqY4D72DNmlMWZEfUcK4R75TW3czoz6UKcTBNnDmF5lYVmna5Vec2KKH1zjXHd09wPIsF8p5J-SrtYpIpmsQ9g2SxZHLY-zRl4ESsyxpypWbbYGw+s9Y0LqgKAf6S5su8vYwd3UBan1MaTClpbTIAl73q4cSJZwjlnSRfLWKwJmdscqHXzzG44LKIOoHQyzVlgHWUvuPbfQSXarhEPkMIyHxGDtJWSIDdaFkg2KH10Kxed+xuYQJgiWuwwQaUWUsQZipYI4IEq4silWak4+mGJqQBreIBRmT+dUSWnaNi+shsjgVclEAokQXUJYPqY6AaKgQaUAy+SMZC1GtEdghYB2eS0kfeFgRYYIb+U4qwpm5aLeuc9+JEjCkIVirgTunoOm3IemYmCCVGkQNg4K9eruWGN6GBIhWB4h-GIEtEoCzalGJEG0+YngI8pWpmbGYAHGWhiKe8qUrMIocQh848tCnOIIBMckt8dUfw48tEFOgWdhv6okzafSPa48UyMhlgE2xs5YAoZhEiyQyQQAA */
+  /** @xstate-layout N4IgpgJg5mDOIC5QDcCWsCuBDANqgXmAE4AEAtlgMYAWqAdmAHSoQ5gDEAIgEoCCA6gH0AygBVe3UQG0ADAF1EoAA4B7WKgAuqFXUUgAHogDsMo4wCcARgAsM60fNGArADYnlgMwAaEAE9EAEwBboyWlkYeph7W5gAcDtYAvok+aJi4BMTkVLQMzKwcAMIAErwAcgDiAKKCVQAyVQCyVWWiIqUAClWyCkggqupaOnqGCCZmVrb2jq7u3n6BMjKMRjGOAbHmLjLm1k7JqejYeISkFDT0TCxsXHwVIuKSPXoDmtq6faPjFjZ2Ds5uTw+fwISyxcGMGROawucweYIBMLmA4gNLHTJnHKXfI3YT1KqFURVTi1BrNVrCRicfFE559V5DD6gL6mH5Tf6zIELUFOJzLSzmdzbWLWDxGcWxFFojKnbIXPLXDh4hqE4mkpotUSUwoAeQ6AE06co1G9hp9jKzJn8ZoD5iDYQFGE4PFYoryAuZzAEpUcZVlzrkrgV2MqCUSSfjyVrGB1eGJuvIXibGSMLRNftMAXNgYhPAFlgFrEFLE4jIjYh5Nj70id-ViFcHGjqAKp4wRNgBqCd6xsG71TCDFlkYew8nlMoqcFZc1hzCERW1CMUrsXLO2d1fRsoD2MV7AAksJ1VH2rwuoIAGL7gAaatEOoqFQaRv6yf75rGlozHNtc-h1lCVwAg8XktliFxYksTc-UxeUg1xfFVQjMlNW1ZtpETek3zNZk0zZa0sy5EFLBkDwPBWItEV5eIXHCIxoNrWDAxxIpSkqGpI01QQ9VEfcdTKYQXwZd9cM-dN2RtbNuUsGcXEYGcKycREZE8QUGIxOVmL3EpymqQQAC0dR1RohOwpkDDwq1M05O1ECLZZtjhB0tncLZ1O3et4NY3SakM4zBH4fdRGKQQOn3MoSlMvscIssT8Os39uXcMwZBcAJXChaFPAg9y6zglj2FjMootNczRnS1YnVXewRWsWJnWdOdC0q51K1FVYIiMKCUlRX1GM03dg2KQ9724fVBGbDpOF4WlMN7UqB2+Kyfyk4jRwo-MRRMfMrHonrpX6ncGxufhuCCmoxAkDCe1faKytzGREUhF13A2JZaKapZHUiUUNnBKFCw8XKmMGm5OIpRhQ0JQReDqOoSpTD8bHsCwyJnUxNkrSsmt2cix2CGJwNXVKgf2vqNKOrz2FO87ak4IKEZE2KK1iRh-1hQV-vcJw5zo8xQhccUthsQWINJw4awpzyCu4KphH3fSLsea6kzugd3FZ6x7IdOqXFswdLACMxVzBJY7BnXZgYG46OCJa82nB0RGFl+XFYeK7GZi8rSLZ8DnBMEUAfSprwPIj0+WdOFIPBK3KYK6oyiqM7CmPTVnblhWlY9ubboWpHjd+4DtihCsrD-AUnEYD1wRhREjfhcXesljz8r3OpwqqCRU9adPXazp4c+Er27NS+TpxIktdmL2duSL-lHu2DYEURWPpYgIgsAAd3oKBbgET37tBcJhynPlgJkcENhcFwmoFfnnFSqcaq21f8vXred73oQWk4A+B3HVmSwHCPViEsewRsmobGHDsSsXV6p2GsN1CWW48rMXftvOgu9qQNCJCIRCvF+J-w-MTeShZHABzvrCW+iCVgkTiCYKwNhX5oI3hg3euoyiJ2hpdAeN0h6HxInrNmWw0pdScF6RERgmquAAnVOEhY74eBnPsMmzdUHYnflAKAn8eC8AqEQ0SMk7Bsz+HsIIiDYRSOksAtmqwKzBBsEbdKzCNEby0Tou4tQyi-0HmZf+FZjbiMrJY8YYJeabErj9EwQ4xxhG9KolBIM8g4BUFgCAn8DGxSgWzQWAo8m7BFJAqwbMlLQniHCPYyIEkwWtkwJQxB1CwC0Jg9gmTyqFkrg-Ui18IJBFMHOSCI5PSCjAljMie1kE1LjugneJAVCkE3kQN4mCSBgDoBASArTfFqyRgExg9Uo4hNMGE2e4cq5bC2EEWYVZqmHWlsgBp7wSBEDAGwLAsBNltMCB0lYfJunX1XPmKxxFcmhELJBXYj0VJghcXkRZyzd401wT-L5oJIiANMOYEBYCyzAsWGOFYkE-qbB2EbFRky7n5Xhc0xFZ1Zp8L8UjGS-MrCC3FOEWEY4b7WKNlXPWwRNhlj1tCWFdT3k0vYBAHQVw6DIBUAAayYAdKW+UlDip3ggegcrKBYEZD0VFADISYuxX8CB0kxzkRUtRD0hsII7FFYwNVTTP7ECIPMx1OBdUADN5lkEYMqluzEnU0s1bKlQOq9XyANeio1wC3qmrxaCYIldua5O2LYLFLgHWuvmSQFJ7iWkGtrvspeUJtqOC9LzOiFgJGpR2HVaEjcA3qLyJQFQShfCfylQqMNir-Xk0DdiNtHaNVavDbq94+rtl50MTGoBWL43gMTdfZYRgSVxDSjEBwVSKUquYsOztLSc1EA9d631-a1FJKYAe0dYaI2TqjdOxGs6L6xoXaAhNc4A5V02GEJYIF0VNoHS269GANASu7TKuVfbm1XsYJQMDIax33p0FOhlOyX0YrjR+pdc5BRyVIq6Ladg+RZtuXuodiGXVEDdSepQnqNA+qIH62DtT4NUcwaG7VE7UOPvQzO2Khr50mtw9JOw-MYjFmiNsSOEym6JLY22ugDBKASt0fwA1OwHKmHejEQWICQ5LCdCBOI4IA7uAdUplTEqOFcJVlhDDgmLUmLrXI+Ij0mrX3vlOKBdgdhdUszoazn9bNhikJYfjz6nOeBc+mzY7mAiGYAoiX4DhapeiA5etjLz1D4E-i7TOXifGRaZqMP9w5ojkNkhsIwM5y68pNgkTw4QuUOpywQT+dsHYoR7gVxWqL6pmA6fXBRYpXB-hMMOPMnU4ieiQfJqZ0t2t5ZaQnJO+4U6O17pnVFDcXPNSFPFxNSjDYrDRiBey8Id0LcpcxZbn926Jy7ltvr3ZVYCa+IuOY9hRSQWSjzWeXpK6whLK4CRRiVE9ToCoDZ8A+iscpu9qLowAC0kRAJsr1p6CxOw5wo4I2bdYC78y-YdYqJHpW7JBFRkoi+V9wS0UTUERw8lHqll2P7Q2SRyODryDMzBFPh6gn8-spY9V2QzkNk1McgD7BmzSmLMiDrNHaIFw5j7uZ0b7KFCZgmzhzC8ysKzNdtq0ubFFA6lJaSd6C8PkWSB19tfpV2iMkUZHd287qY851av5rI8CJWZY05UoLtsDYfWetZF1QFJHjpMllesNmbm6lsy1kbIgLb-+rhxIlnCOWDpkCtYrAuWuxyodMsKbjg8og6gdDPNeWAd5kBM9Izm1XCIfIYTiPiMHaSslSG60LCRsUDqU++9zv7o+Jh5IuiLNfdKiDYjhNLCOECq47HBBeg64NNv1eT5IrYdvdV4ThArGEfWhsWeFmLHCY5JZs00dzfm1XUAW+GPERJ2idhr+IMiImsIooFgRYYI3eU4qwgWI64+-C-83SkI0SrgXOnoHm3IXmxmjC4mkQNg5KN2FGraHGr+e+lOwuSicBpECBZCC6vMKkq6lEKka+7gqUgWymYAqmu+fuRBgirMIocQQCF8ciAOIIBMckcCdUfwF8tEbWcAHWUBjKokC6+ym6dOzuWKlg9Wxs5YAo+YzKe0yQQAA */
   createMachine(
     {
       id: "visualizer machine",
@@ -163,17 +163,11 @@ export const visualizerMachine =
               cond: "canEditText",
             },
 
-            RESIZE_START: {
-              target: "resizing",
-              actions: ["assignResizingStartPoint", "assignResizingElement"],
-              cond: "isSingleElementSelected",
-            },
-
             "TEXT_ELEMENT.RESIZE_START": {
               target: "resizing",
               actions: [
                 "assignResizingStartPoint",
-                "assignResizingElement2",
+                "assignResizingElement",
                 "assignResizeFixedPoint",
               ],
             },
@@ -182,14 +176,14 @@ export const visualizerMachine =
               target: "resizing",
               actions: [
                 "assignResizingStartPoint",
-                "assignResizingElement2",
+                "assignResizingElement",
                 "assignResizeFixedPoint",
               ],
             },
 
             "LINEAR_ELEMENT.RESIZE_START": {
               target: "resizing",
-              actions: ["assignResizingStartPoint", "assignResizingElement2"],
+              actions: ["assignResizingStartPoint", "assignResizingElement"],
             },
           },
         },
@@ -331,23 +325,7 @@ export const visualizerMachine =
 
         resizing: {
           on: {
-            RESIZE: [
-              {
-                target: "resizing",
-                internal: true,
-                cond: "isSingleElementSelected",
-                actions: "resize",
-              },
-              {
-                target: "resizing",
-                internal: true,
-              },
-            ],
-
-            RESIZE_END: {
-              target: "version released",
-              cond: "isSingleElementSelected",
-            },
+            RESIZE_END: "version released",
 
             "TEXT_ELEMENT.RESIZE": {
               target: "resizing",
@@ -926,30 +904,7 @@ export const visualizerMachine =
             },
           };
         }),
-        assignResizingElement: assign((context, { resizingElement }) => {
-          const selectedElements = context.elements.filter(
-            (element) => element.status === "selected"
-          );
-          const selectedElement = selectedElements[0];
-          invariant(selectedElement);
-
-          if ("direction" in resizingElement) {
-            const resizeFixedPoint = calculateFixedPoint(
-              selectedElement,
-              resizingElement.direction
-            );
-
-            return {
-              resizingElement,
-              resizeFixedPoint,
-            };
-          }
-
-          return {
-            resizingElement,
-          };
-        }),
-        assignResizingElement2: assign((_, { resizingElement }) => {
+        assignResizingElement: assign((_, { resizingElement }) => {
           return {
             resizingElement,
           };
@@ -986,28 +941,6 @@ export const visualizerMachine =
             };
           }
         ),
-        resize: assign((context, { event, devicePixelRatio }) => {
-          const selectedElements = context.elements.filter(
-            (element) => element.status === "selected"
-          );
-          const resizingElement = selectedElements[0];
-          invariant(resizingElement);
-
-          const currentCanvasPoint = calculateCanvasPoint({
-            devicePixelRatio,
-            event,
-            zoom: context.zoom,
-            origin: context.origin,
-          });
-          const dx = currentCanvasPoint.x - context.resizeStartPoint.x;
-          const dy = currentCanvasPoint.y - context.resizeStartPoint.y;
-
-          if (!isLinearElement(resizingElement)) {
-            return {};
-          }
-
-          return {};
-        }),
         resizeGenericElement: assign((context, { devicePixelRatio, event }) => {
           const selectedElements = context.elements.filter(
             (element) => element.status === "selected"
@@ -1296,13 +1229,6 @@ export const visualizerMachine =
           }
 
           return true;
-        },
-        isSingleElementSelected: (context) => {
-          const selectedElements = context.elements.filter(
-            (element) => element.status === "selected"
-          );
-
-          return selectedElements.length === 1;
         },
       },
     }

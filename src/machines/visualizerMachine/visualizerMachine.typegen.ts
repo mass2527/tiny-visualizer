@@ -61,15 +61,13 @@ export interface Typegen0 {
     assignResizeFixedPoint:
       | "GENERIC_ELEMENT.RESIZE_START"
       | "TEXT_ELEMENT.RESIZE_START";
-    assignResizingElement: "RESIZE_START";
-    assignResizingElement2:
+    assignResizingElement:
       | "GENERIC_ELEMENT.RESIZE_START"
       | "LINEAR_ELEMENT.RESIZE_START"
       | "TEXT_ELEMENT.RESIZE_START";
     assignResizingStartPoint:
       | "GENERIC_ELEMENT.RESIZE_START"
       | "LINEAR_ELEMENT.RESIZE_START"
-      | "RESIZE_START"
       | "TEXT_ELEMENT.RESIZE_START";
     assignZoom: "CHANGE_ZOOM";
     assignZoomToCurrentPoint: "CHANGE_ZOOM_WITH_PINCH";
@@ -107,7 +105,6 @@ export interface Typegen0 {
       | "DELETE_SELECTION"
       | "DRAW_END"
       | "WRITE_END";
-    resize: "RESIZE";
     resizeGenericElement: "GENERIC_ELEMENT.RESIZE";
     resizeLinearElement: "LINEAR_ELEMENT.RESIZE";
     resizeTextElement: "TEXT_ELEMENT.RESIZE";
@@ -123,7 +120,6 @@ export interface Typegen0 {
   eventsCausingDelays: {};
   eventsCausingGuards: {
     canEditText: "WRITE_EDIT";
-    isSingleElementSelected: "RESIZE" | "RESIZE_END" | "RESIZE_START";
     shouldConnect: "CONNECT";
   };
   eventsCausingServices: {
