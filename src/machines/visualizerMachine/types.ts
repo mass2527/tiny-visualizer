@@ -48,10 +48,9 @@ export type VisualizerFreeDrawElement = VisualizerElementBase & {
   points: Point[];
 };
 
-export type FontSize = 12 | 16 | 20 | 24;
 type VisualizerTextElementOptions = {
   fontFamily: "serif";
-  fontSize: FontSize;
+  fontSize: number;
 };
 
 export type VisualizerTextElement = VisualizerElementBase &
@@ -255,9 +254,21 @@ export type VisualizerMachineEvents =
       devicePixelRatio: number;
     }
   | {
+      type: "TEXT_ELEMENT.RESIZE_START";
+      resizingElement: VisualizerMachineContext["resizingElement"];
+      event: MouseEvent;
+      devicePixelRatio: number;
+    }
+  | {
       type: "RESIZE";
       event: Parameters<MouseEventHandler<HTMLCanvasElement>>[0];
       devicePixelRatio: number;
+    }
+  | {
+      type: "TEXT_ELEMENT.RESIZE";
+      event: Parameters<MouseEventHandler<HTMLCanvasElement>>[0];
+      devicePixelRatio: number;
+      canvasElement: HTMLCanvasElement;
     }
   | {
       type: "RESIZE_END";
