@@ -470,6 +470,14 @@ function App() {
           devicePixelRatio,
         });
         break;
+      case "line":
+      case "arrow":
+        send({
+          type: "LINEAR_ELEMENT.RESIZE",
+          event,
+          devicePixelRatio,
+        });
+        break;
       case "text":
         send({
           type: "TEXT_ELEMENT.RESIZE",
@@ -478,12 +486,6 @@ function App() {
           canvasElement,
         });
         break;
-      default:
-        send({
-          type: "RESIZE",
-          event,
-          devicePixelRatio,
-        });
     }
   };
 
@@ -872,7 +874,7 @@ function App() {
             zoom={zoom}
             onMouseDown={(event, pointIndex) => {
               send({
-                type: "RESIZE_START",
+                type: "LINEAR_ELEMENT.RESIZE_START",
                 resizingElement: {
                   pointIndex,
                 },

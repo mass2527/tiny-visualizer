@@ -64,9 +64,11 @@ export interface Typegen0 {
     assignResizingElement: "RESIZE_START";
     assignResizingElement2:
       | "GENERIC_ELEMENT.RESIZE_START"
+      | "LINEAR_ELEMENT.RESIZE_START"
       | "TEXT_ELEMENT.RESIZE_START";
     assignResizingStartPoint:
       | "GENERIC_ELEMENT.RESIZE_START"
+      | "LINEAR_ELEMENT.RESIZE_START"
       | "RESIZE_START"
       | "TEXT_ELEMENT.RESIZE_START";
     assignZoom: "CHANGE_ZOOM";
@@ -107,6 +109,7 @@ export interface Typegen0 {
       | "WRITE_END";
     resize: "RESIZE";
     resizeGenericElement: "GENERIC_ELEMENT.RESIZE";
+    resizeLinearElement: "LINEAR_ELEMENT.RESIZE";
     resizeTextElement: "TEXT_ELEMENT.RESIZE";
     selectAllElements: "ELEMENTS.SELECT_ALL";
     selectDrawingElement: "CONNECT" | "DRAW_END" | "WRITE_END";
