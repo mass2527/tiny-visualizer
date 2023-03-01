@@ -93,6 +93,7 @@ export interface Typegen0 {
       | "CHANGE_ELEMENT_SHAPE"
       | "CHANGE_ZOOM"
       | "CHANGE_ZOOM_WITH_PINCH"
+      | "DELETE_SELECTION"
       | "ELEMENTS.SELECT_ALL"
       | "HISTORY_UPDATE"
       | "IS_ELEMENT_SHAPE_FIXED_TOGGLE"
