@@ -892,8 +892,6 @@ export const visualizerMachine =
           invariant(selectedElement);
 
           if ("direction" in resizingElement) {
-            invariant(isGenericElement(selectedElement));
-
             const resizeFixedPoint = calculateFixedPoint(
               selectedElement,
               resizingElement.direction

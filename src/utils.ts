@@ -760,49 +760,49 @@ export const replaceNthItem = <T extends unknown>({
 };
 
 export const calculateFixedPoint = (
-  selectedElement: VisualizerGenericElement,
+  element: VisualizerElement,
   direction: Direction
 ): Point => {
   switch (direction) {
     case "up-left":
       return {
-        x: selectedElement.x + selectedElement.width,
-        y: selectedElement.y + selectedElement.height,
+        x: element.x + element.width,
+        y: element.y + element.height,
       };
     case "up-right":
       return {
-        x: selectedElement.x,
-        y: selectedElement.y + selectedElement.height,
+        x: element.x,
+        y: element.y + element.height,
       };
     case "down-left":
       return {
-        x: selectedElement.x + selectedElement.width,
-        y: selectedElement.y,
+        x: element.x + element.width,
+        y: element.y,
       };
     case "down-right":
       return {
-        x: selectedElement.x,
-        y: selectedElement.y,
+        x: element.x,
+        y: element.y,
       };
     case "up":
       return {
-        x: selectedElement.x + selectedElement.width / 2,
-        y: selectedElement.y + selectedElement.height,
+        x: element.x + element.width / 2,
+        y: element.y + element.height,
       };
     case "left":
       return {
-        x: selectedElement.x + selectedElement.width,
-        y: selectedElement.y + selectedElement.height / 2,
+        x: element.x + element.width,
+        y: element.y + element.height / 2,
       };
     case "right":
       return {
-        x: selectedElement.x,
-        y: selectedElement.y + selectedElement.height / 2,
+        x: element.x,
+        y: element.y + element.height / 2,
       };
     case "down":
       return {
-        x: selectedElement.x + selectedElement.width / 2,
-        y: selectedElement.y,
+        x: element.x + element.width / 2,
+        y: element.y,
       };
   }
 };
