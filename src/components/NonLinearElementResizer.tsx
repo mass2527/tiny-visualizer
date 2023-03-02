@@ -1,10 +1,9 @@
 import { MouseEvent } from "react";
 import {
-  VisualizerGenericElement,
   VisualizerMachineContext,
+  VisualizerNonLinearElement,
 } from "../machines/visualizerMachine";
-import { createOrthogonalDirectionVirtualPoints } from "../utils";
-import DiagonalDirectionResizer from "./DiagonalDirectionResizer";
+import { createElementVirtualPoints } from "../utils";
 import VirtualPoint from "./VirtualPoint";
 
 type HorizontalDirection = "left" | "right";
@@ -16,14 +15,14 @@ export type Direction =
   | VerticalDirection
   | DiagonalDirection;
 
-function AllDirectionResizer({
+function NonLinearElementResizer({
   element,
   devicePixelRatio,
   origin,
   zoom,
   onMouseDown,
 }: {
-  element: VisualizerGenericElement;
+  element: VisualizerNonLinearElement;
   devicePixelRatio: number;
   origin: VisualizerMachineContext["origin"];
   zoom: VisualizerMachineContext["zoom"];
@@ -32,7 +31,7 @@ function AllDirectionResizer({
     direction: Direction
   ) => void;
 }) {
-  const virtualPoints = createOrthogonalDirectionVirtualPoints({
+  const virtualPoints = createElementVirtualPoints({
     element,
     devicePixelRatio,
     origin,
@@ -41,13 +40,6 @@ function AllDirectionResizer({
 
   return (
     <>
-      <DiagonalDirectionResizer
-        element={element}
-        devicePixelRatio={devicePixelRatio}
-        origin={origin}
-        zoom={zoom}
-        onMouseDown={onMouseDown}
-      />
       {virtualPoints.map((virtualPoint) => {
         return (
           <VirtualPoint
@@ -65,4 +57,4 @@ function AllDirectionResizer({
   );
 }
 
-export default AllDirectionResizer;
+export default NonLinearElementResizer;

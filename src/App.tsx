@@ -39,14 +39,14 @@ import {
   convertToRatio,
   convertToViewportPoint,
   createDraw,
+  isFreeDrawElement,
   isGenericElement,
   isLinearElement,
   isPointInsideOfElement,
   isTextElement,
   isWithPlatformMetaKey,
 } from "./utils";
-import AllDirectionResizer from "./components/AllDirectionResizer";
-import DiagonalDirectionResizer from "./components/DiagonalDirectionResizer";
+import NonLinearElementResizer from "./components/NonLinearElementResizer";
 
 const MARGIN = 8;
 
@@ -888,7 +888,7 @@ function App() {
       {selectedElements.length === 1 &&
         selectedElements[0] &&
         isGenericElement(selectedElements[0]) && (
-          <AllDirectionResizer
+          <NonLinearElementResizer
             element={selectedElements[0]}
             devicePixelRatio={devicePixelRatio}
             origin={origin}
@@ -910,7 +910,7 @@ function App() {
         selectedElements.length === 1 &&
         selectedElements[0] &&
         isTextElement(selectedElements[0]) && (
-          <DiagonalDirectionResizer
+          <NonLinearElementResizer
             element={selectedElements[0]}
             devicePixelRatio={devicePixelRatio}
             origin={origin}
@@ -924,6 +924,20 @@ function App() {
                   direction,
                 },
               });
+            }}
+          />
+        )}
+
+      {selectedElements.length === 1 &&
+        selectedElements[0] &&
+        isFreeDrawElement(selectedElements[0]) && (
+          <NonLinearElementResizer
+            element={selectedElements[0]}
+            devicePixelRatio={devicePixelRatio}
+            origin={origin}
+            zoom={zoom}
+            onMouseDown={() => {
+              //
             }}
           />
         )}

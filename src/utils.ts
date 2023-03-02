@@ -10,6 +10,7 @@ import {
   VisualizerGenericElement,
   VisualizerLinearElement,
   VisualizerMachineContext,
+  VisualizerNonLinearElement,
   VisualizerTextElement,
   ZOOM,
 } from "./machines/visualizerMachine";
@@ -19,7 +20,7 @@ import {
   OrthogonalDirection,
   DiagonalDirection,
   Direction,
-} from "./components/AllDirectionResizer";
+} from "./components/NonLinearElementResizer";
 import {
   VIRTUAL_POINT_HEIGHT,
   VIRTUAL_POINT_WIDTH,
@@ -1075,16 +1076,13 @@ export const resizeTextElementIntoDiagonalDirection = ({
   }
 };
 
-export const createDiagonalDirectionVirtualPoints = ({
+export const createElementVirtualPoints = ({
   element,
   devicePixelRatio,
   origin,
   zoom,
 }: {
-  element:
-    | VisualizerTextElement
-    | VisualizerGenericElement
-    | VisualizerFreeDrawElement;
+  element: VisualizerNonLinearElement;
   devicePixelRatio: number;
   origin: VisualizerMachineContext["origin"];
   zoom: VisualizerMachineContext["zoom"];
@@ -1106,7 +1104,7 @@ export const createDiagonalDirectionVirtualPoints = ({
   });
 
   const virtualPoints: {
-    direction: DiagonalDirection;
+    direction: Direction;
     left: number;
     top: number;
   }[] = [
@@ -1132,41 +1130,9 @@ export const createDiagonalDirectionVirtualPoints = ({
     },
   ];
 
-  return virtualPoints;
-};
-
-export const createOrthogonalDirectionVirtualPoints = ({
-  element,
-  devicePixelRatio,
-  origin,
-  zoom,
-}: {
-  element: VisualizerGenericElement;
-  devicePixelRatio: number;
-  origin: VisualizerMachineContext["origin"];
-  zoom: VisualizerMachineContext["zoom"];
-}) => {
-  const absolutePoint = calculateElementAbsolutePoint(element);
-  const elementViewportPoint = convertToViewportPoint({
-    canvasPoint: {
-      x: absolutePoint.minX,
-      y: absolutePoint.minY,
-    },
-    devicePixelRatio,
-    origin,
-    zoom,
-  });
-  const elementViewportSize = calculateElementViewportSize({
-    element,
-    devicePixelRatio,
-    zoom,
-  });
-
-  const virtualPoints: {
-    direction: OrthogonalDirection;
-    left: number;
-    top: number;
-  }[] = [];
+  if (!isGenericElement(element)) {
+    return virtualPoints;
+  }
 
   const haveEnoughWidth =
     Math.abs(elementViewportSize.width) >= 2 * (3 * VIRTUAL_POINT_WIDTH);

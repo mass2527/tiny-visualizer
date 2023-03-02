@@ -1,6 +1,6 @@
 import { MouseEvent, MouseEventHandler } from "react";
 import { Options as RoughJSOptions } from "roughjs/bin/core";
-import { Direction } from "../../components/AllDirectionResizer";
+import { Direction } from "../../components/NonLinearElementResizer";
 
 export type VisualizerElementBase = {
   id: string;
@@ -64,6 +64,11 @@ export type VisualizerElement =
   | VisualizerLinearElement
   | VisualizerFreeDrawElement
   | VisualizerTextElement;
+
+export type VisualizerNonLinearElement = Exclude<
+  VisualizerElement,
+  VisualizerLinearElement
+>;
 
 export const SHAPE_TYPES: Record<
   VisualizerElement["shape"],
