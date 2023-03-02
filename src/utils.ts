@@ -1130,7 +1130,7 @@ export const createElementVirtualPoints = ({
     },
   ];
 
-  if (!isGenericElement(element)) {
+  if (isTextElement(element)) {
     return virtualPoints;
   }
 
