@@ -25,7 +25,7 @@ import {
   calculateFixedPoint,
   isDiagonalDirection,
   resizeTextElementIntoDiagonalDirection,
-  resizeFreedrawElementIntoDiagonalDirection,
+  resizeFreedrawElement,
   resizeGenericElement,
 } from "../../utils";
 import debounce from "lodash.debounce";
@@ -1199,19 +1199,15 @@ export const visualizerMachine =
 
                 invariant("direction" in context.resizingElement);
 
-                if (isDiagonalDirection(context.resizingElement.direction)) {
-                  const resizedElement =
-                    resizeFreedrawElementIntoDiagonalDirection({
-                      element,
-                      previousCanvasPoint: context.resizeStartPoint,
-                      currentCanvasPoint,
-                      resizeFixedPoint: context.resizeFixedPoint,
-                    });
+                const resizedElement = resizeFreedrawElement({
+                  element,
+                  direction: context.resizingElement.direction,
+                  previousCanvasPoint: context.resizeStartPoint,
+                  currentCanvasPoint,
+                  resizeFixedPoint: context.resizeFixedPoint,
+                });
 
-                  return resizedElement;
-                }
-
-                return element;
+                return resizedElement;
               }),
               resizeStartPoint: currentCanvasPoint,
             };

@@ -1222,13 +1222,15 @@ export const createElementVirtualPoints = ({
   return virtualPoints;
 };
 
-export const resizeFreedrawElementIntoDiagonalDirection = ({
+export const resizeFreedrawElement = ({
   element,
+  direction,
   previousCanvasPoint,
   currentCanvasPoint,
   resizeFixedPoint,
 }: {
   element: VisualizerFreeDrawElement;
+  direction: Direction;
   previousCanvasPoint: Point;
   currentCanvasPoint: Point;
   resizeFixedPoint: Point;
@@ -1256,26 +1258,62 @@ export const resizeFreedrawElementIntoDiagonalDirection = ({
     width: Math.abs(currentCanvasPoint.x - resizeFixedPoint.x),
     height: Math.abs(currentCanvasPoint.y - resizeFixedPoint.y),
   };
+  if (isDiagonalDirection(direction)) {
+    return {
+      ...element,
+      width: resizedSize.width,
+      height: resizedSize.height,
+      x:
+        (flipSign.x * ((element.x - resizeFixedPoint.x) * resizedSize.width)) /
+          previousSize.width +
+        resizeFixedPoint.x,
+      y:
+        (flipSign.y * (element.y - resizeFixedPoint.y) * resizedSize.height) /
+          previousSize.height +
+        resizeFixedPoint.y,
+      points: element.points.map((point) => {
+        return {
+          x: flipSign.x * point.x * (resizedSize.width / previousSize.width),
+          y: flipSign.y * point.y * (resizedSize.height / previousSize.height),
+        };
+      }),
+    };
+  }
 
-  const resizedElement: VisualizerFreeDrawElement = {
-    ...element,
-    width: resizedSize.width,
-    height: resizedSize.height,
-    x:
-      (flipSign.x * ((element.x - resizeFixedPoint.x) * resizedSize.width)) /
-        previousSize.width +
-      resizeFixedPoint.x,
-    y:
-      (flipSign.y * (element.y - resizeFixedPoint.y) * resizedSize.height) /
-        previousSize.height +
-      resizeFixedPoint.y,
-    points: element.points.map((point) => {
+  switch (direction) {
+    case "up":
+    case "down":
       return {
-        x: flipSign.x * point.x * (resizedSize.width / previousSize.width),
-        y: flipSign.y * point.y * (resizedSize.height / previousSize.height),
+        ...element,
+        height: resizedSize.height,
+        y:
+          (flipSign.y * (element.y - resizeFixedPoint.y) * resizedSize.height) /
+            previousSize.height +
+          resizeFixedPoint.y,
+        points: element.points.map((point) => {
+          return {
+            x: point.x,
+            y:
+              flipSign.y * point.y * (resizedSize.height / previousSize.height),
+          };
+        }),
       };
-    }),
-  };
-
-  return resizedElement;
+    case "left":
+    case "right":
+      return {
+        ...element,
+        width: resizedSize.width,
+        x:
+          (flipSign.x *
+            ((element.x - resizeFixedPoint.x) * resizedSize.width)) /
+            previousSize.width +
+          resizeFixedPoint.x,
+        points: element.points.map((point) => {
+          return {
+            x: flipSign.x * point.x * (resizedSize.width / previousSize.width),
+            y: point.y,
+          };
+        }),
+      };
+  }
 };
