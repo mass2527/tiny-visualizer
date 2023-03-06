@@ -170,6 +170,16 @@ export const calculateElementsAbsolutePoint = (
   };
 };
 
+export const calculateSelectedElementsAbsolutePoint = (
+  elements: VisualizerElement[]
+) => {
+  const selectedElements = elements.filter(
+    (element) => element.status === "selected"
+  );
+
+  return calculateElementsAbsolutePoint(selectedElements);
+};
+
 export const calculateCenterPoint = (absolutePoint: AbsolutePoint) => {
   return {
     x: (absolutePoint.minX + absolutePoint.maxX) / 2,

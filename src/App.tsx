@@ -47,6 +47,7 @@ import {
   isWithPlatformMetaKey,
   strokeDashedRectangle,
   isPointInsideOfAbsolutePoint,
+  calculateSelectedElementsAbsolutePoint,
 } from "./utils";
 import NonLinearElementResizer from "./components/NonLinearElementResizer";
 
@@ -194,11 +195,9 @@ function App() {
       ctx.restore();
     }
 
-    const selectedElements = elements.filter(
-      (element) => element.status === "selected"
-    );
-    const absolutePoint = calculateElementsAbsolutePoint(selectedElements);
-    strokeDashedRectangle(ctx, absolutePoint);
+    const selectedElementsAbsolutePoint =
+      calculateSelectedElementsAbsolutePoint(elements);
+    strokeDashedRectangle(ctx, selectedElementsAbsolutePoint);
   }, [
     elements,
     origin,
@@ -359,15 +358,14 @@ function App() {
       return;
     }
 
-    if (elementShape !== "selection") {
-      return;
-    }
-
     const selectedElements = elements.filter(
       (element) => element.status === "selected"
     );
     const absolutePoint = calculateElementsAbsolutePoint(selectedElements);
-    if (isPointInsideOfAbsolutePoint(absolutePoint, mousePoint)) {
+    if (
+      elementShape === "selection" &&
+      isPointInsideOfAbsolutePoint(absolutePoint, mousePoint)
+    ) {
       startDrag(event);
     } else {
       startDraw(event);
@@ -499,6 +497,23 @@ function App() {
   };
 
   const moveMouse: MouseEventHandler<HTMLCanvasElement> = (event) => {
+    const selectedElementsAbsolutePoint =
+      calculateSelectedElementsAbsolutePoint(elements);
+    const mousePoint = calculateCanvasPoint({
+      devicePixelRatio,
+      event,
+      zoom,
+      origin,
+    });
+
+    if (
+      isPointInsideOfAbsolutePoint(selectedElementsAbsolutePoint, mousePoint)
+    ) {
+      document.body.style.cursor = "move";
+    } else {
+      document.body.style.cursor = "default";
+    }
+
     send({
       type: "MOUSE_MOVE",
       event,
