@@ -10,6 +10,7 @@ import {
   VisualizerGenericElement,
   VisualizerLinearElement,
   VisualizerMachineContext,
+  VisualizerNonLinearElement,
   VisualizerTextElement,
   ZOOM,
 } from "./machines/visualizerMachine";
@@ -19,7 +20,11 @@ import {
   OrthogonalDirection,
   DiagonalDirection,
   Direction,
-} from "./components/GenericElementResizer";
+} from "./components/NonLinearElementResizer";
+import {
+  VIRTUAL_POINT_HEIGHT,
+  VIRTUAL_POINT_WIDTH,
+} from "./components/VirtualPoint";
 
 export const calculateCanvasPoint = ({
   devicePixelRatio,
@@ -760,9 +765,61 @@ export const replaceNthItem = <T extends unknown>({
 };
 
 export const calculateFixedPoint = (
-  element: VisualizerElement,
+  element:
+    | VisualizerGenericElement
+    | VisualizerTextElement
+    | VisualizerFreeDrawElement,
   direction: Direction
 ): Point => {
+  if (isFreeDrawElement(element)) {
+    const { minX, minY, maxX, maxY } = calculateElementAbsolutePoint(element);
+    const width = maxX - minX;
+    const height = maxY - minY;
+
+    switch (direction) {
+      case "up-left":
+        return {
+          x: minX + width,
+          y: minY + height,
+        };
+      case "up-right":
+        return {
+          x: minX,
+          y: minY + height,
+        };
+      case "down-left":
+        return {
+          x: minX + width,
+          y: minY,
+        };
+      case "down-right":
+        return {
+          x: minX,
+          y: minY,
+        };
+      case "up":
+        return {
+          x: minX + width / 2,
+          y: minY + height,
+        };
+      case "left":
+        return {
+          x: minX + width,
+          y: minY + height / 2,
+        };
+      case "right":
+        return {
+          x: minX,
+          y: minY + height / 2,
+        };
+      case "down":
+        return {
+          x: minX + width / 2,
+          y: minY,
+        };
+    }
+  }
+
   switch (direction) {
     case "up-left":
       return {
@@ -807,65 +864,64 @@ export const calculateFixedPoint = (
   }
 };
 
-export const resizeGenericElementIntoDiagonalDirection = ({
+export const resizeGenericElement = ({
   element,
   direction,
   currentCanvasPoint,
   resizeFixedPoint,
 }: {
   element: VisualizerGenericElement;
-  direction: DiagonalDirection;
+  direction: Direction;
   currentCanvasPoint: Point;
   resizeFixedPoint: Point;
 }): VisualizerGenericElement => {
-  switch (direction) {
-    case "up-left":
-      return {
-        ...element,
-        x: currentCanvasPoint.x,
-        y: currentCanvasPoint.y,
-        width: resizeFixedPoint.x - currentCanvasPoint.x,
-        height: resizeFixedPoint.y - currentCanvasPoint.y,
-      };
-    case "up-right":
-      return {
-        ...element,
-        x: resizeFixedPoint.x,
-        y: currentCanvasPoint.y,
-        width: currentCanvasPoint.x - resizeFixedPoint.x,
-        height: resizeFixedPoint.y - currentCanvasPoint.y,
-      };
-    case "down-left":
-      return {
-        ...element,
-        x: currentCanvasPoint.x,
-        y: resizeFixedPoint.y,
-        width: resizeFixedPoint.x - currentCanvasPoint.x,
-        height: currentCanvasPoint.y - resizeFixedPoint.y,
-      };
-    case "down-right":
-      return {
-        ...element,
-        x: resizeFixedPoint.x,
-        y: resizeFixedPoint.y,
-        width: currentCanvasPoint.x - resizeFixedPoint.x,
-        height: currentCanvasPoint.y - resizeFixedPoint.y,
-      };
+  if (isDiagonalDirection(direction)) {
+    const DiagonalDirection = calculateDiagonalDirection(
+      currentCanvasPoint,
+      resizeFixedPoint
+    );
+    switch (DiagonalDirection) {
+      case "up-left":
+        return {
+          ...element,
+          x: currentCanvasPoint.x,
+          y: currentCanvasPoint.y,
+          width: resizeFixedPoint.x - currentCanvasPoint.x,
+          height: resizeFixedPoint.y - currentCanvasPoint.y,
+        };
+      case "up-right":
+        return {
+          ...element,
+          x: resizeFixedPoint.x,
+          y: currentCanvasPoint.y,
+          width: currentCanvasPoint.x - resizeFixedPoint.x,
+          height: resizeFixedPoint.y - currentCanvasPoint.y,
+        };
+      case "down-left":
+        return {
+          ...element,
+          x: currentCanvasPoint.x,
+          y: resizeFixedPoint.y,
+          width: resizeFixedPoint.x - currentCanvasPoint.x,
+          height: currentCanvasPoint.y - resizeFixedPoint.y,
+        };
+      case "down-right":
+        return {
+          ...element,
+          x: resizeFixedPoint.x,
+          y: resizeFixedPoint.y,
+          width: currentCanvasPoint.x - resizeFixedPoint.x,
+          height: currentCanvasPoint.y - resizeFixedPoint.y,
+        };
+    }
   }
-};
 
-export const resizeGenericElementIntoOrthogonalDirection = ({
-  element,
-  direction,
-  currentCanvasPoint,
-  resizeFixedPoint,
-}: {
-  element: VisualizerGenericElement;
-  direction: OrthogonalDirection;
-  currentCanvasPoint: Point;
-  resizeFixedPoint: Point;
-}) => {
-  switch (direction) {
+  const orthogonalDirection = calculateOrthogonalDirection({
+    currentCanvasPoint,
+    direction,
+    resizeFixedPoint,
+  });
+  switch (orthogonalDirection) {
     case "up":
       return {
         ...element,
@@ -1068,5 +1124,196 @@ export const resizeTextElementIntoDiagonalDirection = ({
     }
     default:
       return element;
+  }
+};
+
+export const createElementVirtualPoints = ({
+  element,
+  devicePixelRatio,
+  origin,
+  zoom,
+}: {
+  element: VisualizerNonLinearElement;
+  devicePixelRatio: number;
+  origin: VisualizerMachineContext["origin"];
+  zoom: VisualizerMachineContext["zoom"];
+}) => {
+  const absolutePoint = calculateElementAbsolutePoint(element);
+  const elementViewportPoint = convertToViewportPoint({
+    canvasPoint: {
+      x: absolutePoint.minX,
+      y: absolutePoint.minY,
+    },
+    devicePixelRatio,
+    origin,
+    zoom,
+  });
+  const elementViewportSize = calculateElementViewportSize({
+    element,
+    devicePixelRatio,
+    zoom,
+  });
+
+  const virtualPoints: {
+    direction: Direction;
+    left: number;
+    top: number;
+  }[] = [
+    {
+      direction: "up-left",
+      left: elementViewportPoint.x,
+      top: elementViewportPoint.y,
+    },
+    {
+      direction: "up-right",
+      left: elementViewportPoint.x + elementViewportSize.width,
+      top: elementViewportPoint.y,
+    },
+    {
+      direction: "down-left",
+      left: elementViewportPoint.x,
+      top: elementViewportPoint.y + elementViewportSize.height,
+    },
+    {
+      direction: "down-right",
+      left: elementViewportPoint.x + elementViewportSize.width,
+      top: elementViewportPoint.y + elementViewportSize.height,
+    },
+  ];
+
+  if (isTextElement(element)) {
+    return virtualPoints;
+  }
+
+  const haveEnoughWidth =
+    Math.abs(elementViewportSize.width) >= 2 * (3 * VIRTUAL_POINT_WIDTH);
+  if (haveEnoughWidth) {
+    virtualPoints.push(
+      {
+        direction: "up",
+        left: elementViewportPoint.x + elementViewportSize.width / 2,
+        top: elementViewportPoint.y,
+      },
+      {
+        direction: "down",
+        left: elementViewportPoint.x + elementViewportSize.width / 2,
+        top: elementViewportPoint.y + elementViewportSize.height,
+      }
+    );
+  }
+
+  const haveEnoughHeight =
+    Math.abs(elementViewportSize.height) >= 2 * (3 * VIRTUAL_POINT_HEIGHT);
+  if (haveEnoughHeight) {
+    virtualPoints.push(
+      {
+        direction: "left",
+        left: elementViewportPoint.x,
+        top: elementViewportPoint.y + elementViewportSize.height / 2,
+      },
+      {
+        direction: "right",
+        left: elementViewportPoint.x + elementViewportSize.width,
+        top: elementViewportPoint.y + elementViewportSize.height / 2,
+      }
+    );
+  }
+
+  return virtualPoints;
+};
+
+export const resizeFreedrawElement = ({
+  element,
+  direction,
+  previousCanvasPoint,
+  currentCanvasPoint,
+  resizeFixedPoint,
+}: {
+  element: VisualizerFreeDrawElement;
+  direction: Direction;
+  previousCanvasPoint: Point;
+  currentCanvasPoint: Point;
+  resizeFixedPoint: Point;
+}): VisualizerFreeDrawElement => {
+  const previousAbsolutePoint = calculateFreeDrawElementAbsolutePoint(element);
+  const previousSize = {
+    width: previousAbsolutePoint.maxX - previousAbsolutePoint.minX,
+    height: previousAbsolutePoint.maxY - previousAbsolutePoint.minY,
+  };
+
+  // if currentCanvasPoint and previousCanvasPoint is on the another side,
+  // we need to multiply by -1 for symmetry
+  const flipSign = {
+    x: Math.sign(
+      (currentCanvasPoint.x - resizeFixedPoint.x) *
+        (previousCanvasPoint.x - resizeFixedPoint.x)
+    ),
+    y: Math.sign(
+      (currentCanvasPoint.y - resizeFixedPoint.y) *
+        (previousCanvasPoint.y - resizeFixedPoint.y)
+    ),
+  };
+
+  const resizedSize = {
+    width: Math.abs(currentCanvasPoint.x - resizeFixedPoint.x),
+    height: Math.abs(currentCanvasPoint.y - resizeFixedPoint.y),
+  };
+  if (isDiagonalDirection(direction)) {
+    return {
+      ...element,
+      width: resizedSize.width,
+      height: resizedSize.height,
+      x:
+        (flipSign.x * ((element.x - resizeFixedPoint.x) * resizedSize.width)) /
+          previousSize.width +
+        resizeFixedPoint.x,
+      y:
+        (flipSign.y * (element.y - resizeFixedPoint.y) * resizedSize.height) /
+          previousSize.height +
+        resizeFixedPoint.y,
+      points: element.points.map((point) => {
+        return {
+          x: flipSign.x * point.x * (resizedSize.width / previousSize.width),
+          y: flipSign.y * point.y * (resizedSize.height / previousSize.height),
+        };
+      }),
+    };
+  }
+
+  switch (direction) {
+    case "up":
+    case "down":
+      return {
+        ...element,
+        height: resizedSize.height,
+        y:
+          (flipSign.y * (element.y - resizeFixedPoint.y) * resizedSize.height) /
+            previousSize.height +
+          resizeFixedPoint.y,
+        points: element.points.map((point) => {
+          return {
+            x: point.x,
+            y:
+              flipSign.y * point.y * (resizedSize.height / previousSize.height),
+          };
+        }),
+      };
+    case "left":
+    case "right":
+      return {
+        ...element,
+        width: resizedSize.width,
+        x:
+          (flipSign.x *
+            ((element.x - resizeFixedPoint.x) * resizedSize.width)) /
+            previousSize.width +
+          resizeFixedPoint.x,
+        points: element.points.map((point) => {
+          return {
+            x: flipSign.x * point.x * (resizedSize.width / previousSize.width),
+            y: point.y,
+          };
+        }),
+      };
   }
 };

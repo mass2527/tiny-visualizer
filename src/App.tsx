@@ -39,14 +39,14 @@ import {
   convertToRatio,
   convertToViewportPoint,
   createDraw,
+  isFreeDrawElement,
   isGenericElement,
   isLinearElement,
   isPointInsideOfElement,
   isTextElement,
   isWithPlatformMetaKey,
 } from "./utils";
-import GenericElementResizer, {} from "./components/GenericElementResizer";
-import TextElementResizer from "./components/TextElementResizer";
+import NonLinearElementResizer from "./components/NonLinearElementResizer";
 
 const MARGIN = 8;
 
@@ -486,6 +486,13 @@ function App() {
           canvasElement,
         });
         break;
+      case "freedraw":
+        send({
+          type: "FREEDRAW_ELEMENT.RESIZE",
+          event,
+          devicePixelRatio,
+        });
+        break;
     }
   };
 
@@ -888,8 +895,8 @@ function App() {
       {selectedElements.length === 1 &&
         selectedElements[0] &&
         isGenericElement(selectedElements[0]) && (
-          <GenericElementResizer
-            genericElement={selectedElements[0]}
+          <NonLinearElementResizer
+            element={selectedElements[0]}
             devicePixelRatio={devicePixelRatio}
             origin={origin}
             zoom={zoom}
@@ -910,14 +917,35 @@ function App() {
         selectedElements.length === 1 &&
         selectedElements[0] &&
         isTextElement(selectedElements[0]) && (
-          <TextElementResizer
-            textElement={selectedElements[0]}
+          <NonLinearElementResizer
+            element={selectedElements[0]}
             devicePixelRatio={devicePixelRatio}
             origin={origin}
             zoom={zoom}
             onMouseDown={(event, direction) => {
               send({
                 type: "TEXT_ELEMENT.RESIZE_START",
+                event,
+                devicePixelRatio,
+                resizingElement: {
+                  direction,
+                },
+              });
+            }}
+          />
+        )}
+
+      {selectedElements.length === 1 &&
+        selectedElements[0] &&
+        isFreeDrawElement(selectedElements[0]) && (
+          <NonLinearElementResizer
+            element={selectedElements[0]}
+            devicePixelRatio={devicePixelRatio}
+            origin={origin}
+            zoom={zoom}
+            onMouseDown={(event, direction) => {
+              send({
+                type: "FREEDRAW_ELEMENT.RESIZE_START",
                 event,
                 devicePixelRatio,
                 resizingElement: {

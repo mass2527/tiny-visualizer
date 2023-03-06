@@ -59,13 +59,16 @@ export interface Typegen0 {
     assignElementOptions: "CHANGE_ELEMENT_OPTIONS";
     assignPreviousPoint: "DRAG" | "DRAG_START";
     assignResizeFixedPoint:
+      | "FREEDRAW_ELEMENT.RESIZE_START"
       | "GENERIC_ELEMENT.RESIZE_START"
       | "TEXT_ELEMENT.RESIZE_START";
     assignResizingElement:
+      | "FREEDRAW_ELEMENT.RESIZE_START"
       | "GENERIC_ELEMENT.RESIZE_START"
       | "LINEAR_ELEMENT.RESIZE_START"
       | "TEXT_ELEMENT.RESIZE_START";
     assignResizingStartPoint:
+      | "FREEDRAW_ELEMENT.RESIZE_START"
       | "GENERIC_ELEMENT.RESIZE_START"
       | "LINEAR_ELEMENT.RESIZE_START"
       | "TEXT_ELEMENT.RESIZE_START";
@@ -106,6 +109,7 @@ export interface Typegen0 {
       | "DELETE_SELECTION"
       | "DRAW_END"
       | "WRITE_END";
+    resizeFreedrawElement: "FREEDRAW_ELEMENT.RESIZE";
     resizeGenericElement: "GENERIC_ELEMENT.RESIZE";
     resizeLinearElement: "LINEAR_ELEMENT.RESIZE";
     resizeTextElement: "TEXT_ELEMENT.RESIZE";
