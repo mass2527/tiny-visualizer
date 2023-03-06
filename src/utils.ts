@@ -864,65 +864,64 @@ export const calculateFixedPoint = (
   }
 };
 
-export const resizeGenericElementIntoDiagonalDirection = ({
+export const resizeGenericElement = ({
   element,
   direction,
   currentCanvasPoint,
   resizeFixedPoint,
 }: {
   element: VisualizerGenericElement;
-  direction: DiagonalDirection;
+  direction: Direction;
   currentCanvasPoint: Point;
   resizeFixedPoint: Point;
 }): VisualizerGenericElement => {
-  switch (direction) {
-    case "up-left":
-      return {
-        ...element,
-        x: currentCanvasPoint.x,
-        y: currentCanvasPoint.y,
-        width: resizeFixedPoint.x - currentCanvasPoint.x,
-        height: resizeFixedPoint.y - currentCanvasPoint.y,
-      };
-    case "up-right":
-      return {
-        ...element,
-        x: resizeFixedPoint.x,
-        y: currentCanvasPoint.y,
-        width: currentCanvasPoint.x - resizeFixedPoint.x,
-        height: resizeFixedPoint.y - currentCanvasPoint.y,
-      };
-    case "down-left":
-      return {
-        ...element,
-        x: currentCanvasPoint.x,
-        y: resizeFixedPoint.y,
-        width: resizeFixedPoint.x - currentCanvasPoint.x,
-        height: currentCanvasPoint.y - resizeFixedPoint.y,
-      };
-    case "down-right":
-      return {
-        ...element,
-        x: resizeFixedPoint.x,
-        y: resizeFixedPoint.y,
-        width: currentCanvasPoint.x - resizeFixedPoint.x,
-        height: currentCanvasPoint.y - resizeFixedPoint.y,
-      };
+  if (isDiagonalDirection(direction)) {
+    const DiagonalDirection = calculateDiagonalDirection(
+      currentCanvasPoint,
+      resizeFixedPoint
+    );
+    switch (DiagonalDirection) {
+      case "up-left":
+        return {
+          ...element,
+          x: currentCanvasPoint.x,
+          y: currentCanvasPoint.y,
+          width: resizeFixedPoint.x - currentCanvasPoint.x,
+          height: resizeFixedPoint.y - currentCanvasPoint.y,
+        };
+      case "up-right":
+        return {
+          ...element,
+          x: resizeFixedPoint.x,
+          y: currentCanvasPoint.y,
+          width: currentCanvasPoint.x - resizeFixedPoint.x,
+          height: resizeFixedPoint.y - currentCanvasPoint.y,
+        };
+      case "down-left":
+        return {
+          ...element,
+          x: currentCanvasPoint.x,
+          y: resizeFixedPoint.y,
+          width: resizeFixedPoint.x - currentCanvasPoint.x,
+          height: currentCanvasPoint.y - resizeFixedPoint.y,
+        };
+      case "down-right":
+        return {
+          ...element,
+          x: resizeFixedPoint.x,
+          y: resizeFixedPoint.y,
+          width: currentCanvasPoint.x - resizeFixedPoint.x,
+          height: currentCanvasPoint.y - resizeFixedPoint.y,
+        };
+    }
   }
-};
 
-export const resizeGenericElementIntoOrthogonalDirection = ({
-  element,
-  direction,
-  currentCanvasPoint,
-  resizeFixedPoint,
-}: {
-  element: VisualizerGenericElement;
-  direction: OrthogonalDirection;
-  currentCanvasPoint: Point;
-  resizeFixedPoint: Point;
-}) => {
-  switch (direction) {
+  const orthogonalDirection = calculateOrthogonalDirection({
+    currentCanvasPoint,
+    direction,
+    resizeFixedPoint,
+  });
+  switch (orthogonalDirection) {
     case "up":
       return {
         ...element,

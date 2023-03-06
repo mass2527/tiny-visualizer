@@ -23,12 +23,10 @@ import {
   removeLastItem,
   replaceNthItem,
   calculateFixedPoint,
-  resizeGenericElementIntoDiagonalDirection,
   isDiagonalDirection,
-  calculateOrthogonalDirection,
-  resizeGenericElementIntoOrthogonalDirection,
   resizeTextElementIntoDiagonalDirection,
   resizeFreedrawElementIntoDiagonalDirection,
+  resizeGenericElement,
 } from "../../utils";
 import debounce from "lodash.debounce";
 import { TEXTAREA_UNIT_LESS_LINE_HEIGHT } from "../../constants";
@@ -987,30 +985,12 @@ export const visualizerMachine =
                 return element;
               }
 
-              if (isDiagonalDirection(context.resizingElement.direction)) {
-                const resizedElement =
-                  resizeGenericElementIntoDiagonalDirection({
-                    element,
-                    direction: context.resizingElement.direction,
-                    currentCanvasPoint,
-                    resizeFixedPoint: context.resizeFixedPoint,
-                  });
-
-                return resizedElement;
-              }
-
-              const direction = calculateOrthogonalDirection({
+              const resizedElement = resizeGenericElement({
+                element,
                 direction: context.resizingElement.direction,
                 currentCanvasPoint,
                 resizeFixedPoint: context.resizeFixedPoint,
               });
-              const resizedElement =
-                resizeGenericElementIntoOrthogonalDirection({
-                  element,
-                  direction,
-                  currentCanvasPoint,
-                  resizeFixedPoint: context.resizeFixedPoint,
-                });
 
               return resizedElement;
             }),
