@@ -880,11 +880,11 @@ export const resizeGenericElement = ({
   resizeFixedPoint: Point;
 }): VisualizerGenericElement => {
   if (isDiagonalDirection(direction)) {
-    const DiagonalDirection = calculateDiagonalDirection(
+    const diagonalDirection = calculateDiagonalDirection(
       currentCanvasPoint,
       resizeFixedPoint
     );
-    switch (DiagonalDirection) {
+    switch (diagonalDirection) {
       case "up-left":
         return {
           ...element,
