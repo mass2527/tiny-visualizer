@@ -195,9 +195,15 @@ function App() {
       ctx.restore();
     }
 
+    ctx.save();
+    ctx.translate(origin.x, origin.y);
+    ctx.scale(zoom, zoom);
+
     const selectedElementsAbsolutePoint =
       calculateSelectedElementsAbsolutePoint(elements);
     strokeDashedRectangle(ctx, selectedElementsAbsolutePoint);
+
+    ctx.restore();
   }, [
     elements,
     origin,
