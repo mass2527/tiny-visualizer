@@ -486,6 +486,13 @@ function App() {
           canvasElement,
         });
         break;
+      case "freedraw":
+        send({
+          type: "FREEDRAW_ELEMENT.RESIZE",
+          event,
+          devicePixelRatio,
+        });
+        break;
     }
   };
 
@@ -936,8 +943,15 @@ function App() {
             devicePixelRatio={devicePixelRatio}
             origin={origin}
             zoom={zoom}
-            onMouseDown={() => {
-              //
+            onMouseDown={(event, direction) => {
+              send({
+                type: "FREEDRAW_ELEMENT.RESIZE_START",
+                event,
+                devicePixelRatio,
+                resizingElement: {
+                  direction,
+                },
+              });
             }}
           />
         )}

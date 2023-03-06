@@ -271,6 +271,12 @@ export type VisualizerMachineEvents =
       devicePixelRatio: number;
     }
   | {
+      type: "FREEDRAW_ELEMENT.RESIZE_START";
+      resizingElement: VisualizerMachineContext["resizingElement"];
+      event: MouseEvent;
+      devicePixelRatio: number;
+    }
+  | {
       type: "GENERIC_ELEMENT.RESIZE";
       event: Parameters<MouseEventHandler<HTMLCanvasElement>>[0];
       devicePixelRatio: number;
@@ -285,6 +291,11 @@ export type VisualizerMachineEvents =
       event: Parameters<MouseEventHandler<HTMLCanvasElement>>[0];
       devicePixelRatio: number;
       canvasElement: HTMLCanvasElement;
+    }
+  | {
+      type: "FREEDRAW_ELEMENT.RESIZE";
+      event: Parameters<MouseEventHandler<HTMLCanvasElement>>[0];
+      devicePixelRatio: number;
     }
   | {
       type: "RESIZE_END";

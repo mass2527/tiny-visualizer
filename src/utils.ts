@@ -765,9 +765,61 @@ export const replaceNthItem = <T extends unknown>({
 };
 
 export const calculateFixedPoint = (
-  element: VisualizerElement,
+  element:
+    | VisualizerGenericElement
+    | VisualizerTextElement
+    | VisualizerFreeDrawElement,
   direction: Direction
 ): Point => {
+  if (isFreeDrawElement(element)) {
+    const { minX, minY, maxX, maxY } = calculateElementAbsolutePoint(element);
+    const width = maxX - minX;
+    const height = maxY - minY;
+
+    switch (direction) {
+      case "up-left":
+        return {
+          x: minX + width,
+          y: minY + height,
+        };
+      case "up-right":
+        return {
+          x: minX,
+          y: minY + height,
+        };
+      case "down-left":
+        return {
+          x: minX + width,
+          y: minY,
+        };
+      case "down-right":
+        return {
+          x: minX,
+          y: minY,
+        };
+      case "up":
+        return {
+          x: minX + width / 2,
+          y: minY + height,
+        };
+      case "left":
+        return {
+          x: minX + width,
+          y: minY + height / 2,
+        };
+      case "right":
+        return {
+          x: minX,
+          y: minY + height / 2,
+        };
+      case "down":
+        return {
+          x: minX + width / 2,
+          y: minY,
+        };
+    }
+  }
+
   switch (direction) {
     case "up-left":
       return {
@@ -1169,4 +1221,62 @@ export const createElementVirtualPoints = ({
   }
 
   return virtualPoints;
+};
+
+export const resizeFreedrawElementIntoDiagonalDirection = ({
+  element,
+  previousCanvasPoint,
+  currentCanvasPoint,
+  resizeFixedPoint,
+}: {
+  element: VisualizerFreeDrawElement;
+  previousCanvasPoint: Point;
+  currentCanvasPoint: Point;
+  resizeFixedPoint: Point;
+}): VisualizerFreeDrawElement => {
+  const previousAbsolutePoint = calculateFreeDrawElementAbsolutePoint(element);
+  const previousSize = {
+    width: previousAbsolutePoint.maxX - previousAbsolutePoint.minX,
+    height: previousAbsolutePoint.maxY - previousAbsolutePoint.minY,
+  };
+
+  // if currentCanvasPoint and previousCanvasPoint is on the another side,
+  // we need to multiply by -1 for symmetry
+  const flipSign = {
+    x: Math.sign(
+      (currentCanvasPoint.x - resizeFixedPoint.x) *
+        (previousCanvasPoint.x - resizeFixedPoint.x)
+    ),
+    y: Math.sign(
+      (currentCanvasPoint.y - resizeFixedPoint.y) *
+        (previousCanvasPoint.y - resizeFixedPoint.y)
+    ),
+  };
+
+  const resizedSize = {
+    width: Math.abs(currentCanvasPoint.x - resizeFixedPoint.x),
+    height: Math.abs(currentCanvasPoint.y - resizeFixedPoint.y),
+  };
+
+  const resizedElement: VisualizerFreeDrawElement = {
+    ...element,
+    width: resizedSize.width,
+    height: resizedSize.height,
+    x:
+      (flipSign.x * ((element.x - resizeFixedPoint.x) * resizedSize.width)) /
+        previousSize.width +
+      resizeFixedPoint.x,
+    y:
+      (flipSign.y * (element.y - resizeFixedPoint.y) * resizedSize.height) /
+        previousSize.height +
+      resizeFixedPoint.y,
+    points: element.points.map((point) => {
+      return {
+        x: flipSign.x * point.x * (resizedSize.width / previousSize.width),
+        y: flipSign.y * point.y * (resizedSize.height / previousSize.height),
+      };
+    }),
+  };
+
+  return resizedElement;
 };

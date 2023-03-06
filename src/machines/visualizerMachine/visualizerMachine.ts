@@ -25,10 +25,10 @@ import {
   calculateFixedPoint,
   resizeGenericElementIntoDiagonalDirection,
   isDiagonalDirection,
-  calculateDiagonalDirection,
   calculateOrthogonalDirection,
   resizeGenericElementIntoOrthogonalDirection,
   resizeTextElementIntoDiagonalDirection,
+  resizeFreedrawElementIntoDiagonalDirection,
 } from "../../utils";
 import debounce from "lodash.debounce";
 import { TEXTAREA_UNIT_LESS_LINE_HEIGHT } from "../../constants";
@@ -42,7 +42,7 @@ import {
 import { ELEMENT_STATUS, PERSISTED_CONTEXT } from "./constant";
 
 export const visualizerMachine =
-  /** @xstate-layout N4IgpgJg5mDOIC5QDcCWsCuBDANqgXmAE4AEAtlgMYAWqAdmAHSoQ5gDEAIgEoCCA6gH0AygBVe3UQG0ADAF1EoAA4B7WKgAuqFXUUgAHogDsMo4wCcARgAsM60fNGArADYnlgMwAaEAE9EAEwBboyWlkYeph7W5gAcDtYAvok+aJi4BMTkVLQMzKwcAMIAErwAcgDiAKKCVQAyVQCyVWWiIqUAClWyCkggqupaOnqGCCZmVrb2jq7u3n6BMjKMRjGOAbHmLjLm1k7JqejYeISkFDT0TCxsXHwVIuKSPXoDmtq6faPjFjZ2Ds5uTw+fwISyxcGMGROawucweYIBMLmA4gNLHTJnHKXfI3YT1KqFURVTi1BrNVrCRicfFE559V5DD6gL6mH5Tf6zIELUFOJzLSzmdzbWLWDxGcWxFFojKnbIXPLXDh4hqE4mkpotUSUwoAeQ6AE06co1G9hp9jKzJn8ZoD5iDYQFGE4PFYoryAuZzAEpUcZVlzrkrgV2MqCUSSfjyVrGB1eGJuvIXibGSMLRNftMAXNgYhPAFlgFrEFLE4jIjYh5Nj70id-ViFcHGjqAKp4wRNgBqCd6xsG71TCDFlkYew8nlMoqcFZc1hzCERW1CMUrsXLO2d1fRsoD2MV7AAksJ1VH2rwuoIAGL7gAaatEOoqFQaRv6yf75rGlozHNtc-h1lCVwAg8XktliFxYksTc-UxeUg1xfFVQjMlNW1ZtpETek3zNZk0zZa0sy5EFLBkDwPBWItEV5eIXHCIxoNrWDAxxIpSkqGpI01QQ9VEfcdTKYQXwZd9cM-dN2RtbNuUsGcXEYGcKycREZE8QUGIxOVmL3EpymqQQAC0dR1RohOwpkDDwq1M05O1ECLZZtjhB0tncLZ1O3et4NY3SakM4zBH4fdRGKQQOn3MoSlMvscIssT8Os39uXcMwZBcAJXChaFPAg9y6zglj2FjMootNczRnS1YnVXewRWsWJnWdOdC0q51K1FVYIiMKCUlRX1GM03dg2KQ9724fVBGbDpOF4WlMN7UqB2+Kyfyk4jRwo-MRRMfMrHonrpX6ncGxufhuCCmoxAkDCe1faKytzGREUhF13A2JZaKapZHUiUUNnBKFCw8XKmMGm5OIpRhQ0JQReDqOoSpTD8bHsCwyJnUxNkrSsmt2cix2CGJwNXVKgf2vqNKOrz2FO87ak4IKEZE2KK1iRh-1hQV-vcJw5zo8xQhccUthsQWINJw4awpzyCqJa82nB0RGG4KphH3fSLsea6kzugd8zx8DnBMEUAfSprwPIj0+WdOFIPBYGBuOjhqjKKozsKY9NSVlW1Y1q7GZi0ZwkYEV4WA7YoQrKw-wFJxGA9cEYURAIImA+3KYKupwqqCQPdaL3VfVh4-bm26Fo-Ww5LF2iVKcXZw9nbkw-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 */
+  /** @xstate-layout N4IgpgJg5mDOIC5QDcCWsCuBDANqgXmAE4AEAtlgMYAWqAdmAHSoQ5gDEAIgEoCCA6gH0AygBVe3UQG0ADAF1EoAA4B7WKgAuqFXUUgAHogDsMo4wCcARgAsM60fNGArADYnlgMwAaEAE9EAEwBboyWlkYeph7W5gAcDtYAvok+aJi4BMTkVLQMzKwcAMIAErwAcgDiAKKCVQAyVQCyVWWiIqUAClWyCkggqupaOnqGCCZmVrb2jq7u3n6BMjKMRjGOAbHmLjLm1k7JqejYeISkFDT0TCxsXHwVIuKSPXoDmtq6faPjFjZ2Ds5uTw+fwISyxcGMGROawucweYIBMLmA4gNLHTJnHKXfI3YT1KqFURVTi1BrNVrCRicfFE559V5DD6gL6mH5Tf6zIELUFOJzLSzmdzbWLWDxGcWxFFojKnbIXPLXDh4hqE4mkpotUSUwoAeQ6AE06co1G9hp9jKzJn8ZoD5iDYQFGE4PFYoryAuZzAEpUcZVlzrkrgV2MqCUSSfjyVrGB1eGJuvIXibGSMLRNftMAXNgYhPAFlgFrEFLE4jIjYh5Nj70id-ViFcHGjqAKp4wRNgBqCd6xsG71TCDFlkYew8nlMoqcFZc1hzCERW1CMUrsXLO2d1fRsoD2MV7AAksJ1VH2rwuoIAGL7gAaatEOoqFQaRv6yf75rGlozHNtc-h1lCVwAg8XktliFxYksTc-UxeUg1xfFVQjMlNW1ZtpETek3zNZk0zZa0sy5EFLBkDwPBWItEV5eIXHCIxoNrWDAxxIpSkqGpI01QQ9VEfcdTKYQXwZd9cM-dN2RtbNuUsGcXEYGcKycREZE8QUGIxOVmL3EpymqQQAC0dR1RohOwpkDDwq1M05O1ECLZZtjhB0tncLZ1O3et4NY3SakM4zBH4fdRGKQQOn3MoSlMvscIssT8Os39uXcMwZBcAJXChaFPAg9y6zglj2FjMootNczRnS1YnVXewRWsWJnWdOdC0q51K1FVYIiMKCUlRX1GM03dg2KQ9724fVBGbDpOF4WlMN7UqB2+Kyfyk4jRwo-MRRMfMrHonrpX6ncGxufhuCCmoxAkDCe1faKytzGREUhF13A2JZaKapZHUiUUNnBKFCw8XKmMGm5OIpRhQ0JQReDqOoSpTD8bHsCwyJnUxNkrSsmt2cix2CGJwNXVKgf2vqNKOrz2FO87ak4IKEZE2KK1iRh-1hQV-vcJw5zo8xQhccUthsQWINJw4awpzyCqJa82nB0RGG4KphH3fSLsea6kzugd8zx8DnBMEUAfSprwPIj0+WdOFIPBYGBuOjhqjKKozsKY9NSVlW1Y1q7GZi0ZwkYEV4WA7YoQrKw-wFJxGA9cEYURAIImA+3KYKupwqqCQPdaL3VfVh4-bm26Fo-Ww5LF2iVKcXZw9nbkw-5R7tg2BFETT6W9wvZXiT4IQFfzn2i6eEvhIDxA0oA1qsusUUwQiJqHDkkjBSCPYZJUzv8ogIgsAAd3oKBbgEf37tBcJhynPlgJkcENhcFwmoFfnnFSqcaq27fmN3g+j5PgeZROBnwHOOVmSwHCPViEsewycmobGHDsSsXV6p2GsN1CWW48o-z3ofOgx9qQNCJCIRCvF+IgI-MnVwI43BTm2HQywn074jnMCpOEHp0GkSSGTSWHkd64P-rqMoLtoaXVHjdce58SIuDxlsNKXVa7FiME1VwAE6rsPQZ6DwM59g8KwSDPIv8oBQH-jwXgFQKGiU3gBH6qwlKFhko4XmkC2arArMEGwyd0rf2xEYkx+CT73BaMAseZlQEVjMPVG2sJxSmDBLzTYsdbGkS6mOMI3o9EwQdkwHAKgsAQH-pY2KCC2aCwFOU3YIp4FWDZkpaE8Q4R7GRJkw60slDEHULALQASinlULLHN+pFH4QSCKYOckEWGelrmLCsZE9qYKyenX+eCoAkBUKQfeRA3j4JIGAOgEBIDsF6bmCJwda6VhieMeJjdLZxy2FsIIswqwtKlvlZAHT3gkCIGANgWBYCHOOfOfpKw+RDMfqufMyjpJlNCIWSCuxHoqTBD4vImztnHxpsQ4JgKwGQlMKwt6fw4GN1IsOIwkE-qbB2FQlFTA0XdIxWdWaEiwlI0cT8QW4pwiwjHE-aSZYzDBHhBBdYMjoS0sYEoP5DL2AQB0FcOgyAVAAGsmAHVecxKVXSj4IHoEqygWBGQ9BxZEcB+KoEwIFbzMc5Ea5Tg9JYYI0DmkLNaflLVMriBEHWZKnAhqABm6yyCMHVXwzV0qdV6pUAao18gTXMIgQS6BRKoXEWCLHbmZTti2FYS4CVXr1kkFycYwpoSdZI0TsHNuUJtqOC9LzOiFgvT5kcnVaE4teq8OwdiSgKglC+H-nKhUiqVVqvJmGntfaB34N1SOmN7xjVlrLlY01eLIGEtgamye2wVhUriFPOtLrO36OyYwXt-b-4FqIL6gNQaQ3ju7Xkc906oCzv1Yahdcal2IxXQm81G6rXciNnHTYYQlggVNR20Nj6mCUAwBoGVQ6FVKtVfertBjYPwYZW+6NH6dCLpZeW39Zr13Js3XOQUclSKui2nYPkeaXkTqfVhy9RBvXXqUH6jQgaiDBugxhs9LGZ1Rvnfhr9hHl2xVxYmi1KbeZ2H5jEYs0R6EunmcexZ0te10AYJQGVZj+A4p2A5Uw70YiCygWbJYToQJxHBEbdwErtO6ZlUIkRWssJEakzatm707CbHiI9Jqj9X72sgnYHYXUnM6Bc4I-i7mpCWAkz+7znhfOpX83EbaVmAKIl+A4WqXooMPoE989Q+B-7KwLhxIBOKSLDmiI4IwskNjNYbiCfGkTEQJE8OEXlEqysEH-rLeWKE85VZ9oC+qgq9jJ3-J4AEf4TDDjzJ1OInoMEabdcxQbFWAnO1dvud2g8Jvq0BfCPGX17BCgC1uwctFHQRG0SBey8Ij38dPbt-+mcXY5xO97M736mZfEXHMewopILJR5o3L0sdYQllcM2zeujXUauxF9gJPcqh9wELnRWp3uza0k4HFSjpynOF2mRFmf4gis0FtN0iEDVx7R6nQFQBz4B9A+5TInKXRgAFpIiAU5TIz06DHJzn51RpYj1xjQO2I6yUjGYMsV58DuyQRUbaLvg-cEtE7tBEcPJR6pZdiG0ddw1HTGmDLKPmrieoJIvByWPVdkM5HVNTHOA+wMu0pizIhKvxdvPPE9zOjM5MlbMEwp7zKwrNyWOsFnZ3GErcn5OD-NPnGv4GPzOelXago4gwgle0ognSGX2-PsBaBwdtewkerYGwtkEAyLUXVAUrf+kyUDwInZhb6VH12fsyAlfQGuHEiWcI5Z+nwLnise55LHLm2K+h097yy+fO+b8-5EBR9Iw23HCIfIYS13iKbaFMJ5JwqnnRsUEqB-4L31Y8IDkXRFkfuldBsQEmlhHCBZndUQqakyuAmHqGepcWejutgh+dU8I4QFYYQzejqRuhYxYcIcSJY+abGhaxa-iUAT+Umtcim1cRYpB44d2YQooFgRYYIp+U4qw0WF6j+IekBJE2ikIJgIED2awQW3IIWNmVgJEy4KkewTmQm+BLB6uju7BpmXBFunovBxEKkywqwoyng180i0WOmYAem4BkioCqUrMIocQECd86i0OIIBMckKCdUfwd8tEA2cAQ2zBmeUhBKwcN+EKRBKk0cycVaYIAo+YjiLOiQQAA */
   createMachine(
     {
       id: "visualizer machine",
@@ -184,6 +184,15 @@ export const visualizerMachine =
             "LINEAR_ELEMENT.RESIZE_START": {
               target: "resizing",
               actions: ["assignResizingStartPoint", "assignResizingElement"],
+            },
+
+            "FREEDRAW_ELEMENT.RESIZE_START": {
+              target: "resizing",
+              actions: [
+                "assignResizingStartPoint",
+                "assignResizingElement",
+                "assignResizeFixedPoint",
+              ],
             },
           },
         },
@@ -343,6 +352,12 @@ export const visualizerMachine =
               target: "resizing",
               internal: true,
               actions: "resizeLinearElement",
+            },
+
+            "FREEDRAW_ELEMENT.RESIZE": {
+              target: "resizing",
+              internal: true,
+              actions: ["resizeFreedrawElement"],
             },
           },
         },
@@ -916,6 +931,8 @@ export const visualizerMachine =
           const selectedElement = selectedElements[0];
           invariant(selectedElement);
 
+          invariant(!isLinearElement(selectedElement));
+
           invariant("direction" in context.resizingElement);
 
           const resizeFixedPoint = calculateFixedPoint(
@@ -971,14 +988,10 @@ export const visualizerMachine =
               }
 
               if (isDiagonalDirection(context.resizingElement.direction)) {
-                const direction = calculateDiagonalDirection(
-                  currentCanvasPoint,
-                  context.resizeFixedPoint
-                );
                 const resizedElement =
                   resizeGenericElementIntoDiagonalDirection({
                     element,
-                    direction,
+                    direction: context.resizingElement.direction,
                     currentCanvasPoint,
                     resizeFixedPoint: context.resizeFixedPoint,
                   });
@@ -1169,6 +1182,56 @@ export const visualizerMachine =
                 });
 
                 return resizedElement;
+              }),
+              resizeStartPoint: currentCanvasPoint,
+            };
+          }
+        ),
+        resizeFreedrawElement: assign(
+          (context, { devicePixelRatio, event }) => {
+            const selectedElements = context.elements.filter(
+              (element) => element.status === "selected"
+            );
+            const resizingElement = selectedElements[0];
+            invariant(resizingElement);
+
+            const currentCanvasPoint = calculateCanvasPoint({
+              devicePixelRatio,
+              event,
+              zoom: context.zoom,
+              origin: context.origin,
+            });
+
+            if (
+              currentCanvasPoint.x === context.resizeFixedPoint.x ||
+              currentCanvasPoint.y === context.resizeFixedPoint.y
+            ) {
+              return {};
+            }
+
+            return {
+              elements: context.elements.map((element) => {
+                if (element.id !== resizingElement.id) {
+                  return element;
+                }
+
+                invariant(isFreeDrawElement(element));
+
+                invariant("direction" in context.resizingElement);
+
+                if (isDiagonalDirection(context.resizingElement.direction)) {
+                  const resizedElement =
+                    resizeFreedrawElementIntoDiagonalDirection({
+                      element,
+                      previousCanvasPoint: context.resizeStartPoint,
+                      currentCanvasPoint,
+                      resizeFixedPoint: context.resizeFixedPoint,
+                    });
+
+                  return resizedElement;
+                }
+
+                return element;
               }),
               resizeStartPoint: currentCanvasPoint,
             };
