@@ -1317,3 +1317,18 @@ export const resizeFreedrawElement = ({
       };
   }
 };
+
+const MARGIN = 8;
+export const strokeDashedRectangle = (
+  ctx: CanvasRenderingContext2D,
+  absolutePoint: AbsolutePoint
+) => {
+  ctx.setLineDash([8, 4]);
+  ctx.strokeRect(
+    absolutePoint.minX - MARGIN,
+    absolutePoint.minY - MARGIN,
+    absolutePoint.maxX - absolutePoint.minX + MARGIN * 2,
+    absolutePoint.maxY - absolutePoint.minY + MARGIN * 2
+  );
+  ctx.setLineDash([]);
+};

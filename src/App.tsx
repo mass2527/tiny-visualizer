@@ -35,6 +35,7 @@ import LinearElementResizer from "./components/LinearElementResizer";
 import {
   calculateCanvasPoint,
   calculateElementAbsolutePoint,
+  calculateElementsAbsolutePoint,
   convertToPercent,
   convertToRatio,
   convertToViewportPoint,
@@ -45,10 +46,9 @@ import {
   isPointInsideOfElement,
   isTextElement,
   isWithPlatformMetaKey,
+  strokeDashedRectangle,
 } from "./utils";
 import NonLinearElementResizer from "./components/NonLinearElementResizer";
-
-const MARGIN = 8;
 
 function App() {
   const windowSize = useWindowSize();
@@ -188,18 +188,17 @@ function App() {
 
       const absolutePoint = calculateElementAbsolutePoint(element);
       if (element.status === "selected") {
-        ctx.setLineDash([8, 4]);
-        ctx.strokeRect(
-          absolutePoint.minX - MARGIN,
-          absolutePoint.minY - MARGIN,
-          absolutePoint.maxX - absolutePoint.minX + MARGIN * 2,
-          absolutePoint.maxY - absolutePoint.minY + MARGIN * 2
-        );
-        ctx.setLineDash([]);
+        strokeDashedRectangle(ctx, absolutePoint);
       }
 
       ctx.restore();
     }
+
+    const selectedElements = elements.filter(
+      (element) => element.status === "selected"
+    );
+    const absolutePoint = calculateElementsAbsolutePoint(selectedElements);
+    strokeDashedRectangle(ctx, absolutePoint);
   }, [
     elements,
     origin,
