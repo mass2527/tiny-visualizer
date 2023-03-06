@@ -43,10 +43,10 @@ import {
   isFreeDrawElement,
   isGenericElement,
   isLinearElement,
-  isPointInsideOfElement,
   isTextElement,
   isWithPlatformMetaKey,
   strokeDashedRectangle,
+  isPointInsideOfAbsolutePoint,
 } from "./utils";
 import NonLinearElementResizer from "./components/NonLinearElementResizer";
 
@@ -359,12 +359,15 @@ function App() {
       return;
     }
 
-    if (
-      elementShape === "selection" &&
-      selectedElements.some((selectedElement) => {
-        return isPointInsideOfElement(mousePoint, selectedElement);
-      })
-    ) {
+    if (elementShape !== "selection") {
+      return;
+    }
+
+    const selectedElements = elements.filter(
+      (element) => element.status === "selected"
+    );
+    const absolutePoint = calculateElementsAbsolutePoint(selectedElements);
+    if (isPointInsideOfAbsolutePoint(absolutePoint, mousePoint)) {
       startDrag(event);
     } else {
       startDraw(event);

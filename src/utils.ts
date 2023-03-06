@@ -177,20 +177,14 @@ export const calculateCenterPoint = (absolutePoint: AbsolutePoint) => {
   };
 };
 
-export const isPointInsideOfElement = (
-  point: Point,
-  element: VisualizerElement
+export const isPointInsideOfAbsolutePoint = (
+  { minX, maxX, minY, maxY }: AbsolutePoint,
+  { x, y }: Point
 ) => {
-  const { minX, maxX, minY, maxY } = calculateElementAbsolutePoint(element);
-
-  if (
-    point.x >= minX &&
-    point.x <= maxX &&
-    point.y >= minY &&
-    point.y <= maxY
-  ) {
+  if (x >= minX && x <= maxX && y >= minY && y <= maxY) {
     return true;
   }
+
   return false;
 };
 
