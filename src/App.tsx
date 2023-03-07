@@ -49,7 +49,7 @@ import {
   isPointInsideOfAbsolutePoint,
   calculateSelectedElementsAbsolutePoint,
 } from "./utils";
-import NonLinearElementResizer from "./components/NonLinearElementResizer";
+import ElementResizer from "./components/ElementResizer";
 
 function App() {
   const windowSize = useWindowSize();
@@ -918,7 +918,7 @@ function App() {
       {selectedElements.length === 1 &&
         selectedElements[0] &&
         isGenericElement(selectedElements[0]) && (
-          <NonLinearElementResizer
+          <ElementResizer
             element={selectedElements[0]}
             devicePixelRatio={devicePixelRatio}
             origin={origin}
@@ -940,7 +940,7 @@ function App() {
         selectedElements.length === 1 &&
         selectedElements[0] &&
         isTextElement(selectedElements[0]) && (
-          <NonLinearElementResizer
+          <ElementResizer
             element={selectedElements[0]}
             devicePixelRatio={devicePixelRatio}
             origin={origin}
@@ -961,7 +961,7 @@ function App() {
       {selectedElements.length === 1 &&
         selectedElements[0] &&
         isFreeDrawElement(selectedElements[0]) && (
-          <NonLinearElementResizer
+          <ElementResizer
             element={selectedElements[0]}
             devicePixelRatio={devicePixelRatio}
             origin={origin}
@@ -983,7 +983,7 @@ function App() {
         selectedElements[0] &&
         isLinearElement(selectedElements[0]) &&
         selectedElements[0].points.length >= 3 && (
-          <NonLinearElementResizer
+          <ElementResizer
             element={selectedElements[0]}
             devicePixelRatio={devicePixelRatio}
             origin={origin}

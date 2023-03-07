@@ -15,7 +15,7 @@ export type Direction =
   | VerticalDirection
   | DiagonalDirection;
 
-function NonLinearElementResizer({
+function ElementResizer({
   element,
   devicePixelRatio,
   origin,
@@ -57,4 +57,4 @@ function NonLinearElementResizer({
   );
 }
 
-export default NonLinearElementResizer;
+export default ElementResizer;

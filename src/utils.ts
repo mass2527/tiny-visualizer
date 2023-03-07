@@ -20,7 +20,7 @@ import {
   OrthogonalDirection,
   DiagonalDirection,
   Direction,
-} from "./components/NonLinearElementResizer";
+} from "./components/ElementResizer";
 import {
   VIRTUAL_POINT_HEIGHT,
   VIRTUAL_POINT_WIDTH,
