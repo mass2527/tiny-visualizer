@@ -20,6 +20,7 @@ import {
   VisualizerTextElement,
   ZOOM,
 } from "../machines/visualizerMachine";
+import { removeLastItem } from "./array";
 
 export const calculateCanvasPoint = ({
   devicePixelRatio,
@@ -710,11 +711,6 @@ export const calculateChangeInPointOnZoom = ({
   };
 };
 
-export const setLastItem = <T>(array: T[], item: T) => {
-  const arrayWithoutLastItem = removeLastItem(array);
-  return [...arrayWithoutLastItem, item];
-};
-
 export const calculatePointCloseness = (
   linearElement: VisualizerLinearElement,
   threshold: number
@@ -752,24 +748,6 @@ export const haveSamePoint = (point1: Point, point2: Point) => {
   }
 
   return false;
-};
-
-export const removeLastItem = <T extends unknown>(array: T[]) => {
-  return array.slice(0, array.length - 1);
-};
-
-export const replaceNthItem = <T extends unknown>({
-  array,
-  item,
-  index,
-}: {
-  array: T[];
-  item: T;
-  index: number;
-}) => {
-  const newArray = [...array];
-  newArray[index] = item;
-  return newArray;
 };
 
 export const calculateFixedPoint = (
@@ -998,3 +976,4 @@ export const strokeDashedRectangle = (
 };
 
 export * from "./resize";
+export * from "./array";
