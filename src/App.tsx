@@ -978,6 +978,21 @@ function App() {
             }}
           />
         )}
+
+      {selectedElements.length === 1 &&
+        selectedElements[0] &&
+        isLinearElement(selectedElements[0]) &&
+        selectedElements[0].points.length >= 3 && (
+          <NonLinearElementResizer
+            element={selectedElements[0]}
+            devicePixelRatio={devicePixelRatio}
+            origin={origin}
+            zoom={zoom}
+            onMouseDown={(event, direction) => {
+              //
+            }}
+          />
+        )}
     </div>
   );
 }

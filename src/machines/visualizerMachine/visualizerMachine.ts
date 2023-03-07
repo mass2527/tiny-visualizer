@@ -27,12 +27,14 @@ import {
   resizeTextElementIntoDiagonalDirection,
   resizeFreedrawElement,
   resizeGenericElement,
+  calculateElementSize,
 } from "../../utils";
 import debounce from "lodash.debounce";
 import { TEXTAREA_UNIT_LESS_LINE_HEIGHT } from "../../constants";
 import {
   Point,
   VisualizerElement,
+  VisualizerLinearElement,
   VisualizerMachineContext,
   VisualizerMachineEvents,
   VisualizerTextElement,
@@ -1044,11 +1046,20 @@ export const visualizerMachine =
                       return { x: x - dx, y: y - dy };
                     }
                   );
-                  return {
+
+                  const resizedElement: VisualizerLinearElement = {
                     ...element,
                     x: element.x + dx,
                     y: element.y + dy,
                     points,
+                  };
+                  const { width, height } =
+                    calculateElementSize(resizedElement);
+
+                  return {
+                    ...resizedElement,
+                    width,
+                    height,
                   };
                 }
 
@@ -1069,9 +1080,17 @@ export const visualizerMachine =
                     lastPoint,
                   ];
 
-                  return {
+                  const resizedElement: VisualizerLinearElement = {
                     ...element,
                     points,
+                  };
+                  const { width, height } =
+                    calculateElementSize(resizedElement);
+
+                  return {
+                    ...resizedElement,
+                    width,
+                    height,
                   };
                 }
 
@@ -1080,9 +1099,16 @@ export const visualizerMachine =
                   ...removeLastItem(element.points),
                   { x: dx + lastPoint.x, y: dy + lastPoint.y },
                 ];
-                return {
+                const resizedElement: VisualizerLinearElement = {
                   ...element,
                   points,
+                };
+                const { width, height } = calculateElementSize(resizedElement);
+
+                return {
+                  ...resizedElement,
+                  width,
+                  height,
                 };
               }
 
@@ -1099,11 +1125,18 @@ export const visualizerMachine =
                     };
                   }
                 );
-                return {
+                const resizedElement: VisualizerLinearElement = {
                   ...element,
                   x: element.x + dx,
                   y: element.y + dy,
                   points,
+                };
+                const { width, height } = calculateElementSize(resizedElement);
+
+                return {
+                  ...resizedElement,
+                  width,
+                  height,
                 };
               }
 
@@ -1116,10 +1149,16 @@ export const visualizerMachine =
                 index: context.resizingElement.pointIndex,
                 item: { x: updatingPoint.x + dx, y: updatingPoint.y + dy },
               });
-
-              return {
+              const resizedElement: VisualizerLinearElement = {
                 ...element,
                 points,
+              };
+              const { width, height } = calculateElementSize(resizedElement);
+
+              return {
+                ...resizedElement,
+                width,
+                height,
               };
             }),
             resizeStartPoint: currentCanvasPoint,

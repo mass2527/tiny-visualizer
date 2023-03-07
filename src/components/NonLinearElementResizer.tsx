@@ -1,7 +1,7 @@
 import { MouseEvent } from "react";
 import {
+  VisualizerElement,
   VisualizerMachineContext,
-  VisualizerNonLinearElement,
 } from "../machines/visualizerMachine";
 import { createElementVirtualPoints } from "../utils";
 import VirtualPoint from "./VirtualPoint";
@@ -22,7 +22,7 @@ function NonLinearElementResizer({
   zoom,
   onMouseDown,
 }: {
-  element: VisualizerNonLinearElement;
+  element: VisualizerElement;
   devicePixelRatio: number;
   origin: VisualizerMachineContext["origin"];
   zoom: VisualizerMachineContext["zoom"];

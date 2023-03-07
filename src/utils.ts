@@ -106,6 +106,15 @@ export const calculateElementAbsolutePoint = (
   return calculateTextElementAbsolutePoint(element);
 };
 
+export const calculateElementSize = (element: VisualizerElement) => {
+  const { minX, minY, maxX, maxY } = calculateElementAbsolutePoint(element);
+
+  return {
+    width: maxX - minX,
+    height: maxY - minY,
+  };
+};
+
 const calculateGenericElementAbsolutePoint = (
   element: VisualizerGenericElement
 ) => {
@@ -1137,7 +1146,7 @@ export const createElementVirtualPoints = ({
   origin,
   zoom,
 }: {
-  element: VisualizerNonLinearElement;
+  element: VisualizerElement;
   devicePixelRatio: number;
   origin: VisualizerMachineContext["origin"];
   zoom: VisualizerMachineContext["zoom"];
