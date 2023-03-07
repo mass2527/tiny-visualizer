@@ -22,7 +22,7 @@ import {
   getClosenessThreshold,
   calculateFixedPoint,
   isDiagonalDirection,
-  resizeTextElementIntoDiagonalDirection,
+  resizeTextElement,
   resizeFreedrawElement,
   resizeGenericElement,
   resizeLinearElementPoint,
@@ -1070,7 +1070,7 @@ export const visualizerMachine =
 
                 invariant(isTextElement(element));
 
-                const resizedElement = resizeTextElementIntoDiagonalDirection({
+                const resizedElement = resizeTextElement({
                   canvasElement,
                   direction: direction,
                   element,
