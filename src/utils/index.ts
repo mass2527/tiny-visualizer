@@ -21,6 +21,7 @@ import {
   ZOOM,
 } from "../machines/visualizerMachine";
 import { removeLastItem } from "./array";
+import { convertDegreeToRadian, convertToViewportPoint } from "./convert";
 
 export const calculateCanvasPoint = ({
   devicePixelRatio,
@@ -53,23 +54,6 @@ export const calculateClientPoint = ({
   zoom: VisualizerMachineContext["zoom"];
   origin: VisualizerMachineContext["origin"];
   devicePixelRatio: number;
-}) => {
-  return {
-    x: (canvasPoint.x * zoom + origin.x) / devicePixelRatio,
-    y: (canvasPoint.y * zoom + origin.y) / devicePixelRatio,
-  };
-};
-
-export const convertToViewportPoint = ({
-  devicePixelRatio,
-  canvasPoint,
-  zoom,
-  origin,
-}: {
-  devicePixelRatio: number;
-  canvasPoint: Point;
-  zoom: VisualizerMachineContext["zoom"];
-  origin: VisualizerMachineContext["origin"];
 }) => {
   return {
     x: (canvasPoint.x * zoom + origin.x) / devicePixelRatio,
@@ -236,10 +220,6 @@ export const isIntersecting = (
 
 export const calculateDistance = (width: number, height: number) => {
   return Math.hypot(width, height);
-};
-
-export const convertDegreeToRadian = (angleInDegrees: number) => {
-  return (Math.PI * angleInDegrees) / 180;
 };
 
 const ARROW_MAX_SIZE = 50;
@@ -494,14 +474,6 @@ export const measureText = ({
 
 export const calculateDevicePixelRatio = (canvasElement: HTMLCanvasElement) => {
   return canvasElement.width / parseInt(canvasElement.style.width);
-};
-
-export const convertToPercent = (ratio: number) => {
-  return ratio * 100;
-};
-
-export const convertToRatio = (percent: number) => {
-  return percent / 100;
 };
 
 export const calculateNormalizedValue = ({
@@ -964,3 +936,4 @@ export const strokeDashedRectangle = (
 export * from "./resize";
 export * from "./array";
 export * from "./platform";
+export * from "./convert";
