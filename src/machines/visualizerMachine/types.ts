@@ -1,6 +1,6 @@
 import { MouseEvent, MouseEventHandler } from "react";
 import { Options as RoughJSOptions } from "roughjs/bin/core";
-import { Direction } from "../../components/NonLinearElementResizer";
+import { Direction } from "../../components/ElementResizer";
 
 export type VisualizerElementBase = {
   id: string;
@@ -69,19 +69,6 @@ export type VisualizerNonLinearElement = Exclude<
   VisualizerElement,
   VisualizerLinearElement
 >;
-
-export const SHAPE_TYPES: Record<
-  VisualizerElement["shape"],
-  "generic" | "linear" | "freedraw" | "text"
-> = {
-  selection: "generic",
-  rectangle: "generic",
-  ellipse: "generic",
-  line: "linear",
-  arrow: "linear",
-  freedraw: "freedraw",
-  text: "text",
-};
 
 export type Version = {
   elements: VisualizerMachineContext["elements"];
@@ -259,7 +246,7 @@ export type VisualizerMachineEvents =
       devicePixelRatio: number;
     }
   | {
-      type: "LINEAR_ELEMENT.RESIZE_START";
+      type: "LINEAR_ELEMENT.POINT_RESIZE_START";
       resizingElement: VisualizerMachineContext["resizingElement"];
       event: MouseEvent;
       devicePixelRatio: number;
@@ -282,7 +269,7 @@ export type VisualizerMachineEvents =
       devicePixelRatio: number;
     }
   | {
-      type: "LINEAR_ELEMENT.RESIZE";
+      type: "LINEAR_ELEMENT.POINT_RESIZE";
       event: Parameters<MouseEventHandler<HTMLCanvasElement>>[0];
       devicePixelRatio: number;
     }

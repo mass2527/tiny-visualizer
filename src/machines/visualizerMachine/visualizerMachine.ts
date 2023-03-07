@@ -19,20 +19,21 @@ import {
   calculateChangeInPointOnZoom,
   setLastItem,
   calculatePointCloseness,
-  getClosenessThreshold,
-  removeLastItem,
-  replaceNthItem,
+  calculateClosenessThreshold,
   calculateFixedPoint,
   isDiagonalDirection,
-  resizeTextElementIntoDiagonalDirection,
+  resizeTextElement,
   resizeFreedrawElement,
   resizeGenericElement,
+  resizeLinearElementPoint,
+  calculateElementSize,
 } from "../../utils";
 import debounce from "lodash.debounce";
 import { TEXTAREA_UNIT_LESS_LINE_HEIGHT } from "../../constants";
 import {
   Point,
   VisualizerElement,
+  VisualizerLinearElement,
   VisualizerMachineContext,
   VisualizerMachineEvents,
   VisualizerTextElement,
@@ -179,7 +180,7 @@ export const visualizerMachine =
               ],
             },
 
-            "LINEAR_ELEMENT.RESIZE_START": {
+            "LINEAR_ELEMENT.POINT_RESIZE_START": {
               target: "resizing",
               actions: ["assignResizingStartPoint", "assignResizingElement"],
             },
@@ -346,10 +347,10 @@ export const visualizerMachine =
               actions: "resizeGenericElement",
             },
 
-            "LINEAR_ELEMENT.RESIZE": {
+            "LINEAR_ELEMENT.POINT_RESIZE": {
               target: "resizing",
               internal: true,
-              actions: "resizeLinearElement",
+              actions: "resizeLinearElementPoint",
             },
 
             "FREEDRAW_ELEMENT.RESIZE": {
@@ -525,7 +526,7 @@ export const visualizerMachine =
           invariant(drawingElement);
           invariant(isLinearElement(drawingElement));
 
-          const threshold = getClosenessThreshold(context.zoom);
+          const threshold = calculateClosenessThreshold(context.zoom);
           const { areLastTwoPointsClose, isLastPointCloseToStartPoint } =
             calculatePointCloseness(drawingElement, threshold);
 
@@ -543,9 +544,16 @@ export const visualizerMachine =
                   points = [...element.points];
                 }
 
-                return {
+                const linearElement: VisualizerLinearElement = {
                   ...element,
                   points,
+                };
+                const { width, height } = calculateElementSize(linearElement);
+
+                return {
+                  ...linearElement,
+                  width,
+                  height,
                 };
               }
               return element;
@@ -997,134 +1005,43 @@ export const visualizerMachine =
             resizeStartPoint: currentCanvasPoint,
           };
         }),
-        resizeLinearElement: assign((context, { devicePixelRatio, event }) => {
-          const selectedElements = context.elements.filter(
-            (element) => element.status === "selected"
-          );
-          const resizingElement = selectedElements[0];
-          invariant(resizingElement);
+        resizeLinearElementPoint: assign(
+          (context, { devicePixelRatio, event }) => {
+            const selectedElements = context.elements.filter(
+              (element) => element.status === "selected"
+            );
+            const resizingElement = selectedElements[0];
+            invariant(resizingElement);
 
-          const currentCanvasPoint = calculateCanvasPoint({
-            devicePixelRatio,
-            event,
-            zoom: context.zoom,
-            origin: context.origin,
-          });
-          const dx = currentCanvasPoint.x - context.resizeStartPoint.x;
-          const dy = currentCanvasPoint.y - context.resizeStartPoint.y;
+            const currentCanvasPoint = calculateCanvasPoint({
+              devicePixelRatio,
+              event,
+              zoom: context.zoom,
+              origin: context.origin,
+            });
 
-          return {
-            elements: context.elements.map((element) => {
-              if (element.id !== resizingElement.id) {
-                return element;
-              }
-
-              invariant(isLinearElement(element));
-              invariant("pointIndex" in context.resizingElement);
-
-              const isUpdatingStartPoint =
-                context.resizingElement.pointIndex === 0;
-
-              const firstPoint = element.points[0];
-              invariant(firstPoint);
-              const lastPoint = element.points[element.points.length - 1];
-              invariant(lastPoint);
-
-              invariant("points" in resizingElement);
-
-              const hasMoreThan2Points = resizingElement.points.length > 2;
-              if (!hasMoreThan2Points) {
-                if (isUpdatingStartPoint) {
-                  const points: Point[] = element.points.map(
-                    ({ x, y }, index) => {
-                      if (index === 0) {
-                        return { x, y };
-                      }
-
-                      return { x: x - dx, y: y - dy };
-                    }
-                  );
-                  return {
-                    ...element,
-                    x: element.x + dx,
-                    y: element.y + dy,
-                    points,
-                  };
+            return {
+              elements: context.elements.map((element) => {
+                if (element.id !== resizingElement.id) {
+                  return element;
                 }
 
-                const isUpdatingVirtualCenterPoint =
-                  context.resizingElement.pointIndex === 1;
-                if (isUpdatingVirtualCenterPoint) {
-                  const virtualCenterPoint = {
-                    x: firstPoint.x + lastPoint.x / 2,
-                    y: firstPoint.y + lastPoint.y / 2,
-                  };
+                invariant(isLinearElement(element));
+                invariant("pointIndex" in context.resizingElement);
 
-                  const points: Point[] = [
-                    firstPoint,
-                    {
-                      x: dx + virtualCenterPoint.x,
-                      y: dy + virtualCenterPoint.y,
-                    },
-                    lastPoint,
-                  ];
+                const resizedElement = resizeLinearElementPoint({
+                  currentCanvasPoint,
+                  element,
+                  pointIndex: context.resizingElement.pointIndex,
+                  resizeStartPoint: context.resizeStartPoint,
+                });
 
-                  return {
-                    ...element,
-                    points,
-                  };
-                }
-
-                // resizing end point (context.resizingElement.pointIndex = 2)
-                const points: Point[] = [
-                  ...removeLastItem(element.points),
-                  { x: dx + lastPoint.x, y: dy + lastPoint.y },
-                ];
-                return {
-                  ...element,
-                  points,
-                };
-              }
-
-              if (isUpdatingStartPoint) {
-                const points: Point[] = element.points.map(
-                  ({ x, y }, index) => {
-                    if (index === 0) {
-                      return { x, y };
-                    }
-
-                    return {
-                      x: x - dx,
-                      y: y - dy,
-                    };
-                  }
-                );
-                return {
-                  ...element,
-                  x: element.x + dx,
-                  y: element.y + dy,
-                  points,
-                };
-              }
-
-              const updatingPoint =
-                element.points[context.resizingElement.pointIndex];
-              invariant(updatingPoint);
-
-              const points: Point[] = replaceNthItem({
-                array: element.points,
-                index: context.resizingElement.pointIndex,
-                item: { x: updatingPoint.x + dx, y: updatingPoint.y + dy },
-              });
-
-              return {
-                ...element,
-                points,
-              };
-            }),
-            resizeStartPoint: currentCanvasPoint,
-          };
-        }),
+                return resizedElement;
+              }),
+              resizeStartPoint: currentCanvasPoint,
+            };
+          }
+        ),
         resizeTextElement: assign(
           (context, { event, devicePixelRatio, canvasElement }) => {
             const selectedElements = context.elements.filter(
@@ -1153,7 +1070,7 @@ export const visualizerMachine =
 
                 invariant(isTextElement(element));
 
-                const resizedElement = resizeTextElementIntoDiagonalDirection({
+                const resizedElement = resizeTextElement({
                   canvasElement,
                   direction: direction,
                   element,
@@ -1259,7 +1176,7 @@ export const visualizerMachine =
           invariant(drawingElement);
           invariant(isLinearElement(drawingElement));
 
-          const threshold = getClosenessThreshold(context.zoom);
+          const threshold = calculateClosenessThreshold(context.zoom);
           const { areLastTwoPointsClose, isLastPointCloseToStartPoint } =
             calculatePointCloseness(drawingElement, threshold);
 

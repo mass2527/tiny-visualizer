@@ -3,6 +3,15 @@ import { MouseEventHandler } from "react";
 export const VIRTUAL_POINT_WIDTH = 8;
 export const VIRTUAL_POINT_HEIGHT = 8;
 
+export type VirtualPointProps = {
+  type?: "square" | "circle";
+  left: number;
+  top: number;
+  width?: number;
+  height?: number;
+  onMouseDown: MouseEventHandler<HTMLDivElement>;
+};
+
 function VirtualPoint({
   type = "square",
   left,
@@ -10,17 +19,10 @@ function VirtualPoint({
   width = VIRTUAL_POINT_WIDTH,
   height = VIRTUAL_POINT_HEIGHT,
   onMouseDown,
-}: {
-  type?: "square" | "circle";
-  left: number;
-  top: number;
-  width?: number;
-  height?: number;
-  onMouseDown: MouseEventHandler<HTMLDivElement>;
-}) {
+}: VirtualPointProps) {
   return (
     <div
-      role='button'
+      role="button"
       style={{
         position: "absolute",
         left: left - width / 2,

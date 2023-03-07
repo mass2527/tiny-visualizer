@@ -31,24 +31,25 @@ import {
   ZOOM,
 } from "./machines/visualizerMachine";
 
-import LinearElementResizer from "./components/LinearElementResizer";
+import LinearElementPointResizer from "./components/LinearElementPointResizer";
 import {
   calculateCanvasPoint,
   calculateElementAbsolutePoint,
+  calculateElementsAbsolutePoint,
   convertToPercent,
   convertToRatio,
-  convertToViewportPoint,
+  calculateViewportPoint,
   createDraw,
   isFreeDrawElement,
   isGenericElement,
   isLinearElement,
-  isPointInsideOfElement,
   isTextElement,
   isWithPlatformMetaKey,
+  strokeDashedRectangle,
+  isPointInsideOfAbsolutePoint,
+  calculateSelectedElementsAbsolutePoint,
 } from "./utils";
-import NonLinearElementResizer from "./components/NonLinearElementResizer";
-
-const MARGIN = 8;
+import ElementResizer from "./components/ElementResizer";
 
 function App() {
   const windowSize = useWindowSize();
@@ -104,7 +105,7 @@ function App() {
     drawStartPoint,
   } = state.context;
 
-  const drawStartViewportPoint = convertToViewportPoint({
+  const drawStartViewportPoint = calculateViewportPoint({
     canvasPoint: drawStartPoint,
     devicePixelRatio,
     origin,
@@ -188,18 +189,21 @@ function App() {
 
       const absolutePoint = calculateElementAbsolutePoint(element);
       if (element.status === "selected") {
-        ctx.setLineDash([8, 4]);
-        ctx.strokeRect(
-          absolutePoint.minX - MARGIN,
-          absolutePoint.minY - MARGIN,
-          absolutePoint.maxX - absolutePoint.minX + MARGIN * 2,
-          absolutePoint.maxY - absolutePoint.minY + MARGIN * 2
-        );
-        ctx.setLineDash([]);
+        strokeDashedRectangle(ctx, absolutePoint);
       }
 
       ctx.restore();
     }
+
+    ctx.save();
+    ctx.translate(origin.x, origin.y);
+    ctx.scale(zoom, zoom);
+
+    const selectedElementsAbsolutePoint =
+      calculateSelectedElementsAbsolutePoint(elements);
+    strokeDashedRectangle(ctx, selectedElementsAbsolutePoint);
+
+    ctx.restore();
   }, [
     elements,
     origin,
@@ -360,11 +364,13 @@ function App() {
       return;
     }
 
+    const selectedElements = elements.filter(
+      (element) => element.status === "selected"
+    );
+    const absolutePoint = calculateElementsAbsolutePoint(selectedElements);
     if (
       elementShape === "selection" &&
-      selectedElements.some((selectedElement) => {
-        return isPointInsideOfElement(mousePoint, selectedElement);
-      })
+      isPointInsideOfAbsolutePoint(absolutePoint, mousePoint)
     ) {
       startDrag(event);
     } else {
@@ -473,7 +479,7 @@ function App() {
       case "line":
       case "arrow":
         send({
-          type: "LINEAR_ELEMENT.RESIZE",
+          type: "LINEAR_ELEMENT.POINT_RESIZE",
           event,
           devicePixelRatio,
         });
@@ -497,6 +503,23 @@ function App() {
   };
 
   const moveMouse: MouseEventHandler<HTMLCanvasElement> = (event) => {
+    const selectedElementsAbsolutePoint =
+      calculateSelectedElementsAbsolutePoint(elements);
+    const mousePoint = calculateCanvasPoint({
+      devicePixelRatio,
+      event,
+      zoom,
+      origin,
+    });
+
+    if (
+      isPointInsideOfAbsolutePoint(selectedElementsAbsolutePoint, mousePoint)
+    ) {
+      document.body.style.cursor = "move";
+    } else {
+      document.body.style.cursor = "default";
+    }
+
     send({
       type: "MOUSE_MOVE",
       event,
@@ -874,14 +897,14 @@ function App() {
       {selectedElements.length === 1 &&
         selectedElements[0] &&
         isLinearElement(selectedElements[0]) && (
-          <LinearElementResizer
+          <LinearElementPointResizer
             linearElement={selectedElements[0]}
             devicePixelRatio={devicePixelRatio}
             origin={origin}
             zoom={zoom}
             onMouseDown={(event, pointIndex) => {
               send({
-                type: "LINEAR_ELEMENT.RESIZE_START",
+                type: "LINEAR_ELEMENT.POINT_RESIZE_START",
                 resizingElement: {
                   pointIndex,
                 },
@@ -895,7 +918,7 @@ function App() {
       {selectedElements.length === 1 &&
         selectedElements[0] &&
         isGenericElement(selectedElements[0]) && (
-          <NonLinearElementResizer
+          <ElementResizer
             element={selectedElements[0]}
             devicePixelRatio={devicePixelRatio}
             origin={origin}
@@ -917,7 +940,7 @@ function App() {
         selectedElements.length === 1 &&
         selectedElements[0] &&
         isTextElement(selectedElements[0]) && (
-          <NonLinearElementResizer
+          <ElementResizer
             element={selectedElements[0]}
             devicePixelRatio={devicePixelRatio}
             origin={origin}
@@ -938,7 +961,7 @@ function App() {
       {selectedElements.length === 1 &&
         selectedElements[0] &&
         isFreeDrawElement(selectedElements[0]) && (
-          <NonLinearElementResizer
+          <ElementResizer
             element={selectedElements[0]}
             devicePixelRatio={devicePixelRatio}
             origin={origin}
@@ -952,6 +975,21 @@ function App() {
                   direction,
                 },
               });
+            }}
+          />
+        )}
+
+      {selectedElements.length === 1 &&
+        selectedElements[0] &&
+        isLinearElement(selectedElements[0]) &&
+        selectedElements[0].points.length >= 3 && (
+          <ElementResizer
+            element={selectedElements[0]}
+            devicePixelRatio={devicePixelRatio}
+            origin={origin}
+            zoom={zoom}
+            onMouseDown={(event, direction) => {
+              //
             }}
           />
         )}
