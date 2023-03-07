@@ -496,20 +496,6 @@ export const calculateDevicePixelRatio = (canvasElement: HTMLCanvasElement) => {
   return canvasElement.width / parseInt(canvasElement.style.width);
 };
 
-const platform =
-  window.navigator?.userAgentData?.platform ||
-  window.navigator?.platform ||
-  "unknown";
-
-const testPlatform = (regex: RegExp) => regex.test(platform);
-
-const isMac = () => testPlatform(/^mac/i);
-
-export const isWithPlatformMetaKey = (event: {
-  metaKey: boolean;
-  ctrlKey: boolean;
-}) => (isMac() ? event.metaKey : event.ctrlKey);
-
 export const convertToPercent = (ratio: number) => {
   return ratio * 100;
 };
@@ -977,3 +963,4 @@ export const strokeDashedRectangle = (
 
 export * from "./resize";
 export * from "./array";
+export * from "./platform";
