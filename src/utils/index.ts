@@ -4,7 +4,6 @@ import { v4 as uuidv4 } from "uuid";
 import { TEXTAREA_UNIT_LESS_LINE_HEIGHT } from "../constants";
 import {
   Point,
-  SHAPE_TYPES,
   VisualizerElement,
   VisualizerElementBase,
   VisualizerFreeDrawElement,
@@ -14,6 +13,14 @@ import {
   VisualizerTextElement,
   ZOOM,
 } from "../machines/visualizerMachine";
+import {
+  isFreeDrawElement,
+  isFreeDrawElementShape,
+  isGenericElement,
+  isGenericElementShape,
+  isLinearElement,
+  isLinearElementShape,
+} from "./type-guard";
 
 export const calculateCanvasPoint = ({
   devicePixelRatio,
@@ -281,54 +288,6 @@ export const calculateNormalizedZoom = (
   });
 };
 
-export const isGenericElementShape = (
-  shape: VisualizerElement["shape"]
-): shape is VisualizerGenericElement["shape"] => {
-  return SHAPE_TYPES[shape] === "generic";
-};
-
-export const isGenericElement = (
-  element: VisualizerElement
-): element is VisualizerGenericElement => {
-  return isGenericElementShape(element.shape);
-};
-
-const isLinearElementShape = (
-  shape: VisualizerElement["shape"]
-): shape is VisualizerLinearElement["shape"] => {
-  return SHAPE_TYPES[shape] === "linear";
-};
-
-export const isLinearElement = (
-  element: VisualizerElement
-): element is VisualizerLinearElement => {
-  return isLinearElementShape(element.shape);
-};
-
-export const isFreeDrawElementShape = (
-  shape: VisualizerElement["shape"]
-): shape is VisualizerFreeDrawElement["shape"] => {
-  return SHAPE_TYPES[shape] === "freedraw";
-};
-
-export const isFreeDrawElement = (
-  element: VisualizerElement
-): element is VisualizerFreeDrawElement => {
-  return isFreeDrawElementShape(element.shape);
-};
-
-export const isTextElementShape = (
-  shape: VisualizerElement["shape"]
-): shape is VisualizerTextElement["shape"] => {
-  return SHAPE_TYPES[shape] === "text";
-};
-
-export const isTextElement = (
-  element: VisualizerElement
-): element is VisualizerTextElement => {
-  return isTextElementShape(element.shape);
-};
-
 export const createElement = ({
   elements,
   elementShape,
@@ -511,3 +470,4 @@ export * from "./array";
 export * from "./platform";
 export * from "./convert";
 export * from "./draw";
+export * from "./type-guard";

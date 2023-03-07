@@ -70,19 +70,6 @@ export type VisualizerNonLinearElement = Exclude<
   VisualizerLinearElement
 >;
 
-export const SHAPE_TYPES: Record<
-  VisualizerElement["shape"],
-  "generic" | "linear" | "freedraw" | "text"
-> = {
-  selection: "generic",
-  rectangle: "generic",
-  ellipse: "generic",
-  line: "linear",
-  arrow: "linear",
-  freedraw: "freedraw",
-  text: "text",
-};
-
 export type Version = {
   elements: VisualizerMachineContext["elements"];
   elementOptions: VisualizerMachineContext["elementOptions"];
