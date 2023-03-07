@@ -14,6 +14,11 @@ import {
   ZOOM,
 } from "../machines/visualizerMachine";
 import {
+  calculateDistance,
+  calculateNormalizedValue,
+  createRandomNumber,
+} from "./math";
+import {
   isFreeDrawElement,
   isFreeDrawElementShape,
   isGenericElement,
@@ -217,10 +222,6 @@ export const isIntersecting = (
   return true;
 };
 
-export const calculateDistance = (width: number, height: number) => {
-  return Math.hypot(width, height);
-};
-
 export const measureText = ({
   text,
   fontSize,
@@ -264,18 +265,6 @@ export const measureText = ({
 
 export const calculateDevicePixelRatio = (canvasElement: HTMLCanvasElement) => {
   return canvasElement.width / parseInt(canvasElement.style.width);
-};
-
-export const calculateNormalizedValue = ({
-  max,
-  value,
-  min,
-}: {
-  max: number;
-  value: number;
-  min: number;
-}) => {
-  return Math.max(min, Math.min(value, max));
 };
 
 export const calculateNormalizedZoom = (
@@ -375,10 +364,6 @@ export const createElement = ({
   };
 };
 
-const createRandomNumber = (min: number, max: number) => {
-  return Math.floor(Math.random() * max) + min;
-};
-
 // https://github.com/rough-stuff/rough/wiki#seed
 const SEED = {
   MIN: 1,
@@ -471,3 +456,4 @@ export * from "./platform";
 export * from "./convert";
 export * from "./draw";
 export * from "./type-guard";
+export * from "./math";
