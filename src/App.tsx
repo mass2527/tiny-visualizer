@@ -31,7 +31,7 @@ import {
   ZOOM,
 } from "./machines/visualizerMachine";
 
-import LinearElementResizer from "./components/LinearElementResizer";
+import LinearElementPointResizer from "./components/LinearElementPointResizer";
 import {
   calculateCanvasPoint,
   calculateElementAbsolutePoint,
@@ -897,7 +897,7 @@ function App() {
       {selectedElements.length === 1 &&
         selectedElements[0] &&
         isLinearElement(selectedElements[0]) && (
-          <LinearElementResizer
+          <LinearElementPointResizer
             linearElement={selectedElements[0]}
             devicePixelRatio={devicePixelRatio}
             origin={origin}
