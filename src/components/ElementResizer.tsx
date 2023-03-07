@@ -6,7 +6,7 @@ import {
 import {
   calculateElementAbsolutePoint,
   calculateElementViewportSize,
-  convertToViewportPoint,
+  calculateViewportPoint,
   isTextElement,
 } from "../utils";
 import VirtualPoint, {
@@ -41,7 +41,7 @@ const createElementVirtualPoints = ({
   virtualPointSize?: Required<Pick<VirtualPointProps, "width" | "height">>;
 }) => {
   const absolutePoint = calculateElementAbsolutePoint(element);
-  const elementViewportPoint = convertToViewportPoint({
+  const elementViewportPoint = calculateViewportPoint({
     canvasPoint: {
       x: absolutePoint.minX,
       y: absolutePoint.minY,

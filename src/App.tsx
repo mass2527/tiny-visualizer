@@ -38,7 +38,7 @@ import {
   calculateElementsAbsolutePoint,
   convertToPercent,
   convertToRatio,
-  convertToViewportPoint,
+  calculateViewportPoint,
   createDraw,
   isFreeDrawElement,
   isGenericElement,
@@ -105,7 +105,7 @@ function App() {
     drawStartPoint,
   } = state.context;
 
-  const drawStartViewportPoint = convertToViewportPoint({
+  const drawStartViewportPoint = calculateViewportPoint({
     canvasPoint: drawStartPoint,
     devicePixelRatio,
     origin,

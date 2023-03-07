@@ -19,7 +19,7 @@ import {
   calculateChangeInPointOnZoom,
   setLastItem,
   calculatePointCloseness,
-  getClosenessThreshold,
+  calculateClosenessThreshold,
   calculateFixedPoint,
   isDiagonalDirection,
   resizeTextElement,
@@ -526,7 +526,7 @@ export const visualizerMachine =
           invariant(drawingElement);
           invariant(isLinearElement(drawingElement));
 
-          const threshold = getClosenessThreshold(context.zoom);
+          const threshold = calculateClosenessThreshold(context.zoom);
           const { areLastTwoPointsClose, isLastPointCloseToStartPoint } =
             calculatePointCloseness(drawingElement, threshold);
 
@@ -1176,7 +1176,7 @@ export const visualizerMachine =
           invariant(drawingElement);
           invariant(isLinearElement(drawingElement));
 
-          const threshold = getClosenessThreshold(context.zoom);
+          const threshold = calculateClosenessThreshold(context.zoom);
           const { areLastTwoPointsClose, isLastPointCloseToStartPoint } =
             calculatePointCloseness(drawingElement, threshold);
 

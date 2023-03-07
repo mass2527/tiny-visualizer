@@ -3,7 +3,7 @@ import {
   VisualizerLinearElement,
   VisualizerMachineContext,
 } from "../machines/visualizerMachine";
-import { convertToViewportPoint } from "../utils";
+import { calculateViewportPoint } from "../utils";
 import VirtualPoint from "./VirtualPoint";
 
 function LinearElementPointResizer({
@@ -45,7 +45,7 @@ function LinearElementPointResizer({
       {points.map((point, index) => {
         const { x, y } = point;
 
-        const resizingStartViewportPoint = convertToViewportPoint({
+        const resizingStartViewportPoint = calculateViewportPoint({
           canvasPoint: {
             x: linearElement.x + x,
             y: linearElement.y + y,
