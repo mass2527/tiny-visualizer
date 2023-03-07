@@ -13,18 +13,18 @@ import {
   VisualizerNonLinearElement,
   VisualizerTextElement,
   ZOOM,
-} from "./machines/visualizerMachine";
+} from "../machines/visualizerMachine";
 import { v4 as uuidv4 } from "uuid";
-import { TEXTAREA_UNIT_LESS_LINE_HEIGHT } from "./constants";
+import { TEXTAREA_UNIT_LESS_LINE_HEIGHT } from "../constants";
 import {
   OrthogonalDirection,
   DiagonalDirection,
   Direction,
-} from "./components/ElementResizer";
+} from "../components/ElementResizer";
 import {
   VIRTUAL_POINT_HEIGHT,
   VIRTUAL_POINT_WIDTH,
-} from "./components/VirtualPoint";
+} from "../components/VirtualPoint";
 
 export const calculateCanvasPoint = ({
   devicePixelRatio,
