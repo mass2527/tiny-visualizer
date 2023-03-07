@@ -26,6 +26,7 @@ import {
   resizeFreedrawElement,
   resizeGenericElement,
   resizeLinearElementPoint,
+  calculateElementSize,
 } from "../../utils";
 import debounce from "lodash.debounce";
 import { TEXTAREA_UNIT_LESS_LINE_HEIGHT } from "../../constants";
@@ -543,9 +544,16 @@ export const visualizerMachine =
                   points = [...element.points];
                 }
 
-                return {
+                const linearElement: VisualizerLinearElement = {
                   ...element,
                   points,
+                };
+                const { width, height } = calculateElementSize(linearElement);
+
+                return {
+                  ...linearElement,
+                  width,
+                  height,
                 };
               }
               return element;
