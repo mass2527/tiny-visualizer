@@ -479,7 +479,7 @@ function App() {
       case "line":
       case "arrow":
         send({
-          type: "LINEAR_ELEMENT.RESIZE",
+          type: "LINEAR_ELEMENT.POINT_RESIZE",
           event,
           devicePixelRatio,
         });
@@ -904,7 +904,7 @@ function App() {
             zoom={zoom}
             onMouseDown={(event, pointIndex) => {
               send({
-                type: "LINEAR_ELEMENT.RESIZE_START",
+                type: "LINEAR_ELEMENT.POINT_RESIZE_START",
                 resizingElement: {
                   pointIndex,
                 },

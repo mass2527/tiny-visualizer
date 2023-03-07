@@ -962,6 +962,153 @@ export const resizeGenericElement = ({
   }
 };
 
+export const resizeLinearElementPoint = ({
+  element,
+  pointIndex,
+  currentCanvasPoint,
+  resizeStartPoint,
+}: {
+  element: VisualizerLinearElement;
+  pointIndex: number;
+  currentCanvasPoint: Point;
+  resizeStartPoint: Point;
+}): VisualizerLinearElement => {
+  const dx = currentCanvasPoint.x - resizeStartPoint.x;
+  const dy = currentCanvasPoint.y - resizeStartPoint.y;
+
+  const firstPoint = element.points[0];
+  invariant(firstPoint);
+  const lastPoint = element.points[element.points.length - 1];
+  invariant(lastPoint);
+
+  const hasMoreThan2Points = element.points.length > 2;
+  if (!hasMoreThan2Points) {
+    const updatingPointPosition =
+      (
+        {
+          0: "start",
+          1: "virtual center",
+        } as const
+      )[pointIndex] || "rest";
+    switch (updatingPointPosition) {
+      case "start": {
+        const points: Point[] = element.points.map(({ x, y }, index) => {
+          if (index === 0) {
+            return { x, y };
+          }
+
+          return { x: x - dx, y: y - dy };
+        });
+
+        const resizedElement: VisualizerLinearElement = {
+          ...element,
+          x: element.x + dx,
+          y: element.y + dy,
+          points,
+        };
+        const { width, height } = calculateElementSize(resizedElement);
+
+        return {
+          ...resizedElement,
+          width,
+          height,
+        };
+      }
+      case "virtual center": {
+        const virtualCenterPoint = {
+          x: firstPoint.x + lastPoint.x / 2,
+          y: firstPoint.y + lastPoint.y / 2,
+        };
+
+        const points: Point[] = [
+          firstPoint,
+          {
+            x: dx + virtualCenterPoint.x,
+            y: dy + virtualCenterPoint.y,
+          },
+          lastPoint,
+        ];
+
+        const resizedElement: VisualizerLinearElement = {
+          ...element,
+          points,
+        };
+        const { width, height } = calculateElementSize(resizedElement);
+
+        return {
+          ...resizedElement,
+          width,
+          height,
+        };
+      }
+      case "rest": {
+        const points: Point[] = [
+          ...removeLastItem(element.points),
+          { x: dx + lastPoint.x, y: dy + lastPoint.y },
+        ];
+        const resizedElement: VisualizerLinearElement = {
+          ...element,
+          points,
+        };
+        const { width, height } = calculateElementSize(resizedElement);
+
+        return {
+          ...resizedElement,
+          width,
+          height,
+        };
+      }
+    }
+  }
+
+  const isUpdatingStartPoint = pointIndex === 0;
+  if (isUpdatingStartPoint) {
+    const points: Point[] = element.points.map(({ x, y }, index) => {
+      if (index === 0) {
+        return { x, y };
+      }
+
+      return {
+        x: x - dx,
+        y: y - dy,
+      };
+    });
+    const resizedElement: VisualizerLinearElement = {
+      ...element,
+      x: element.x + dx,
+      y: element.y + dy,
+      points,
+    };
+    const { width, height } = calculateElementSize(resizedElement);
+
+    return {
+      ...resizedElement,
+      width,
+      height,
+    };
+  }
+
+  const updatingPoint = element.points[pointIndex];
+  invariant(updatingPoint);
+
+  const points: Point[] = replaceNthItem({
+    array: element.points,
+    index: pointIndex,
+    item: { x: updatingPoint.x + dx, y: updatingPoint.y + dy },
+  });
+  const resizedElement: VisualizerLinearElement = {
+    ...element,
+    points,
+  };
+  const { width, height } = calculateElementSize(resizedElement);
+
+  return {
+    ...resizedElement,
+    width,
+    height,
+  };
+};
+
 export const isDiagonalDirection = (
   direction: Direction
 ): direction is DiagonalDirection => {

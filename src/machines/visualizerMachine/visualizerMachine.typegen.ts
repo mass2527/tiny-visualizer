@@ -65,12 +65,12 @@ export interface Typegen0 {
     assignResizingElement:
       | "FREEDRAW_ELEMENT.RESIZE_START"
       | "GENERIC_ELEMENT.RESIZE_START"
-      | "LINEAR_ELEMENT.RESIZE_START"
+      | "LINEAR_ELEMENT.POINT_RESIZE_START"
       | "TEXT_ELEMENT.RESIZE_START";
     assignResizingStartPoint:
       | "FREEDRAW_ELEMENT.RESIZE_START"
       | "GENERIC_ELEMENT.RESIZE_START"
-      | "LINEAR_ELEMENT.RESIZE_START"
+      | "LINEAR_ELEMENT.POINT_RESIZE_START"
       | "TEXT_ELEMENT.RESIZE_START";
     assignZoom: "CHANGE_ZOOM";
     assignZoomToCurrentPoint: "CHANGE_ZOOM_WITH_PINCH";
@@ -111,7 +111,7 @@ export interface Typegen0 {
       | "WRITE_END";
     resizeFreedrawElement: "FREEDRAW_ELEMENT.RESIZE";
     resizeGenericElement: "GENERIC_ELEMENT.RESIZE";
-    resizeLinearElement: "LINEAR_ELEMENT.RESIZE";
+    resizeLinearElementPoint: "LINEAR_ELEMENT.POINT_RESIZE";
     resizeTextElement: "TEXT_ELEMENT.RESIZE";
     selectAllElements: "ELEMENTS.SELECT_ALL";
     selectDrawingElement: "CONNECT" | "DRAW_END" | "WRITE_END";

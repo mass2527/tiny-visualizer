@@ -259,7 +259,7 @@ export type VisualizerMachineEvents =
       devicePixelRatio: number;
     }
   | {
-      type: "LINEAR_ELEMENT.RESIZE_START";
+      type: "LINEAR_ELEMENT.POINT_RESIZE_START";
       resizingElement: VisualizerMachineContext["resizingElement"];
       event: MouseEvent;
       devicePixelRatio: number;
@@ -282,7 +282,7 @@ export type VisualizerMachineEvents =
       devicePixelRatio: number;
     }
   | {
-      type: "LINEAR_ELEMENT.RESIZE";
+      type: "LINEAR_ELEMENT.POINT_RESIZE";
       event: Parameters<MouseEventHandler<HTMLCanvasElement>>[0];
       devicePixelRatio: number;
     }
