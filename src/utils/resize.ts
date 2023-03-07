@@ -1,11 +1,14 @@
 import invariant from "tiny-invariant";
 import {
+  calculateElementAbsolutePoint,
   calculateElementSize,
   calculateFreeDrawElementAbsolutePoint,
+  isFreeDrawElement,
   measureText,
   removeLastItem,
   replaceNthItem,
 } from ".";
+
 import { TEXTAREA_UNIT_LESS_LINE_HEIGHT } from "../constants";
 import {
   Point,
@@ -511,6 +514,106 @@ export const resizeFreedrawElement = ({
             y: point.y,
           };
         }),
+      };
+  }
+};
+
+export const calculateFixedPoint = (
+  element:
+    | VisualizerGenericElement
+    | VisualizerTextElement
+    | VisualizerFreeDrawElement,
+  direction: Direction
+): Point => {
+  if (isFreeDrawElement(element)) {
+    const { minX, minY, maxX, maxY } = calculateElementAbsolutePoint(element);
+    const width = maxX - minX;
+    const height = maxY - minY;
+
+    switch (direction) {
+      case "up-left":
+        return {
+          x: minX + width,
+          y: minY + height,
+        };
+      case "up-right":
+        return {
+          x: minX,
+          y: minY + height,
+        };
+      case "down-left":
+        return {
+          x: minX + width,
+          y: minY,
+        };
+      case "down-right":
+        return {
+          x: minX,
+          y: minY,
+        };
+      case "up":
+        return {
+          x: minX + width / 2,
+          y: minY + height,
+        };
+      case "left":
+        return {
+          x: minX + width,
+          y: minY + height / 2,
+        };
+      case "right":
+        return {
+          x: minX,
+          y: minY + height / 2,
+        };
+      case "down":
+        return {
+          x: minX + width / 2,
+          y: minY,
+        };
+    }
+  }
+
+  switch (direction) {
+    case "up-left":
+      return {
+        x: element.x + element.width,
+        y: element.y + element.height,
+      };
+    case "up-right":
+      return {
+        x: element.x,
+        y: element.y + element.height,
+      };
+    case "down-left":
+      return {
+        x: element.x + element.width,
+        y: element.y,
+      };
+    case "down-right":
+      return {
+        x: element.x,
+        y: element.y,
+      };
+    case "up":
+      return {
+        x: element.x + element.width / 2,
+        y: element.y + element.height,
+      };
+    case "left":
+      return {
+        x: element.x + element.width,
+        y: element.y + element.height / 2,
+      };
+    case "right":
+      return {
+        x: element.x,
+        y: element.y + element.height / 2,
+      };
+    case "down":
+      return {
+        x: element.x + element.width / 2,
+        y: element.y,
       };
   }
 };

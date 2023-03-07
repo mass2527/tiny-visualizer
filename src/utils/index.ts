@@ -1,10 +1,6 @@
 import invariant from "tiny-invariant";
 import { v4 as uuidv4 } from "uuid";
-import { Direction } from "../components/ElementResizer";
-import {
-  VIRTUAL_POINT_HEIGHT,
-  VIRTUAL_POINT_WIDTH,
-} from "../components/VirtualPoint";
+
 import { TEXTAREA_UNIT_LESS_LINE_HEIGHT } from "../constants";
 import {
   Point,
@@ -18,7 +14,6 @@ import {
   VisualizerTextElement,
   ZOOM,
 } from "../machines/visualizerMachine";
-import { convertToViewportPoint } from "./convert";
 
 export const calculateCanvasPoint = ({
   devicePixelRatio,
@@ -496,106 +491,6 @@ export const haveSamePoint = (point1: Point, point2: Point) => {
   return false;
 };
 
-export const calculateFixedPoint = (
-  element:
-    | VisualizerGenericElement
-    | VisualizerTextElement
-    | VisualizerFreeDrawElement,
-  direction: Direction
-): Point => {
-  if (isFreeDrawElement(element)) {
-    const { minX, minY, maxX, maxY } = calculateElementAbsolutePoint(element);
-    const width = maxX - minX;
-    const height = maxY - minY;
-
-    switch (direction) {
-      case "up-left":
-        return {
-          x: minX + width,
-          y: minY + height,
-        };
-      case "up-right":
-        return {
-          x: minX,
-          y: minY + height,
-        };
-      case "down-left":
-        return {
-          x: minX + width,
-          y: minY,
-        };
-      case "down-right":
-        return {
-          x: minX,
-          y: minY,
-        };
-      case "up":
-        return {
-          x: minX + width / 2,
-          y: minY + height,
-        };
-      case "left":
-        return {
-          x: minX + width,
-          y: minY + height / 2,
-        };
-      case "right":
-        return {
-          x: minX,
-          y: minY + height / 2,
-        };
-      case "down":
-        return {
-          x: minX + width / 2,
-          y: minY,
-        };
-    }
-  }
-
-  switch (direction) {
-    case "up-left":
-      return {
-        x: element.x + element.width,
-        y: element.y + element.height,
-      };
-    case "up-right":
-      return {
-        x: element.x,
-        y: element.y + element.height,
-      };
-    case "down-left":
-      return {
-        x: element.x + element.width,
-        y: element.y,
-      };
-    case "down-right":
-      return {
-        x: element.x,
-        y: element.y,
-      };
-    case "up":
-      return {
-        x: element.x + element.width / 2,
-        y: element.y + element.height,
-      };
-    case "left":
-      return {
-        x: element.x + element.width,
-        y: element.y + element.height / 2,
-      };
-    case "right":
-      return {
-        x: element.x,
-        y: element.y + element.height / 2,
-      };
-    case "down":
-      return {
-        x: element.x + element.width / 2,
-        y: element.y,
-      };
-  }
-};
-
 export const calculateElementViewportSize = ({
   element,
   devicePixelRatio,
@@ -609,101 +504,6 @@ export const calculateElementViewportSize = ({
     width: (element.width / devicePixelRatio) * zoom,
     height: (element.height / devicePixelRatio) * zoom,
   };
-};
-
-export const createElementVirtualPoints = ({
-  element,
-  devicePixelRatio,
-  origin,
-  zoom,
-}: {
-  element: VisualizerElement;
-  devicePixelRatio: number;
-  origin: VisualizerMachineContext["origin"];
-  zoom: VisualizerMachineContext["zoom"];
-}) => {
-  const absolutePoint = calculateElementAbsolutePoint(element);
-  const elementViewportPoint = convertToViewportPoint({
-    canvasPoint: {
-      x: absolutePoint.minX,
-      y: absolutePoint.minY,
-    },
-    devicePixelRatio,
-    origin,
-    zoom,
-  });
-  const elementViewportSize = calculateElementViewportSize({
-    element,
-    devicePixelRatio,
-    zoom,
-  });
-
-  const virtualPoints: {
-    direction: Direction;
-    left: number;
-    top: number;
-  }[] = [
-    {
-      direction: "up-left",
-      left: elementViewportPoint.x,
-      top: elementViewportPoint.y,
-    },
-    {
-      direction: "up-right",
-      left: elementViewportPoint.x + elementViewportSize.width,
-      top: elementViewportPoint.y,
-    },
-    {
-      direction: "down-left",
-      left: elementViewportPoint.x,
-      top: elementViewportPoint.y + elementViewportSize.height,
-    },
-    {
-      direction: "down-right",
-      left: elementViewportPoint.x + elementViewportSize.width,
-      top: elementViewportPoint.y + elementViewportSize.height,
-    },
-  ];
-
-  if (isTextElement(element)) {
-    return virtualPoints;
-  }
-
-  const haveEnoughWidth =
-    Math.abs(elementViewportSize.width) >= 2 * (3 * VIRTUAL_POINT_WIDTH);
-  if (haveEnoughWidth) {
-    virtualPoints.push(
-      {
-        direction: "up",
-        left: elementViewportPoint.x + elementViewportSize.width / 2,
-        top: elementViewportPoint.y,
-      },
-      {
-        direction: "down",
-        left: elementViewportPoint.x + elementViewportSize.width / 2,
-        top: elementViewportPoint.y + elementViewportSize.height,
-      }
-    );
-  }
-
-  const haveEnoughHeight =
-    Math.abs(elementViewportSize.height) >= 2 * (3 * VIRTUAL_POINT_HEIGHT);
-  if (haveEnoughHeight) {
-    virtualPoints.push(
-      {
-        direction: "left",
-        left: elementViewportPoint.x,
-        top: elementViewportPoint.y + elementViewportSize.height / 2,
-      },
-      {
-        direction: "right",
-        left: elementViewportPoint.x + elementViewportSize.width,
-        top: elementViewportPoint.y + elementViewportSize.height / 2,
-      }
-    );
-  }
-
-  return virtualPoints;
 };
 
 export * from "./resize";
