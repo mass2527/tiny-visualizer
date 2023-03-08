@@ -41,7 +41,7 @@ import {
 import { ELEMENT_STATUS, PERSISTED_CONTEXT } from "./constant";
 
 export const visualizerMachine =
-  /** @xstate-layout N4IgpgJg5mDOIC5QDcCWsCuBDANqgXmAE4AEAtlgMYAWqAdmAHSoQ5gDEAIgEoCCA6gH0AygBVe3UQG0ADAF1EoAA4B7WKgAuqFXUUgAHogDsMo4wCcARgAsM60fNGArADYnlgMwAaEAE9EAEwBboyWlkYeph7W5gAcDtYAvok+aJi4BMTkVLQMzKwcAMIAErwAcgDiAKKCVQAyVQCyVWWiIqUAClWyCkggqupaOnqGCCZmVrb2jq7u3n6BMjKMRjGOAbHmLjLm1k7JqejYeISkFDT0TCxsXHwVIuKSPXoDmtq6faPjFjZ2Ds5uTw+fwISyxcGMGROawucweYIBMLmA4gNLHTJnHKXfI3YT1KqFURVTi1BrNVrCRicfFE559V5DD6gL6mH5Tf6zIELUFOJzLSzmdzbWLWDxGcWxFFojKnbIXPLXDh4hqE4mkpotUSUwoAeQ6AE06co1G9hp9jKzJn8ZoD5iDYQFGE4PFYoryAuZzAEpUcZVlzrkrgV2MqCUSSfjyVrGB1eGJuvIXibGSMLRNftMAXNgYhPAFlgFrEFLE4jIjYh5Nj70id-ViFcHGjqAKp4wRNgBqCd6xsG71TCDFlkYew8nlMoqcFZc1hzCERW1CMUrsXLO2d1fRsoD2MV7AAksJ1VH2rwuoIAGL7gAaatEOoqFQaRv6yf75rGlozHNtc-h1lCVwAg8XktliFxYksTc-UxeUg1xfFVQjMlNW1ZtpETek3zNZk0zZa0sy5EFLBkDwPBWItEV5eIXHCIxoNrWDAxxIpSkqGpI01QQ9VEfcdTKYQXwZd9cM-dN2RtbNuUsGcXEYGcKycREZE8QUGIxOVmL3EpymqQQAC0dR1RohOwpkDDwq1M05O1ECLZZtjhB0tncLZ1O3et4NY3SakM4zBH4fdRGKQQOn3MoSlMvscIssT8Os39uXcMwZBcAJXChaFPAg9y6zglj2FjMootNczRnS1YnVXewRWsWJnWdOdC0q51K1FVYIiMKCUlRX1GM03dg2KQ9724fVBGbDpOF4WlMN7UqB2+Kyfyk4jRwo-MRRMfMrHonrpX6ncGxufhuCCmoxAkDCe1faKytzGREUhF13A2JZaKapZHUiUUNnBKFCw8XKmMGm5OIpRhQ0JQReDqOoSpTD8bHsCwyJnUxNkrSsmt2cix2CGJwNXVKgf2vqNKOrz2FO87ak4IKEZE2KK1iRh-1hQV-vcJw5zo8xQhccUthsQWINJw4awpzyCqJa82nB0RGG4KphH3fSLsea6kzugd8zx8DnBMEUAfSprwPIj0+WdOFIPBYGBuOjhqjKKozsKY9NSVlW1Y1q7GZi0ZwkYEV4WA7YoQrKw-wFJxGA9cEYURAIImA+3KYKupwqqCQPdaL3VfVh4-bm26Fo-Ww5LF2iVKcXZw9nbkw-5R7tg2BFETT6W9wvZXiT4IQFfzn2i6eEvhIDxA0oA1qsusUUwQiJqHDkkjBSCPYZJUzv8ogIgsAAd3oKBbgEf37tBcJhynPlgJkcENhcFwmoFfnnFSqcaq27fmN3g+j5PgeZROBnwHOOVmSwHCPViEsewycmobGHDsSsXV6p2GsN1CWW48o-z3ofOgx9qQNCJCIRCvF+IgI-MnVwI43BTm2HQywn074jnMCpOEHp0GkSSGTSWHkd64P-rqMoLtoaXVHjdce58SIuDxlsNKXVa7FiME1VwAE6rsPQZ6DwM59g8KwSDPIv8oBQH-jwXgFQKGiU3gBH6qwlKFhko4XmkC2arArMEGwyd0rf2xEYkx+CT73BaMAseZlQEVjMPVG2sJxSmDBLzTYsdbGkS6mOMI3o9EwQdkwHAKgsAQH-pY2KCC2aCwFOU3YIp4FWDZkpaE8Q4R7GRJkw60slDEHULALQASinlULLHN+pFH4QSCKYOckEWGelrmLCsZE9qYKyenX+eCoAkBUKQfeRA3j4JIGAOgEBIDsF6bmCJwda6VhieMeJjdLZxy2FsIIswqwtKlvlZAHT3gkCIGANgWBYCHOOfOfpKw+RDMfqufMyjpJlNCIWSCuxHoqTBD4vImztnHxpsQ4JgKwGQlMKwt6fw4GN1IsOIwkE-qbB2FQlFTA0XdIxWdWaEiwlI0cT8QW4pwiwjHE-aSZYzDBHhBBdYMjoS0sYEoP5DL2AQB0FcOgyAVAAGsmAHVecxKVXSj4IHoEqygWBGQ9BxZEcB+KoEwIFbzMc5Ea5Tg9JYYI0DmkLNaflLVMriBEHWZKnAhqABm6yyCMHVXwzV0qdV6pUAao18gTXMIgQS6BRKoXEWCLHbmZTti2FYS4CVXr1kkFycYwpoSdZI0TsHNuUJtqOC9LzOiFgvT5kcnVaE4teq8OwdiSgKglC+H-nKhUiqVVqvJmGntfaB34N1SOmN7xjVlrLlY01eLIGEtgamye2wVhUriFPOtLrO36OyYwXt-b-4FqIL6gNQaQ3ju7Xkc906oCzv1Yahdcal2IxXQm81G6rXciNnHTYYQlggVNR20Nj6mCUAwBoGVQ6FVKtVfertBjYPwYZW+6NH6dCLpZeW39Zr13Js3XOQUclSKui2nYPkeaXkTqfVhy9RBvXXqUH6jQgaiDBugxhs9LGZ1Rvnfhr9hHl2xVxYmi1KbeZ2H5jEYs0R6EunmcexZ0te10AYJQGVZj+A4p2A5Uw70YiCygWbJYToQJxHBEbdwErtO6ZlUIkRWssJEakzatm707CbHiI9Jqj9X72sgnYHYXUnM6Bc4I-i7mpCWAkz+7znhfOpX83EbaVmAKIl+A4WqXooMPoE989Q+B-7KwLhxIBOKSLDmiI4IwskNjNYbiCfGkTEQJE8OEXlEqysEH-rLeWKE85VZ9oC+qgq9jJ3-J4AEf4TDDjzJ1OInoMEabdcxQbFWAnO1dvud2g8Jvq0BfCPGX17BCgC1uwctFHQRG0SBey8Ij38dPbt-+mcXY5xO97M736mZfEXHMewopILJR5o3L0sdYQllcM2zeujXUauxF9gJPcqh9wELnRWp3uza0k4HFSjpynOF2mRFmf4gis0FtN0iEDVx7R6nQFQBz4B9A+5TInKXRgAFpIiAU5TIz06DHJzn51RpYj1xjQO2I6yUjGYMsV58DuyQRUbaLvg-cEtE7tBEcPJR6pZdiG0ddw1HTGmDLKPmrieoJIvByWPVdkM5HVNTHOA+wMu0pizIhKvxdvPPE9zOjM5MlbMEwp7zKwrNyWOsFnZ3GErcn5OD-NPnGv4GPzOelXago4gwgle0ognSGX2-PsBaBwdtewkerYGwtkEAyLUXVAUrf+kyUDwInZhb6VH12fsyAlfQGuHEiWcI5Z+nwLnise55LHLm2K+h097yy+fO+b8-5EBR9Iw23HCIfIYS13iKbaFMJ5JwqnnRsUEqB-4L31Y8IDkXRFkfuldBsQEmlhHCBZndUQqakyuAmHqGepcWejutgh+dU8I4QFYYQzejqRuhYxYcIcSJY+abGhaxa-iUAT+Umtcim1cRYpB44d2YQooFgRYYIp+U4qw0WF6j+IekBJE2ikIJgIED2awQW3IIWNmVgJEy4KkewTmQm+BLB6uju7BpmXBFunovBxEKkywqwoyng180i0WOmYAem4BkioCqUrMIocQECd86i0OIIBMckKCdUfwd8tEA2cAQ2zBmeUhBKwcN+EKRBKk0cycVaYIAo+YjiLOiQQAA */
+  /** @xstate-layout N4IgpgJg5mDOIC5QDcCWsCuBDANqgXmAE4AEAtlgMYAWqAdmAHSoQ5gDEAIgEoCCA6gH0AygBVe3UQG0ADAF1EoAA4B7WKgAuqFXUUgAHogDsMo4wCcARgAsM60fNGArADYnlgMwAaEAE9EAEwBboyWlkYeph7W5gAcDtYAvok+aJi4BMTkVLQMzKwcAMIAErwAcgDiAKKCVQAyVQCyVWWiIqUAClWyCkggqupaOnqGCCZmVrb2jq7u3n6BMjKMRjGOAbHmLjLm1k7JqejYeISkFDT0TCxsXHwVIuKSPXoDmtq6faPjFjZ2Ds5uTw+fwISyxcGMGROawucweYIBMLmA4gNLHTJnHKXfI3YT1KqFURVTi1BrNVrCRicfFE559V5DD6gL6mH5Tf6zIELUFOJzLSzmdzbWLWDxGcWxFFojKnbIXPLXDh4hqE4mkpotUSUwoAeQ6AE06co1G9hp9jKzJn8ZoD5iDYQFGE4PFYoryAuZzAEpUcZVlzrkrgV2MqCUSSfjyVrGB1eGJuvIXibGSMLRNftMAXNgYhPAFlgFrEFLE4jIjYh5Nj70id-ViFcHGjqAKp4wRNgBqCd6xsG71TCDFlkYew8nlMoqcFZc1hzCERW1CMUrsXLO2d1fRsoD2MV7AAksJ1VH2rwuoIAGL7gAaatEOoqFQaRv6yf75rGlozHNtc-h1lCVwAg8XktliFxYksTc-UxeUg1xfFVQjMlNW1ZtpETek3zNZk0zZa0sy5EFLBkDwPBWItEV5eIXHCIxoNrWDAxxIpSkqGpI01QQ9VEfcdTKYQXwZd9cM-dN2RtbNuUsGcXEYGcKycREZE8QUGIxOVmL3EpymqQQAC0dR1RohOwpkDDwq1M05O1ECLZZtjhB0tncLZ1O3et4NY3SakM4zBH4fdRGKQQOn3MoSlMvscIssT8Os39uXcMwZBcAJXChaFPAg9y6zglj2FjMootNczRnS1YnVXewRWsWJnWdOdC0q51K1FVYIiMKCUlRX1GM03dg2KQ9724fVBGbDpOF4WlMN7UqB2+Kyfyk4jRwo-MRRMfMrHonrpX6ncGxufhuCCmoxAkDCe1faKytzGREUhF13A2JZaKapZHUiUUNnBKFCw8XKmMGm5OIpRhQ0JQReDqOoSpTD8bHsCwyJnUxNkrSsmt2cix2CGJwNXVKgf2vqNKOrz2FO87ak4IKEZE2KK1iRh-1hQV-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-ERUmmyiKkQL1RIley-+adaCGYASGjOveNyLWmShMXcBckCYegQskKwYIzW4i4EPG220sXmumCed+4OOehSkG0IcI1mnyR8hsvIoiTkook8lEXo7W6WZy3WKg2WhusUU4w4Z80ItEMQhMsQf4aUCq-wXoRBi2aqyQQAA */
   createMachine(
     {
       id: "visualizer machine",
@@ -162,36 +162,18 @@ export const visualizerMachine =
               cond: "canEditText",
             },
 
-            "TEXT_ELEMENT.RESIZE_START": {
+            RESIZE_START: {
               target: "resizing",
               actions: [
                 "assignResizingStartPoint",
-                "assignResizingElement",
+                "assignResizingDirection",
                 "assignResizeFixedPoint",
               ],
             },
 
-            "GENERIC_ELEMENT.RESIZE_START": {
-              target: "resizing",
-              actions: [
-                "assignResizingStartPoint",
-                "assignResizingElement",
-                "assignResizeFixedPoint",
-              ],
-            },
-
-            "LINEAR_ELEMENT.POINT_RESIZE_START": {
-              target: "resizing",
-              actions: ["assignResizingStartPoint", "assignResizingElement"],
-            },
-
-            "FREEDRAW_ELEMENT.RESIZE_START": {
-              target: "resizing",
-              actions: [
-                "assignResizingStartPoint",
-                "assignResizingElement",
-                "assignResizeFixedPoint",
-              ],
+            "POINT.UPDATE_START": {
+              target: "updating point",
+              actions: ["assignResizingStartPoint", "assignUpdatingPointIndex"],
             },
           },
         },
@@ -335,30 +317,26 @@ export const visualizerMachine =
           on: {
             RESIZE_END: "version released",
 
-            "TEXT_ELEMENT.RESIZE": {
+            RESIZE: {
               target: "resizing",
               internal: true,
-              actions: "resizeTextElement",
-            },
-
-            "GENERIC_ELEMENT.RESIZE": {
-              target: "resizing",
-              internal: true,
-              actions: "resizeGenericElement",
-            },
-
-            "LINEAR_ELEMENT.POINT_RESIZE": {
-              target: "resizing",
-              internal: true,
-              actions: "resizeLinearElementPoint",
-            },
-
-            "FREEDRAW_ELEMENT.RESIZE": {
-              target: "resizing",
-              internal: true,
-              actions: ["resizeFreedrawElement"],
+              actions: "resize",
             },
           },
+        },
+
+        "updating point": {
+          on: {
+            "POINT.UPDATE": {
+              target: "updating point",
+              internal: true,
+              actions: "updatePoint",
+            },
+
+            "POINT.UPDATE_END": "version released",
+          },
+
+          description: `updating linear element's point`,
         },
       },
 
@@ -925,9 +903,14 @@ export const visualizerMachine =
             },
           };
         }),
-        assignResizingElement: assign((_, { resizingElement }) => {
+        assignResizingDirection: assign((_, { resizingDirection }) => {
           return {
-            resizingElement,
+            resizingDirection,
+          };
+        }),
+        assignUpdatingPointIndex: assign((_, { updatingPointIndex }) => {
+          return {
+            updatingPointIndex,
           };
         }),
         assignResizeFixedPoint: assign((context) => {
@@ -939,11 +922,9 @@ export const visualizerMachine =
 
           invariant(!isLinearElement(selectedElement));
 
-          invariant("direction" in context.resizingElement);
-
           const resizeFixedPoint = calculateFixedPoint(
             selectedElement,
-            context.resizingElement.direction
+            context.resizingDirection
           );
 
           return {
@@ -964,128 +945,8 @@ export const visualizerMachine =
             };
           }
         ),
-        resizeGenericElement: assign((context, { devicePixelRatio, event }) => {
-          const selectedElements = context.elements.filter(
-            (element) => element.status === "selected"
-          );
-          const resizingElement = selectedElements[0];
-          invariant(resizingElement);
-
-          const currentCanvasPoint = calculateCanvasPoint({
-            devicePixelRatio,
-            event,
-            zoom: context.zoom,
-            origin: context.origin,
-          });
-          const dx = currentCanvasPoint.x - context.resizeStartPoint.x;
-          const dy = currentCanvasPoint.y - context.resizeStartPoint.y;
-
-          return {
-            elements: context.elements.map((element) => {
-              if (element.id !== resizingElement.id) {
-                return element;
-              }
-
-              invariant(isGenericElement(element));
-              invariant("direction" in context.resizingElement);
-
-              if (element.width + dx === 0 || element.height + dy === 0) {
-                return element;
-              }
-
-              const resizedElement = resizeGenericElement({
-                element,
-                direction: context.resizingElement.direction,
-                currentCanvasPoint,
-                resizeFixedPoint: context.resizeFixedPoint,
-              });
-
-              return resizedElement;
-            }),
-            resizeStartPoint: currentCanvasPoint,
-          };
-        }),
-        resizeLinearElementPoint: assign(
-          (context, { devicePixelRatio, event }) => {
-            const selectedElements = context.elements.filter(
-              (element) => element.status === "selected"
-            );
-            const resizingElement = selectedElements[0];
-            invariant(resizingElement);
-
-            const currentCanvasPoint = calculateCanvasPoint({
-              devicePixelRatio,
-              event,
-              zoom: context.zoom,
-              origin: context.origin,
-            });
-
-            return {
-              elements: context.elements.map((element) => {
-                if (element.id !== resizingElement.id) {
-                  return element;
-                }
-
-                invariant(isLinearElement(element));
-                invariant("pointIndex" in context.resizingElement);
-
-                const resizedElement = resizeLinearElementPoint({
-                  currentCanvasPoint,
-                  element,
-                  pointIndex: context.resizingElement.pointIndex,
-                  resizeStartPoint: context.resizeStartPoint,
-                });
-
-                return resizedElement;
-              }),
-              resizeStartPoint: currentCanvasPoint,
-            };
-          }
-        ),
-        resizeTextElement: assign(
+        resize: assign(
           (context, { event, devicePixelRatio, canvasElement }) => {
-            const selectedElements = context.elements.filter(
-              (element) => element.status === "selected"
-            );
-            const resizingElement = selectedElements[0];
-            invariant(resizingElement);
-
-            invariant("direction" in context.resizingElement);
-            const { direction } = context.resizingElement;
-
-            invariant(isDiagonalDirection(direction));
-
-            const currentCanvasPoint = calculateCanvasPoint({
-              devicePixelRatio,
-              event,
-              zoom: context.zoom,
-              origin: context.origin,
-            });
-
-            return {
-              elements: context.elements.map((element) => {
-                if (element.id !== resizingElement.id) {
-                  return element;
-                }
-
-                invariant(isTextElement(element));
-
-                const resizedElement = resizeTextElement({
-                  canvasElement,
-                  direction: direction,
-                  element,
-                  currentCanvasPoint,
-                  resizeFixedPoint: context.resizeFixedPoint,
-                });
-
-                return resizedElement;
-              }),
-              resizeStartPoint: currentCanvasPoint,
-            };
-          }
-        ),
-        resizeFreedrawElement: assign(
-          (context, { devicePixelRatio, event }) => {
             const selectedElements = context.elements.filter(
               (element) => element.status === "selected"
             );
@@ -1112,24 +973,94 @@ export const visualizerMachine =
                   return element;
                 }
 
-                invariant(isFreeDrawElement(element));
+                if (isGenericElement(element)) {
+                  const dx = currentCanvasPoint.x - context.resizeStartPoint.x;
+                  const dy = currentCanvasPoint.y - context.resizeStartPoint.y;
+                  if (element.width + dx === 0 || element.height + dy === 0) {
+                    return element;
+                  }
 
-                invariant("direction" in context.resizingElement);
+                  const resizedElement = resizeGenericElement({
+                    element,
+                    direction: context.resizingDirection,
+                    currentCanvasPoint,
+                    resizeFixedPoint: context.resizeFixedPoint,
+                  });
 
-                const resizedElement = resizeFreedrawElement({
-                  element,
-                  direction: context.resizingElement.direction,
-                  previousCanvasPoint: context.resizeStartPoint,
-                  currentCanvasPoint,
-                  resizeFixedPoint: context.resizeFixedPoint,
-                });
+                  return resizedElement;
+                }
 
-                return resizedElement;
+                if (isLinearElement(element)) {
+                  // TODO
+                  return element;
+                }
+
+                if (isTextElement(element)) {
+                  invariant(isDiagonalDirection(context.resizingDirection));
+
+                  const resizedElement = resizeTextElement({
+                    canvasElement,
+                    direction: context.resizingDirection,
+                    element,
+                    currentCanvasPoint,
+                    resizeFixedPoint: context.resizeFixedPoint,
+                  });
+
+                  return resizedElement;
+                }
+
+                if (isFreeDrawElement(element)) {
+                  const resizedElement = resizeFreedrawElement({
+                    element,
+                    direction: context.resizingDirection,
+                    previousCanvasPoint: context.resizeStartPoint,
+                    currentCanvasPoint,
+                    resizeFixedPoint: context.resizeFixedPoint,
+                  });
+
+                  return resizedElement;
+                }
+
+                return element;
               }),
               resizeStartPoint: currentCanvasPoint,
             };
           }
         ),
+        updatePoint: assign((context, { event, devicePixelRatio }) => {
+          const selectedElements = context.elements.filter(
+            (element) => element.status === "selected"
+          );
+          const resizingElement = selectedElements[0];
+          invariant(resizingElement);
+
+          const currentCanvasPoint = calculateCanvasPoint({
+            devicePixelRatio,
+            event,
+            zoom: context.zoom,
+            origin: context.origin,
+          });
+
+          return {
+            elements: context.elements.map((element) => {
+              if (element.id !== resizingElement.id) {
+                return element;
+              }
+
+              invariant(isLinearElement(element));
+
+              const resizedElement = resizeLinearElementPoint({
+                currentCanvasPoint,
+                element,
+                pointIndex: context.updatingPointIndex,
+                resizeStartPoint: context.resizeStartPoint,
+              });
+
+              return resizedElement;
+            }),
+            resizeStartPoint: currentCanvasPoint,
+          };
+        }),
         logError: (_, event) => {
           console.error(event.data);
         },

@@ -51,6 +51,7 @@ export interface Typegen0 {
       | ""
       | "CHANGE_ELEMENT_OPTIONS"
       | "DRAG_END"
+      | "POINT.UPDATE_END"
       | "RESIZE_END"
       | "SELECTED_ELEMENTS.DELETE"
       | "done.invoke.visualizer machine.pasting:invocation[0]";
@@ -58,20 +59,10 @@ export interface Typegen0 {
     assignDrawStartPoint: "DRAW_START" | "WRITE_START";
     assignElementOptions: "CHANGE_ELEMENT_OPTIONS";
     assignPreviousPoint: "DRAG" | "DRAG_START";
-    assignResizeFixedPoint:
-      | "FREEDRAW_ELEMENT.RESIZE_START"
-      | "GENERIC_ELEMENT.RESIZE_START"
-      | "TEXT_ELEMENT.RESIZE_START";
-    assignResizingElement:
-      | "FREEDRAW_ELEMENT.RESIZE_START"
-      | "GENERIC_ELEMENT.RESIZE_START"
-      | "LINEAR_ELEMENT.POINT_RESIZE_START"
-      | "TEXT_ELEMENT.RESIZE_START";
-    assignResizingStartPoint:
-      | "FREEDRAW_ELEMENT.RESIZE_START"
-      | "GENERIC_ELEMENT.RESIZE_START"
-      | "LINEAR_ELEMENT.POINT_RESIZE_START"
-      | "TEXT_ELEMENT.RESIZE_START";
+    assignResizeFixedPoint: "RESIZE_START";
+    assignResizingDirection: "RESIZE_START";
+    assignResizingStartPoint: "POINT.UPDATE_START" | "RESIZE_START";
+    assignUpdatingPointIndex: "POINT.UPDATE_START";
     assignZoom: "CHANGE_ZOOM";
     assignZoomToCurrentPoint: "CHANGE_ZOOM_WITH_PINCH";
     changeElementShape: "CHANGE_ELEMENT_SHAPE";
@@ -109,10 +100,7 @@ export interface Typegen0 {
       | "DELETE_SELECTION"
       | "DRAW_END"
       | "WRITE_END";
-    resizeFreedrawElement: "FREEDRAW_ELEMENT.RESIZE";
-    resizeGenericElement: "GENERIC_ELEMENT.RESIZE";
-    resizeLinearElementPoint: "LINEAR_ELEMENT.POINT_RESIZE";
-    resizeTextElement: "TEXT_ELEMENT.RESIZE";
+    resize: "RESIZE";
     selectAllElements: "ELEMENTS.SELECT_ALL";
     selectDrawingElement: "CONNECT" | "DRAW_END" | "WRITE_END";
     toggleIsElementShapeFixed: "IS_ELEMENT_SHAPE_FIXED_TOGGLE";
@@ -120,6 +108,7 @@ export interface Typegen0 {
     updateElementShape: "CONNECT" | "DRAW_END" | "WRITE_END";
     updateHistory: "HISTORY_UPDATE";
     updateIntersecting: "DRAW" | "DRAW_END";
+    updatePoint: "POINT.UPDATE";
     write: "WRITE";
   };
   eventsCausingDelays: {};
@@ -144,6 +133,7 @@ export interface Typegen0 {
     | "pasting"
     | "persisting"
     | "resizing"
+    | "updating point"
     | "version released"
     | "writing";
   tags: never;

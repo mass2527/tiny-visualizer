@@ -351,6 +351,22 @@ function App() {
     };
   }, [isResizingState, send]);
 
+  const isUpdatingPointState = state.matches("updating point");
+  useEffect(() => {
+    if (!isUpdatingPointState) {
+      return;
+    }
+
+    const handleMouseUp = () => {
+      send("POINT.UPDATE_END");
+    };
+
+    document.addEventListener("mouseup", handleMouseUp);
+    return () => {
+      document.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, [isUpdatingPointState, send]);
+
   const handleMouseDown: MouseEventHandler<HTMLCanvasElement> = (event) => {
     const mousePoint = calculateCanvasPoint({
       devicePixelRatio,
@@ -467,39 +483,32 @@ function App() {
       return;
     }
 
-    switch (selectedElement.shape) {
-      case "rectangle":
-      case "ellipse":
-        send({
-          type: "GENERIC_ELEMENT.RESIZE",
-          event,
-          devicePixelRatio,
-        });
-        break;
-      case "line":
-      case "arrow":
-        send({
-          type: "LINEAR_ELEMENT.POINT_RESIZE",
-          event,
-          devicePixelRatio,
-        });
-        break;
-      case "text":
-        send({
-          type: "TEXT_ELEMENT.RESIZE",
-          event,
-          devicePixelRatio,
-          canvasElement,
-        });
-        break;
-      case "freedraw":
-        send({
-          type: "FREEDRAW_ELEMENT.RESIZE",
-          event,
-          devicePixelRatio,
-        });
-        break;
+    send({
+      type: "RESIZE",
+      event,
+      devicePixelRatio,
+      canvasElement,
+    });
+  };
+
+  const updatePoint: MouseEventHandler<HTMLCanvasElement> = (event) => {
+    const canvasElement = canvasRef.current;
+    invariant(canvasElement);
+
+    if (selectedElements.length !== 1) {
+      return;
     }
+
+    const selectedElement = selectedElements[0];
+    if (selectedElement === undefined) {
+      return;
+    }
+
+    send({
+      type: "POINT.UPDATE",
+      event,
+      devicePixelRatio,
+    });
   };
 
   const moveMouse: MouseEventHandler<HTMLCanvasElement> = (event) => {
@@ -799,6 +808,8 @@ function App() {
             ? drag
             : state.matches("resizing")
             ? resize
+            : state.matches("updating point")
+            ? updatePoint
             : moveMouse
         }
         onMouseUp={
@@ -904,10 +915,8 @@ function App() {
             zoom={zoom}
             onMouseDown={(event, pointIndex) => {
               send({
-                type: "LINEAR_ELEMENT.POINT_RESIZE_START",
-                resizingElement: {
-                  pointIndex,
-                },
+                type: "POINT.UPDATE_START",
+                updatingPointIndex: pointIndex,
                 devicePixelRatio,
                 event,
               });
@@ -925,12 +934,10 @@ function App() {
             zoom={zoom}
             onMouseDown={(event, direction) => {
               send({
-                type: "GENERIC_ELEMENT.RESIZE_START",
+                type: "RESIZE_START",
                 event,
                 devicePixelRatio,
-                resizingElement: {
-                  direction,
-                },
+                resizingDirection: direction,
               });
             }}
           />
@@ -947,12 +954,10 @@ function App() {
             zoom={zoom}
             onMouseDown={(event, direction) => {
               send({
-                type: "TEXT_ELEMENT.RESIZE_START",
+                type: "RESIZE_START",
                 event,
                 devicePixelRatio,
-                resizingElement: {
-                  direction,
-                },
+                resizingDirection: direction,
               });
             }}
           />
@@ -968,12 +973,10 @@ function App() {
             zoom={zoom}
             onMouseDown={(event, direction) => {
               send({
-                type: "FREEDRAW_ELEMENT.RESIZE_START",
+                type: "RESIZE_START",
                 event,
                 devicePixelRatio,
-                resizingElement: {
-                  direction,
-                },
+                resizingDirection: direction,
               });
             }}
           />
