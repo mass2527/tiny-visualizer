@@ -65,10 +65,9 @@ export type VisualizerElement =
   | VisualizerFreeDrawElement
   | VisualizerTextElement;
 
-export type VisualizerNonLinearElement = Exclude<
-  VisualizerElement,
-  VisualizerLinearElement
->;
+export type VisualizerPointBasedElement =
+  | VisualizerLinearElement
+  | VisualizerFreeDrawElement;
 
 export type Version = {
   elements: VisualizerMachineContext["elements"];
@@ -96,13 +95,8 @@ export type VisualizerMachinePersistedContext = {
   elementOptions: ElementOptions;
 
   elementShape: VisualizerElement["shape"];
-  resizingElement:
-    | {
-        pointIndex: number;
-      }
-    | {
-        direction: Direction;
-      };
+  resizingDirection: Direction;
+  updatingPointIndex: number;
   resizeStartPoint: Point;
   resizeFixedPoint: Point;
   drawingElementId: VisualizerElement["id"] | null;
@@ -240,51 +234,33 @@ export type VisualizerMachineEvents =
       type: "CONNECT_END";
     }
   | {
-      type: "GENERIC_ELEMENT.RESIZE_START";
-      resizingElement: VisualizerMachineContext["resizingElement"];
+      type: "RESIZE_START";
+      resizingDirection: VisualizerMachineContext["resizingDirection"];
       event: MouseEvent;
       devicePixelRatio: number;
     }
   | {
-      type: "LINEAR_ELEMENT.POINT_RESIZE_START";
-      resizingElement: VisualizerMachineContext["resizingElement"];
-      event: MouseEvent;
-      devicePixelRatio: number;
-    }
-  | {
-      type: "TEXT_ELEMENT.RESIZE_START";
-      resizingElement: VisualizerMachineContext["resizingElement"];
-      event: MouseEvent;
-      devicePixelRatio: number;
-    }
-  | {
-      type: "FREEDRAW_ELEMENT.RESIZE_START";
-      resizingElement: VisualizerMachineContext["resizingElement"];
-      event: MouseEvent;
-      devicePixelRatio: number;
-    }
-  | {
-      type: "GENERIC_ELEMENT.RESIZE";
+      type: "RESIZE";
       event: Parameters<MouseEventHandler<HTMLCanvasElement>>[0];
       devicePixelRatio: number;
-    }
-  | {
-      type: "LINEAR_ELEMENT.POINT_RESIZE";
-      event: Parameters<MouseEventHandler<HTMLCanvasElement>>[0];
-      devicePixelRatio: number;
-    }
-  | {
-      type: "TEXT_ELEMENT.RESIZE";
-      event: Parameters<MouseEventHandler<HTMLCanvasElement>>[0];
-      devicePixelRatio: number;
+      // only for text element
       canvasElement: HTMLCanvasElement;
     }
   | {
-      type: "FREEDRAW_ELEMENT.RESIZE";
+      type: "RESIZE_END";
+    }
+  | {
+      type: "POINT.UPDATE_START";
+      updatingPointIndex: VisualizerMachineContext["updatingPointIndex"];
+      event: MouseEvent;
+      devicePixelRatio: number;
+    }
+  | {
+      type: "POINT.UPDATE";
       event: Parameters<MouseEventHandler<HTMLCanvasElement>>[0];
       devicePixelRatio: number;
     }
   | {
-      type: "RESIZE_END";
+      type: "POINT.UPDATE_END";
     };
 /* #endregion */
