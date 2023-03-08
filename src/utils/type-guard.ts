@@ -3,6 +3,7 @@ import {
   VisualizerFreeDrawElement,
   VisualizerGenericElement,
   VisualizerLinearElement,
+  VisualizerPointBasedElement,
   VisualizerTextElement,
 } from "../machines/visualizerMachine";
 
@@ -65,4 +66,13 @@ export const isTextElement = (
   element: VisualizerElement
 ): element is VisualizerTextElement => {
   return isTextElementShape(element.shape);
+};
+
+export const isPointBasedElement = (
+  element: VisualizerElement
+): element is VisualizerPointBasedElement => {
+  return (
+    SHAPE_TYPES[element.shape] === "linear" ||
+    SHAPE_TYPES[element.shape] === "freedraw"
+  );
 };

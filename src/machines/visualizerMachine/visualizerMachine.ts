@@ -23,10 +23,11 @@ import {
   calculateFixedPoint,
   isDiagonalDirection,
   resizeTextElement,
-  resizeFreedrawElement,
+  resizePointBasedElement,
   resizeGenericElement,
   resizeLinearElementPoint,
   calculateElementSize,
+  isPointBasedElement,
 } from "../../utils";
 import debounce from "lodash.debounce";
 import { TEXTAREA_UNIT_LESS_LINE_HEIGHT } from "../../constants";
@@ -920,8 +921,6 @@ export const visualizerMachine =
           const selectedElement = selectedElements[0];
           invariant(selectedElement);
 
-          invariant(!isLinearElement(selectedElement));
-
           const resizeFixedPoint = calculateFixedPoint(
             selectedElement,
             context.resizingDirection
@@ -990,9 +989,16 @@ export const visualizerMachine =
                   return resizedElement;
                 }
 
-                if (isLinearElement(element)) {
-                  // TODO
-                  return element;
+                if (isPointBasedElement(element)) {
+                  const resizedElement = resizePointBasedElement({
+                    element,
+                    direction: context.resizingDirection,
+                    previousCanvasPoint: context.resizeStartPoint,
+                    currentCanvasPoint,
+                    resizeFixedPoint: context.resizeFixedPoint,
+                  });
+
+                  return resizedElement;
                 }
 
                 if (isTextElement(element)) {
@@ -1002,18 +1008,6 @@ export const visualizerMachine =
                     canvasElement,
                     direction: context.resizingDirection,
                     element,
-                    currentCanvasPoint,
-                    resizeFixedPoint: context.resizeFixedPoint,
-                  });
-
-                  return resizedElement;
-                }
-
-                if (isFreeDrawElement(element)) {
-                  const resizedElement = resizeFreedrawElement({
-                    element,
-                    direction: context.resizingDirection,
-                    previousCanvasPoint: context.resizeStartPoint,
                     currentCanvasPoint,
                     resizeFixedPoint: context.resizeFixedPoint,
                   });

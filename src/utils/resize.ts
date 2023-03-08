@@ -2,8 +2,7 @@ import invariant from "tiny-invariant";
 import {
   calculateElementAbsolutePoint,
   calculateElementSize,
-  calculateFreeDrawElementAbsolutePoint,
-  isFreeDrawElement,
+  isPointBasedElement,
   measureText,
   removeLastItem,
   replaceNthItem,
@@ -12,9 +11,10 @@ import {
 import { TEXTAREA_UNIT_LESS_LINE_HEIGHT } from "../constants";
 import {
   Point,
-  VisualizerFreeDrawElement,
+  VisualizerElement,
   VisualizerGenericElement,
   VisualizerLinearElement,
+  VisualizerPointBasedElement,
   VisualizerTextElement,
 } from "../machines/visualizerMachine";
 
@@ -422,20 +422,20 @@ export const resizeTextElement = ({
   }
 };
 
-export const resizeFreedrawElement = ({
+export const resizePointBasedElement = <T extends VisualizerPointBasedElement>({
   element,
   direction,
   previousCanvasPoint,
   currentCanvasPoint,
   resizeFixedPoint,
 }: {
-  element: VisualizerFreeDrawElement;
+  element: T;
   direction: Direction;
   previousCanvasPoint: Point;
   currentCanvasPoint: Point;
   resizeFixedPoint: Point;
-}): VisualizerFreeDrawElement => {
-  const previousAbsolutePoint = calculateFreeDrawElementAbsolutePoint(element);
+}): T => {
+  const previousAbsolutePoint = calculateElementAbsolutePoint(element);
   const previousSize = {
     width: previousAbsolutePoint.maxX - previousAbsolutePoint.minX,
     height: previousAbsolutePoint.maxY - previousAbsolutePoint.minY,
@@ -519,13 +519,10 @@ export const resizeFreedrawElement = ({
 };
 
 export const calculateFixedPoint = (
-  element:
-    | VisualizerGenericElement
-    | VisualizerTextElement
-    | VisualizerFreeDrawElement,
+  element: VisualizerElement,
   direction: Direction
 ): Point => {
-  if (isFreeDrawElement(element)) {
+  if (isPointBasedElement(element)) {
     const { minX, minY, maxX, maxY } = calculateElementAbsolutePoint(element);
     const width = maxX - minX;
     const height = maxY - minY;

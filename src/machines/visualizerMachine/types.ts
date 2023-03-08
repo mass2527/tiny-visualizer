@@ -65,10 +65,9 @@ export type VisualizerElement =
   | VisualizerFreeDrawElement
   | VisualizerTextElement;
 
-export type VisualizerNonLinearElement = Exclude<
-  VisualizerElement,
-  VisualizerLinearElement
->;
+export type VisualizerPointBasedElement =
+  | VisualizerLinearElement
+  | VisualizerFreeDrawElement;
 
 export type Version = {
   elements: VisualizerMachineContext["elements"];

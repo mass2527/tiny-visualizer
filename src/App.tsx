@@ -992,7 +992,12 @@ function App() {
             origin={origin}
             zoom={zoom}
             onMouseDown={(event, direction) => {
-              //
+              send({
+                type: "RESIZE_START",
+                event,
+                devicePixelRatio,
+                resizingDirection: direction,
+              });
             }}
           />
         )}
