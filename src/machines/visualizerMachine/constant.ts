@@ -59,7 +59,6 @@ export const PERSISTED_CONTEXT: VisualizerMachinePersistedContext = {
     x: 0,
     y: 0,
   },
-  resizingElement: {
-    pointIndex: 0,
-  },
+  resizingDirection: "up",
+  updatingPointIndex: 0,
 };
