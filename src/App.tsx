@@ -928,7 +928,7 @@ function App() {
         selectedElements[0] &&
         isGenericElement(selectedElements[0]) && (
           <ElementResizer
-            element={selectedElements[0]}
+            absolutePoint={calculateElementAbsolutePoint(selectedElements[0])}
             devicePixelRatio={devicePixelRatio}
             origin={origin}
             zoom={zoom}
@@ -948,7 +948,8 @@ function App() {
         selectedElements[0] &&
         isTextElement(selectedElements[0]) && (
           <ElementResizer
-            element={selectedElements[0]}
+            absolutePoint={calculateElementAbsolutePoint(selectedElements[0])}
+            disallowOrthogonalDirection
             devicePixelRatio={devicePixelRatio}
             origin={origin}
             zoom={zoom}
@@ -967,7 +968,7 @@ function App() {
         selectedElements[0] &&
         isFreeDrawElement(selectedElements[0]) && (
           <ElementResizer
-            element={selectedElements[0]}
+            absolutePoint={calculateElementAbsolutePoint(selectedElements[0])}
             devicePixelRatio={devicePixelRatio}
             origin={origin}
             zoom={zoom}
@@ -987,7 +988,7 @@ function App() {
         isLinearElement(selectedElements[0]) &&
         selectedElements[0].points.length >= 3 && (
           <ElementResizer
-            element={selectedElements[0]}
+            absolutePoint={calculateElementAbsolutePoint(selectedElements[0])}
             devicePixelRatio={devicePixelRatio}
             origin={origin}
             zoom={zoom}

@@ -4,10 +4,12 @@ import {
   VisualizerMachineContext,
 } from "../machines/visualizerMachine";
 import {
-  calculateElementAbsolutePoint,
   calculateViewportSize,
   calculateViewportPoint,
+  AbsolutePoint,
+  calculateElementAbsolutePoint,
   isTextElement,
+  isDiagonalDirection,
 } from "../utils";
 import VirtualPoint, {
   VirtualPointProps,
@@ -25,7 +27,8 @@ export type Direction =
   | DiagonalDirection;
 
 const createElementVirtualPoints = ({
-  element,
+  absolutePoint,
+  disallowOrthogonalDirection,
   devicePixelRatio,
   origin,
   zoom,
@@ -34,13 +37,13 @@ const createElementVirtualPoints = ({
     height: VIRTUAL_POINT_HEIGHT,
   },
 }: {
-  element: VisualizerElement;
+  absolutePoint: AbsolutePoint;
+  disallowOrthogonalDirection: boolean;
   devicePixelRatio: number;
   origin: VisualizerMachineContext["origin"];
   zoom: VisualizerMachineContext["zoom"];
   virtualPointSize?: Required<Pick<VirtualPointProps, "width" | "height">>;
 }) => {
-  const absolutePoint = calculateElementAbsolutePoint(element);
   const elementViewportPoint = calculateViewportPoint({
     canvasPoint: {
       x: absolutePoint.minX,
@@ -94,7 +97,7 @@ const createElementVirtualPoints = ({
     },
   ];
 
-  if (isTextElement(element)) {
+  if (disallowOrthogonalDirection) {
     return virtualPoints;
   }
 
@@ -144,13 +147,15 @@ const createElementVirtualPoints = ({
 };
 
 function ElementResizer({
-  element,
+  absolutePoint,
+  disallowOrthogonalDirection = false,
   devicePixelRatio,
   origin,
   zoom,
   onMouseDown,
 }: {
-  element: VisualizerElement;
+  absolutePoint: AbsolutePoint;
+  disallowOrthogonalDirection?: boolean;
   devicePixelRatio: number;
   origin: VisualizerMachineContext["origin"];
   zoom: VisualizerMachineContext["zoom"];
@@ -160,7 +165,8 @@ function ElementResizer({
   ) => void;
 }) {
   const virtualPoints = createElementVirtualPoints({
-    element,
+    absolutePoint,
+    disallowOrthogonalDirection,
     devicePixelRatio,
     origin,
     zoom,
