@@ -434,18 +434,21 @@ export const haveSamePoint = (point1: Point, point2: Point) => {
   return false;
 };
 
-export const calculateElementViewportSize = ({
-  element,
+export const calculateViewportSize = ({
+  size,
   devicePixelRatio,
   zoom,
 }: {
-  element: VisualizerElement;
+  size: {
+    width: number;
+    height: number;
+  };
   devicePixelRatio: number;
   zoom: number;
 }) => {
   return {
-    width: (element.width / devicePixelRatio) * zoom,
-    height: (element.height / devicePixelRatio) * zoom,
+    width: (size.width / devicePixelRatio) * zoom,
+    height: (size.height / devicePixelRatio) * zoom,
   };
 };
 

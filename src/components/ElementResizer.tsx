@@ -5,7 +5,7 @@ import {
 } from "../machines/visualizerMachine";
 import {
   calculateElementAbsolutePoint,
-  calculateElementViewportSize,
+  calculateViewportSize,
   calculateViewportPoint,
   isTextElement,
 } from "../utils";
@@ -50,8 +50,11 @@ const createElementVirtualPoints = ({
     origin,
     zoom,
   });
-  const elementViewportSize = calculateElementViewportSize({
-    element,
+  const elementViewportSize = calculateViewportSize({
+    size: {
+      width: absolutePoint.maxX - absolutePoint.minX,
+      height: absolutePoint.maxY - absolutePoint.minY,
+    },
     devicePixelRatio,
     zoom,
   });
