@@ -1002,24 +1002,6 @@ function App() {
             }}
           />
         )}
-
-      {selectedElements.length > 1 && (
-        <ElementResizer
-          absolutePoint={calculateElementsAbsolutePoint(selectedElements)}
-          disallowOrthogonalDirection
-          devicePixelRatio={devicePixelRatio}
-          origin={origin}
-          zoom={zoom}
-          onMouseDown={(event, direction) => {
-            send({
-              type: "RESIZE_START",
-              event,
-              devicePixelRatio,
-              resizingDirection: direction,
-            });
-          }}
-        />
-      )}
     </div>
   );
 }
