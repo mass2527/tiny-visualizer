@@ -95,6 +95,7 @@ export const calculateOrthogonalDirection = ({
           return "left";
       }
 
+    // eslint-disable-next-line no-fallthrough
     case "up":
     case "down":
       switch (quadrant) {

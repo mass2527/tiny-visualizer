@@ -1,8 +1,8 @@
-export const removeLastItem = <T extends unknown>(array: T[]) => {
+export const removeLastItem = <T>(array: T[]) => {
   return array.slice(0, array.length - 1);
 };
 
-export const replaceNthItem = <T extends unknown>({
+export const replaceNthItem = <T>({
   array,
   item,
   index,

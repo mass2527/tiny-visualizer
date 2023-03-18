@@ -178,6 +178,7 @@ export const createDraw = (
       ctx.save();
 
       ctx.beginPath();
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       ctx.lineWidth = element.options.strokeWidth!;
       ctx.strokeStyle = element.options.stroke || "black";
 

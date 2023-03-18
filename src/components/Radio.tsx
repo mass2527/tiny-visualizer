@@ -1,4 +1,4 @@
-import { ChangeEventHandler, CSSProperties } from "react";
+import { ChangeEventHandler } from "react";
 
 function Radio({
   label,
