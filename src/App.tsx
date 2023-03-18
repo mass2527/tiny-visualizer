@@ -311,6 +311,7 @@ function App() {
         return;
       }
 
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const updatedElementShape = Object.entries(HOT_KEYS).find(
         ([, hotkey]) => hotkey === event.key
       )![0];

@@ -606,6 +606,7 @@ export const visualizerMachine =
           };
         }),
         persist: debounce((context: VisualizerMachineContext) => {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { history, historyStep, ...persistedContext } = context;
 
           try {
@@ -827,6 +828,7 @@ export const visualizerMachine =
             historyStep: updatedHistoryStep,
           };
         }),
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         resetDrawingElementId: assign((_) => ({
           drawingElementId: null,
         })),

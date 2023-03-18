@@ -1,15 +1,9 @@
 import { MouseEvent } from "react";
+import { VisualizerMachineContext } from "../machines/visualizerMachine";
 import {
-  VisualizerElement,
-  VisualizerMachineContext,
-} from "../machines/visualizerMachine";
-import {
-  calculateViewportSize,
-  calculateViewportPoint,
   AbsolutePoint,
-  calculateElementAbsolutePoint,
-  isTextElement,
-  isDiagonalDirection,
+  calculateViewportPoint,
+  calculateViewportSize,
 } from "../utils";
 import VirtualPoint, {
   VirtualPointProps,
