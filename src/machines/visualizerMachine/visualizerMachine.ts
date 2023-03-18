@@ -28,6 +28,7 @@ import {
   resizeLinearElementPoint,
   calculateElementSize,
   isPointBasedElement,
+  calculateSelectedElementsAbsolutePoint,
 } from "../../utils";
 import debounce from "lodash.debounce";
 import { TEXTAREA_UNIT_LESS_LINE_HEIGHT } from "../../constants";
@@ -915,14 +916,11 @@ export const visualizerMachine =
           };
         }),
         assignResizeFixedPoint: assign((context) => {
-          const selectedElements = context.elements.filter(
-            (element) => element.status === "selected"
+          const absolutePoint = calculateSelectedElementsAbsolutePoint(
+            context.elements
           );
-          const selectedElement = selectedElements[0];
-          invariant(selectedElement);
-
           const resizeFixedPoint = calculateFixedPoint(
-            selectedElement,
+            absolutePoint,
             context.resizingDirection
           );
 
