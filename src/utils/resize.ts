@@ -1,5 +1,6 @@
 import invariant from "tiny-invariant";
 import {
+  AbsolutePoint,
   calculateElementAbsolutePoint,
   calculateElementSize,
   isPointBasedElement,
@@ -519,98 +520,52 @@ export const resizePointBasedElement = <T extends VisualizerPointBasedElement>({
 };
 
 export const calculateFixedPoint = (
-  element: VisualizerElement,
+  absolutePoint: AbsolutePoint,
   direction: Direction
 ): Point => {
-  if (isPointBasedElement(element)) {
-    const { minX, minY, maxX, maxY } = calculateElementAbsolutePoint(element);
-    const width = maxX - minX;
-    const height = maxY - minY;
-
-    switch (direction) {
-      case "up-left":
-        return {
-          x: minX + width,
-          y: minY + height,
-        };
-      case "up-right":
-        return {
-          x: minX,
-          y: minY + height,
-        };
-      case "down-left":
-        return {
-          x: minX + width,
-          y: minY,
-        };
-      case "down-right":
-        return {
-          x: minX,
-          y: minY,
-        };
-      case "up":
-        return {
-          x: minX + width / 2,
-          y: minY + height,
-        };
-      case "left":
-        return {
-          x: minX + width,
-          y: minY + height / 2,
-        };
-      case "right":
-        return {
-          x: minX,
-          y: minY + height / 2,
-        };
-      case "down":
-        return {
-          x: minX + width / 2,
-          y: minY,
-        };
-    }
-  }
+  const width = absolutePoint.maxX - absolutePoint.minX;
+  const height = absolutePoint.maxY - absolutePoint.minY;
 
   switch (direction) {
     case "up-left":
       return {
-        x: element.x + element.width,
-        y: element.y + element.height,
+        x: absolutePoint.maxX,
+        y: absolutePoint.maxY,
       };
     case "up-right":
       return {
-        x: element.x,
-        y: element.y + element.height,
+        x: absolutePoint.minX,
+        y: absolutePoint.maxY,
       };
     case "down-left":
       return {
-        x: element.x + element.width,
-        y: element.y,
+        x: absolutePoint.maxX,
+        y: absolutePoint.minY,
       };
     case "down-right":
       return {
-        x: element.x,
-        y: element.y,
+        x: absolutePoint.minX,
+        y: absolutePoint.minY,
       };
     case "up":
       return {
-        x: element.x + element.width / 2,
-        y: element.y + element.height,
+        x: absolutePoint.minX + width / 2,
+        y: absolutePoint.maxY,
       };
     case "left":
       return {
-        x: element.x + element.width,
-        y: element.y + element.height / 2,
+        x: absolutePoint.maxX,
+        y: absolutePoint.minY + height / 2,
       };
     case "right":
       return {
-        x: element.x,
-        y: element.y + element.height / 2,
+        x: absolutePoint.minX,
+        y: absolutePoint.minY + height / 2,
       };
     case "down":
       return {
-        x: element.x + element.width / 2,
-        y: element.y,
+        x: absolutePoint.minX + width / 2,
+        y: absolutePoint.minY,
       };
   }
 };
