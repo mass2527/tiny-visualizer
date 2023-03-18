@@ -3,7 +3,6 @@ import {
   AbsolutePoint,
   calculateElementAbsolutePoint,
   calculateElementSize,
-  isPointBasedElement,
   measureText,
   removeLastItem,
   replaceNthItem,
@@ -12,7 +11,6 @@ import {
 import { TEXTAREA_UNIT_LESS_LINE_HEIGHT } from "../constants";
 import {
   Point,
-  VisualizerElement,
   VisualizerGenericElement,
   VisualizerLinearElement,
   VisualizerPointBasedElement,
