@@ -475,15 +475,6 @@ function App() {
     const canvasElement = canvasRef.current;
     invariant(canvasElement);
 
-    if (selectedElements.length !== 1) {
-      return;
-    }
-
-    const selectedElement = selectedElements[0];
-    if (selectedElement === undefined) {
-      return;
-    }
-
     send({
       type: "RESIZE",
       event,
