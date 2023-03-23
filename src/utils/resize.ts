@@ -3,6 +3,8 @@ import {
   AbsolutePoint,
   calculateElementAbsolutePoint,
   calculateElementSize,
+  isGenericElement,
+  isTextElement,
   measureText,
   removeLastItem,
   replaceNthItem,
@@ -11,6 +13,7 @@ import {
 import { TEXTAREA_UNIT_LESS_LINE_HEIGHT } from "../constants";
 import {
   Point,
+  VisualizerElement,
   VisualizerGenericElement,
   VisualizerLinearElement,
   VisualizerPointBasedElement,
@@ -371,7 +374,7 @@ export const resizeTextElement = ({
 
   // previousHeight : previousFontSize = resizedHeight : resizedFontSize
   // ∴ resizedFontSize = previousFontSize * resizedHeight / previousHeight
-  const resizedFontSize = (element.fontSize * resizedHeight) / previousHeight;
+  const resizedFontSize = element.fontSize * (resizedHeight / previousHeight);
 
   const { width, height } = measureText({
     canvasElement,
@@ -567,4 +570,160 @@ export const calculateFixedPoint = (
         y: absolutePoint.minY,
       };
   }
+};
+
+export const resizeMultipleElements = ({
+  elements,
+  direction,
+  resizeFixedPoint,
+  resizeStartPoint,
+  currentCanvasPoint,
+  canvasElement,
+}: {
+  elements: VisualizerElement[];
+  direction: Direction;
+  resizeFixedPoint: Point;
+  resizeStartPoint: Point;
+  currentCanvasPoint: Point;
+  canvasElement: HTMLCanvasElement;
+}): VisualizerElement[] => {
+  return elements.map((element) => {
+    if (element.status !== "selected") {
+      return element;
+    }
+
+    type Size = {
+      width: number;
+      height: number;
+    };
+    let previousSurroundingBoxSize: Size;
+    let resizedSurroundingBoxSize: Size;
+
+    switch (direction) {
+      case "up-left":
+        previousSurroundingBoxSize = {
+          width: resizeFixedPoint.x - resizeStartPoint.x,
+          height: resizeFixedPoint.y - resizeStartPoint.y,
+        };
+        resizedSurroundingBoxSize = {
+          width: resizeFixedPoint.x - currentCanvasPoint.x,
+          height: resizeFixedPoint.y - currentCanvasPoint.y,
+        };
+        break;
+      case "up-right":
+        previousSurroundingBoxSize = {
+          width: resizeStartPoint.x - resizeFixedPoint.x,
+          height: resizeFixedPoint.y - resizeStartPoint.y,
+        };
+        resizedSurroundingBoxSize = {
+          width: currentCanvasPoint.x - resizeFixedPoint.x,
+          height: resizeFixedPoint.y - currentCanvasPoint.y,
+        };
+        break;
+      case "down-left":
+        previousSurroundingBoxSize = {
+          width: resizeFixedPoint.x - resizeStartPoint.x,
+          height: resizeStartPoint.y - resizeFixedPoint.y,
+        };
+        resizedSurroundingBoxSize = {
+          width: resizeFixedPoint.x - currentCanvasPoint.x,
+          height: currentCanvasPoint.y - resizeFixedPoint.y,
+        };
+        break;
+      case "down-right":
+        previousSurroundingBoxSize = {
+          width: resizeStartPoint.x - resizeFixedPoint.x,
+          height: resizeStartPoint.y - resizeFixedPoint.y,
+        };
+        resizedSurroundingBoxSize = {
+          width: currentCanvasPoint.x - resizeFixedPoint.x,
+          height: currentCanvasPoint.y - resizeFixedPoint.y,
+        };
+        break;
+      default:
+        throw new Error(`Unreachable direction: ${direction}`);
+    }
+
+    const changeInSurroundingBoxSize = {
+      width: resizedSurroundingBoxSize.width / previousSurroundingBoxSize.width,
+      height:
+        resizedSurroundingBoxSize.height / previousSurroundingBoxSize.height,
+    };
+
+    if (isTextElement(element)) {
+      const { height: previousHeight, lineHeight: previousLineHeight } =
+        measureText({
+          canvasElement,
+          fontSize: element.fontSize,
+          fontFamily: element.fontFamily,
+          text: element.text,
+          lineHeight: TEXTAREA_UNIT_LESS_LINE_HEIGHT,
+        });
+      const previousNumberOfLines = previousHeight / previousLineHeight;
+      const minHeight = 30 * previousNumberOfLines;
+      const resizedHeight = Math.max(
+        minHeight,
+        element.height * changeInSurroundingBoxSize.height
+      );
+
+      const resizedFontSize =
+        element.fontSize * (resizedHeight / previousHeight);
+      const { width, height } = measureText({
+        canvasElement,
+        fontSize: resizedFontSize,
+        fontFamily: element.fontFamily,
+        text: element.text,
+        lineHeight: TEXTAREA_UNIT_LESS_LINE_HEIGHT,
+      });
+      const resizedElement = {
+        ...element,
+        x:
+          resizeFixedPoint.x -
+          ((resizeFixedPoint.x - element.x) * width) / element.width,
+        y:
+          resizeFixedPoint.y -
+          ((resizeFixedPoint.y - element.y) * height) / element.height,
+        width,
+        height,
+        fontSize: resizedFontSize,
+      };
+
+      return resizedElement;
+    }
+
+    const resizedElementBase = {
+      x:
+        ((element.x - resizeFixedPoint.x) * resizedSurroundingBoxSize.width) /
+          previousSurroundingBoxSize.width +
+        resizeFixedPoint.x,
+      y:
+        ((element.y - resizeFixedPoint.y) * resizedSurroundingBoxSize.height) /
+          previousSurroundingBoxSize.height +
+        resizeFixedPoint.y,
+      width: element.width * changeInSurroundingBoxSize.width,
+      height: element.height * changeInSurroundingBoxSize.height,
+    };
+
+    if (isGenericElement(element)) {
+      const resizedElement: VisualizerGenericElement = {
+        ...element,
+        ...resizedElementBase,
+      };
+
+      return resizedElement;
+    }
+
+    const resizedElement: VisualizerPointBasedElement = {
+      ...element,
+      ...resizedElementBase,
+      points: element.points.map((point) => {
+        return {
+          x: point.x * changeInSurroundingBoxSize.width,
+          y: point.y * changeInSurroundingBoxSize.height,
+        };
+      }),
+    };
+
+    return resizedElement;
+  });
 };

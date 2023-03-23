@@ -475,15 +475,6 @@ function App() {
     const canvasElement = canvasRef.current;
     invariant(canvasElement);
 
-    if (selectedElements.length !== 1) {
-      return;
-    }
-
-    const selectedElement = selectedElements[0];
-    if (selectedElement === undefined) {
-      return;
-    }
-
     send({
       type: "RESIZE",
       event,
@@ -1003,6 +994,24 @@ function App() {
             }}
           />
         )}
+
+      {selectedElements.length > 1 && (
+        <ElementResizer
+          absolutePoint={calculateElementsAbsolutePoint(selectedElements)}
+          disallowOrthogonalDirection
+          devicePixelRatio={devicePixelRatio}
+          origin={origin}
+          zoom={zoom}
+          onMouseDown={(event, direction) => {
+            send({
+              type: "RESIZE_START",
+              event,
+              devicePixelRatio,
+              resizingDirection: direction,
+            });
+          }}
+        />
+      )}
     </div>
   );
 }
