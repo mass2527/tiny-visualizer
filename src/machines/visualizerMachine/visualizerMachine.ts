@@ -29,6 +29,8 @@ import {
   calculateElementSize,
   isPointBasedElement,
   calculateSelectedElementsAbsolutePoint,
+  resizeMultipleElements,
+  calculateDiagonalDirection,
 } from "../../utils";
 import debounce from "lodash.debounce";
 import { TEXTAREA_UNIT_LESS_LINE_HEIGHT } from "../../constants";
@@ -960,54 +962,24 @@ export const visualizerMachine =
 
             // resizing multiple elements
             if (selectedElements.length > 1) {
+              const convertedDirection = calculateDiagonalDirection(
+                currentCanvasPoint,
+                context.resizeFixedPoint
+              );
+              if (convertedDirection !== context.resizingDirection) {
+                return {};
+              }
+
+              const resizedElements = resizeMultipleElements({
+                currentCanvasPoint,
+                direction: context.resizingDirection,
+                elements: context.elements,
+                resizeFixedPoint: context.resizeFixedPoint,
+                resizeStartPoint: context.resizeStartPoint,
+              });
+
               return {
-                elements: context.elements.map((element) => {
-                  if (element.status !== "selected") {
-                    return element;
-                  }
-
-                  if (isGenericElement(element)) {
-                    const previousSurroundingBoxSize = {
-                      width:
-                        context.resizeStartPoint.x - context.resizeFixedPoint.x,
-                      height:
-                        context.resizeStartPoint.y - context.resizeFixedPoint.y,
-                    };
-                    const resizedSurroundingBoxSize = {
-                      width: currentCanvasPoint.x - context.resizeFixedPoint.x,
-                      height: currentCanvasPoint.y - context.resizeFixedPoint.y,
-                    };
-
-                    const resizedElementSize = {
-                      width:
-                        element.width *
-                        (resizedSurroundingBoxSize.width /
-                          previousSurroundingBoxSize.width),
-                      height:
-                        element.height *
-                        (resizedSurroundingBoxSize.height /
-                          previousSurroundingBoxSize.height),
-                    };
-
-                    return {
-                      ...element,
-                      x:
-                        ((element.x - context.resizeFixedPoint.x) *
-                          resizedSurroundingBoxSize.width) /
-                          previousSurroundingBoxSize.width +
-                        context.resizeFixedPoint.x,
-                      y:
-                        ((element.y - context.resizeFixedPoint.y) *
-                          resizedSurroundingBoxSize.height) /
-                          previousSurroundingBoxSize.height +
-                        context.resizeFixedPoint.y,
-                      width: resizedElementSize.width,
-                      height: resizedElementSize.height,
-                    };
-                  }
-
-                  return element;
-                }),
+                elements: resizedElements,
                 resizeStartPoint: currentCanvasPoint,
               };
             }

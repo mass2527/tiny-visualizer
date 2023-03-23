@@ -3,6 +3,7 @@ import {
   AbsolutePoint,
   calculateElementAbsolutePoint,
   calculateElementSize,
+  isGenericElement,
   measureText,
   removeLastItem,
   replaceNthItem,
@@ -11,6 +12,7 @@ import {
 import { TEXTAREA_UNIT_LESS_LINE_HEIGHT } from "../constants";
 import {
   Point,
+  VisualizerElement,
   VisualizerGenericElement,
   VisualizerLinearElement,
   VisualizerPointBasedElement,
@@ -567,4 +569,105 @@ export const calculateFixedPoint = (
         y: absolutePoint.minY,
       };
   }
+};
+
+export const resizeMultipleElements = ({
+  elements,
+  direction,
+  resizeFixedPoint,
+  resizeStartPoint,
+  currentCanvasPoint,
+}: {
+  elements: VisualizerElement[];
+  direction: Direction;
+  resizeFixedPoint: Point;
+  resizeStartPoint: Point;
+  currentCanvasPoint: Point;
+}): VisualizerElement[] => {
+  return elements.map((element) => {
+    if (element.status !== "selected") {
+      return element;
+    }
+
+    if (isGenericElement(element)) {
+      type Size = {
+        width: number;
+        height: number;
+      };
+      let previousSurroundingBoxSize: Size;
+      let resizedSurroundingBoxSize: Size;
+
+      switch (direction) {
+        case "up-left":
+          previousSurroundingBoxSize = {
+            width: resizeFixedPoint.x - resizeStartPoint.x,
+            height: resizeFixedPoint.y - resizeStartPoint.y,
+          };
+          resizedSurroundingBoxSize = {
+            width: resizeFixedPoint.x - currentCanvasPoint.x,
+            height: resizeFixedPoint.y - currentCanvasPoint.y,
+          };
+          break;
+        case "up-right":
+          previousSurroundingBoxSize = {
+            width: resizeStartPoint.x - resizeFixedPoint.x,
+            height: resizeFixedPoint.y - resizeStartPoint.y,
+          };
+          resizedSurroundingBoxSize = {
+            width: currentCanvasPoint.x - resizeFixedPoint.x,
+            height: resizeFixedPoint.y - currentCanvasPoint.y,
+          };
+          break;
+        case "down-left":
+          previousSurroundingBoxSize = {
+            width: resizeFixedPoint.x - resizeStartPoint.x,
+            height: resizeStartPoint.y - resizeFixedPoint.y,
+          };
+          resizedSurroundingBoxSize = {
+            width: resizeFixedPoint.x - currentCanvasPoint.x,
+            height: currentCanvasPoint.y - resizeFixedPoint.y,
+          };
+          break;
+        case "down-right":
+          previousSurroundingBoxSize = {
+            width: resizeStartPoint.x - resizeFixedPoint.x,
+            height: resizeStartPoint.y - resizeFixedPoint.y,
+          };
+          resizedSurroundingBoxSize = {
+            width: currentCanvasPoint.x - resizeFixedPoint.x,
+            height: currentCanvasPoint.y - resizeFixedPoint.y,
+          };
+          break;
+        default:
+          throw new Error(`Unreachable direction: ${direction}`);
+      }
+
+      const resizedElementSize = {
+        width:
+          element.width *
+          (resizedSurroundingBoxSize.width / previousSurroundingBoxSize.width),
+        height:
+          element.height *
+          (resizedSurroundingBoxSize.height /
+            previousSurroundingBoxSize.height),
+      };
+
+      return {
+        ...element,
+        x:
+          ((element.x - resizeFixedPoint.x) * resizedSurroundingBoxSize.width) /
+            previousSurroundingBoxSize.width +
+          resizeFixedPoint.x,
+        y:
+          ((element.y - resizeFixedPoint.y) *
+            resizedSurroundingBoxSize.height) /
+            previousSurroundingBoxSize.height +
+          resizeFixedPoint.y,
+        width: resizedElementSize.width,
+        height: resizedElementSize.height,
+      };
+    }
+
+    return element;
+  });
 };
