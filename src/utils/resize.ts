@@ -4,6 +4,7 @@ import {
   calculateElementAbsolutePoint,
   calculateElementSize,
   isGenericElement,
+  isPointBasedElement,
   measureText,
   removeLastItem,
   replaceNthItem,
@@ -589,83 +590,98 @@ export const resizeMultipleElements = ({
       return element;
     }
 
+    type Size = {
+      width: number;
+      height: number;
+    };
+    let previousSurroundingBoxSize: Size;
+    let resizedSurroundingBoxSize: Size;
+
+    switch (direction) {
+      case "up-left":
+        previousSurroundingBoxSize = {
+          width: resizeFixedPoint.x - resizeStartPoint.x,
+          height: resizeFixedPoint.y - resizeStartPoint.y,
+        };
+        resizedSurroundingBoxSize = {
+          width: resizeFixedPoint.x - currentCanvasPoint.x,
+          height: resizeFixedPoint.y - currentCanvasPoint.y,
+        };
+        break;
+      case "up-right":
+        previousSurroundingBoxSize = {
+          width: resizeStartPoint.x - resizeFixedPoint.x,
+          height: resizeFixedPoint.y - resizeStartPoint.y,
+        };
+        resizedSurroundingBoxSize = {
+          width: currentCanvasPoint.x - resizeFixedPoint.x,
+          height: resizeFixedPoint.y - currentCanvasPoint.y,
+        };
+        break;
+      case "down-left":
+        previousSurroundingBoxSize = {
+          width: resizeFixedPoint.x - resizeStartPoint.x,
+          height: resizeStartPoint.y - resizeFixedPoint.y,
+        };
+        resizedSurroundingBoxSize = {
+          width: resizeFixedPoint.x - currentCanvasPoint.x,
+          height: currentCanvasPoint.y - resizeFixedPoint.y,
+        };
+        break;
+      case "down-right":
+        previousSurroundingBoxSize = {
+          width: resizeStartPoint.x - resizeFixedPoint.x,
+          height: resizeStartPoint.y - resizeFixedPoint.y,
+        };
+        resizedSurroundingBoxSize = {
+          width: currentCanvasPoint.x - resizeFixedPoint.x,
+          height: currentCanvasPoint.y - resizeFixedPoint.y,
+        };
+        break;
+      default:
+        throw new Error(`Unreachable direction: ${direction}`);
+    }
+
+    const changeInSurroundingBoxSize = {
+      width: resizedSurroundingBoxSize.width / previousSurroundingBoxSize.width,
+      height:
+        resizedSurroundingBoxSize.height / previousSurroundingBoxSize.height,
+    };
+    const resizedElementBase = {
+      x:
+        ((element.x - resizeFixedPoint.x) * resizedSurroundingBoxSize.width) /
+          previousSurroundingBoxSize.width +
+        resizeFixedPoint.x,
+      y:
+        ((element.y - resizeFixedPoint.y) * resizedSurroundingBoxSize.height) /
+          previousSurroundingBoxSize.height +
+        resizeFixedPoint.y,
+      width: element.width * changeInSurroundingBoxSize.width,
+      height: element.height * changeInSurroundingBoxSize.height,
+    };
+
     if (isGenericElement(element)) {
-      type Size = {
-        width: number;
-        height: number;
-      };
-      let previousSurroundingBoxSize: Size;
-      let resizedSurroundingBoxSize: Size;
-
-      switch (direction) {
-        case "up-left":
-          previousSurroundingBoxSize = {
-            width: resizeFixedPoint.x - resizeStartPoint.x,
-            height: resizeFixedPoint.y - resizeStartPoint.y,
-          };
-          resizedSurroundingBoxSize = {
-            width: resizeFixedPoint.x - currentCanvasPoint.x,
-            height: resizeFixedPoint.y - currentCanvasPoint.y,
-          };
-          break;
-        case "up-right":
-          previousSurroundingBoxSize = {
-            width: resizeStartPoint.x - resizeFixedPoint.x,
-            height: resizeFixedPoint.y - resizeStartPoint.y,
-          };
-          resizedSurroundingBoxSize = {
-            width: currentCanvasPoint.x - resizeFixedPoint.x,
-            height: resizeFixedPoint.y - currentCanvasPoint.y,
-          };
-          break;
-        case "down-left":
-          previousSurroundingBoxSize = {
-            width: resizeFixedPoint.x - resizeStartPoint.x,
-            height: resizeStartPoint.y - resizeFixedPoint.y,
-          };
-          resizedSurroundingBoxSize = {
-            width: resizeFixedPoint.x - currentCanvasPoint.x,
-            height: currentCanvasPoint.y - resizeFixedPoint.y,
-          };
-          break;
-        case "down-right":
-          previousSurroundingBoxSize = {
-            width: resizeStartPoint.x - resizeFixedPoint.x,
-            height: resizeStartPoint.y - resizeFixedPoint.y,
-          };
-          resizedSurroundingBoxSize = {
-            width: currentCanvasPoint.x - resizeFixedPoint.x,
-            height: currentCanvasPoint.y - resizeFixedPoint.y,
-          };
-          break;
-        default:
-          throw new Error(`Unreachable direction: ${direction}`);
-      }
-
-      const resizedElementSize = {
-        width:
-          element.width *
-          (resizedSurroundingBoxSize.width / previousSurroundingBoxSize.width),
-        height:
-          element.height *
-          (resizedSurroundingBoxSize.height /
-            previousSurroundingBoxSize.height),
-      };
-
-      return {
+      const resizedElement: VisualizerGenericElement = {
         ...element,
-        x:
-          ((element.x - resizeFixedPoint.x) * resizedSurroundingBoxSize.width) /
-            previousSurroundingBoxSize.width +
-          resizeFixedPoint.x,
-        y:
-          ((element.y - resizeFixedPoint.y) *
-            resizedSurroundingBoxSize.height) /
-            previousSurroundingBoxSize.height +
-          resizeFixedPoint.y,
-        width: resizedElementSize.width,
-        height: resizedElementSize.height,
+        ...resizedElementBase,
       };
+
+      return resizedElement;
+    }
+
+    if (isPointBasedElement(element)) {
+      const resizedElement: VisualizerPointBasedElement = {
+        ...element,
+        ...resizedElementBase,
+        points: element.points.map((point) => {
+          return {
+            x: point.x * changeInSurroundingBoxSize.width,
+            y: point.y * changeInSurroundingBoxSize.height,
+          };
+        }),
+      };
+
+      return resizedElement;
     }
 
     return element;
