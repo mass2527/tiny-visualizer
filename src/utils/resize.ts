@@ -374,7 +374,7 @@ export const resizeTextElement = ({
 
   // previousHeight : previousFontSize = resizedHeight : resizedFontSize
   // ∴ resizedFontSize = previousFontSize * resizedHeight / previousHeight
-  const resizedFontSize = (element.fontSize * resizedHeight) / previousHeight;
+  const resizedFontSize = element.fontSize * (resizedHeight / previousHeight);
 
   const { width, height } = measureText({
     canvasElement,
@@ -578,12 +578,14 @@ export const resizeMultipleElements = ({
   resizeFixedPoint,
   resizeStartPoint,
   currentCanvasPoint,
+  canvasElement,
 }: {
   elements: VisualizerElement[];
   direction: Direction;
   resizeFixedPoint: Point;
   resizeStartPoint: Point;
   currentCanvasPoint: Point;
+  canvasElement: HTMLCanvasElement;
 }): VisualizerElement[] => {
   return elements.map((element) => {
     if (element.status !== "selected") {
@@ -684,6 +686,37 @@ export const resizeMultipleElements = ({
       return resizedElement;
     }
 
-    return element;
+    const { height: previousHeight, lineHeight: previousLineHeight } =
+      measureText({
+        canvasElement,
+        fontSize: element.fontSize,
+        fontFamily: element.fontFamily,
+        text: element.text,
+        lineHeight: TEXTAREA_UNIT_LESS_LINE_HEIGHT,
+      });
+    const previousNumberOfLines = previousHeight / previousLineHeight;
+    const minHeight = 30 * previousNumberOfLines;
+    const resizedHeight = Math.max(
+      minHeight,
+      element.height * changeInSurroundingBoxSize.height
+    );
+
+    const resizedFontSize = element.fontSize * (resizedHeight / previousHeight);
+    const { width, height } = measureText({
+      canvasElement,
+      fontSize: resizedFontSize,
+      fontFamily: element.fontFamily,
+      text: element.text,
+      lineHeight: TEXTAREA_UNIT_LESS_LINE_HEIGHT,
+    });
+    const resizedElement = {
+      ...element,
+      ...resizedElementBase,
+      width,
+      height,
+      fontSize: resizedFontSize,
+    };
+
+    return resizedElement;
   });
 };

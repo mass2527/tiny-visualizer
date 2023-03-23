@@ -976,6 +976,7 @@ export const visualizerMachine =
                 elements: context.elements,
                 resizeFixedPoint: context.resizeFixedPoint,
                 resizeStartPoint: context.resizeStartPoint,
+                canvasElement,
               });
 
               return {
