@@ -4,7 +4,7 @@ import {
   calculateElementAbsolutePoint,
   calculateElementSize,
   isGenericElement,
-  isPointBasedElement,
+  isTextElement,
   measureText,
   removeLastItem,
   replaceNthItem,
@@ -649,6 +649,48 @@ export const resizeMultipleElements = ({
       height:
         resizedSurroundingBoxSize.height / previousSurroundingBoxSize.height,
     };
+
+    if (isTextElement(element)) {
+      const { height: previousHeight, lineHeight: previousLineHeight } =
+        measureText({
+          canvasElement,
+          fontSize: element.fontSize,
+          fontFamily: element.fontFamily,
+          text: element.text,
+          lineHeight: TEXTAREA_UNIT_LESS_LINE_HEIGHT,
+        });
+      const previousNumberOfLines = previousHeight / previousLineHeight;
+      const minHeight = 30 * previousNumberOfLines;
+      const resizedHeight = Math.max(
+        minHeight,
+        element.height * changeInSurroundingBoxSize.height
+      );
+
+      const resizedFontSize =
+        element.fontSize * (resizedHeight / previousHeight);
+      const { width, height } = measureText({
+        canvasElement,
+        fontSize: resizedFontSize,
+        fontFamily: element.fontFamily,
+        text: element.text,
+        lineHeight: TEXTAREA_UNIT_LESS_LINE_HEIGHT,
+      });
+      const resizedElement = {
+        ...element,
+        x:
+          resizeFixedPoint.x -
+          ((resizeFixedPoint.x - element.x) * width) / element.width,
+        y:
+          resizeFixedPoint.y -
+          ((resizeFixedPoint.y - element.y) * height) / element.height,
+        width,
+        height,
+        fontSize: resizedFontSize,
+      };
+
+      return resizedElement;
+    }
+
     const resizedElementBase = {
       x:
         ((element.x - resizeFixedPoint.x) * resizedSurroundingBoxSize.width) /
@@ -671,50 +713,15 @@ export const resizeMultipleElements = ({
       return resizedElement;
     }
 
-    if (isPointBasedElement(element)) {
-      const resizedElement: VisualizerPointBasedElement = {
-        ...element,
-        ...resizedElementBase,
-        points: element.points.map((point) => {
-          return {
-            x: point.x * changeInSurroundingBoxSize.width,
-            y: point.y * changeInSurroundingBoxSize.height,
-          };
-        }),
-      };
-
-      return resizedElement;
-    }
-
-    const { height: previousHeight, lineHeight: previousLineHeight } =
-      measureText({
-        canvasElement,
-        fontSize: element.fontSize,
-        fontFamily: element.fontFamily,
-        text: element.text,
-        lineHeight: TEXTAREA_UNIT_LESS_LINE_HEIGHT,
-      });
-    const previousNumberOfLines = previousHeight / previousLineHeight;
-    const minHeight = 30 * previousNumberOfLines;
-    const resizedHeight = Math.max(
-      minHeight,
-      element.height * changeInSurroundingBoxSize.height
-    );
-
-    const resizedFontSize = element.fontSize * (resizedHeight / previousHeight);
-    const { width, height } = measureText({
-      canvasElement,
-      fontSize: resizedFontSize,
-      fontFamily: element.fontFamily,
-      text: element.text,
-      lineHeight: TEXTAREA_UNIT_LESS_LINE_HEIGHT,
-    });
-    const resizedElement = {
+    const resizedElement: VisualizerPointBasedElement = {
       ...element,
       ...resizedElementBase,
-      width,
-      height,
-      fontSize: resizedFontSize,
+      points: element.points.map((point) => {
+        return {
+          x: point.x * changeInSurroundingBoxSize.width,
+          y: point.y * changeInSurroundingBoxSize.height,
+        };
+      }),
     };
 
     return resizedElement;
