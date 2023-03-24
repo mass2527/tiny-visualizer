@@ -297,6 +297,7 @@ export const createElement = ({
     height: 0,
     status: "idle",
     options: elementOptions,
+    groupIds: [],
   };
 
   const existingSeeds = new Set(

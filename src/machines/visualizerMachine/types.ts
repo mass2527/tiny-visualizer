@@ -17,6 +17,7 @@ export type VisualizerElementBase = {
   height: number;
 
   options: RoughJSOptions;
+  groupIds: string[];
 };
 
 export type VisualizerSelectionElement = VisualizerElementBase & {

@@ -700,6 +700,7 @@ export const visualizerMachine =
               options: context.elementOptions,
               width,
               height,
+              groupIds: [],
             };
 
             return {
