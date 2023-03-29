@@ -282,11 +282,14 @@ function App() {
       if (event.key === "Backspace") {
         send("SELECTED_ELEMENTS.DELETE");
         return;
+      } else if (
+        event.key === "Escape" ||
+        (isWithPlatformMetaKey(event) && event.key === "Enter")
+      ) {
+        send("WRITE_END");
+        return;
       } else if (event.key === "Enter") {
         send({ type: "WRITE_EDIT", canvasElement });
-        return;
-      } else if (event.key === "Escape") {
-        send("WRITE_END");
         return;
       }
 
@@ -837,6 +840,11 @@ function App() {
             ? connect
             : undefined
         }
+        onDoubleClick={(event) => {
+          if (elementShape === "selection") {
+            startWrite(event);
+          }
+        }}
       />
 
       {state.matches("writing") &&
