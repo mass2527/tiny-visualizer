@@ -46,7 +46,8 @@ export interface Typegen0 {
     services: never;
   };
   eventsCausingActions: {
-    addElement: "DRAW_START" | "WRITE_START";
+    addElement: "DRAW_START";
+    addTextElement: "WRITE_START";
     addVersionToHistory:
       | ""
       | "CHANGE_ELEMENT_OPTIONS"

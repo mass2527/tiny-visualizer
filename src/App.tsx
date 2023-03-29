@@ -837,6 +837,11 @@ function App() {
             ? connect
             : undefined
         }
+        onDoubleClick={(event) => {
+          if (elementShape === "selection") {
+            startWrite(event);
+          }
+        }}
       />
 
       {state.matches("writing") &&
