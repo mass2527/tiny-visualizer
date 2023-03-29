@@ -54,6 +54,8 @@ export interface Typegen0 {
       | "POINT.UPDATE_END"
       | "RESIZE_END"
       | "SELECTED_ELEMENTS.DELETE"
+      | "SELECTED_ELEMENTS.GROUP"
+      | "SELECTED_ELEMENTS.UNGROUP"
       | "done.invoke.visualizer machine.pasting:invocation[0]";
     assignCurrentPoint: "MOUSE_MOVE";
     assignDrawStartPoint: "DRAW_START" | "WRITE_START";
@@ -75,6 +77,7 @@ export interface Typegen0 {
     draw: "DRAW" | "DRAW_END";
     editWrite: "WRITE_EDIT";
     endConnect: "CONNECT";
+    groupSelectedElements: "SELECTED_ELEMENTS.GROUP";
     loadSavedContext: "xstate.init";
     logError:
       | "error.platform.visualizer machine.copying:invocation[0]"
@@ -104,6 +107,7 @@ export interface Typegen0 {
     selectAllElements: "ELEMENTS.SELECT_ALL";
     selectDrawingElement: "CONNECT" | "DRAW_END" | "WRITE_END";
     toggleIsElementShapeFixed: "IS_ELEMENT_SHAPE_FIXED_TOGGLE";
+    ungroupSelectedElements: "SELECTED_ELEMENTS.UNGROUP";
     unselectElements: "CHANGE_ELEMENT_SHAPE" | "DRAW_START";
     updateElementShape: "CONNECT" | "DRAW_END" | "WRITE_END";
     updateHistory: "HISTORY_UPDATE";
