@@ -23,7 +23,7 @@ import {
   isLinearElement,
   isLinearElementShape,
 } from "./type-guard";
-import { v4 as uuidv4 } from "uuid";
+import * as uuid from "uuid";
 import { TEXTAREA_UNIT_LESS_LINE_HEIGHT } from "../constants";
 
 export const calculateCanvasPoint = ({
@@ -192,10 +192,10 @@ export const isPointInsideOfAbsolutePoint = (
 
 export const isIntersecting = (
   selection: VisualizerElement,
-  element: VisualizerElement
+  elements: VisualizerElement[]
 ) => {
   const selectionAbsolutePoint = calculateElementAbsolutePoint(selection);
-  const elementAbsolutePoint = calculateElementAbsolutePoint(element);
+  const elementAbsolutePoint = calculateElementsAbsolutePoint(elements);
 
   if (selectionAbsolutePoint.minX > elementAbsolutePoint.maxX) {
     return false;
@@ -290,13 +290,14 @@ export const createElement = ({
   devicePixelRatio: number;
 }): VisualizerElement => {
   const elementBase: VisualizerElementBase = {
-    id: uuidv4(),
+    id: uuid.v4(),
     x: drawStartPoint.x,
     y: drawStartPoint.y,
     width: 0,
     height: 0,
     status: "idle",
     options: elementOptions,
+    groupIds: [],
   };
 
   const existingSeeds = new Set(
@@ -467,4 +468,38 @@ export const calculateViewportPoint = ({
     x: (canvasPoint.x * zoom + origin.x) / devicePixelRatio,
     y: (canvasPoint.y * zoom + origin.y) / devicePixelRatio,
   };
+};
+
+export const createUuid = (id: string, name: string) => {
+  const namespace = uuid.parse(id);
+  const uuid5 = uuid.v5(name, namespace);
+
+  return uuid5;
+};
+
+export const isSameGroup = (elements: VisualizerElement[]) => {
+  const topLevelGroupIds = elements.map((element) => element.groupIds.at(-1));
+  if (!topLevelGroupIds[0]) {
+    return false;
+  }
+
+  return topLevelGroupIds.every(
+    (topLevelGroupId) => topLevelGroupId === topLevelGroupIds[0]
+  );
+};
+
+export const calculateSameGroup = (
+  elements: VisualizerElement[],
+  elementId: VisualizerElement["id"]
+) => {
+  const element = elements.find((element) => element.id === elementId);
+  invariant(element);
+
+  const isGroupedElement = element.groupIds.length !== 0;
+  if (isGroupedElement) {
+    const groupId = element.groupIds.at(-1);
+    return elements.filter((element) => element.groupIds.at(-1) === groupId);
+  } else {
+    return [element];
+  }
 };

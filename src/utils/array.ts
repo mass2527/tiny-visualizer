@@ -20,3 +20,25 @@ export const setLastItem = <T>(array: T[], item: T) => {
   const arrayWithoutLastItem = removeLastItem(array);
   return [...arrayWithoutLastItem, item];
 };
+
+export const groupBy = <T>(
+  items: T[],
+  groupingKeyCreator: (item: T) => string | undefined
+) => {
+  const groups: Record<string, T[]> = {};
+
+  for (const item of items) {
+    const groupingKey = groupingKeyCreator(item);
+    if (!groupingKey) {
+      continue;
+    }
+
+    if (groups[groupingKey]) {
+      groups[groupingKey]?.push(item);
+    } else {
+      groups[groupingKey] = [item];
+    }
+  }
+
+  return groups;
+};

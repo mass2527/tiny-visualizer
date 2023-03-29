@@ -17,6 +17,7 @@ export type VisualizerElementBase = {
   height: number;
 
   options: RoughJSOptions;
+  groupIds: string[];
 };
 
 export type VisualizerSelectionElement = VisualizerElementBase & {
@@ -262,5 +263,11 @@ export type VisualizerMachineEvents =
     }
   | {
       type: "POINT.UPDATE_END";
+    }
+  | {
+      type: "SELECTED_ELEMENTS.GROUP";
+    }
+  | {
+      type: "SELECTED_ELEMENTS.UNGROUP";
     };
 /* #endregion */

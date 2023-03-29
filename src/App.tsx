@@ -48,6 +48,8 @@ import {
   strokeDashedRectangle,
   isPointInsideOfAbsolutePoint,
   calculateSelectedElementsAbsolutePoint,
+  isSameGroup,
+  groupBy,
 } from "./utils";
 import ElementResizer from "./components/ElementResizer";
 
@@ -188,7 +190,8 @@ function App() {
       drawElement();
 
       const absolutePoint = calculateElementAbsolutePoint(element);
-      if (element.status === "selected") {
+      const isGroupedElement = element.groupIds.length !== 0;
+      if (element.status === "selected" && !isGroupedElement) {
         strokeDashedRectangle(ctx, absolutePoint);
       }
 
@@ -199,9 +202,24 @@ function App() {
     ctx.translate(origin.x, origin.y);
     ctx.scale(zoom, zoom);
 
-    const selectedElementsAbsolutePoint =
-      calculateSelectedElementsAbsolutePoint(elements);
-    strokeDashedRectangle(ctx, selectedElementsAbsolutePoint);
+    const selectedElements = elements.filter(
+      (element) => element.status === "selected"
+    );
+    const groupedElements = groupBy(selectedElements, (element) =>
+      element.groupIds.at(-1)
+    );
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    for (const elements of Object.values(groupedElements)) {
+      const absolutePoint = calculateElementsAbsolutePoint(elements);
+      strokeDashedRectangle(ctx, absolutePoint, [16, 8]);
+    }
+
+    const isEverySelectedElementsSameGroup = isSameGroup(selectedElements);
+    if (!isEverySelectedElementsSameGroup) {
+      const selectedElementsAbsolutePoint =
+        calculateSelectedElementsAbsolutePoint(elements);
+      strokeDashedRectangle(ctx, selectedElementsAbsolutePoint);
+    }
 
     ctx.restore();
   }, [
@@ -303,6 +321,12 @@ function App() {
           send({
             type: "ELEMENTS.SELECT_ALL",
           });
+        } else if (event.shiftKey && event.key === "g") {
+          event.preventDefault();
+          send("SELECTED_ELEMENTS.UNGROUP");
+        } else if (event.key === "g") {
+          event.preventDefault();
+          send("SELECTED_ELEMENTS.GROUP");
         }
       }
 

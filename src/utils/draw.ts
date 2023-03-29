@@ -225,9 +225,10 @@ export const createDraw = (
 const MARGIN = 8;
 export const strokeDashedRectangle = (
   ctx: CanvasRenderingContext2D,
-  absolutePoint: AbsolutePoint
+  absolutePoint: AbsolutePoint,
+  segments: [number, number] = [8, 4]
 ) => {
-  ctx.setLineDash([8, 4]);
+  ctx.setLineDash(segments);
   ctx.strokeRect(
     absolutePoint.minX - MARGIN,
     absolutePoint.minY - MARGIN,
