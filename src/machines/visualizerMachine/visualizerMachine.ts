@@ -1147,6 +1147,10 @@ export const visualizerMachine =
 
           return {
             elements: context.elements.map((element) => {
+              if (element.status !== "selected") {
+                return element;
+              }
+
               return {
                 ...element,
                 groupIds: removeLastItem(element.groupIds),
