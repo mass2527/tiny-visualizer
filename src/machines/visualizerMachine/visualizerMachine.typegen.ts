@@ -109,7 +109,7 @@ export interface Typegen0 {
     selectDrawingElement: "CONNECT" | "DRAW_END" | "WRITE_END";
     toggleIsElementShapeFixed: "IS_ELEMENT_SHAPE_FIXED_TOGGLE";
     ungroupSelectedElements: "SELECTED_ELEMENTS.UNGROUP";
-    unselectElements: "CHANGE_ELEMENT_SHAPE" | "DRAW_START";
+    unselectElements: "CHANGE_ELEMENT_SHAPE" | "DRAW_START" | "WRITE_START";
     updateElementShape: "CONNECT" | "DRAW_END" | "WRITE_END";
     updateHistory: "HISTORY_UPDATE";
     updateIntersecting: "DRAW" | "DRAW_END";
