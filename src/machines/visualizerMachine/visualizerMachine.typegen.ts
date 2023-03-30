@@ -119,6 +119,8 @@ export interface Typegen0 {
   eventsCausingDelays: {};
   eventsCausingGuards: {
     canEditText: "WRITE_EDIT";
+    canGroup: "SELECTED_ELEMENTS.GROUP";
+    canUngroup: "SELECTED_ELEMENTS.UNGROUP";
     shouldConnect: "CONNECT";
   };
   eventsCausingServices: {
