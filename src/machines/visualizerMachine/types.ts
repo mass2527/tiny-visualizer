@@ -31,10 +31,15 @@ export type VisualizerEllipseElement = VisualizerElementBase & {
   shape: "ellipse";
   seed: number;
 };
+export type VisualizerDiamondElement = VisualizerElementBase & {
+  shape: "diamond";
+  seed: number;
+};
 
 export type VisualizerGenericElement =
   | VisualizerSelectionElement
   | VisualizerRectangleElement
+  | VisualizerDiamondElement
   | VisualizerEllipseElement;
 
 export type VisualizerLinearElement = VisualizerElementBase & {
