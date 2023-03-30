@@ -3,26 +3,28 @@ import {
   VisualizerMachineContext,
 } from "./machines/visualizerMachine";
 
-export type HOT_KEY = "1" | "2" | "3" | "4" | "5" | "6" | "7";
+export type HOT_KEY = "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8";
 
 export const HOT_KEYS = {
   selection: "1",
   rectangle: "2",
-  ellipse: "3",
-  arrow: "4",
-  line: "5",
-  freedraw: "6",
-  text: "7",
+  diamond: "3",
+  ellipse: "4",
+  arrow: "5",
+  line: "6",
+  freedraw: "7",
+  text: "8",
 } as const satisfies Record<VisualizerElement["shape"], HOT_KEY>;
 
 export const LABELS = {
   selection: "(1) Selection",
   rectangle: "(2) Rectangle",
-  ellipse: "(3) Ellipse",
-  arrow: "(4) Arrow",
-  line: "(5) Line",
-  freedraw: "(6) Freedraw",
-  text: "(7) Text",
+  diamond: "(3) Diamond",
+  ellipse: "(4) Ellipse",
+  arrow: "(5) Arrow",
+  line: "(6) Line",
+  freedraw: "(7) Freedraw",
+  text: "(8) Text",
 } as const satisfies Record<
   VisualizerElement["shape"],
   `(${HOT_KEY}) ${Capitalize<VisualizerElement["shape"]>}`

@@ -13,6 +13,7 @@ const SHAPE_TYPES: Record<
 > = {
   selection: "generic",
   rectangle: "generic",
+  diamond: "generic",
   ellipse: "generic",
   line: "linear",
   arrow: "linear",

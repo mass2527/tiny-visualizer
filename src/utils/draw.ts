@@ -10,6 +10,7 @@ import {
   measureText,
   removeLastItem,
 } from ".";
+import { OrthogonalDirection } from "../components/ElementResizer";
 import { TEXTAREA_UNIT_LESS_LINE_HEIGHT } from "../constants";
 import { Point, VisualizerElement } from "../machines/visualizerMachine";
 
@@ -38,6 +39,21 @@ export const createDraw = (
     );
     return () => {
       roughCanvas.draw(rectangleDrawable);
+    };
+  } else if (element.shape === "diamond") {
+    const vertices: Record<OrthogonalDirection, [number, number]> = {
+      up: [element.x + element.width / 2, element.y],
+      left: [element.x, element.y + element.height / 2],
+      down: [element.x + element.width / 2, element.y + element.height],
+      right: [element.x + element.width, element.y + element.height / 2],
+    };
+    const diamondDrawable = generator.polygon(
+      [vertices.up, vertices.left, vertices.down, vertices.right],
+      { ...element.options, seed: element.seed }
+    );
+
+    return () => {
+      roughCanvas.draw(diamondDrawable);
     };
   } else if (element.shape === "ellipse") {
     const ellipseDrawable = generator.ellipse(
