@@ -100,7 +100,7 @@ export type VisualizerMachinePersistedContext = {
   elements: VisualizerElement[];
   elementOptions: ElementOptions;
 
-  elementShape: VisualizerElement["shape"];
+  tool: VisualizerElement["shape"];
   resizingDirection: Direction;
   updatingPointIndex: number;
   resizeStartPoint: Point;
@@ -109,7 +109,7 @@ export type VisualizerMachinePersistedContext = {
   drawStartPoint: Point;
   previousPoint: Point;
   currentPoint: Point;
-  isElementShapeFixed: boolean;
+  isToolFixed: boolean;
   zoom: number;
   origin: {
     x: number;
@@ -144,8 +144,8 @@ export type VisualizerMachineEvents =
       type: "DELETE_SELECTION";
     }
   | {
-      type: "CHANGE_ELEMENT_SHAPE";
-      elementShape: VisualizerElement["shape"];
+      type: "CHANGE_TOOL";
+      tool: VisualizerElement["shape"];
     }
   | {
       type: "DRAG_START";

@@ -68,7 +68,7 @@ export interface Typegen0 {
     assignUpdatingPointIndex: "POINT.UPDATE_START";
     assignZoom: "CHANGE_ZOOM";
     assignZoomToCurrentPoint: "CHANGE_ZOOM_WITH_PINCH";
-    changeElementShape: "CHANGE_ELEMENT_SHAPE";
+    changeTool: "CHANGE_TOOL";
     connect: "CONNECT";
     deleteSelectedElements:
       | "SELECTED_ELEMENTS.DELETE"
@@ -88,7 +88,7 @@ export interface Typegen0 {
     pasteSelectedElements: "done.invoke.visualizer machine.pasting:invocation[0]";
     persist:
       | ""
-      | "CHANGE_ELEMENT_SHAPE"
+      | "CHANGE_TOOL"
       | "CHANGE_ZOOM"
       | "CHANGE_ZOOM_WITH_PINCH"
       | "DELETE_SELECTION"
@@ -107,13 +107,13 @@ export interface Typegen0 {
     resize: "RESIZE";
     selectAllElements: "ELEMENTS.SELECT_ALL";
     selectDrawingElement: "CONNECT" | "DRAW_END" | "WRITE_END";
-    toggleIsElementShapeFixed: "IS_ELEMENT_SHAPE_FIXED_TOGGLE";
+    toggleIsToolFixed: "IS_ELEMENT_SHAPE_FIXED_TOGGLE";
     ungroupSelectedElements: "SELECTED_ELEMENTS.UNGROUP";
-    unselectElements: "CHANGE_ELEMENT_SHAPE" | "DRAW_START" | "WRITE_START";
-    updateElementShape: "CONNECT" | "DRAW_END" | "WRITE_END";
+    unselectElements: "CHANGE_TOOL" | "DRAW_START" | "WRITE_START";
     updateHistory: "HISTORY_UPDATE";
     updateIntersecting: "DRAW" | "DRAW_END";
     updatePoint: "POINT.UPDATE";
+    updateTool: "CONNECT" | "DRAW_END" | "WRITE_END";
     write: "WRITE";
   };
   eventsCausingDelays: {};

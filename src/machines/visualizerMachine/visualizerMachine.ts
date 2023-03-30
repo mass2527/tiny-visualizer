@@ -97,10 +97,10 @@ export const visualizerMachine =
               ],
             },
 
-            CHANGE_ELEMENT_SHAPE: {
+            CHANGE_TOOL: {
               target: "persisting",
 
-              actions: ["unselectElements", "changeElementShape"],
+              actions: ["unselectElements", "changeTool"],
             },
 
             DRAG_START: {
@@ -124,7 +124,7 @@ export const visualizerMachine =
 
             IS_ELEMENT_SHAPE_FIXED_TOGGLE: {
               target: "persisting",
-              actions: "toggleIsElementShapeFixed",
+              actions: "toggleIsToolFixed",
             },
 
             "SELECTED_ELEMENTS.CUT": "cutting",
@@ -256,7 +256,7 @@ export const visualizerMachine =
           entry: [
             "selectDrawingElement",
             "resetDrawingElementId",
-            "updateElementShape",
+            "updateTool",
           ],
         },
 
@@ -372,7 +372,7 @@ export const visualizerMachine =
         addElement: assign((context, { devicePixelRatio }) => {
           const element = createElement({
             elements: context.elements,
-            elementShape: context.elementShape,
+            tool: context.tool,
             elementOptions: context.elementOptions,
             drawStartPoint: context.drawStartPoint,
             devicePixelRatio,
@@ -386,7 +386,7 @@ export const visualizerMachine =
         addTextElement: assign((context, { devicePixelRatio }) => {
           const textElement = createElement({
             elements: context.elements,
-            elementShape: "text",
+            tool: "text",
             elementOptions: context.elementOptions,
             drawStartPoint: context.drawStartPoint,
             devicePixelRatio,
@@ -404,9 +404,9 @@ export const visualizerMachine =
             ),
           };
         }),
-        changeElementShape: assign((_, { elementShape }) => {
+        changeTool: assign((_, { tool }) => {
           return {
-            elementShape,
+            tool,
           };
         }),
         assignDrawStartPoint: assign((context, { devicePixelRatio, event }) => {
@@ -764,9 +764,9 @@ export const visualizerMachine =
             currentPoint,
           };
         }),
-        toggleIsElementShapeFixed: assign((context) => {
+        toggleIsToolFixed: assign((context) => {
           return {
-            isElementShapeFixed: !context.isElementShapeFixed,
+            isToolFixed: !context.isToolFixed,
           };
         }),
         assignElementOptions: assign((context, event) => {
@@ -906,7 +906,7 @@ export const visualizerMachine =
             }),
           };
         }),
-        updateElementShape: assign((context) => {
+        updateTool: assign((context) => {
           const nonZeroSizeElements = context.elements.filter(
             (element) => element.width !== 0 && element.height !== 0
           );
@@ -915,9 +915,9 @@ export const visualizerMachine =
 
           return {
             elements: nonZeroSizeElements,
-            elementShape:
-              context.isElementShapeFixed || !isElementAdded
-                ? context.elementShape
+            tool:
+              context.isToolFixed || !isElementAdded
+                ? context.tool
                 : "selection",
           };
         }),

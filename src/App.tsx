@@ -95,10 +95,10 @@ function App() {
     },
   });
   const {
-    elementShape,
+    tool,
     drawingElementId,
     elements,
-    isElementShapeFixed,
+    isToolFixed,
     elementOptions,
     zoom,
     origin,
@@ -339,13 +339,13 @@ function App() {
       }
 
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      const updatedElementShape = Object.entries(HOT_KEYS).find(
+      const updatedTool = Object.entries(HOT_KEYS).find(
         ([, hotkey]) => hotkey === event.key
       )![0];
 
       send({
-        type: "CHANGE_ELEMENT_SHAPE",
-        elementShape: updatedElementShape as VisualizerElement["shape"],
+        type: "CHANGE_TOOL",
+        tool: updatedTool as VisualizerElement["shape"],
       });
     };
 
@@ -356,12 +356,12 @@ function App() {
   }, [send, updateZoom]);
 
   useEffect(() => {
-    if (elementShape === "selection") {
+    if (tool === "selection") {
       document.body.style.cursor = "default";
     } else {
       document.body.style.cursor = "crosshair";
     }
-  }, [elementShape]);
+  }, [tool]);
 
   const isResizingState = state.matches("resizing");
   useEffect(() => {
@@ -403,7 +403,7 @@ function App() {
       origin,
     });
 
-    if (elementShape === "text") {
+    if (tool === "text") {
       startWrite(event);
       return;
     }
@@ -413,7 +413,7 @@ function App() {
     );
     const absolutePoint = calculateElementsAbsolutePoint(selectedElements);
     if (
-      elementShape === "selection" &&
+      tool === "selection" &&
       isPointInsideOfAbsolutePoint(absolutePoint, mousePoint)
     ) {
       startDrag(event);
@@ -590,7 +590,7 @@ function App() {
           <label style={{ pointerEvents: "all" }}>
             <input
               type="checkbox"
-              checked={isElementShapeFixed}
+              checked={isToolFixed}
               onChange={() => send("IS_ELEMENT_SHAPE_FIXED_TOGGLE")}
             />
             Fix shape
@@ -600,12 +600,11 @@ function App() {
               key={shape}
               label={label}
               value={shape}
-              checked={elementShape === shape}
+              checked={tool === shape}
               onChange={(event) => {
                 send({
-                  type: "CHANGE_ELEMENT_SHAPE",
-                  elementShape: event.currentTarget
-                    .value as VisualizerElement["shape"],
+                  type: "CHANGE_TOOL",
+                  tool: event.currentTarget.value as VisualizerElement["shape"],
                 });
               }}
             />
@@ -841,7 +840,7 @@ function App() {
             : undefined
         }
         onDoubleClick={(event) => {
-          if (elementShape === "selection") {
+          if (tool === "selection") {
             startWrite(event);
           }
         }}
