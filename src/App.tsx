@@ -578,6 +578,12 @@ function App() {
       origin,
     });
 
+    send({
+      type: "MOUSE_MOVE",
+      event,
+      devicePixelRatio,
+    });
+
     if (tool !== "selection") {
       return;
     }
@@ -589,12 +595,6 @@ function App() {
     } else {
       document.body.style.cursor = "default";
     }
-
-    send({
-      type: "MOUSE_MOVE",
-      event,
-      devicePixelRatio,
-    });
   };
 
   const editableRefCallback = useCallback(
