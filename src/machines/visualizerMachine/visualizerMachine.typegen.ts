@@ -85,6 +85,7 @@ export interface Typegen0 {
       | "error.platform.visualizer machine.cutting:invocation[0]"
       | "error.platform.visualizer machine.pasting:invocation[0]";
     pan: "PAN";
+    panWithGesture: "GESTURE.PAN";
     pasteSelectedElements: "done.invoke.visualizer machine.pasting:invocation[0]";
     persist:
       | ""
@@ -93,9 +94,10 @@ export interface Typegen0 {
       | "CHANGE_ZOOM_WITH_PINCH"
       | "DELETE_SELECTION"
       | "ELEMENTS.SELECT_ALL"
+      | "GESTURE.PAN"
       | "HISTORY_UPDATE"
       | "IS_ELEMENT_SHAPE_FIXED_TOGGLE"
-      | "PAN"
+      | "PAN_END"
       | "WRITE"
       | "done.invoke.visualizer machine.copying:invocation[0]"
       | "done.invoke.visualizer machine.cutting:invocation[0]";
@@ -137,6 +139,7 @@ export interface Typegen0 {
     | "error logging"
     | "idle"
     | "loading"
+    | "panning"
     | "pasting"
     | "persisting"
     | "resizing"

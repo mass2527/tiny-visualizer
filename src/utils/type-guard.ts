@@ -1,11 +1,28 @@
 import {
+  DrawingTool,
   VisualizerElement,
   VisualizerFreeDrawElement,
   VisualizerGenericElement,
   VisualizerLinearElement,
+  VisualizerMachineContext,
   VisualizerPointBasedElement,
   VisualizerTextElement,
 } from "../machines/visualizerMachine";
+
+const TOOL_TYPES: Record<
+  VisualizerMachineContext["tool"],
+  "drawing" | "non-drawing"
+> = {
+  selection: "drawing",
+  rectangle: "drawing",
+  diamond: "drawing",
+  ellipse: "drawing",
+  arrow: "drawing",
+  line: "drawing",
+  freedraw: "drawing",
+  text: "drawing",
+  hand: "non-drawing",
+};
 
 const SHAPE_TYPES: Record<
   VisualizerElement["shape"],
@@ -76,4 +93,10 @@ export const isPointBasedElement = (
     SHAPE_TYPES[element.shape] === "linear" ||
     SHAPE_TYPES[element.shape] === "freedraw"
   );
+};
+
+export const isDrawingTool = (
+  tool: VisualizerMachineContext["tool"]
+): tool is DrawingTool => {
+  return TOOL_TYPES[tool] === "drawing";
 };

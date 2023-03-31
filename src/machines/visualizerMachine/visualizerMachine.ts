@@ -35,6 +35,7 @@ import {
   createUuid,
   isSameGroup,
   calculateSameGroup,
+  isDrawingTool,
 } from "../../utils";
 import debounce from "lodash.debounce";
 import { TEXTAREA_UNIT_LESS_LINE_HEIGHT } from "../../constants";
@@ -49,7 +50,7 @@ import {
 import { ELEMENT_STATUS, PERSISTED_CONTEXT } from "./constant";
 
 export const visualizerMachine =
-  /** @xstate-layout N4IgpgJg5mDOIC5QDcCWsCuBDANqgXmAE4AEAtlgMYAWqAdmAHSoQ5gDEAIgEoCCA6gH0AygBVe3UQG0ADAF1EoAA4B7WKgAuqFXUUgAHogDsMo4wCcARgAsM60fNGArADYnlgMwAaEAE9EAEwBboyWlkYeph7W5gAcDtYAvok+aJi4BMTkVLQMzKwcAMIAErwAcgDiAKKCVQAyVQCyVWWiIqUAClWyCkggqupaOnqGCCZmVrb2jq7u3n6BMjKMRjGOAbHmLjLm1k7JqejYeISkFDT0TCxsXHwVIuKSPXoDmtq6faPjFjZ2Ds5uTw+fwISyxcGMGROawucweYIBMLmA4gNLHTJnHKXfI3YT1KqFURVTi1BrNVrCRicfFE559V5DD6gL6mH5Tf6zIELUFOJzLSzmdzbWLWDxGcWxFFojKnbIXPLXDh4hqE4mkpotUSUwoAeQ6AE06co1G9hp9jKzJn8ZoD5iDYQFGE4PFYoryAuZzAEpUcZVlzrkrgV2MqCUSSfjyVrGB1eGJuvIXibGSMLRNftMAXNgYhPAFlgFrEFLE4jIjYh5Nj70id-ViFcHGjqAKp4wRNgBqCd6xsG71TCDFlkYew8nlMoqcFZc1hzCERW1CMUrsXLO2d1fRsoD2MV7AAksJ1VH2rwuoIAGL7gAaatEOoqFQaRv6yf75rGlozHNtc-h1lCVwAg8XktliFxYksTc-UxeUg1xfFVQjMlNW1ZtpETek3zNZk0zZa0sy5EFLBkDwPBWItEV5eIXHCIxoNrWDAxxIpSkqGpI01QQ9VEfcdTKYQXwZd9cM-dN2RtbNuUsGcXEYGcKycREZE8QUGIxOVmL3EpymqQQAC0dR1RohOwpkDDwq1M05O1ECLZZtjhB0tncLZ1O3et4NY3SakM4zBH4fdRGKQQOn3MoSlMvscIssT8Os39uXcMwZBcAJXChaFPAg9y6zglj2FjMootNczRnS1YnVXewRWsWJnWdOdC0q51K1FVYIiMKCUlRX1GM03dg2KQ9724fVBGbDpOF4WlMN7UqB2+Kyfyk4jRwo-MRRMfMrHonrpX6ncGxufhuCCmoxAkDCe1faKytzGREUhF13A2JZaKapZHUiUUNnBKFCw8XKmMGm5OIpRhQ0JQReDqOoSpTD8bHsCwyJnUxNkrSsmt2cix2CGJwNXVKgf2vqNKOrz2FO87ak4IKEZE2KK1iRh-1hQV-vcJw5zo8xQhccUthsQWINJw4awpzyCu4KphH3fSLsea6kzugcAFp81RzYbF5Jw4hAv9EQAsIliMSCJXS-Yycljz8r3DodXC0RGEm6aiQeK7GZi0ZKzk6xfs2wW-ZcP8A8dJY7CWOr2pcYGBuOpVEPDY9UMYCpuBbDpvfuhAp0dMFwjSj183sIwmrLb6wRkC3gJI+J48pgqoZT8Ho2bSpM8mnOB31-mjBcB1Wrq6Iee5dLwIsDZXDCfHB7jm2tzy5iICILAAHd6CgW4BB7pHwmHKc+WAmvV3A0Px4Ffu+TcLbwXsRvpdXjet53oQWk4PfRPHVmzfMR7YjRzLOXceGxhw7ErF1eqdhrDdQlkvEGeRn6bzoNvakDQPYtz4sVOat0FofgCACEcbgpzbFIZYT6NcRz-wFPCXYJFoiP3ysg1+uoyhlDDJ7J4uDhI+wei4PGWw0pdX1sWEBIJ0ozhHJjQsV8PAzmtvAmCCcmDPygFAV+PBeAVC-rFGSdg2Z-D2EEWBsJxG5gcMsMUI9gg2EIelJhK817qM0XcWoZRP48LMgOMEYpGD1ThOBRw4wwS802E4Qx9hSJdTHGEb0i9lFNxwCoLAEBX66PKpBNmgsBS5N2CKJqHphwgXSnVBwo9kQJMOtLJQxB1CwC0Kg9gGTAiFgic4JY8jB6rnzOYhAWS1iCjAljMie0lHVOYWvFBUASAqFIOvIgbxUEkDAHQCAkBmleLVkjCsZgAl+2CaYUJoDBSMA9LCYuswqxVKlvlZAdT3gkCIGANgWBYAbJafONpKw+SkXnj00wvMcmhELJBXYj0VJgkcdiBZSzt40w9h-T5P9ISmH-m9P4hDPpjhWJBP6mwdiEMUb1W2y8YWLMafCs6s0bq8NzmEWEPxBbiiLnCGSvNgFnIEcETYZYBHQmhXkJQbzKXsAgDoK4dBkAqAANZMAOrc5iwqGlbwQPQaVlAsCMh6MiyIv80UAKAVi6SY5yIqWokUnlOxBVMGVaK4gRA5mMCUDgLVAAzOZZBGAKrtkqkVqr1UqE1dq+QuqqF-0NZivplhggRO5jk7Yth-4L3GYq7EDq5kkGSS4ppyKYSOjPvmUsj1HBel5nRCwXp8yOTqtCcWJKEEqMYJQFQShfCv3FQqKVsr5Xk19diFtbaA3duDe8HVWz8Hfz1aiyxGL7DGvtNsXF-84hpRiA4Spqb+15EHe2ppGaiDOtdRoD1RAvU+rJTu1te6oBqpHVqsdoaJ2IyneGg1c7gFzhMKzDYVgSKkWdDXetF7EFMEoBgDQorO2SulXK71fbL1gYg5Su9GqH06HHbS7xSNp0Ro-QuxAgo5KkVdFtOwN8bXNuQ6-A9R73Wevg6S0DVHIPDrQyGuQYb9WzsAVG3mdh+YxGLNEMhLoxkNsSdLFtdAGCUFFVo-gyKdgOVMO9GIgsAFNV406ECcRwTfvcJR6TsnRVsI4YSXVnhDGpTsJseIj0mqD2vmfEiSaupGZ0CZ1h-FzPSEsFh7ZU6rORBs3VOI20tMGMRL8BwtUvTAYQ8x556h8Cv1lvLRW7jPEBcnXokixT10D3zTRWc3J8Z7MRAkTw4QxwpokxM5iyWCBpblgrbsqtcujHqgBdFG6aLgUamVqBI4Yhl3HGWTwlGMBKAgA+5Zqh6AaEKk7VorspozXa1hQLsU0qs0FAPGSkFaJuFsoOAeES1h1VStVGEU2ZtzZmQtugS3HbOzW+7DiHjPli38QImuU5S0AbDv-LlqUSxKVi3tHqdAVDrPgH0EDKiOsvtiurCC2tJh6wNmPEEaPUXR0Bs4L0NgEtMabYqZHTNRiUVRvImuGwILgXCIUxw8lHqll2M4LqhZKMsNQZTvhoIdh7KWN1v4M4Y1NTHL-KJ70eVkVJ42puaiNH862513M6N-FCl0wTInvMrCs3NjGwWencaUeSakreAvc5FkKYPbX6VdpDJFHVxHTdalEHqZSm3A5gKAP8XT2Ej1bAk7nAIgCAcwUR7aTJXnUyt6zPmRSxPqz1kQF90jVw4kSzhHLG0wpAcVhbEcOBHY4EyKUfuV7x5zzXnvIz+rlHowr7DkISBOwbhwvpSBTCeSoK13kbFJR2FPum9U9zOEByLoiyD1Kcc4i9UzCTlXKsVcAi1I3O3ba-1av5rN4erYM5a-4ThArLPXmHozCFmLHCI5JZKMHqzSoHNUBM-fz7sQ1zN-YGRGjSTiwIsMEfWeqeIJILfRDZta9a3cfQXBhYjEwECWiQsT0BzbkJzHTP9ATSIXWIzajPfPBA-IXeRSERAmeFA9FfjEiDafMTwI+EiN3RLJtYzMAOTGA-fCfIXdHEUOIM2GuMLHHQIWSFYMEK7KJJnSjJrVLAgulAcJfM5KEECZcAeARChMrPWVGGcaIOxEuO7WbSlEgJ7DQd-WKKcYcf+aEWiUbPTP8NKONf4L0aEKwXkBeZIIAA */
+  /** @xstate-layout N4IgpgJg5mDOIC5QDcCWsCuBDANqgXmAE4AEAtlgMYAWqAdmAHSoQ5gDEAIgEoCCA6gH0AygBVe3UQG0ADAF1EoAA4B7WKgAuqFXUUgAHogDsMo4wCcARgAsM60fNGArADYnlgMwAaEAE9EAEwBboyWlkYeph7W5gAcDtYAvok+aJi4BMTkVLQMzKwcAMIAErwAcgDiAKKCogDydQAysgpIIKrqWjp6hgguMi6M1h4e-bEBsS6xkwE+-ggBTh6xFhOuYR6WwS4uyano2HiEpBQ09EwsbFx8FSLiki16HZraum29JmZWtvaOru7ePyISzTFYyJzWFzmDzBAJhcx7EBpQ6ZE45c75K7CKqNKqFURVTiCHFVACyVTKomEjE4JIJjzazy6b1AH1MFhsdgczjcnjmwKcThkoXM7jGwyMktiiORGWO2TOeUuHGxuPxhOJuPJlOphTqAAUAJoM5RqF7dd7GdnfLl-XmA+ZQgKMJZWKKCgLmcwBGUHOVZU65C4FdiqvEEokk7VUxj63hiKom9pm5k9K1fTm-HkA-kITwBYUBaxBSxOIxw2LLBEpJF+o4B9FKkOkuoAVWxghbADVE-IninXmmEB4jJYhktPKZhk5Ky5rLm4eZBjZodMKzJRR5fel62jFcGrgBJYSaskU0QiUr6moAMUPAA0NfUKhVcUmmYPLQhPhyftz-nyQLDkWoSuAEHiCkukyxJY24ovKgYYsqoYkuqkZaueuqttIfaMgOFqsumv62tmgHzJYMgjIwRjFnCgrxC44RGHB-p7kGmJFKUlQ1FG56CAaoiHnUZTCO++EsgYRE2lmAEOsCc6DHOlZOHCMieKKLG7gq7HISU5TVIIABaDSkmJnSfoR37Wpm-72rmxbCv00JOku7hLppqLaUhIZ6dxRkmYI-CHqIxSCPqh5lCUZnmhJbIZn+do5kB7hmAMiz9IK1ieFMHkIY2B4cNUYittwVSxuU0Wpl+-SDMMowyOM0EzAuMTCt6sTrJ4Ww7LsNaylpiFNlcxTHvU3CGoIrb6pwvD0rhprmQRklWfFJGybmNhLNRDmxPYMgFlYzF9XWnmDQV7D8NwwU1GIEg4a0C0xUOFFwowlGilssQyAMlgLt9zqRMMEzTOCRZbsdO6nflHHsLxOqMGG+KCLwjTNPNyaLbFwLWPYFgjHOpixKuywLuYwyMJswQxNBBYuOD+yQ3l+4w5d13EpwwWVRZy2VisMKQl6M5fe4TgbZK5ihC44uMZCRhTPTtaMw2zPIaVwiHoZN33Pd-aY0OAC0BZ40Tm2QcpuYwjYoQUYTTHjIKuXKzpIb6nUEWiIwU0zQSdx3VzS29MstVAwWkwRJMLgWzjzrfXY33WLtI69Qz8FO95WKoRGp7RtSFTcG2+r+1jCAzs6ILhC4QTelyRgLuWAMgg14TgRR8SO2x6cqpnGpwzGraVPnU1F0OThetROzeks0SVtYotAYskyrB1jFddsyeK6nHdDRwXGcOVZS+w86MfgHiCCk4b3BKPFFQuY4LmAuEFghCd+uPElhxD6EOb15eQQEQWAADu9AoDXAEMPL8YRRwug6vtSIa4I4Lg-hLZwAwZz2GmPYduv8mD-yASAsBQgKScAgZZScYJTB3wmPHcstd54TDHBuZYo5YE41gt-ViODGB4OAXQUBtJcQ+0RoJYSpDloBB5EMNwM4MqTF+vPb6KxWofxhGTCi0RsFnW4QA3hoC9RlDKOGQ+Os8J60gQMDwFMlyV1HKPEsdD5jpWsEMIm-NkGjFnpo6GeCoBQAITwXgFQxG9EsP0ZxgMaIqSLKExwYs74UxopWYINgJGLC8czHxfi+FgNuMQ4JwJKxmA6quKEkpTAgg2kTC+ETKKjk2GEL+KdOFaJwCoLAEACH5IWDBCmUsP79LJrtBcnoxwQUWAnBw0RR7pPYkoYg6hYBaGyV0oIs9qJCkoj1cYBYHGIB6TEQWUFlgjBHDMjEPCQEkBUKQQBRAXh8JIGAOgEBIDsC6SCEcjBilB0cJ8Cp9DRSME9FCSu6UZzViaQNaGyB5mvBIEQMAbAsCwFeSsosF9UGbJ2Ns0wG0+mhCLDBMm+01IgjOXkW59zQGsx9nk4+4lnrwLepQ-aX0uQSL+psaiMFgZEw3BIpw5KmCUqWdSq6c0HoYyepAmJHIpaSgrtCUJYsJFArpsEIm5Y6YQiFYwJQyLRXsAgDoC4dBkAqAANZMH6lDZm+rFkgIQPQc1lAsDMhaO8pl30HCspoRyoCXVLFqXoiMjVG5dX2sNcQIg1y9U4DdQAM2uWQRgNqmazINY651KhXXuvkJ6hqzKfXUPZbsvMV8XSlj6WEjcAxdXRuuSQVpvjOn0rMWQyEzpGoFjLPtRw3oNpMQsN6WmG4E4QgVmmtOeRKAqCUL4AhxqlRmstdak66aMSzvnVmldubXgerbdKshXqWUlvsP6x0-RuV3ziJXGIDgIUb2adDLdC7skNqIHGxNybU3runUwV9O6XVuv3fmw9VVj2Fu9VQtl56y0mBWBMKwNsILwMnX+reAGMAaENUu015qrW-qVphxglBsOiqdbukDOgD2SpPsXchRaYN+rLaKQY71W57VnnWjhULmZkZwwQj9X6NBJqICmqdJGBMUezXumjYG6MMsgSe4tsHaEbTsBLGIJZogZQ8I4XVs66AMEoIagJ-B3m1sYP0EwAwYhS1ZQuNlLoIJxGmAh9whmdAmcNfowx+JPWeApt9MJRN4j7QXBPdZjUKK2EcOwyFtr2JGZ8wQvz4YpCWEU+25agbgsDDsGFkwsx55fWcXCTkDhdrafQ8RrhCL1D4AIWrDWPEygkPA9zEJFFRn3rlp2hi84gKUyKXCBIXUIihN1Q1ggzWqjq01l0jqziqEPoYpMJYFsWFDBiPYOppg4S1Z-lojASgIAgYeaoegGh2Cu3dp7aas1ezZaPctSuKxRRy1CTBRibg5LDjlhfA5CcBjjBxuvSTXDTvndFSQK7dAbt3cpA972bWOsvYg29ysXy6YNXBT6iCUd4nBB+h6KrR1EsbryPq4zBDd77yW64F0gtiyuHsLYMthLLGCg2L99BRhpS8aSxiGndA6flD3nGA+dKMddcQI4JRUs4s9rlkWR+Y9nAVxLJ6CIgrER0BUC8+AbRIdnV1q93o+spjG2+OfOIhOgJW+Zd9fto5XLxEfab6GypzeY96LRPG9VGpTDkZznX1n9pljJs4UcRZdUXL4b7uXeYNxFMURCLkc4tiPxBG9PaIWNUnPjwAltifTEW-krYL5YpXNU2cA-ANVgVgC+6lVomwxdWtPaSApPp8EDFmGTsavixDqijiJCCNsKHVl8en7wIyxhSzgGFQ2wNh-t02cTjIlG-0VTaF1T3BOjLmNpFZcp5LyIC94Y64eKpZm4gnRcMnG1ElwK6cpMEYuqYVEHUDoeFiKwBkVIAr9novQxwJEII7A3A4hyw55yIFJrNCU707AlgKcn0+N2JT8Z8pU588xwhHJ9Niwdhxl-lyIOozBpxxhElgh9M9dKd-09VM1sD6Nno44gVElLYBd6l-sthHAgVaIVFylSx60iAY1SBm0skoAQDIFR4tNGI7AixolIgy0whyYyYKxR4Op4gkh98GDANmClMyFNk3oTAIJGIiwvQIsgIotXQwhNNIhNpDNyMe9y9cD1F2NTD1gLCqENMKJtogg1In53AeN6CpNvMwBTMXDZ9k8b4Vhdo4hvUGoE5RRItIRqIQQQc9o5Fps4BZsDCctehyCgVwQIIYgk46Z5F5gIJBQ8Y5xogUlPRGl0Dhc8hocLsoA4cVBrtpDLIZwxxX5IQVxqZYgLZK4L4o8HBxkrBBQIcMMuFRcoicDk8tD+C1IHAP4pYVJOdixGF3AthNg8dthkhkggA */
   createMachine(
     {
       id: "visualizer machine",
@@ -144,9 +145,9 @@ export const visualizerMachine =
               actions: ["assignZoomToCurrentPoint"],
             },
 
-            PAN: {
+            "GESTURE.PAN": {
               target: "persisting",
-              actions: ["pan"],
+              actions: ["panWithGesture"],
             },
 
             HISTORY_UPDATE: {
@@ -199,6 +200,10 @@ export const visualizerMachine =
               target: "version released",
               actions: "ungroupSelectedElements",
               cond: "canUngroup",
+            },
+
+            PAN_START: {
+              target: "panning",
             },
           },
         },
@@ -363,6 +368,18 @@ export const visualizerMachine =
 
           description: `updating linear element's point`,
         },
+
+        panning: {
+          on: {
+            PAN: {
+              target: "panning",
+              internal: true,
+              actions: "pan",
+            },
+
+            PAN_END: "persisting",
+          },
+        },
       },
 
       initial: "loading",
@@ -370,9 +387,11 @@ export const visualizerMachine =
     {
       actions: {
         addElement: assign((context, { devicePixelRatio }) => {
+          invariant(isDrawingTool(context.tool));
+
           const element = createElement({
             elements: context.elements,
-            tool: context.tool,
+            shape: context.tool,
             elementOptions: context.elementOptions,
             drawStartPoint: context.drawStartPoint,
             devicePixelRatio,
@@ -386,7 +405,7 @@ export const visualizerMachine =
         addTextElement: assign((context, { devicePixelRatio }) => {
           const textElement = createElement({
             elements: context.elements,
-            tool: "text",
+            shape: "text",
             elementOptions: context.elementOptions,
             drawStartPoint: context.drawStartPoint,
             devicePixelRatio,
@@ -813,7 +832,7 @@ export const visualizerMachine =
             },
           };
         }),
-        pan: assign((context, { event, devicePixelRatio }) => {
+        panWithGesture: assign((context, { event, devicePixelRatio }) => {
           const clientPoint = calculateClientPoint({
             canvasPoint: context.currentPoint,
             origin: context.origin,
@@ -839,6 +858,17 @@ export const visualizerMachine =
             currentPoint,
           };
         }),
+        pan: assign((context, { event, devicePixelRatio }) => {
+          const origin = {
+            x: context.origin.x + event.movementX * devicePixelRatio,
+            y: context.origin.y + event.movementY * devicePixelRatio,
+          };
+
+          return {
+            origin,
+          };
+        }),
+
         addVersionToHistory: assign((context) => {
           const version = {
             elementOptions: context.elementOptions,

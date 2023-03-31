@@ -18,14 +18,14 @@ import {
   Fill_STYLE_OPTIONS,
   FONT_SIZE_OPTIONS,
   HOT_KEYS,
-  LABELS,
+  TOOL_LABELS,
   ROUGHNESS_OPTIONS,
   STROKE_LINE_DASH_OPTIONS,
   STROKE_WIDTH_OPTIONS,
   TEXTAREA_UNIT_LESS_LINE_HEIGHT,
 } from "./constants";
 import {
-  VisualizerElement,
+  Tool,
   visualizerMachine,
   VisualizerMachineContext,
   ZOOM,
@@ -259,7 +259,7 @@ function App() {
         });
       } else {
         send({
-          type: "PAN",
+          type: "GESTURE.PAN",
           event,
           devicePixelRatio,
         });
@@ -339,13 +339,13 @@ function App() {
       }
 
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      const updatedTool = Object.entries(HOT_KEYS).find(
+      const tool = Object.entries(HOT_KEYS).find(
         ([, hotkey]) => hotkey === event.key
-      )![0];
+      )![0] as Tool;
 
       send({
         type: "CHANGE_TOOL",
-        tool: updatedTool as VisualizerElement["shape"],
+        tool,
       });
     };
 
@@ -403,6 +403,11 @@ function App() {
       origin,
     });
 
+    if (tool === "hand") {
+      startPanWithHand(event);
+      return;
+    }
+
     if (tool === "text") {
       startWrite(event);
       return;
@@ -420,6 +425,13 @@ function App() {
     } else {
       startDraw(event);
     }
+  };
+
+  const startPanWithHand: MouseEventHandler<HTMLCanvasElement> = (event) => {
+    send({
+      type: "PAN_START",
+      event,
+    });
   };
 
   const startWrite: MouseEventHandler<HTMLCanvasElement> = (event) => {
@@ -498,6 +510,10 @@ function App() {
     });
   };
 
+  const endPan: MouseEventHandler<HTMLCanvasElement> = () => {
+    send("PAN_END");
+  };
+
   const resize: MouseEventHandler<HTMLCanvasElement> = (event) => {
     const canvasElement = canvasRef.current;
     invariant(canvasElement);
@@ -525,6 +541,14 @@ function App() {
 
     send({
       type: "POINT.UPDATE",
+      event,
+      devicePixelRatio,
+    });
+  };
+
+  const pan: MouseEventHandler<HTMLCanvasElement> = (event) => {
+    send({
+      type: "PAN",
       event,
       devicePixelRatio,
     });
@@ -595,16 +619,17 @@ function App() {
             />
             Fix shape
           </label>
-          {Object.entries(LABELS).map(([shape, label]) => (
+          {Object.entries(TOOL_LABELS).map(([shape, label]) => (
             <Radio
               key={shape}
               label={label}
               value={shape}
               checked={tool === shape}
               onChange={(event) => {
+                const tool = event.currentTarget.value as Tool;
                 send({
                   type: "CHANGE_TOOL",
-                  tool: event.currentTarget.value as VisualizerElement["shape"],
+                  tool,
                 });
               }}
             />
@@ -828,6 +853,8 @@ function App() {
             ? resize
             : state.matches("updating point")
             ? updatePoint
+            : state.matches("panning")
+            ? pan
             : moveMouse
         }
         onMouseUp={
@@ -837,6 +864,8 @@ function App() {
             ? endDrag
             : state.matches("connecting")
             ? connect
+            : state.matches("panning")
+            ? endPan
             : undefined
         }
         onDoubleClick={(event) => {

@@ -1,4 +1,5 @@
 import {
+  Tool,
   VisualizerElement,
   VisualizerMachineContext,
 } from "./machines/visualizerMachine";
@@ -16,7 +17,8 @@ export const HOT_KEYS = {
   text: "8",
 } as const satisfies Record<VisualizerElement["shape"], HOT_KEY>;
 
-export const LABELS = {
+export const TOOL_LABELS: Record<Tool, string> = {
+  hand: "Hand",
   selection: "(1) Selection",
   rectangle: "(2) Rectangle",
   diamond: "(3) Diamond",
@@ -25,10 +27,7 @@ export const LABELS = {
   line: "(6) Line",
   freedraw: "(7) Freedraw",
   text: "(8) Text",
-} as const satisfies Record<
-  VisualizerElement["shape"],
-  `(${HOT_KEY}) ${Capitalize<VisualizerElement["shape"]>}`
->;
+};
 
 type Option<T> = {
   label: string;

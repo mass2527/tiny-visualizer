@@ -95,12 +95,16 @@ export type ElementOptions = Required<
 > &
   VisualizerTextElementOptions;
 
+export type DrawingTool = VisualizerElement["shape"];
+export type NonDrawingTool = "hand";
+export type Tool = DrawingTool | NonDrawingTool;
+
 // context that is saved to localStorage
 export type VisualizerMachinePersistedContext = {
   elements: VisualizerElement[];
   elementOptions: ElementOptions;
 
-  tool: VisualizerElement["shape"];
+  tool: Tool;
   resizingDirection: Direction;
   updatingPointIndex: number;
   resizeStartPoint: Point;
@@ -145,7 +149,7 @@ export type VisualizerMachineEvents =
     }
   | {
       type: "CHANGE_TOOL";
-      tool: VisualizerElement["shape"];
+      tool: Tool;
     }
   | {
       type: "DRAG_START";
@@ -201,7 +205,7 @@ export type VisualizerMachineEvents =
       ) => VisualizerMachineContext["zoom"];
     }
   | {
-      type: "PAN";
+      type: "GESTURE.PAN";
       event: WheelEvent;
       devicePixelRatio: number;
     }
@@ -274,5 +278,17 @@ export type VisualizerMachineEvents =
     }
   | {
       type: "SELECTED_ELEMENTS.UNGROUP";
+    }
+  | {
+      type: "PAN_START";
+      event: Parameters<MouseEventHandler<HTMLCanvasElement>>[0];
+    }
+  | {
+      type: "PAN";
+      event: Parameters<MouseEventHandler<HTMLCanvasElement>>[0];
+      devicePixelRatio: number;
+    }
+  | {
+      type: "PAN_END";
     };
 /* #endregion */

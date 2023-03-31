@@ -278,13 +278,13 @@ export const calculateNormalizedZoom = (
 
 export const createElement = ({
   elements,
-  tool,
+  shape,
   drawStartPoint,
   elementOptions,
   devicePixelRatio,
 }: {
   elements: VisualizerMachineContext["elements"];
-  tool: VisualizerMachineContext["tool"];
+  shape: VisualizerElement["shape"];
   drawStartPoint: VisualizerMachineContext["drawStartPoint"];
   elementOptions: VisualizerMachineContext["elementOptions"];
   devicePixelRatio: number;
@@ -316,33 +316,33 @@ export const createElement = ({
       .filter(Boolean)
   );
 
-  if (isGenericShape(tool)) {
-    if (tool === "selection") {
+  if (isGenericShape(shape)) {
+    if (shape === "selection") {
       return {
         ...elementBase,
-        shape: tool,
+        shape,
       };
     } else {
       return {
         ...elementBase,
-        shape: tool,
+        shape,
         seed: createRandomSeed(existingSeeds),
       };
     }
   }
 
-  if (isLinearShape(tool) || isFreeDrawShape(tool)) {
-    if (isLinearShape(tool)) {
+  if (isLinearShape(shape) || isFreeDrawShape(shape)) {
+    if (isLinearShape(shape)) {
       return {
         ...elementBase,
-        shape: tool,
+        shape,
         points: [{ x: 0, y: 0 }],
         seed: createRandomSeed(existingSeeds),
       };
     } else {
       return {
         ...elementBase,
-        shape: tool,
+        shape,
         points: [{ x: 0, y: 0 }],
       };
     }
@@ -354,7 +354,7 @@ export const createElement = ({
     y:
       elementBase.y -
       (fontSize * TEXTAREA_UNIT_LESS_LINE_HEIGHT * devicePixelRatio) / 2,
-    shape: tool,
+    shape,
     fontSize,
     fontFamily,
     text: "",
