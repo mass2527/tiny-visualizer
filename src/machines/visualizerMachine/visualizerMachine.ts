@@ -35,6 +35,7 @@ import {
   createUuid,
   isSameGroup,
   calculateSameGroup,
+  isDrawingTool,
 } from "../../utils";
 import debounce from "lodash.debounce";
 import { TEXTAREA_UNIT_LESS_LINE_HEIGHT } from "../../constants";
@@ -49,7 +50,7 @@ import {
 import { ELEMENT_STATUS, PERSISTED_CONTEXT } from "./constant";
 
 export const visualizerMachine =
-  /** @xstate-layout N4IgpgJg5mDOIC5QDcCWsCuBDANqgXmAE4AEAtlgMYAWqAdmAHSoQ5gDEAIgEoCCA6gH0AygBVe3UQG0ADAF1EoAA4B7WKgAuqFXUUgAHogDsMo4wCcARgAsM60fNGArADYnlgMwAaEAE9EAEwBboyWlkYeph7W5gAcDtYAvok+aJi4BMTkVLQMzKwcAMIAErwAcgDiAKKCVQAyVQCyVWWiIqUAClWyCkggqupaOnqGCCZmVrb2jq7u3n6BMjKMRjGOAbHmLjLm1k7JqejYeISkFDT0TCxsXHwVIuKSPXoDmtq6faPjFjZ2Ds5uTw+fwISyxcGMGROawucweYIBMLmA4gNLHTJnHKXfI3YT1KqFURVTi1BrNVrCRicfFE559V5DD6gL6mH5Tf6zIELUFOJzLSzmdzbWLWDxGcWxFFojKnbIXPLXDh4hqE4mkpotUSUwoAeQ6AE06co1G9hp9jKzJn8ZoD5iDYQFGE4PFYoryAuZzAEpUcZVlzrkrgV2MqCUSSfjyVrGB1eGJuvIXibGSMLRNftMAXNgYhPAFlgFrEFLE4jIjYh5Nj70id-ViFcHGjqAKp4wRNgBqCd6xsG71TCDFlkYew8nlMoqcFZc1hzCERW1CMUrsXLO2d1fRsoD2MV7AAksJ1VH2rwuoIAGL7gAaatEOoqFQaRv6yf75rGlozHNtc-h1lCVwAg8XktliFxYksTc-UxeUg1xfFVQjMlNW1ZtpETek3zNZk0zZa0sy5EFLBkDwPBWItEV5eIXHCIxoNrWDAxxIpSkqGpI01QQ9VEfcdTKYQXwZd9cM-dN2RtbNuUsGcXEYGcKycREZE8QUGIxOVmL3EpymqQQAC0dR1RohOwpkDDwq1M05O1ECLZZtjhB0tncLZ1O3et4NY3SakM4zBH4fdRGKQQOn3MoSlMvscIssT8Os39uXcMwZBcAJXChaFPAg9y6zglj2FjMootNczRnS1YnVXewRWsWJnWdOdC0q51K1FVYIiMKCUlRX1GM03dg2KQ9724fVBGbDpOF4WlMN7UqB2+Kyfyk4jRwo-MRRMfMrHonrpX6ncGxufhuCCmoxAkDCe1faKytzGREUhF13A2JZaKapZHUiUUNnBKFCw8XKmMGm5OIpRhQ0JQReDqOoSpTD8bHsCwyJnUxNkrSsmt2cix2CGJwNXVKgf2vqNKOrz2FO87ak4IKEZE2KK1iRh-1hQV-vcJw5zo8xQhccUthsQWINJw4awpzyCu4KphH3fSLsea6kzugcAFp81RzYbF5Jw4hAv9EQAsIliMSCJXS-Yycljz8r3DodXC0RGEm6aiQeK7GZi0ZKzk6xfs2wW-ZcP8A8dJY7CWOr2pcYGBuOpVEPDY9UMYCpuBbDpvfuhAp0dMFwjSj183sIwmrLb6wRkC3gJI+J48pgqoZT8Ho2bSpM8mnOBzS-mwkLHYbAFUjbPnWiUvCIsvTsFm9olrc8uYiAiCwAB3egoFuAQe6R8JhynPlgJr1dwND7kF355xUqnGqtsb6WV-Xzft6EFpOF30Tx1Zs3zEe2Jo5lnLhfDYw4diVi6vVOw1huoLxggnJgT8N50C3tSBoHsW58WKnNW6C0PwBABCONwU5tgkMsJ9GuI4-4CnhLsEi0QH75SQS-XUZQyhhk9k8HBwkfYPRcHjLYaUur62LMAkE6UZwjkxoWAUTk9iMOXqvKAUAX48F4BUT+sUZJ2DZn8PYQQYGwjEbmBwywxR1XhLRIsZZrZwMOo-JRKiUHb3uO-TRowwRikYPVOE4FHDjDBLzTYThdH2FIl1McA8FHYhwCoLAEAX7uMCJBNmgsBTpN2CKJqHphwgXSnVBw0R9bRLyEoYg6hYBaGcUk+chYQnX1Ii4Jpq58zGIQCktYgowJYzIvPXqtsl7YmYSgkgKhSBryIG8EZYA6AQEgOwGpnizA+L9v40wgSQGCkYB6WExdZhVhtovEGeRkDlPeCQIgYA2BYFgPMmpBj6l8kac0oIpheZpNCIWSCuxHoqTBCUpgEyplbxph7Nx3CzIDm-pCUwf83p-AIZ9McKxIJ-U2DsAhtj+lHIQYwIFVSQVnVmjdHhucwiwh+ILcURc4QyV5kA7Z-DgibDLPw6EALGBKBuQS9gEAdBXDoMgFQABrJgB0pb5S5ZUzeCB6BCsoFgRkPRFmRB-rC-+gDEXSTHORFS1EcnMp2ByqVPLiBEDGZynAiqABmYyyCMHFXbZiJqZVypUAqpV8gVWUN-hqhFbTLDBBCdzNJ2xbB-zjoc+BTczVjJILE5RiSIVqyRjCR0p98ylkeo4L0vM6IWC9PmRydVoTi2xdG6WlAVBKF8C-PlCpBUirFeTJ12Iq01tdY2j17xlXJrwV-VVMLTHwvsFq+02wUV-ziGlGIDhkRRvsfldttbnGxqIJam1dqHUtsGXkZdnb5WKp7V6vtiMB0+vVSOoBc4TCsw2FYEipFnQ1zLY63dTBKAYA0Dy+tAqhWiu3QM45H6v0EtlV2o9Ohe0kshUjQdvqr1jsQIKOSpFXRbTsHySNdiJXMU-d+l+a6N0aFtUQe1b7gOMHw2Bt13aoMnpgym89arh0AP9bzOw-MYjFmiKQl0fSKO4qrXQBglAeVqP4IsnYDlTDvRiILf+TU2NOhAnEcEt73AcuE6JnlrD2GEhVZ4XRqVZ5xG2k1JpV986QSjo4WB5bF14Z0Dplh-F9PSEsIx-tWidXGbDZseIj0lM6MRL8BwtUvSvp3ZRy56h8Av1lvLRWtQygf1PUzDxJFcmzqMLJDYuXZzcnxssxECRPDhDHNhhzuHsSxYIAluWCtuyq286MeqAE4VzpouBRqRXIEjhiGXccZZPAcowEoCAR6RmqHoBoQqTtWiuymjNZrWEmOxTSqzQUuWZKQVom4MeYoQhrDqqlaqMIxsTam1AEgM26Bzcds7Jb7sOKpZqWLbx-Ca5ThzU+sOf9GWpRLEpcLe0ep0BUHM+AfRBOUxa2e2K6sILa0mHrA2PNuRI5hdHGcOzNvhA5YqeHGW7JBFRh4YUGwILgXCNkxw8lHqll2M4LqhYOXDKgMT3hoIdjLKWO1v4M5A1NTHD-MJ71mVkSi0B3FT9E0oK52S9G3ihSqYJs4cwvMrCs3NoGwWancYctifEzeiuBxFmyU0lX6VdpdJFFV2H0sylEAqQSs3+DKzLGnKlOFtgbBj34QBAO3zA91Jkuz1eyCbtxvxZvEgMy5kQHd1-Vw4kSzhHLHU7JAcVhbEcOBHY4EyIctOS785lzrm3KT2t1ruZPTDgISBOwbgzPpXeTCeSXyZ2YbFBy2PCua8I8yyYeSLoixNPyRs4i9UzCTlXKsVc-C1ILpq6U7lpvB8k557YbZC-4ThArGEMegb6eFmLHCdZJYOVrvjSoeXnPN-c5LJ6IhJEizv+G3m0UFgixgn1vVeIJIFfVtPdatFdB-eaIfB6CnSEEwECWiQsT0ILbkSzFTB9TjSIXWLTUDDfSArfehVDOA1wQNNYZA4iFSZYVYV5TwQ+EiB3aLITZzMAMTXA3BKAnnZHEUOIM2GuOqQUCzDvSBU7MJGnDlOreLAfPA7nGfbZKEECZcXLfhchIrPWVGGcaIGwIIL0S7SbAlW7FQWbZPWKKcYcP+aEKxXYNTP8NKYNf4L0aEKwXkSNZIIAA */
+  /** @xstate-layout N4IgpgJg5mDOIC5QDcCWsCuBDANqgXmAE4AEAtlgMYAWqAdmAHSoQ5gDEAIgEoCCA6gH0AygBVe3UQG0ADAF1EoAA4B7WKgAuqFXUUgAHogDsMo4wCcARgAsM60fNGArADYnlgMwAaEAE9EAEwBboyWlkYeph7W5gAcDtYAvok+aJi4BMTkVLQMzKwcAMIAErwAcgDiAKKCogDydQAysgpIIKrqWjp6hgguMi6M1h4e-bEBsS6xkwE+-ggBTh6xFhOuYR6WwS4uyano2HiEpBQ09EwsbFx8FSLiki16HZraum29JmZWtvaOru7ePyISzTFYyJzWFzmDzBAJhcx7EBpQ6ZE45c75K7CKqNKqFURVTiCHFVACyVTKomEjE4JIJjzazy6b1AH1MFhsdgczjcnjmwKcThkoXM7jGwyMktiiORGWO2TOeUuHGxuPxhOJuPJlOphTqAAUAJoM5RqF7dd7GdnfLl-XmA+ZQgKMJZWKKCgLmcwBGUHOVZU65C4FdiqvEEokk7VUxj63hiKom9pm5k9K1fTm-HkA-kITwBYUBaxBSxOIxw2LLBEpJF+o4B9FKkOkuoAVWxghbADVE-IninXmmEB4jJYhktPKZhk5Ky5rLm4eZBjZodMKzJRR5fel62jFcGrgBJYSaskU0QiUr6moAMUPAA0NfUKhVcUmmYPLQhPhyftz-nyQLDkWoSuAEHiCkukyxJY24ovKgYYsqoYkuqkZaueuqttIfaMgOFqsumv62tmgHzJYMgjIwRjFnCgrxC44RGHB-p7kGmJFKUlQ1FG56CAaoiHnUZTCO++EsgYRE2lmAEOsCc6DHOlZOHCMieKKLG7gq7HISU5TVIIABaDSkmJnSfoR37Wpm-72rmxbCv00JOku7hLppqLaUhIZ6dxRkmYI-CHqIxSCPqh5lCUZnmhJbIZn+do5kB7hmAMiz9IK1ieFMHkIY2B4cNUYittwVSxuU0Wpl+-SDMMowyOM0EzAuMTCt6sTrJ4Ww7LsNaylpiFNlcxTHvU3CGoIrb6pwvD0rhprmQRklWfFJGybmNhLNRDmxPYMgFlYzF9XWnmDQV7D8NwwU1GIEg4a0C0xUOFFwowlGilssQyAMlgLt9zqRMMEzTOCRZbsdO6nflHHsLxOqMGG+KCLwjTNPNyaLbFwLWPYFgjHOpixKuywLuYwyMJswQxNBBYuOD+yQ3l+4w5d13EpwwWVRZy2VisMKQl6M5fe4TgbZK5ihC44uMZCRhTPTtaMw2zPIaVwiHoZN33Pd-aY0OAC0BZ40Tm2QcpuYwjYoQUYTTHjIKuXKzpIb6nUEWiIwU0zQSdx3VzS29MstVAwWkwRJMLgWzjzrfXY33WLtI69Qz8FO95WKoRGp7RtSFTcG2+r+1jCAzs6ILhC4QTelyRgLuWAMgg14TgRR8SO2x6cqpnGpwzGraVPnU1F0OThetROzeks0SVtYotAYskyrB1jFddsyeK6nHdDRwcZlL7Dzox+AeIDVQz4w1ExTM18-R0vnWUz17deXkEBEFgADu9BQNcAjD1+YSjhdB1fakQ1wRwXJYMezgBgznsNMewT8zqMFfh-L+P8hAUk4H-Syk4wSmHMPtL6XIAi13nhMMcG5lijmATjWCENN7PyYCgz+dBv60lxD7RGglhLYOWiQ1wQw3AzgypMX689vorFapAmEZMKLREQdDZhaC9RlDKOGfeOs8J63-gMDwFMlyV1HKPEspD5jpWsEMIm-NIHOVngo5mKCoBQDQTwXgFReG9EsP0CxgMaIqSLF4xwYsCEUxopWYINgSGLHsexRxzjWE-1uJgjxwJKxmA6quKEkpTAgg2kTJwFMuSUVHJsMIPp6GsUYYwHAKgsAQDQSkhYMEKZS0gW0smu0FyejHBBRYCcHDRFHjEjEShiDqFgFoBJjSgiz2okKSiPVxgFlMYgZpMRBZQWWCMEcwyX5vxYVAEgKhSDvyIC8VhJAwB0AgJAdgjTy4S1FHYYIEIRjkL+kYFYgSRz2CngCXZTBkBjNeCQIgYA2BYFgLc6ZRYCnQIWTsJZpgNqtNCEWGCZN9pqRBACxgpzznf1Zj7ZJh9xLPVAW9fBhD47lhWQsSiY5PmfWmAQ70zhcX4smYSq6c0HoYyev-QJHIpaSgrtCLxYsSGMGCDCKYjgZUQlxUoSFXL2AQB0BcOgyAVAAGtAUnSZuxZVEyv4IHoNqygWBmQtHuRS76DhqXELpV1PRal6LdOCF9asKdKlIONaq4gRBjmMCUDgK1AAzY5ZBGD9Shszf1przUqEtda+QtqGqUodRMGlJCNovJdKWVp3iNwDFxYG45JAalOIaaS7RODITOkagWMs+1HDeg2kxCw3paYbgTq83FlAVBKF8Gg9VSotW6v1UrLeTBB3DsTROlNrwbW1oFTgu1VLs1OtzDsYUnzWUzBiA4b1G9fXQznSOhJ5aiAhrDRoSNRBo2xsNRiC9C6LVWuXWm1dVV10ZvtQQrd9hc1ARMCsCYVgbYQVAQrZ9ac8iUAwBoVVY7NXar1TGg18HZ1Ia5Waxdn6dArr5UfYuuDM2AaIcBulopBjvVbntWepaKkDXPbhtB17b0RqjZh6dVTEPIffcmwjdBiO6zXctcjAHHXUY2nYCWMQSzRAyh4RwA6dAMEoKq1x-B7klsYP0EwAwYhS0IQuIhLoIJxGmGB9w6m6CadVSotR+JbWeEKQMOwRN4j7QXBPOZjUKK2EcHQn1rHmaDoc2ALTyjhIuekJYEjZL-6bD0ZETzCc4gmFmPPL6Fi4ScgcLtRTsGsMzsYGC9Q+A0Fqw1jxMoWCf3c08RRHpR65YNoYvOIClN0lwgSF1CIXjcWVYIDVqo6tNaNI6hYwDx6GKTCWBbahQwYj2BKaYOEpW+NIIwEoCAn6LmqHoBodgrt3ae2mrNXsSW63LUrisUUcsvEwUYm4OSw45YFPWQnAY4wcbrzg+VvbB2uUkGO3QU753KSXe9vVxrt2JO9HlowSYoCZxtsonPeY0QQnBB+h6IrR0wtxqNVgBzaDd56ahBYHYNFAlSxUnSzYITLYDc2ENwHZWqnKopwk3exIGvU8eXTrKUJGcgZx56FYRMvRtI55sLnO3FH7K-kck5ZywdXJuRAO5iXxO-sk-ECxHXPQL1sOEbHgRohjmWcDUsxYYS4qURc8FYAyBXI0CQKFbAtPQqa8fBY3VqI26EYroU3WzH7QsfA-7S4sfDcRHQFQNz4BtCB4wg3zXED6ymMbb4gpR7myArnyl8cmPRA3PLXFyos+B9onjeqjUr6MTpVXMw-RFgJGcKOIszvVesLr2Rjc6SJEQi5HOLYC5Nhgj2t9Su8sRj96wNWwfWikfyVsKjsUVmqbOHMBtKwKwmXBCK0TYYuKal1K-kPocxYuk7G34sQ6oo4iQiVcCk1a-HqG96OBL6qO9UUI0eakwwO60Qq2GKdMxYs8ieJOL6eyqCFyFanKau2ukAt+-8mULoDgo84Q-2zaECmwBmakwQ0I5C7KLGpOGIQKRA6gOgoKbukKGB6+v+wIcu0qEQEebgWWiwKKkIBm6KlcPwSwxOp64W7EqB3+-KbBeY4QjkqmxYOwfSuSQEIIZYZ8pcYSMqGkVBCBTACa0hpGz0ccnBCcbOlYGweajg0qtE0iOSpYZaRAQapAVa8SUAmBOCo8CmjEzyMBk4zqNgeiZMFYReM4NE6m86RhyWOCCyb0JgEEjERYXovmQE-mroYQ8mkQm0A67G0Rd2nicRpgWOSR6yqR5Eake6tEakEEHUFESuDCSCkWjmN+rB2eeYf2qO1M9qDUmWVuCwCk1EIIv2e0oiI2cAY2+RG+CAHUZgzaEEMQScdMYiOOheeMc4NutE3ouKIOh2hyEOGgnhy0M4Y4BCEIMsZM1mFslcBSZYbafSVggoDRZ68a5OdArRP+7RHU4GFuDgkCEubexYFC7gWwmwDUKkOwy+BylybAHukO3ubufuEARxf+8m48pYnoKkS4oo-RocMeu0ce-QEEieyQQAA */
   createMachine(
     {
       id: "visualizer machine",
@@ -97,10 +98,10 @@ export const visualizerMachine =
               ],
             },
 
-            CHANGE_ELEMENT_SHAPE: {
+            CHANGE_TOOL: {
               target: "persisting",
 
-              actions: ["unselectElements", "changeElementShape"],
+              actions: ["unselectElements", "changeTool"],
             },
 
             DRAG_START: {
@@ -124,7 +125,7 @@ export const visualizerMachine =
 
             IS_ELEMENT_SHAPE_FIXED_TOGGLE: {
               target: "persisting",
-              actions: "toggleIsElementShapeFixed",
+              actions: "toggleIsToolFixed",
             },
 
             "SELECTED_ELEMENTS.CUT": "cutting",
@@ -144,9 +145,9 @@ export const visualizerMachine =
               actions: ["assignZoomToCurrentPoint"],
             },
 
-            PAN: {
+            "GESTURE.PAN": {
               target: "persisting",
-              actions: ["pan"],
+              actions: ["panWithGesture"],
             },
 
             HISTORY_UPDATE: {
@@ -192,11 +193,17 @@ export const visualizerMachine =
             "SELECTED_ELEMENTS.GROUP": {
               target: "version released",
               actions: "groupSelectedElements",
+              cond: "canGroup",
             },
 
             "SELECTED_ELEMENTS.UNGROUP": {
               target: "version released",
               actions: "ungroupSelectedElements",
+              cond: "canUngroup",
+            },
+
+            PAN_START: {
+              target: "panning",
             },
           },
         },
@@ -250,12 +257,15 @@ export const visualizerMachine =
         },
 
         "drawing or writing ended": {
-          always: "version released",
-          entry: [
-            "selectDrawingElement",
-            "resetDrawingElementId",
-            "updateElementShape",
+          always: [
+            {
+              target: "version released",
+              cond: "isToolFixed",
+              actions: "resetDrawingElementId",
+            },
+            "drawing element selected",
           ],
+          entry: ["updateTool"],
         },
 
         "version released": {
@@ -361,6 +371,24 @@ export const visualizerMachine =
 
           description: `updating linear element's point`,
         },
+
+        panning: {
+          on: {
+            PAN: {
+              target: "panning",
+              internal: true,
+              actions: "pan",
+            },
+
+            PAN_END: "persisting",
+          },
+        },
+
+        "drawing element selected": {
+          entry: ["selectDrawingElement", "resetDrawingElementId"],
+
+          always: "version released",
+        },
       },
 
       initial: "loading",
@@ -368,9 +396,11 @@ export const visualizerMachine =
     {
       actions: {
         addElement: assign((context, { devicePixelRatio }) => {
+          invariant(isDrawingTool(context.tool));
+
           const element = createElement({
             elements: context.elements,
-            elementShape: context.elementShape,
+            shape: context.tool,
             elementOptions: context.elementOptions,
             drawStartPoint: context.drawStartPoint,
             devicePixelRatio,
@@ -384,7 +414,7 @@ export const visualizerMachine =
         addTextElement: assign((context, { devicePixelRatio }) => {
           const textElement = createElement({
             elements: context.elements,
-            elementShape: "text",
+            shape: "text",
             elementOptions: context.elementOptions,
             drawStartPoint: context.drawStartPoint,
             devicePixelRatio,
@@ -402,9 +432,9 @@ export const visualizerMachine =
             ),
           };
         }),
-        changeElementShape: assign((_, { elementShape }) => {
+        changeTool: assign((_, { tool }) => {
           return {
-            elementShape,
+            tool,
           };
         }),
         assignDrawStartPoint: assign((context, { devicePixelRatio, event }) => {
@@ -762,9 +792,9 @@ export const visualizerMachine =
             currentPoint,
           };
         }),
-        toggleIsElementShapeFixed: assign((context) => {
+        toggleIsToolFixed: assign((context) => {
           return {
-            isElementShapeFixed: !context.isElementShapeFixed,
+            isToolFixed: !context.isToolFixed,
           };
         }),
         assignElementOptions: assign((context, event) => {
@@ -811,7 +841,7 @@ export const visualizerMachine =
             },
           };
         }),
-        pan: assign((context, { event, devicePixelRatio }) => {
+        panWithGesture: assign((context, { event, devicePixelRatio }) => {
           const clientPoint = calculateClientPoint({
             canvasPoint: context.currentPoint,
             origin: context.origin,
@@ -837,6 +867,17 @@ export const visualizerMachine =
             currentPoint,
           };
         }),
+        pan: assign((context, { event, devicePixelRatio }) => {
+          const origin = {
+            x: context.origin.x + event.movementX * devicePixelRatio,
+            y: context.origin.y + event.movementY * devicePixelRatio,
+          };
+
+          return {
+            origin,
+          };
+        }),
+
         addVersionToHistory: assign((context) => {
           const version = {
             elementOptions: context.elementOptions,
@@ -904,7 +945,7 @@ export const visualizerMachine =
             }),
           };
         }),
-        updateElementShape: assign((context) => {
+        updateTool: assign((context) => {
           const nonZeroSizeElements = context.elements.filter(
             (element) => element.width !== 0 && element.height !== 0
           );
@@ -913,9 +954,9 @@ export const visualizerMachine =
 
           return {
             elements: nonZeroSizeElements,
-            elementShape:
-              context.isElementShapeFixed || !isElementAdded
-                ? context.elementShape
+            tool:
+              context.isToolFixed || !isElementAdded
+                ? context.tool
                 : "selection",
           };
         }),
@@ -1136,19 +1177,6 @@ export const visualizerMachine =
           };
         }),
         groupSelectedElements: assign((context) => {
-          const selectedElements = context.elements.filter(
-            (element) => element.status === "selected"
-          );
-          if (selectedElements.length <= 1) {
-            return {};
-          }
-
-          const isEverySelectedElementsSameGroup =
-            isSameGroup(selectedElements);
-          if (isEverySelectedElementsSameGroup) {
-            return {};
-          }
-
           const newGroupId = uuidv4();
           return {
             elements: context.elements.map((element) => {
@@ -1164,13 +1192,6 @@ export const visualizerMachine =
           };
         }),
         ungroupSelectedElements: assign((context) => {
-          const selectedElements = context.elements.filter(
-            (element) => element.status === "selected"
-          );
-          if (selectedElements.length <= 1) {
-            return {};
-          }
-
           return {
             elements: context.elements.map((element) => {
               if (element.status !== "selected") {
@@ -1239,6 +1260,35 @@ export const visualizerMachine =
           }
 
           return true;
+        },
+        canGroup: (context) => {
+          const selectedElements = context.elements.filter(
+            (element) => element.status === "selected"
+          );
+          if (selectedElements.length <= 1) {
+            return false;
+          }
+
+          const isEverySelectedElementsSameGroup =
+            isSameGroup(selectedElements);
+          if (isEverySelectedElementsSameGroup) {
+            return false;
+          }
+
+          return true;
+        },
+        canUngroup: (context) => {
+          const selectedElements = context.elements.filter(
+            (element) => element.status === "selected"
+          );
+          if (selectedElements.length <= 1) {
+            return false;
+          }
+
+          return true;
+        },
+        isToolFixed: (context) => {
+          return context.isToolFixed;
         },
       },
     }

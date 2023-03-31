@@ -1,11 +1,28 @@
 import {
+  DrawingTool,
   VisualizerElement,
   VisualizerFreeDrawElement,
   VisualizerGenericElement,
   VisualizerLinearElement,
+  VisualizerMachineContext,
   VisualizerPointBasedElement,
   VisualizerTextElement,
 } from "../machines/visualizerMachine";
+
+const TOOL_TYPES: Record<
+  VisualizerMachineContext["tool"],
+  "drawing" | "non-drawing"
+> = {
+  selection: "drawing",
+  rectangle: "drawing",
+  diamond: "drawing",
+  ellipse: "drawing",
+  arrow: "drawing",
+  line: "drawing",
+  freedraw: "drawing",
+  text: "drawing",
+  hand: "non-drawing",
+};
 
 const SHAPE_TYPES: Record<
   VisualizerElement["shape"],
@@ -21,7 +38,7 @@ const SHAPE_TYPES: Record<
   text: "text",
 };
 
-export const isGenericElementShape = (
+export const isGenericShape = (
   shape: VisualizerElement["shape"]
 ): shape is VisualizerGenericElement["shape"] => {
   return SHAPE_TYPES[shape] === "generic";
@@ -30,10 +47,10 @@ export const isGenericElementShape = (
 export const isGenericElement = (
   element: VisualizerElement
 ): element is VisualizerGenericElement => {
-  return isGenericElementShape(element.shape);
+  return isGenericShape(element.shape);
 };
 
-export const isLinearElementShape = (
+export const isLinearShape = (
   shape: VisualizerElement["shape"]
 ): shape is VisualizerLinearElement["shape"] => {
   return SHAPE_TYPES[shape] === "linear";
@@ -42,10 +59,10 @@ export const isLinearElementShape = (
 export const isLinearElement = (
   element: VisualizerElement
 ): element is VisualizerLinearElement => {
-  return isLinearElementShape(element.shape);
+  return isLinearShape(element.shape);
 };
 
-export const isFreeDrawElementShape = (
+export const isFreeDrawShape = (
   shape: VisualizerElement["shape"]
 ): shape is VisualizerFreeDrawElement["shape"] => {
   return SHAPE_TYPES[shape] === "freedraw";
@@ -54,10 +71,10 @@ export const isFreeDrawElementShape = (
 export const isFreeDrawElement = (
   element: VisualizerElement
 ): element is VisualizerFreeDrawElement => {
-  return isFreeDrawElementShape(element.shape);
+  return isFreeDrawShape(element.shape);
 };
 
-export const isTextElementShape = (
+export const isTextShape = (
   shape: VisualizerElement["shape"]
 ): shape is VisualizerTextElement["shape"] => {
   return SHAPE_TYPES[shape] === "text";
@@ -66,7 +83,7 @@ export const isTextElementShape = (
 export const isTextElement = (
   element: VisualizerElement
 ): element is VisualizerTextElement => {
-  return isTextElementShape(element.shape);
+  return isTextShape(element.shape);
 };
 
 export const isPointBasedElement = (
@@ -76,4 +93,10 @@ export const isPointBasedElement = (
     SHAPE_TYPES[element.shape] === "linear" ||
     SHAPE_TYPES[element.shape] === "freedraw"
   );
+};
+
+export const isDrawingTool = (
+  tool: VisualizerMachineContext["tool"]
+): tool is DrawingTool => {
+  return TOOL_TYPES[tool] === "drawing";
 };

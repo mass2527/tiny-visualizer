@@ -30,7 +30,7 @@ export const PERSISTED_CONTEXT: VisualizerMachinePersistedContext = {
   },
 
   // untrack
-  elementShape: "selection",
+  tool: "selection",
   drawingElementId: null,
   drawStartPoint: {
     x: 0,
@@ -53,7 +53,7 @@ export const PERSISTED_CONTEXT: VisualizerMachinePersistedContext = {
     x: 0,
     y: 0,
   },
-  isElementShapeFixed: false,
+  isToolFixed: false,
   zoom: ZOOM.DEFAULT,
   origin: {
     x: 0,

@@ -68,7 +68,7 @@ export interface Typegen0 {
     assignUpdatingPointIndex: "POINT.UPDATE_START";
     assignZoom: "CHANGE_ZOOM";
     assignZoomToCurrentPoint: "CHANGE_ZOOM_WITH_PINCH";
-    changeElementShape: "CHANGE_ELEMENT_SHAPE";
+    changeTool: "CHANGE_TOOL";
     connect: "CONNECT";
     deleteSelectedElements:
       | "SELECTED_ELEMENTS.DELETE"
@@ -85,40 +85,41 @@ export interface Typegen0 {
       | "error.platform.visualizer machine.cutting:invocation[0]"
       | "error.platform.visualizer machine.pasting:invocation[0]";
     pan: "PAN";
+    panWithGesture: "GESTURE.PAN";
     pasteSelectedElements: "done.invoke.visualizer machine.pasting:invocation[0]";
     persist:
       | ""
-      | "CHANGE_ELEMENT_SHAPE"
+      | "CHANGE_TOOL"
       | "CHANGE_ZOOM"
       | "CHANGE_ZOOM_WITH_PINCH"
       | "DELETE_SELECTION"
       | "ELEMENTS.SELECT_ALL"
+      | "GESTURE.PAN"
       | "HISTORY_UPDATE"
       | "IS_ELEMENT_SHAPE_FIXED_TOGGLE"
-      | "PAN"
+      | "PAN_END"
       | "WRITE"
       | "done.invoke.visualizer machine.copying:invocation[0]"
       | "done.invoke.visualizer machine.cutting:invocation[0]";
-    resetDrawingElementId:
-      | "CONNECT"
-      | "DELETE_SELECTION"
-      | "DRAW_END"
-      | "WRITE_END";
+    resetDrawingElementId: "" | "DELETE_SELECTION";
     resize: "RESIZE";
     selectAllElements: "ELEMENTS.SELECT_ALL";
-    selectDrawingElement: "CONNECT" | "DRAW_END" | "WRITE_END";
-    toggleIsElementShapeFixed: "IS_ELEMENT_SHAPE_FIXED_TOGGLE";
+    selectDrawingElement: "";
+    toggleIsToolFixed: "IS_ELEMENT_SHAPE_FIXED_TOGGLE";
     ungroupSelectedElements: "SELECTED_ELEMENTS.UNGROUP";
-    unselectElements: "CHANGE_ELEMENT_SHAPE" | "DRAW_START" | "WRITE_START";
-    updateElementShape: "CONNECT" | "DRAW_END" | "WRITE_END";
+    unselectElements: "CHANGE_TOOL" | "DRAW_START" | "WRITE_START";
     updateHistory: "HISTORY_UPDATE";
     updateIntersecting: "DRAW" | "DRAW_END";
     updatePoint: "POINT.UPDATE";
+    updateTool: "CONNECT" | "DRAW_END" | "WRITE_END";
     write: "WRITE";
   };
   eventsCausingDelays: {};
   eventsCausingGuards: {
     canEditText: "WRITE_EDIT";
+    canGroup: "SELECTED_ELEMENTS.GROUP";
+    canUngroup: "SELECTED_ELEMENTS.UNGROUP";
+    isToolFixed: "";
     shouldConnect: "CONNECT";
   };
   eventsCausingServices: {
@@ -131,10 +132,12 @@ export interface Typegen0 {
     | "cutting"
     | "dragging"
     | "drawing"
+    | "drawing element selected"
     | "drawing or writing ended"
     | "error logging"
     | "idle"
     | "loading"
+    | "panning"
     | "pasting"
     | "persisting"
     | "resizing"

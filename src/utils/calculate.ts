@@ -17,11 +17,11 @@ import {
 } from "./math";
 import {
   isFreeDrawElement,
-  isFreeDrawElementShape,
+  isFreeDrawShape,
   isGenericElement,
-  isGenericElementShape,
+  isGenericShape,
   isLinearElement,
-  isLinearElementShape,
+  isLinearShape,
 } from "./type-guard";
 import * as uuid from "uuid";
 import { TEXTAREA_UNIT_LESS_LINE_HEIGHT } from "../constants";
@@ -278,13 +278,13 @@ export const calculateNormalizedZoom = (
 
 export const createElement = ({
   elements,
-  elementShape,
+  shape,
   drawStartPoint,
   elementOptions,
   devicePixelRatio,
 }: {
   elements: VisualizerMachineContext["elements"];
-  elementShape: VisualizerMachineContext["elementShape"];
+  shape: VisualizerElement["shape"];
   drawStartPoint: VisualizerMachineContext["drawStartPoint"];
   elementOptions: VisualizerMachineContext["elementOptions"];
   devicePixelRatio: number;
@@ -316,36 +316,33 @@ export const createElement = ({
       .filter(Boolean)
   );
 
-  if (isGenericElementShape(elementShape)) {
-    if (elementShape === "selection") {
+  if (isGenericShape(shape)) {
+    if (shape === "selection") {
       return {
         ...elementBase,
-        shape: elementShape,
+        shape,
       };
     } else {
       return {
         ...elementBase,
-        shape: elementShape,
+        shape,
         seed: createRandomSeed(existingSeeds),
       };
     }
   }
 
-  if (
-    isLinearElementShape(elementShape) ||
-    isFreeDrawElementShape(elementShape)
-  ) {
-    if (isLinearElementShape(elementShape)) {
+  if (isLinearShape(shape) || isFreeDrawShape(shape)) {
+    if (isLinearShape(shape)) {
       return {
         ...elementBase,
-        shape: elementShape,
+        shape,
         points: [{ x: 0, y: 0 }],
         seed: createRandomSeed(existingSeeds),
       };
     } else {
       return {
         ...elementBase,
-        shape: elementShape,
+        shape,
         points: [{ x: 0, y: 0 }],
       };
     }
@@ -357,7 +354,7 @@ export const createElement = ({
     y:
       elementBase.y -
       (fontSize * TEXTAREA_UNIT_LESS_LINE_HEIGHT * devicePixelRatio) / 2,
-    shape: elementShape,
+    shape,
     fontSize,
     fontFamily,
     text: "",
