@@ -2,6 +2,7 @@ import "@total-typescript/ts-reset";
 
 import { useMachine } from "@xstate/react";
 import {
+  CSSProperties,
   MouseEventHandler,
   useCallback,
   useEffect,
@@ -355,13 +356,26 @@ function App() {
     };
   }, [send, updateZoom]);
 
+  const isPanningState = state.matches("panning");
   useEffect(() => {
-    if (tool === "selection") {
-      document.body.style.cursor = "default";
-    } else {
-      document.body.style.cursor = "crosshair";
+    let cursor: CSSProperties["cursor"];
+    switch (tool) {
+      case "selection":
+        cursor = "default";
+        break;
+      case "hand":
+        if (isPanningState) {
+          cursor = "grabbing";
+        } else {
+          cursor = "grab";
+        }
+        break;
+      default:
+        cursor = "crosshair";
     }
-  }, [tool]);
+
+    document.body.style.cursor = cursor;
+  }, [tool, isPanningState]);
 
   const isResizingState = state.matches("resizing");
   useEffect(() => {
@@ -563,6 +577,10 @@ function App() {
       zoom,
       origin,
     });
+
+    if (tool !== "selection") {
+      return;
+    }
 
     if (
       isPointInsideOfAbsolutePoint(selectedElementsAbsolutePoint, mousePoint)

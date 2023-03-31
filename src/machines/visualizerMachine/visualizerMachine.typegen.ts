@@ -101,14 +101,10 @@ export interface Typegen0 {
       | "WRITE"
       | "done.invoke.visualizer machine.copying:invocation[0]"
       | "done.invoke.visualizer machine.cutting:invocation[0]";
-    resetDrawingElementId:
-      | "CONNECT"
-      | "DELETE_SELECTION"
-      | "DRAW_END"
-      | "WRITE_END";
+    resetDrawingElementId: "" | "DELETE_SELECTION";
     resize: "RESIZE";
     selectAllElements: "ELEMENTS.SELECT_ALL";
-    selectDrawingElement: "CONNECT" | "DRAW_END" | "WRITE_END";
+    selectDrawingElement: "";
     toggleIsToolFixed: "IS_ELEMENT_SHAPE_FIXED_TOGGLE";
     ungroupSelectedElements: "SELECTED_ELEMENTS.UNGROUP";
     unselectElements: "CHANGE_TOOL" | "DRAW_START" | "WRITE_START";
@@ -123,6 +119,7 @@ export interface Typegen0 {
     canEditText: "WRITE_EDIT";
     canGroup: "SELECTED_ELEMENTS.GROUP";
     canUngroup: "SELECTED_ELEMENTS.UNGROUP";
+    isToolFixed: "";
     shouldConnect: "CONNECT";
   };
   eventsCausingServices: {
@@ -135,6 +132,7 @@ export interface Typegen0 {
     | "cutting"
     | "dragging"
     | "drawing"
+    | "drawing element selected"
     | "drawing or writing ended"
     | "error logging"
     | "idle"
