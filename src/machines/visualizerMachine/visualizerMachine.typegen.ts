@@ -19,6 +19,11 @@ export interface Typegen0 {
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
+    "done.invoke.visualizer machine.uploading image:invocation[0]": {
+      type: "done.invoke.visualizer machine.uploading image:invocation[0]";
+      data: unknown;
+      __tip: "See the XState TS docs to learn how to strongly type this.";
+    };
     "error.platform.visualizer machine.copying:invocation[0]": {
       type: "error.platform.visualizer machine.copying:invocation[0]";
       data: unknown;
@@ -31,6 +36,10 @@ export interface Typegen0 {
       type: "error.platform.visualizer machine.pasting:invocation[0]";
       data: unknown;
     };
+    "error.platform.visualizer machine.uploading image:invocation[0]": {
+      type: "error.platform.visualizer machine.uploading image:invocation[0]";
+      data: unknown;
+    };
     "xstate.init": { type: "xstate.init" };
   };
   invokeSrcNameMap: {
@@ -38,6 +47,7 @@ export interface Typegen0 {
       | "done.invoke.visualizer machine.copying:invocation[0]"
       | "done.invoke.visualizer machine.cutting:invocation[0]";
     readClipboardText: "done.invoke.visualizer machine.pasting:invocation[0]";
+    uploadImage: "done.invoke.visualizer machine.uploading image:invocation[0]";
   };
   missingImplementations: {
     actions: "loadSavedContext";
@@ -47,11 +57,13 @@ export interface Typegen0 {
   };
   eventsCausingActions: {
     addElement: "DRAW_START";
+    addImageElement: "DRAW_UPLOADED_IMAGE";
     addTextElement: "WRITE_START";
     addVersionToHistory:
       | ""
       | "CHANGE_ELEMENT_OPTIONS"
       | "DRAG_END"
+      | "DRAW_UPLOADED_IMAGE"
       | "POINT.UPDATE_END"
       | "RESIZE_END"
       | "SELECTED_ELEMENTS.DELETE"
@@ -59,13 +71,14 @@ export interface Typegen0 {
       | "SELECTED_ELEMENTS.UNGROUP"
       | "done.invoke.visualizer machine.pasting:invocation[0]";
     assignCurrentPoint: "MOUSE_MOVE";
-    assignDrawStartPoint: "DRAW_START" | "WRITE_START";
+    assignDrawStartPoint: "DRAW_START" | "DRAW_UPLOADED_IMAGE" | "WRITE_START";
     assignElementOptions: "CHANGE_ELEMENT_OPTIONS";
     assignPreviousPoint: "DRAG" | "DRAG_START";
     assignResizeFixedPoint: "RESIZE_START";
     assignResizingDirection: "RESIZE_START";
     assignResizingStartPoint: "POINT.UPDATE_START" | "RESIZE_START";
     assignUpdatingPointIndex: "POINT.UPDATE_START";
+    assignUploadedImage: "done.invoke.visualizer machine.uploading image:invocation[0]";
     assignZoom: "CHANGE_ZOOM";
     assignZoomToCurrentPoint: "CHANGE_ZOOM_WITH_PINCH";
     changeTool: "CHANGE_TOOL";
@@ -83,7 +96,8 @@ export interface Typegen0 {
     logError:
       | "error.platform.visualizer machine.copying:invocation[0]"
       | "error.platform.visualizer machine.cutting:invocation[0]"
-      | "error.platform.visualizer machine.pasting:invocation[0]";
+      | "error.platform.visualizer machine.pasting:invocation[0]"
+      | "error.platform.visualizer machine.uploading image:invocation[0]";
     pan: "PAN";
     panWithGesture: "GESTURE.PAN";
     pasteSelectedElements: "done.invoke.visualizer machine.pasting:invocation[0]";
@@ -111,7 +125,7 @@ export interface Typegen0 {
     updateHistory: "HISTORY_UPDATE";
     updateIntersecting: "DRAW" | "DRAW_END";
     updatePoint: "POINT.UPDATE";
-    updateTool: "CONNECT" | "DRAW_END" | "WRITE_END";
+    updateTool: "CONNECT" | "DRAW_END" | "DRAW_UPLOADED_IMAGE" | "WRITE_END";
     write: "WRITE";
   };
   eventsCausingDelays: {};
@@ -125,6 +139,7 @@ export interface Typegen0 {
   eventsCausingServices: {
     copySelectedElements: "SELECTED_ELEMENTS.COPY" | "SELECTED_ELEMENTS.CUT";
     readClipboardText: "SELECTED_ELEMENTS.PASTE";
+    uploadImage: "IMAGE_UPLOAD";
   };
   matchesStates:
     | "connecting"
@@ -136,12 +151,14 @@ export interface Typegen0 {
     | "drawing or writing ended"
     | "error logging"
     | "idle"
+    | "image uploaded"
     | "loading"
     | "panning"
     | "pasting"
     | "persisting"
     | "resizing"
     | "updating point"
+    | "uploading image"
     | "version released"
     | "writing";
   tags: never;

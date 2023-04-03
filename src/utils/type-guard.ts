@@ -3,6 +3,7 @@ import {
   VisualizerElement,
   VisualizerFreeDrawElement,
   VisualizerGenericElement,
+  VisualizerImageElement,
   VisualizerLinearElement,
   VisualizerMachineContext,
   VisualizerPointBasedElement,
@@ -22,11 +23,12 @@ const TOOL_TYPES: Record<
   freedraw: "drawing",
   text: "drawing",
   hand: "non-drawing",
+  image: "drawing",
 };
 
 const SHAPE_TYPES: Record<
   VisualizerElement["shape"],
-  "generic" | "linear" | "freedraw" | "text"
+  "generic" | "linear" | "freedraw" | "text" | "image"
 > = {
   selection: "generic",
   rectangle: "generic",
@@ -36,6 +38,7 @@ const SHAPE_TYPES: Record<
   arrow: "linear",
   freedraw: "freedraw",
   text: "text",
+  image: "image",
 };
 
 export const isGenericShape = (
@@ -93,6 +96,18 @@ export const isPointBasedElement = (
     SHAPE_TYPES[element.shape] === "linear" ||
     SHAPE_TYPES[element.shape] === "freedraw"
   );
+};
+
+export const isImageShape = (
+  shape: VisualizerElement["shape"]
+): shape is VisualizerImageElement["shape"] => {
+  return SHAPE_TYPES[shape] === "image";
+};
+
+export const isImageElement = (
+  element: VisualizerElement
+): element is VisualizerImageElement => {
+  return isImageShape(element.shape);
 };
 
 export const isDrawingTool = (

@@ -3,6 +3,7 @@ import "@total-typescript/ts-reset";
 import { useMachine } from "@xstate/react";
 import {
   CSSProperties,
+  ChangeEvent,
   MouseEventHandler,
   useCallback,
   useEffect,
@@ -59,6 +60,7 @@ function App() {
   const devicePixelRatio = useDevicePixelRatio();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const initialTextRef = useRef("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [state, send] = useMachine(visualizerMachine, {
     actions: {
       loadSavedContext: assign(() => {
@@ -279,6 +281,9 @@ function App() {
     const canvasElement = canvasRef.current;
     invariant(canvasElement);
 
+    const fileInputElement = fileInputRef.current;
+    invariant(fileInputElement);
+
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Backspace") {
         send("SELECTED_ELEMENTS.DELETE");
@@ -348,6 +353,10 @@ function App() {
         type: "CHANGE_TOOL",
         tool,
       });
+
+      if (tool === "image") {
+        fileInputElement.click();
+      }
     };
 
     window.addEventListener("keydown", handleKeyDown);
@@ -439,6 +448,14 @@ function App() {
     } else {
       startDraw(event);
     }
+  };
+
+  const drawImage: MouseEventHandler<HTMLCanvasElement> = (event) => {
+    send({
+      type: "DRAW_UPLOADED_IMAGE",
+      event,
+      devicePixelRatio,
+    });
   };
 
   const startPanWithHand: MouseEventHandler<HTMLCanvasElement> = (event) => {
@@ -597,6 +614,13 @@ function App() {
     }
   };
 
+  const uploadImage = (event: ChangeEvent<HTMLInputElement>) => {
+    send({
+      type: "IMAGE_UPLOAD",
+      event,
+    });
+  };
+
   const editableRefCallback = useCallback(
     (editableElement: HTMLDivElement | null) => {
       if (editableElement === null) {
@@ -637,6 +661,15 @@ function App() {
             />
             Fix shape
           </label>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            style={{
+              display: "none",
+            }}
+            onChange={uploadImage}
+          />
           {Object.entries(TOOL_LABELS).map(([shape, label]) => (
             <Radio
               key={shape}
@@ -644,11 +677,18 @@ function App() {
               value={shape}
               checked={tool === shape}
               onChange={(event) => {
+                const fileInputElement = fileInputRef.current;
+                invariant(fileInputElement);
+
                 const tool = event.currentTarget.value as Tool;
                 send({
                   type: "CHANGE_TOOL",
                   tool,
                 });
+
+                if (tool === "image") {
+                  fileInputElement.click();
+                }
               }}
             />
           ))}
@@ -861,7 +901,13 @@ function App() {
         // actual size
         width={Math.floor(windowSize.width * devicePixelRatio)}
         height={Math.floor(windowSize.height * devicePixelRatio)}
-        onMouseDown={state.matches("idle") ? handleMouseDown : undefined}
+        onMouseDown={
+          state.matches("idle")
+            ? handleMouseDown
+            : state.matches("image uploaded")
+            ? drawImage
+            : undefined
+        }
         onMouseMove={
           state.matches("drawing") || state.matches("connecting")
             ? draw

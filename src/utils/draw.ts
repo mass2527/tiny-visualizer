@@ -6,6 +6,7 @@ import {
   calculateDistance,
   convertDegreeToRadian,
   haveSamePoint,
+  isImageElement,
   isLinearElement,
   measureText,
   removeLastItem,
@@ -207,6 +208,19 @@ export const createDraw = (
         ctx.lineTo(element.x + x, element.y + y);
       }
       ctx.stroke();
+
+      ctx.restore();
+    };
+  } else if (isImageElement(element)) {
+    return () => {
+      ctx.save();
+
+      // REFACTOR:
+      // first -> async (loadImageElement)
+      // not first -> sync (from cache)
+      const image = new Image();
+      image.src = element.url;
+      ctx.drawImage(image, element.x, element.y);
 
       ctx.restore();
     };

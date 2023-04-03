@@ -1,6 +1,7 @@
-import { MouseEvent, MouseEventHandler } from "react";
+import { ChangeEvent, MouseEvent, MouseEventHandler } from "react";
 import { Options as RoughJSOptions } from "roughjs/bin/core";
 import { Direction } from "../../components/ElementResizer";
+import { Size } from "../../utils";
 
 export type VisualizerElementBase = {
   id: string;
@@ -65,11 +66,17 @@ export type VisualizerTextElement = VisualizerElementBase &
     text: string;
   };
 
+export type VisualizerImageElement = VisualizerElementBase & {
+  shape: "image";
+  url: string;
+};
+
 export type VisualizerElement =
   | VisualizerGenericElement
   | VisualizerLinearElement
   | VisualizerFreeDrawElement
-  | VisualizerTextElement;
+  | VisualizerTextElement
+  | VisualizerImageElement;
 
 export type VisualizerPointBasedElement =
   | VisualizerLinearElement
@@ -118,6 +125,11 @@ export type VisualizerMachinePersistedContext = {
   origin: {
     x: number;
     y: number;
+  };
+
+  uploadedImage: null | {
+    url: string;
+    size: Size;
   };
 };
 
@@ -290,5 +302,17 @@ export type VisualizerMachineEvents =
     }
   | {
       type: "PAN_END";
+    }
+  | {
+      type: "IMAGE_UPLOAD";
+      event: ChangeEvent<HTMLInputElement>;
+    }
+  | {
+      type: "IMAGE_UPLOADED";
+    }
+  | {
+      type: "DRAW_UPLOADED_IMAGE";
+      event: Parameters<MouseEventHandler<HTMLCanvasElement>>[0];
+      devicePixelRatio: number;
     };
 /* #endregion */

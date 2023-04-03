@@ -5,6 +5,7 @@ import {
   VisualizerElementBase,
   VisualizerFreeDrawElement,
   VisualizerGenericElement,
+  VisualizerImageElement,
   VisualizerLinearElement,
   VisualizerMachineContext,
   VisualizerTextElement,
@@ -20,11 +21,13 @@ import {
   isFreeDrawShape,
   isGenericElement,
   isGenericShape,
+  isImageElement,
   isLinearElement,
   isLinearShape,
 } from "./type-guard";
 import * as uuid from "uuid";
 import { TEXTAREA_UNIT_LESS_LINE_HEIGHT } from "../constants";
+import { Size } from "./resize";
 
 export const calculateCanvasPoint = ({
   devicePixelRatio,
@@ -86,6 +89,10 @@ export const calculateElementAbsolutePoint = (
     return calculateFreeDrawElementAbsolutePoint(element);
   }
 
+  if (isImageElement(element)) {
+    return calculateImageElementAbsolutePoint(element);
+  }
+
   return calculateTextElementAbsolutePoint(element);
 };
 
@@ -131,6 +138,17 @@ export const calculateFreeDrawElementAbsolutePoint = (
     minY: Math.min(...points.map((point) => element.y + point.y)),
     maxX: Math.max(...points.map((point) => element.x + point.x)),
     maxY: Math.max(...points.map((point) => element.y + point.y)),
+  };
+};
+
+export const calculateImageElementAbsolutePoint = (
+  element: VisualizerImageElement
+) => {
+  return {
+    minX: element.x,
+    minY: element.y,
+    maxX: element.x + element.width,
+    maxY: element.y + element.height,
   };
 };
 
@@ -284,7 +302,8 @@ export const createElement = ({
   devicePixelRatio,
 }: {
   elements: VisualizerMachineContext["elements"];
-  shape: VisualizerElement["shape"];
+  // REFACTOR: include image or not?!
+  shape: Exclude<VisualizerElement["shape"], "image">;
   drawStartPoint: VisualizerMachineContext["drawStartPoint"];
   elementOptions: VisualizerMachineContext["elementOptions"];
   devicePixelRatio: number;
@@ -499,4 +518,20 @@ export const calculateSameGroup = (
   } else {
     return [element];
   }
+};
+
+export const calculateScaledSize = (size: Size, maxSize: number) => {
+  let width = size.width;
+  let height = size.height;
+  if (width > maxSize || height > maxSize) {
+    if (width > height) {
+      height *= maxSize / width;
+      width = maxSize;
+    } else {
+      width *= maxSize / height;
+      height = maxSize;
+    }
+  }
+
+  return { width, height };
 };
