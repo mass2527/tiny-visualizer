@@ -1323,6 +1323,7 @@ export const visualizerMachine =
           invariant(typeof imageDataURL === "string");
 
           const imageElement = await loadImageElement(imageDataURL);
+          // https://developer.mozilla.org/en-US/docs/Web/CSS/cursor#icon_size_limits
           const MAX_SIZE = 128;
           const thumbnailSize = calculateScaledSize(
             { width: imageElement.width, height: imageElement.height },
