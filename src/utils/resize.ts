@@ -715,7 +715,7 @@ export const resizeMultipleElements = ({
       return resizedElement;
     }
 
-    // REFACTOR
+    // TODO
     if (isImageElement(element)) {
       return {
         ...element,
