@@ -39,6 +39,7 @@ import {
   calculateScaledSize,
   Size,
   isImageShape,
+  calculateReadableFileSize,
 } from "../../utils";
 import debounce from "lodash.debounce";
 import { TEXTAREA_UNIT_LESS_LINE_HEIGHT } from "../../constants";
@@ -1384,6 +1385,15 @@ export const visualizerMachine =
 
           const file = fileList[0];
           invariant(file);
+
+          const MAX_ALLOWED_FILE_BYTES = 2 * 1024 * 1024;
+          if (file.size > MAX_ALLOWED_FILE_BYTES) {
+            throw new Error(
+              `File is too big. Maximum allowed size is ${calculateReadableFileSize(
+                MAX_ALLOWED_FILE_BYTES
+              )}`
+            );
+          }
 
           const { target: fileReader } = await readAsDataURL(file);
           invariant(fileReader);

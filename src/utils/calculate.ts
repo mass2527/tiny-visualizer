@@ -535,3 +535,13 @@ export const calculateScaledSize = (size: Size, maxSize: number) => {
 
   return { width, height };
 };
+
+export const calculateReadableFileSize = (fileSize: number) => {
+  if (fileSize < 1024) {
+    return fileSize + "bytes";
+  } else if (fileSize >= 1024 && fileSize < 1048576) {
+    return (fileSize / 1024).toFixed(1) + "KB";
+  } else if (fileSize >= 1048576) {
+    return (fileSize / 1048576).toFixed(1) + "MB";
+  }
+};
