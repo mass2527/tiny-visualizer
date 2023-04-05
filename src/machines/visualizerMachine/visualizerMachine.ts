@@ -36,21 +36,34 @@ import {
   isSameGroup,
   calculateSameGroup,
   isDrawingTool,
+  calculateScaledSize,
+  Size,
+  isImageShape,
+  calculateReadableFileSize,
 } from "../../utils";
 import debounce from "lodash.debounce";
 import { TEXTAREA_UNIT_LESS_LINE_HEIGHT } from "../../constants";
 import {
+  FileId,
+  ImageCache,
   Point,
   VisualizerElement,
+  VisualizerImageElement,
   VisualizerLinearElement,
   VisualizerMachineContext,
   VisualizerMachineEvents,
   VisualizerTextElement,
 } from "./types";
 import { ELEMENT_STATUS, PERSISTED_CONTEXT } from "./constant";
+import {
+  createFileId,
+  createImageDataURL,
+  loadImageElement,
+  readAsDataURL,
+} from "../../utils/image";
 
 export const visualizerMachine =
-  /** @xstate-layout N4IgpgJg5mDOIC5QDcCWsCuBDANqgXmAE4AEAtlgMYAWqAdmAHSoQ5gDEAIgEoCCA6gH0AygBVe3UQG0ADAF1EoAA4B7WKgAuqFXUUgAHogDsMo4wCcARgAsM60fNGArADYnlgMwAaEAE9EAEwBboyWlkYeph7W5gAcDtYAvok+aJi4BMTkVLQMzKwcAMIAErwAcgDiAKKCogDydQAysgpIIKrqWjp6hgguMi6M1h4e-bEBsS6xkwE+-ggBTh6xFhOuYR6WwS4uyano2HiEpBQ09EwsbFx8FSLiki16HZraum29JmZWtvaOru7ePyISzTFYyJzWFzmDzBAJhcx7EBpQ6ZE45c75K7CKqNKqFURVTiCHFVACyVTKomEjE4JIJjzazy6b1AH1MFhsdgczjcnjmwKcThkoXM7jGwyMktiiORGWO2TOeUuHGxuPxhOJuPJlOphTqAAUAJoM5RqF7dd7GdnfLl-XmA+ZQgKMJZWKKCgLmcwBGUHOVZU65C4FdiqvEEokk7VUxj63hiKom9pm5k9K1fTm-HkA-kITwBYUBaxBSxOIxw2LLBEpJF+o4B9FKkOkuoAVWxghbADVE-IninXmmEB4jJYhktPKZhk5Ky5rLm4eZBjZodMKzJRR5fel62jFcGrgBJYSaskU0QiUr6moAMUPAA0NfUKhVcUmmYPLQhPhyftz-nyQLDkWoSuAEHiCkukyxJY24ovKgYYsqoYkuqkZaueuqttIfaMgOFqsumv62tmgHzJYMgjIwRjFnCgrxC44RGHB-p7kGmJFKUlQ1FG56CAaoiHnUZTCO++EsgYRE2lmAEOsCc6DHOlZOHCMieKKLG7gq7HISU5TVIIABaDSkmJnSfoR37Wpm-72rmxbCv00JOku7hLppqLaUhIZ6dxRkmYI-CHqIxSCPqh5lCUZnmhJbIZn+do5kB7hmAMiz9IK1ieFMHkIY2B4cNUYittwVSxuU0Wpl+-SDMMowyOM0EzAuMTCt6sTrJ4Ww7LsNaylpiFNlcxTHvU3CGoIrb6pwvD0rhprmQRklWfFJGybmNhLNRDmxPYMgFlYzF9XWnmDQV7D8NwwU1GIEg4a0C0xUOFFwowlGilssQyAMlgLt9zqRMMEzTOCRZbsdO6nflHHsLxOqMGG+KCLwjTNPNyaLbFwLWPYFgjHOpixKuywLuYwyMJswQxNBBYuOD+yQ3l+4w5d13EpwwWVRZy2VisMKQl6M5fe4TgbZK5ihC44uMZCRhTPTtaMw2zPIaVwiHoZN33Pd-aY0OAC0BZ40Tm2QcpuYwjYoQUYTTHjIKuXKzpIb6nUEWiIwU0zQSdx3VzS29MstVAwWkwRJMLgWzjzrfXY33WLtI69Qz8FO95WKoRGp7RtSFTcG2+r+1jCAzs6ILhC4QTelyRgLuWAMgg14TgRR8SO2x6cqpnGpwzGraVPnU1F0OThetROzeks0SVtYotAYskyrB1jFddsyeK6nHdDRwcZlL7Dzox+AeIDVQz4w1ExTM18-R0vnWUz17deXkEBEFgADu9BQNcAjD1+YSjhdB1fakQ1wRwXJYMezgBgznsNMewT8zqMFfh-L+P8hAUk4H-Syk4wSmHMPtL6XIAi13nhMMcG5lijmATjWCENN7PyYCgz+dBv60lxD7RGglhLYOWiQ1wQw3AzgypMX689vorFapAmEZMKLREQdDZhaC9RlDKOGfeOs8J63-gMDwFMlyV1HKPEspD5jpWsEMIm-NIHOVngo5mKCoBQDQTwXgFReG9EsP0CxgMaIqSLF4xwYsCEUxopWYINgSGLHsexRxzjWE-1uJgjxwJKxmA6quKEkpTAgg2kTJwFMuSUVHJsMIPp6GsUYYwHAKgsAQDQSkhYMEKZS0gW0smu0FyejHBBRYCcHDRFHjEjEShiDqFgFoBJjSgiz2okKSiPVxgFlMYgZpMRBZQWWCMEcwyX5vxYVAEgKhSDvyIC8VhJAwB0AgJAdgjTy4S1FHYYIEIRjkL+kYFYgSRz2CngCXZTBkBjNeCQIgYA2BYFgLc6ZRYCnQIWTsJZpgNqtNCEWGCZN9pqRBACxgpzznf1Zj7ZJh9xLPVAW9fBhD47lhWQsSiY5PmfWmAQ70zhcX4smYSq6c0HoYyev-QJHIpaSgrtCLxYsSGMGCDCKYjgZUQlxUoSFXL2AQB0BcOgyAVAAGtAUnSZuxZVEyv4IHoNqygWBmQtHuRS76DhqXELpV1PRal6LdOCF9asKdKlIONaq4gRBjmMCUDgK1AAzY5ZBGD9Shszf1przUqEtda+QtqGqUodRMGlJCNovJdKWVp3iNwDFxYG45JAalOIaaS7RODITOkagWMs+1HDeg2kxCw3paYbgTq83FlAVBKF8Gg9VSotW6v1UrLeTBB3DsTROlNrwbW1oFTgu1VLs1OtzDsYUnzWUzBiA4b1G9fXQznSOhJ5aiAhrDRoSNRBo2xsNRiC9C6LVWuXWm1dVV10ZvtQQrd9hc1ARMCsCYVgbYQVAQrZ9ac8iUAwBoVVY7NXar1TGg18HZ1Ia5Waxdn6dArr5UfYuuDM2AaIcBulopBjvVbntWepaKkDXPbhtB17b0RqjZh6dVTEPIffcmwjdBiO6zXctcjAHHXUY2nYCWMQSzRAyh4RwA6dAMEoKq1x-B7klsYP0EwAwYhS0IQuIhLoIJxGmGB9w6m6CadVSotR+JbWeEKQMOwRN4j7QXBPOZjUKK2EcHQn1rHmaDoc2ALTyjhIuekJYEjZL-6bD0ZETzCc4gmFmPPL6Fi4ScgcLtRTsGsMzsYGC9Q+A0Fqw1jxMoWCf3c08RRHpR65YNoYvOIClN0lwgSF1CIXjcWVYIDVqo6tNaNI6hYwDx6GKTCWBbahQwYj2BKaYOEpW+NIIwEoCAn6LmqHoBodgrt3ae2mrNXsSW63LUrisUUcsvEwUYm4OSw45YFPWQnAY4wcbrzg+VvbB2uUkGO3QU753KSXe9vVxrt2JO9HlowSYoCZxtsonPeY0QQnBB+h6IrR0wtxqNVgBzaDd56ahBYHYNFAlSxUnSzYITLYDc2ENwHZWqnKopwk3exIGvU8eXTrKUJGcgZx56FYRMvRtI55sLnO3FH7K-kck5ZywdXJuRAO5iXxO-sk-ECxHXPQL1sOEbHgRohjmWcDUsxYYS4qURc8FYAyBXI0CQKFbAtPQqa8fBY3VqI26EYroU3WzH7QsfA-7S4sfDcRHQFQNz4BtCB4wg3zXED6ymMbb4gpR7myArnyl8cmPRA3PLXFyos+B9onjeqjUr6MTpVXMw-RFgJGcKOIszvVesLr2Rjc6SJEQi5HOLYC5Nhgj2t9Su8sRj96wNWwfWikfyVsKjsUVmqbOHMBtKwKwmXBCK0TYYuKal1K-kPocxYuk7G34sQ6oo4iQiVcCk1a-HqG96OBL6qO9UUI0eakwwO60Qq2GKdMxYs8ieJOL6eyqCFyFanKau2ukAt+-8mULoDgo84Q-2zaECmwBmakwQ0I5C7KLGpOGIQKRA6gOgoKbukKGB6+v+wIcu0qEQEebgWWiwKKkIBm6KlcPwSwxOp64W7EqB3+-KbBeY4QjkqmxYOwfSuSQEIIZYZ8pcYSMqGkVBCBTACa0hpGz0ccnBCcbOlYGweajg0qtE0iOSpYZaRAQapAVa8SUAmBOCo8CmjEzyMBk4zqNgeiZMFYReM4NE6m86RhyWOCCyb0JgEEjERYXovmQE-mroYQ8mkQm0A67G0Rd2nicRpgWOSR6yqR5Eake6tEakEEHUFESuDCSCkWjmN+rB2eeYf2qO1M9qDUmWVuCwCk1EIIv2e0oiI2cAY2+RG+CAHUZgzaEEMQScdMYiOOheeMc4NutE3ouKIOh2hyEOGgnhy0M4Y4BCEIMsZM1mFslcBSZYbafSVggoDRZ68a5OdArRP+7RHU4GFuDgkCEubexYFC7gWwmwDUKkOwy+BylybAHukO3ubufuEARxf+8m48pYnoKkS4oo-RocMeu0ce-QEEieyQQAA */
+  /** @xstate-layout N4IgpgJg5mDOIC5QDcCWsCuBDANqgXmAE4AEAtlgMYAWqAdmAHSoQ5gDEAIgEoCCA6gH0AygBVe3UQG0ADAF1EoAA4B7WKgAuqFXUUgAHogBsRgOyMAnAEYALDKNWArEbumATKYA0IAJ6JbABxWjAFuATIyjo7WAMwxNhYAvoneaJi4BMTkVLQMzKwcAMIAErwAcgDiAKKCogDydQAysgpIIKrqWjp6hggm5tZ2Ds6uHt5+CG4RjKaOEW4xFjZGUTIxyano2HiEpBQ09EwsbFx8FSLiki16HZraum29-Za29k4uMu5evogLMeZhKxuZYBCwBAKmIwbEBpbaZPY5Q75E7CKqNKqFURVTiCNFVACyVTKomEjE4eKx1zaty6D1ATzMLyG71G3wmQMijCBcw8wM+9mhsIyu2yBzyxw4qPRmOxuPRhOJpMKdQACgBNKnKNR3bqPYyMwZvEafMY-BAxYEBSwWezzUymCxuJIpGFbYVZfa5I4FdhSjFYnF4hUkxgq3hiKqa9ra2k9fUDV7DD5fca-G1W0H2WYxRyLf6Ct07D2I8U+-F1ACqqME5YAapH5DcY-c4+bTMEbLmrFYLIsZI6bGz-GZzDJlhZojEe+ErOsXUKiwixd6TgBJYRyglE0QiUoqmoAMVXAA1ZfUKhV0VGaS29X0DYmWSah+bgVznMDIbnBxPTAX0ouopesikp4jKgbytuSoVtIjbUs2ur0vGTJGsmpoTHEjg2IwCS2iMyxGG4jj-nCIqekiErsCU5TVJuwaCKqoirnUZTCNeCF0gYyGGkmrKpggPYyG4lhGAEzgxKJE7hG4JHukuwGUdRlQ1AAWg0+LsZ0t5IfeCbMsaKZmjYUyMEY-b-EEQKmBasmAeRpYnEptFqXU+KCPwq6iMUggqquZQlJpOqcQyemoXxZqOFYo6EXMYntmCNgBLZ8JARRPrVGIFbcFUoblIFsZ3s8PFPoZEwODEjCRVEFgWGYcz-H+86Fil9krhwxTrvU3BqoIFYqpwvCUnBWpaYhXG6ShvHPvxpj9iJAQrLYbhWKC3bJWRJZtew-DcJ5NRiBIsGtCNQWtkVj4Geh-juFaHydjEESRb2zqbABLWbSB7BBlBjB+pigi8I0zTDdGo3BdxF1oS+4RGDhy0LZEvZYXOr2kcWy6fTte24pwnn5dp43nfpUP8VYRgWlyEJ2NyATxGs63owpPrZcIq4qftlxHU2YNnQ+xPhRMwJYZVU7-LOYnRECDPyWlJwqnUfmiIwfUDViFyHfjY0hZNJVXZMJgyIwY42DEoJTLNY4o66b0bRjlF-QGdE-RU3CViqmvgxNxWXS+PY1XDUU3Q4CwrdLqUOaB0qO99irK5Urt9R7vOhVNpW-P2jghKYiXAmZ4RiWHrWfWGZTq1cIM3lrEP89NZo5rTXK9qJ5NuOTMizoXH2Uau+K8LRfWNHUvCcEnd6OPaISzkCIJBFOvv2BVC0mLT7hzI4MlNTbjOyxwPACL1KqD8Pso933DbHaDp13m45umbOYuRYsbikw9sM1XYTpEU6s2Najcnh0wCARAsAAHd6BQFOAIUeOluw2GwnA2cSwTBLGcKTGw3YuTtwSFYNYDUkqbzRjLPIQDQHgMgUIIkI8K4cVbLORkcxTC0yiLOceE5SYrEzmTU2Kw8xRQWJ3DGJCwF0AgeSdEasHbMTKNA8adDzAMKYY-Vhjh+ITkNoEbhBFao1QEcBIRZDlRlDKP6MuXN4I8zvHIyqnxFEsIdCos0ThFhG0+OTMyYQHr4L-nZD6JCoBQDIXvCoMjehkyMBYHCZkm6Om7NnGw-Eb7OLMk4T4NpyZWF0UiPxASRGQPOJQkJ-h0ymXik6eqGcHGC3iNhLsrds6MNGJkvIOAVBYAgGQiAOgjh0GQCoAA1kwBc70MYtLaeAhA9BemUCwLSFohSEDglMgsSSixwkPUHKTWYETuwOEiJEV+iUmlMFGe03JxAiAqCIIwJQOAZkADNLlkEYEM22wETnjMmSoaZsz5DzIALTdkNmYP4YRQTRFqs-Rx4JhKzAiMkmqVUjnXOIOoWAWhcnzMwhEkwxltEWAdERaGwQ5jzH+LmduJhiIEP-kXfRIiSCXJICAogdx6VgDoBASA7B5l8lHIwlaEQJLk0hKTaIMKVqxWsnC8eSK6VQAZaQZlrL5Xss5RAblVgL6V09ryo2-LwhrBMP8Iwmz3A4U7E4QcFoaoTiRcgFF9wSBEDAGwLAsAuWYpzNilwTpwn4sdOPBJQRYadmcGoyIkUvHW0IQAxgSr0UQKxmrAp1CLEwIkvImxOYlH2NNVaceERVoRBwU4JF8ayFJvPtzK+MDEGmXHlEP1D0orxMcSsIF5MljoIje2K2Lzt55CUG6hN7BOnih6f0wZzVXlIiHWij5E7vn3DmammtsiM3WMYdmuxbCzQeOCCtWYUx16dgHEiudI7zmXOubcjQDyiBPP7UQpgF6F1TJmcu35q6CrpvoVm5hOZc17oHKZIYYkpxiWWkiq9pAWn+LIfMpwUVGAWiCPi+05kcz8QermLkQxlqPy-DYJFlAVBKB8B0rpzAJ0DOedOgdTBSPkbfV8j9OgV1apoZYiSwkFHbsA7ujCrdsLZ3sH8YOyxiPUp8RjJjFGzlEAuVcm59zHl0a3s+xgcmWNLvY1+zjab13kxCCbbOCw5h2FNthnBQL8OCRkLTDwJGMAaBHWO7pvTaNPtjZQFzCaJmLrY3QDj1af1Gd4-+nNgnEBxEHIwYTDnHDgk+AkZzrmyEwZvaph96mY1F18+lkRAX30-LkIhiSi9TPGRzGONYARrOJTw2Jm+EJQS2uk8M4CpG6AMEoCOve-BEO9rw52Baq98XkzQZ2FDY4zKJSiQtPt9HNPdd6yOwxxjMSIcIuYdB6DYFYQdOCF+jWxJOC7LYe+JGdBrYMSxTb0hNWhYJqEm0FUzA9jKWsCpoqFjxaCGsCzoRzJIudeofAZCWZsxqCmgza7XsOZKZ9tRD0JyVN+OvXbUT7Arw8aDuABBIdVFZuzIbOCUOhACAgiSH96t7uMrDBRqwbS4qRRgJQEAP30tUPQDQ7B5aK2Vv1QaVbzHw6KSbGbg5gQf2zgkpLAxdkPSnHAr4bOOdc-lTzugfOBfEiF6rGHZQqFw7C70ZaKxTIQiwmsJab2EntgPR8B6R6qcuHPVgHrZCS48ptJwoisD0GQhZ9hxKETcKETNkhmyHWZ2Ds93Qb35RcTG8xTgzhEIHArEdDmE1ddoiGzgRJduaPaq-2jTS3xwDhEqrYGQdlGgSDurYH1j136Xu-FBFj8E49ZgtosKa4I4TI1OiWJCUI57nVoDACAkgqAKAwBIO83J7nqOeanRp2NSgp+oBn3PhfYAl+tNOVAYrrHSuIcbUbKn4Qc7hNBaTbsmcEhxDCIRKY-DY8MeuTvvf8+sCL7L4QKZYqZ3pqbeZFzb5gDT6z7-6AHH46ZBYhZi5m7+Cmy3R+zOCfBHa2CkxTCGzAhxB8K1RiZIpwGH5yqjpUafJebLaxrkEkBypn66bBb6bPZVz6z4ozD37RCzDgg-ykwOaLxRSOhrCJSmzLBkEH6MHV4ZaKbXqgH3qPp0FFwMFMGfIsHIEnSoGTCRTYTY5u7woQiP6iSVRmCDD34JD4Iuh0AqCcrwBtAQGbTsGex-I3yGzZqOjhKDh7LGT8R-KZw2pgitw1T-CDjhJkEFAuGtjGTCS9heq2CDiWTo4CT2j5rFqiTYL3QbzeKdZZKyEiLRGWICpmEB6nrZxo6irOIMLtiDiuCfAZJf6abZLgJFEwKzSwwRCMI2iOhBAEYJISRWhdHWRkyzgLCOhIpAFtHjQApmqeEhE+EWaQrsj1LxYkqhGgimzrznoOrzqFEoEd7mgjAzA8ibFLA9jYbrwRLtySphBES-iyoFHyqMrlpsocqQDTHm5hJGwmwziDhhIrCbIUwoIOb2gOjxDZx2oOo6BOoupgBuofEHEcE4awyiQ46Jiv4JI4qWAmxwLv6iRYRlosoJqfH+C2CZwNHpK9j1LLSmrXGzRkz8pESFoe57FQCkkCQOYib1ImxZ5mTWRBpiQhBpJqJXErBSa5Fx5MAwZH7wb7HaGHFkxcEGxTCJQ-xh7Yb9i7ZpIrQrS37l5OGyZkbybslImew4LhCVSzTrLWDAi6nYY3yBE6k1TB4NppYklmm0IOaGwFo2nTz2l1xEE4RpJETxASTWDXY9ZgB9atGemWLhLmAqljgQgpagiirLAnFfgGxbq1T47g6xkKkcFRRzTgntweCibOApFfyK79g47-B45NGxrs6c4JokDa4aAck9jk7uAGzhKWRTjLG-CSQ4SvDA7lStxQiNmQEJ4FmXw6FhBcEzy96RQVGXE2g4mDH2CiRCqTmSnf5yokBwn1465N5wmt4QAcmtw3yVQLCnpES0wuC+zWTYQ9iRQ9joFHZUp7maZQEwH74AGH5TFxk6RLyWBYS5juABpwKDmcnxBGzdj4oSGCqRRSEAUyGkLylzmHELDtgoZYQ7bGqIytrsgRDYTghkwA5IIMnJDJBAA */
   createMachine(
     {
       id: "visualizer machine",
@@ -71,6 +84,21 @@ export const visualizerMachine =
           copySelectedElements: {
             data: void;
           };
+          loadPreviewImage: {
+            data: void;
+          };
+          loadImageInfo: {
+            data: {
+              fileId: FileId;
+              size: Size;
+              imageElement: HTMLImageElement;
+              dataURL: string;
+              devicePixelRatio: number;
+            };
+          };
+          loadImages: {
+            data: ImageCache;
+          };
         },
       },
 
@@ -84,6 +112,8 @@ export const visualizerMachine =
             elementOptions: PERSISTED_CONTEXT["elementOptions"],
           },
         ],
+        imageFile: null,
+        imageCache: {},
       },
 
       states: {
@@ -205,6 +235,16 @@ export const visualizerMachine =
             PAN_START: {
               target: "panning",
             },
+
+            IMAGE_UPLOAD: {
+              target: "preview image loading",
+              actions: "assignImageFile",
+            },
+
+            DRAW_UPLOADED_IMAGE: {
+              target: "image drawing",
+              actions: "assignDrawStartPoint",
+            },
           },
         },
 
@@ -247,8 +287,20 @@ export const visualizerMachine =
         },
 
         loading: {
-          always: "idle",
-          entry: "loadSavedContext",
+          entry: ["loadSavedContext"],
+
+          invoke: {
+            src: "loadImages",
+            onDone: {
+              target: "idle",
+              actions: "assignImages",
+            },
+
+            onError: {
+              target: "loading",
+              internal: true,
+            },
+          },
         },
 
         persisting: {
@@ -299,7 +351,7 @@ export const visualizerMachine =
 
         "error logging": {
           always: "idle",
-          entry: "logError",
+          entry: "alertError",
         },
 
         copying: {
@@ -389,6 +441,30 @@ export const visualizerMachine =
 
           always: "version released",
         },
+
+        "preview image loading": {
+          invoke: {
+            src: "loadPreviewImage",
+            onDone: "idle",
+            onError: {
+              target: "error logging",
+              actions: ["resetCursor", "updateTool"],
+            },
+          },
+        },
+
+        "image drawing": {
+          invoke: {
+            src: "loadImageInfo",
+            onDone: {
+              target: "version released",
+              actions: ["addImageElement", "assignFiles", "assignImageCache"],
+            },
+            onError: "error logging",
+          },
+
+          exit: "updateTool",
+        },
       },
 
       initial: "loading",
@@ -397,6 +473,7 @@ export const visualizerMachine =
       actions: {
         addElement: assign((context, { devicePixelRatio }) => {
           invariant(isDrawingTool(context.tool));
+          invariant(!isImageShape(context.tool));
 
           const element = createElement({
             elements: context.elements,
@@ -418,7 +495,7 @@ export const visualizerMachine =
             elementOptions: context.elementOptions,
             drawStartPoint: context.drawStartPoint,
             devicePixelRatio,
-          });
+          }) as VisualizerTextElement;
 
           return {
             elements: [...context.elements, textElement],
@@ -676,8 +753,10 @@ export const visualizerMachine =
           };
         }),
         persist: debounce((context: VisualizerMachineContext) => {
+          // prettier-ignore
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          const { history, historyStep, ...persistedContext } = context;
+          const { history, historyStep, imageCache, imageFile, ...persistedContext } =
+            context;
 
           try {
             localStorage.setItem("context", JSON.stringify(persistedContext));
@@ -952,6 +1031,12 @@ export const visualizerMachine =
           const isElementAdded =
             context.elements.length === nonZeroSizeElements.length;
 
+          if (context.tool === "image") {
+            return {
+              tool: "selection" as const,
+            };
+          }
+
           return {
             elements: nonZeroSizeElements,
             tool:
@@ -1205,9 +1290,65 @@ export const visualizerMachine =
             }),
           };
         }),
-        logError: (_, event) => {
-          console.error(event.data);
+        alertError: (_, event) => {
+          alert(event.data);
         },
+        assignImageFile: assign((_, { event }) => {
+          const fileList = event.target.files;
+          invariant(fileList);
+
+          const file = fileList[0];
+          invariant(file);
+
+          return {
+            imageFile: file,
+          };
+        }),
+        resetCursor: () => {
+          document.body.style.cursor = "default";
+        },
+        addImageElement: assign((context, { data }) => {
+          invariant(context.imageFile);
+
+          const imageElement = createElement({
+            devicePixelRatio: data.devicePixelRatio,
+            drawStartPoint: context.drawStartPoint,
+            elementOptions: context.elementOptions,
+            elements: context.elements,
+            shape: "image",
+            fileId: data.fileId,
+            width: data.size.width,
+            height: data.size.height,
+            status: "selected",
+          }) as VisualizerImageElement;
+
+          return {
+            elements: [...context.elements, imageElement],
+          };
+        }),
+        assignFiles: assign((context, { data }) => {
+          return {
+            files: {
+              ...context.files,
+              [data.fileId]: {
+                dataURL: data.dataURL,
+              },
+            },
+          };
+        }),
+        assignImageCache: assign((context, { data }) => {
+          return {
+            imageCache: {
+              ...context.imageCache,
+              [data.fileId]: data.imageElement,
+            },
+          };
+        }),
+        assignImages: assign((_, { data }) => {
+          return {
+            imageCache: data,
+          };
+        }),
       },
       services: {
         readClipboardText: async (_, { canvasElement }) => {
@@ -1228,6 +1369,82 @@ export const visualizerMachine =
             files: {},
           };
           navigator.clipboard.writeText(JSON.stringify(newClipText));
+        },
+        loadPreviewImage: async (_, { event }) => {
+          document.body.style.cursor = "wait";
+
+          const fileList = event.target.files;
+          invariant(fileList);
+
+          const file = fileList[0];
+          invariant(file);
+
+          const MAX_ALLOWED_FILE_BYTES = 2 * 1024 * 1024;
+          if (file.size > MAX_ALLOWED_FILE_BYTES) {
+            throw new Error(
+              `File is too big. Maximum allowed size is ${calculateReadableFileSize(
+                MAX_ALLOWED_FILE_BYTES
+              )}`
+            );
+          }
+
+          const { target: fileReader } = await readAsDataURL(file);
+          invariant(fileReader);
+
+          const imageDataURL = fileReader.result;
+          invariant(typeof imageDataURL === "string");
+
+          const imageElement = await loadImageElement(imageDataURL);
+          // https://developer.mozilla.org/en-US/docs/Web/CSS/cursor#icon_size_limits
+          const MAX_SIZE = 128;
+          const thumbnailSize = calculateScaledSize(
+            { width: imageElement.width, height: imageElement.height },
+            MAX_SIZE
+          );
+
+          const thumbnailUrl = createImageDataURL(imageElement, thumbnailSize);
+          document.body.style.cursor = `url(${thumbnailUrl}), auto`;
+        },
+        loadImageInfo: async (context, { devicePixelRatio }) => {
+          invariant(isDrawingTool(context.tool));
+          invariant(context.imageFile);
+
+          const fileId = await createFileId(context.imageFile);
+
+          const { target: fileReader } = await readAsDataURL(context.imageFile);
+          invariant(fileReader);
+
+          const imageDataURL = fileReader.result;
+          invariant(typeof imageDataURL === "string");
+
+          const imageElement = await loadImageElement(imageDataURL);
+          const size = {
+            width: imageElement.width,
+            height: imageElement.height,
+          };
+
+          return {
+            fileId,
+            size,
+            imageElement,
+            dataURL: imageDataURL,
+            devicePixelRatio,
+          };
+        },
+        loadImages: async () => {
+          const value = localStorage.getItem("context");
+          if (value === null) {
+            return {};
+          }
+
+          const { files } = JSON.parse(value) as VisualizerMachineContext;
+          const imageCache: ImageCache = {};
+
+          for (const [fileId, { dataURL }] of Object.entries(files)) {
+            imageCache[fileId] = await loadImageElement(dataURL);
+          }
+
+          return imageCache;
         },
       },
       guards: {

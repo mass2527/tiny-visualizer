@@ -1,10 +1,12 @@
 import invariant from "tiny-invariant";
 import {
+  FileId,
   Point,
   VisualizerElement,
   VisualizerElementBase,
   VisualizerFreeDrawElement,
   VisualizerGenericElement,
+  VisualizerImageElement,
   VisualizerLinearElement,
   VisualizerMachineContext,
   VisualizerTextElement,
@@ -20,11 +22,14 @@ import {
   isFreeDrawShape,
   isGenericElement,
   isGenericShape,
+  isImageElement,
+  isImageShape,
   isLinearElement,
   isLinearShape,
 } from "./type-guard";
 import * as uuid from "uuid";
 import { TEXTAREA_UNIT_LESS_LINE_HEIGHT } from "../constants";
+import { Size } from "./resize";
 
 export const calculateCanvasPoint = ({
   devicePixelRatio,
@@ -86,6 +91,10 @@ export const calculateElementAbsolutePoint = (
     return calculateFreeDrawElementAbsolutePoint(element);
   }
 
+  if (isImageElement(element)) {
+    return calculateImageElementAbsolutePoint(element);
+  }
+
   return calculateTextElementAbsolutePoint(element);
 };
 
@@ -131,6 +140,17 @@ export const calculateFreeDrawElementAbsolutePoint = (
     minY: Math.min(...points.map((point) => element.y + point.y)),
     maxX: Math.max(...points.map((point) => element.x + point.x)),
     maxY: Math.max(...points.map((point) => element.y + point.y)),
+  };
+};
+
+export const calculateImageElementAbsolutePoint = (
+  element: VisualizerImageElement
+) => {
+  return {
+    minX: element.x,
+    minY: element.y,
+    maxX: element.x + element.width,
+    maxY: element.y + element.height,
   };
 };
 
@@ -282,20 +302,28 @@ export const createElement = ({
   drawStartPoint,
   elementOptions,
   devicePixelRatio,
+  width,
+  height,
+  fileId,
+  status,
 }: {
   elements: VisualizerMachineContext["elements"];
   shape: VisualizerElement["shape"];
   drawStartPoint: VisualizerMachineContext["drawStartPoint"];
   elementOptions: VisualizerMachineContext["elementOptions"];
   devicePixelRatio: number;
+  width?: VisualizerElement["width"];
+  height?: VisualizerElement["height"];
+  fileId?: FileId;
+  status?: VisualizerElement["status"];
 }): VisualizerElement => {
   const elementBase: VisualizerElementBase = {
     id: uuid.v4(),
     x: drawStartPoint.x,
     y: drawStartPoint.y,
-    width: 0,
-    height: 0,
-    status: "idle",
+    width: width ?? 0,
+    height: height ?? 0,
+    status: status ?? "idle",
     options: elementOptions,
     groupIds: [],
   };
@@ -329,6 +357,18 @@ export const createElement = ({
         seed: createRandomSeed(existingSeeds),
       };
     }
+  }
+
+  if (isImageShape(shape)) {
+    invariant(fileId);
+
+    const imageElement: VisualizerImageElement = {
+      ...elementBase,
+      shape,
+      fileId,
+    };
+
+    return imageElement;
   }
 
   if (isLinearShape(shape) || isFreeDrawShape(shape)) {
@@ -498,5 +538,31 @@ export const calculateSameGroup = (
     return elements.filter((element) => element.groupIds.at(-1) === groupId);
   } else {
     return [element];
+  }
+};
+
+export const calculateScaledSize = (size: Size, maxSize: number) => {
+  let width = size.width;
+  let height = size.height;
+  if (width > maxSize || height > maxSize) {
+    if (width > height) {
+      height *= maxSize / width;
+      width = maxSize;
+    } else {
+      width *= maxSize / height;
+      height = maxSize;
+    }
+  }
+
+  return { width, height };
+};
+
+export const calculateReadableFileSize = (fileSize: number) => {
+  if (fileSize < 1024) {
+    return fileSize + "bytes";
+  } else if (fileSize >= 1024 && fileSize < 1048576) {
+    return (fileSize / 1024).toFixed(1) + "KB";
+  } else if (fileSize >= 1048576) {
+    return (fileSize / 1048576).toFixed(1) + "MB";
   }
 };

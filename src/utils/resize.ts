@@ -4,6 +4,7 @@ import {
   calculateElementAbsolutePoint,
   calculateElementSize,
   isGenericElement,
+  isImageElement,
   isTextElement,
   measureText,
   removeLastItem,
@@ -572,6 +573,11 @@ export const calculateFixedPoint = (
   }
 };
 
+export type Size = {
+  width: number;
+  height: number;
+};
+
 export const resizeMultipleElements = ({
   elements,
   direction,
@@ -592,10 +598,6 @@ export const resizeMultipleElements = ({
       return element;
     }
 
-    type Size = {
-      width: number;
-      height: number;
-    };
     let previousSurroundingBoxSize: Size;
     let resizedSurroundingBoxSize: Size;
 
@@ -711,6 +713,14 @@ export const resizeMultipleElements = ({
       };
 
       return resizedElement;
+    }
+
+    // TODO
+    if (isImageElement(element)) {
+      return {
+        ...element,
+        ...resizedElementBase,
+      };
     }
 
     const resizedElement: VisualizerPointBasedElement = {

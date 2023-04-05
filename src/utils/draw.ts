@@ -6,19 +6,31 @@ import {
   calculateDistance,
   convertDegreeToRadian,
   haveSamePoint,
+  isImageElement,
   isLinearElement,
   measureText,
   removeLastItem,
 } from ".";
 import { OrthogonalDirection } from "../components/ElementResizer";
 import { TEXTAREA_UNIT_LESS_LINE_HEIGHT } from "../constants";
-import { Point, VisualizerElement } from "../machines/visualizerMachine";
+import {
+  Files,
+  ImageCache,
+  Point,
+  VisualizerElement,
+} from "../machines/visualizerMachine";
 
 const ARROW_MAX_SIZE = 50;
 export const createDraw = (
   element: VisualizerElement,
   canvasElement: HTMLCanvasElement
-): VoidFunction => {
+): (({
+  files,
+  imageCache,
+}: {
+  files?: Files;
+  imageCache?: ImageCache;
+}) => void) => {
   const ctx = canvasElement.getContext("2d");
   invariant(ctx);
 
@@ -207,6 +219,26 @@ export const createDraw = (
         ctx.lineTo(element.x + x, element.y + y);
       }
       ctx.stroke();
+
+      ctx.restore();
+    };
+  } else if (isImageElement(element)) {
+    return ({ files, imageCache }) => {
+      ctx.save();
+
+      const file = files?.[element.fileId];
+      invariant(file);
+
+      const cachedImage = imageCache?.[element.fileId];
+      if (cachedImage) {
+        ctx.drawImage(
+          cachedImage,
+          element.x,
+          element.y,
+          element.width,
+          element.height
+        );
+      }
 
       ctx.restore();
     };
