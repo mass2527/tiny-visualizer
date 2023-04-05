@@ -86,6 +86,12 @@ export interface Typegen0 {
       | "SELECTED_ELEMENTS.UNGROUP"
       | "done.invoke.visualizer machine.image drawing:invocation[0]"
       | "done.invoke.visualizer machine.pasting:invocation[0]";
+    alertError:
+      | "error.platform.visualizer machine.copying:invocation[0]"
+      | "error.platform.visualizer machine.cutting:invocation[0]"
+      | "error.platform.visualizer machine.image drawing:invocation[0]"
+      | "error.platform.visualizer machine.pasting:invocation[0]"
+      | "error.platform.visualizer machine.preview image loading:invocation[0]";
     assignCurrentPoint: "MOUSE_MOVE";
     assignDrawStartPoint: "DRAW_START" | "DRAW_UPLOADED_IMAGE" | "WRITE_START";
     assignElementOptions: "CHANGE_ELEMENT_OPTIONS";
@@ -114,12 +120,6 @@ export interface Typegen0 {
     loadSavedContext:
       | "error.platform.visualizer machine.loading:invocation[0]"
       | "xstate.init";
-    logError:
-      | "error.platform.visualizer machine.copying:invocation[0]"
-      | "error.platform.visualizer machine.cutting:invocation[0]"
-      | "error.platform.visualizer machine.image drawing:invocation[0]"
-      | "error.platform.visualizer machine.pasting:invocation[0]"
-      | "error.platform.visualizer machine.preview image loading:invocation[0]";
     pan: "PAN";
     panWithGesture: "GESTURE.PAN";
     pasteSelectedElements: "done.invoke.visualizer machine.pasting:invocation[0]";
@@ -154,6 +154,7 @@ export interface Typegen0 {
       | "WRITE_END"
       | "done.invoke.visualizer machine.image drawing:invocation[0]"
       | "error.platform.visualizer machine.image drawing:invocation[0]"
+      | "error.platform.visualizer machine.preview image loading:invocation[0]"
       | "xstate.stop";
     write: "WRITE";
   };
