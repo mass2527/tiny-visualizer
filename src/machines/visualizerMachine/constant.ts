@@ -62,5 +62,5 @@ export const PERSISTED_CONTEXT: VisualizerMachinePersistedContext = {
   resizingDirection: "up",
   updatingPointIndex: 0,
 
-  uploadedImage: null,
+  files: {},
 };

@@ -43,6 +43,8 @@ import {
 import debounce from "lodash.debounce";
 import { TEXTAREA_UNIT_LESS_LINE_HEIGHT } from "../../constants";
 import {
+  FileId,
+  ImageCache,
   Point,
   VisualizerElement,
   VisualizerImageElement,
@@ -53,13 +55,14 @@ import {
 } from "./types";
 import { ELEMENT_STATUS, PERSISTED_CONTEXT } from "./constant";
 import {
-  createImageUrl,
+  createFileId,
+  createImageDataURL,
   loadImageElement,
   readAsDataURL,
 } from "../../utils/image";
 
 export const visualizerMachine =
-  /** @xstate-layout N4IgpgJg5mDOIC5QDcCWsCuBDANqgXmAE4AEAtlgMYAWqAdmAHSoQ5gDEAIgEoCCA6gH0AygBVe3UQG0ADAF1EoAA4B7WKgAuqFXUUgAHogBsRgOyMAnAEYALDKNWArEbumATKYA0IAJ6JbABxWjAFuATIyjo7WAMwxNhYAvoneaJi4BMTkVLQMzKwcAMIAErwAcgDiAKKCogDydQAysgpIIKrqWjp6hggm5tZ2Ds6uHt5+CG4RjKaOEW4xFjZGUTIxyano2HiEpBQ09EwsbFx8FSLiki16HZraum29-Za29k4uMu5evogLMeZhKxuZYBCwBAKmIwbEBpbaZPY5Q75E7CKqNKqFURVTiCNFVACyVTKomEjE4eKx1zaty6D1ATzMLyG71G3wmQMijCBcw8wM+9mhsIyu2yBzyxw4qPRmOxuPRhOJpMKdQACgBNKnKNR3bqPYyMwZvEafMY-BAxYEBSwWezzUymCxuJIpGFbYVZfa5I4FdhSjFYnF4hUkxgq3hiKqa9ra2k9fUDV7DD5fca-G1W0H2WYxRyLf6Ct07D2I8U+-F1ACqqME5YAapH5DcY-c4+bTMEbLmrFYLIsZI6bGz-GZzDJlhZojEe+ErOsXUKiwixd6TgBJYRyglE0QiUoqmoAMVXAA1ZfUKhV0VGaS29X0DYmWSah+bgVznMDIbnBxPTAX0ouopesikp4jKgbytuSoVtIjbUs2ur0vGTJGsmpoTHEjg2IwCS2iMyxGG4jj-nCIqekiErsCU5TVJuwaCKqoirnUZTCNeCF0gYyGGkmrKpggPYyG4lhGAEzgxKJE7hG4JHukuwGUdRlQ1AAWg0+LsZ0t5IfeCbMsaKZmjYUyMEY-b-EEQKmBasmAeRpYnEptFqXU+KCPwq6iMUggqquZQlJpOqcQyemoXxZqOFYo6EXMYntmCNgBLZ8JARRPrVGIFbcFUoblIFsZ3s8PFPoZEwODEjCRVEFgWGYcz-H+86Fil9krhwxTrvU3BqoIFYqpwvCUnBWpaYhXG6ShvHPvxpj9iJAQrLYbhWKC3bJWRJZtew-DcJ5NRiBIsGtCNQWtkVj4Geh-juFaHydjEESRb2zqbABLWbSB7BBlBjB+pigi8I0zTDdGo3BdxF1oS+4RGDhy0LZEvZYXOr2kcWy6fTte24pwnn5dp43nfpUP8VYRgWlyEJ2NyATxGs63owpPrZcIq4qftlxHU2YNnQ+xPhRMwJYZVU7-LOYnRECDPyWlJwqnUfmiIwfUDViFyHfjY0hZNJVXZMJgyIwY42DEoJTLNY4o66b0bRjlF-QGdE-RU3CViqmvgxNxWXS+PY1XDUU3Q4CwrdLqUOaB0qO99irK5Urt9R7vOhVNpW-P2jghKYiXAmZ4RiWHrWfWGZTq1cIM3lrEP89NZo5rTXK9qJ5NuOTMizoXH2Uau+K8LRfWNHUvCcEnd6OPaISzkCIJBFOvv2BVC0mLT7hzI4MlNTbjNIhARBYAA7vQUCnAIo86d2NjYZfs5LCYSzOKTNjdly7cJFYawNUlm9ozLeS7wfR8T5CCJCPCuHFWyzkZHMUwtMoiznHhOUmKxM5k1NisPMUUFidwxv-Q+dBj7knRGrB2zEyhn3GpA8w0DYGRRzA6Rw-EJyG0CGggitUarYOArgwByoyhlH9GXLm8EeZ3koZVT4ND4H0NJrmCwRtPjkzMmEB6X9UZyXDkwf+UAoCAJ4H3chvQyZGDkcscyxjlpRUvvxNwCw5FmScJ8G05MrCcJ3nvbRuizi4jKKA46oNTqiPTKZeKTp6oZwYWaBYl8RZAjMIOAIoxXF5BwCoLAEBAEGN+EERgEl2wIzCBOe+pN7TCSIu3KKMUxICm-uoouShiDqFgFofB7BMnmhzHYlwTpjEWAdERaGwQ5jzH+LmduJhiI1Lsh9bh+CSAqFIPvIgdxZlgDoBASArSwEiJ0nyUcMCVoRAkuTSEMjHQzBWrFayEQViNTUVMnBe88FQDmQspZzTnmrPWRAVpVg-GV09rso2+zwhrBMP8IwxT3A4U7E4QcFoaoTiSUwZADT7gkCIGANgWBYAbLaZhTpxl2G9MdOPaxQRYadmcEwyIkVVHWx-hoxgizlnHyxmrEBbSxHUJzLQhBET2T2itOPCIq0IjvycEiplbzAFsobH88Boib6mXHlEHpD1LFILmKZcmSwn40vbFbBc70MZKGxe89gEAdBHDoMgFQABrZFzVbbAVNU0o+CB6C2soFgWkLROW5PETAnlUjEGRNpsEFaswpjr07AOSVrrzXECIPMxgSgcA+oAGbzLIIwI1zqkQJvdZ6lQ3rfXyH9VAiRwa6GhsFgOUyQwxJTjEstSVSb5kkBSR4lpnLIrmAtEEXp9pzI5n4g9XMXIhjLVoV+GwkrKAqCUD4QBlrxQ2vtY6rev8mALqXUW9dpb7h+q2QE8+ElhLcrgTW-liALQuBmFOuIwdlhzsmca4Cu7l0tPbUQVN6aNBZqIDmvN288ifv3V6n1R7y0noKme8mIQTbZwWHMOwpsx3v0Nh8QigkZC0w8POjAGhzWrutbah1uanWgZ3UR95HqD1QZ0Me+V2yKHnsDZI69Y74gAg+GJcEnwEiEeI4An9f7M3Zso1uxllBaMQZLYxugzHuanrYwhhJ-xjI5jHGsAIGHEqTvsDYsIMCaoTLue+pEC66AMEoOavR-BOUGsnZ2Baq9enk0fp2HJY4zKJTMmCcm86dC2fNbw-hmJOWEXME-J+F8sIOnBKTeIGYqpdlsLOQ1VHt2MGs6FnhLEIvSF+SpuDFCbQVTMD2UJaxwkyIWIwQEaxUOhHMpKjF6h8CAJZmzGoHLYME0MUEqrjomEPQnDeyY68YsBfsCvZR7W4AEG61UVm7MnPvxyaEBJT8JJ2DCNY4ysNqGrBtISyVGAlAQCg7M1Q9ANDsHlorZW-VBpytK4N-wSwKoPUHMCfb2drGOAhCJd+D0pyXy+Bdq7N3nl3boA9p7xIXuqz6z4tpy0VimQhFhNYS0KvWPbBGj4D0o0JJcPGrANnAElwxzaFBREL5P0hGdsdiUTFOIKdO2cG8LP5ryKa6nLSS7eN8R9qu5p34oIhA4FYjocwQrrtEQ2l8JLtwm7VW59LanTMeUfEgmKwBkFWRoEgOK2B2dxQNiXBSZvgnHrMSxFhIXBGMbSp0SxIShGhyktJ+vUAUBgBaq1zB10UZAzly7vv0mzID1gGA9HINlrkL25wRsEnhBzuYpLZpuxOBwr2AdhEphYLffzpgUfUkx+eXHoPYm00SaA1JhlRdK9+9j4HsAieFPJ-9eCUyftnCfES7YUmUxDbAjiJg2qRnJW17ACQNvXygG9RVIPYesoe593e8I1TvRMdYZx2h-HaxSbv37ZFBI+HLadmSC6OgKh1nwDaBHjR4vPYAFpFcTA-5nBF1gooooPMcwstpMi4JR39WxjJhJC9JZIdLJJtA4hUxVRI357pedtd7kuE9d8FIDFVwhKoYpbBohs4JsZFFhA12xBxXBPgXEy9qNGAtEdFcDd8ytDFZpYYIhTN+xARp1rEJIrQuDrIyYedFgMDX8i5o8j48CdJjJilBwZg5huxaF7FZh41UU3UWCTo2Db0RhFChJQRFgn5nclcnQjYHEIQwgiJfxJUZlnkO1mV3kDc1lIAZDxpMdOCTYZxBwjEVhikKZ748N7QHQeNX0+cGCUUiB1AdB0VDdsVXDWDPtzRIhYZRI5tEw4g3BrETBsJvtL5i9RIsJJVHDpDEiJd4sgVUEexNN3ArBIU5F+QyZ9kyk8NKdNCoA3DDE8NsJ7RqCJIjFPgYgyUxIQgnEmF15aoij6Ccsf1O0VBu0OiyjPYyZeltUhIxwIRBNQQx1+wYsnEVoVpM8tcJCPpwMtD-EdCBI8NDZhVftrBgQDix0bE-99iaoWcVVhN3lOj-BrjKpZo7jp5Hi64p8C8jNvwJJrBgsbMwA7NSjtCkiVjzADYphEpZps5tjc8sJYZZgvwDYg1apFtOs4SLiETZo5EQj24PBs4UjJsiIPARJ+w5t-gFtpjGVLtrsnD4cNBviBJrBDZ3ADZjFLIpwsjIlJIcJXhWtypW4oRWS6kqc6BiT-lWxbccJRI4pHdSCx1ldLATY0jl4jlZTwics7CDc2BjcEczdDdLcIAeTW4bFKoologiJaYXBfZrJsIexIpqjwREtzNMDLM8gl9-dO8eSl5LAsJcx3ASVL5RT2Q1hsJylelTY7Bms6DjTGV59F800q8Ej4TyilhSl34wRrJ2xeREDz8QgqpRZBIeU79EggA */
+  /** @xstate-layout N4IgpgJg5mDOIC5QDcCWsCuBDANqgXmAE4AEAtlgMYAWqAdmAHSoQ5gDEAIgEoCCA6gH0AygBVe3UQG0ADAF1EoAA4B7WKgAuqFXUUgAHogBsRgOyMAnAEYALDKNWArEbumATKYA0IAJ6JbABxWjAFuATIyjo7WAMwxNhYAvoneaJi4BMTkVLQMzKwcAMIAErwAcgDiAKKCogDydQAysgpIIKrqWjp6hggm5tZ2Ds6uHt5+CG4RjKaOEW4xFjZGUTIxyano2HiEpBQ09EwsbFx8FSLiki16HZraum29-Za29k4uMu5evogLMeZhKxuZYBCwBAKmIwbEBpbaZPY5Q75E7CKqNKqFURVTiCNFVACyVTKomEjE4eKx1zaty6D1ATzMLyG71G3wmQMijCBcw8wM+9mhsIyu2yBzyxw4qPRmOxuPRhOJpMKdQACgBNKnKNR3bqPYyMwZvEafMY-BAxYEBSwWezzUymCxuJIpGFbYVZfa5I4FdhSjFYnF4hUkxgq3hiKqa9ra2k9fUDV7DD5fca-G1W0H2WYxRyLf6Ct07D2I8U+-F1ACqqME5YAapH5DcY-c4+bTMEbLmrFYLIsZI6bGz-GZzDJlhZojEe+ErOsXUKiwixd6TgBJYRyglE0QiUoqmoAMVXAA1ZfUKhV0VGaS29X0DYmWSah+bgVznMDIbnBxPTAX0ouopesikp4jKgbytuSoVtIjbUs2ur0vGTJGsmpoTHEjg2IwCS2iMyxGG4jj-nCIqekiErsCU5TVJuwaCKqoirnUZTCNeCF0gYyGGkmrKpggPYyG4lhGAEzgxKJE7hG4JHukuwGUdRlQ1AAWg0+LsZ0t5IfeCbMsaKZmjYUyMEY-b-EEQKmBasmAeRpYnEptFqXU+KCPwq6iMUggqquZQlJpOqcQyemoXxZqOFYo6EXMYntmCNgBLZ8JARRPrVGIFbcFUoblIFsZ3s8PFPoZEwODEjCRVEFgWGYcz-H+86Fil9krhwxTrvU3BqoIFYqpwvCUnBWpaYhXG6ShvHPvxpj9iJAQrLYbhWKC3bJWRJZtew-DcJ5NRiBIsGtCNQWtkVj4Geh-juFaHydjEESRb2zqbABLWbSB7BBlBjB+pigi8I0zTDdGo3BdxF1oS+4RGDhy0LZEvZYXOr2kcWy6fTte24pwnn5dp43nfpUP8VYRgWlyEJ2NyATxGs63owpPrZcIq4qftlxHU2YNnQ+xPhRMwJYZVU7-LOYnRECDPyWlJwqnUfmiIwfUDViFyHfjY0hZNJVXZMJgyIwY42DEoJTLNY4o66b0bRjlF-QGdE-RU3CViqmvgxNxWXS+PY1XDUU3Q4CwrdLqUOaB0qO99irK5Urt9R7vOhVNpW-P2jghKYiXAmZ4RiWHrWfWGZTq1cIM3lrEP89NZo5rTXK9qJ5NuOTMizoXH2Uau+K8LRfWNHUvCcEnd6OPaISzkCIJBFOvv2BVC0mLT7hzI4MlNTbjNIhARBYAA7vQUCnAIo86d2NjYZfs5LCYSzOKTNjdly7cJFYawNUlm9ozLeS7wfR8T5CCJCPCuHFWyzkZHMUwtMoiznHhOUmKxM5k1NisPMUUFidwxv-Q+dBj7knRGrB2zEyhn3GpA8w0DYGRRzA6Rw-EJyG0CGggitUarYOArgwByoyhlH9GXLm8EeZ3koZVT4ND4H0NJrmCwRtPjkzMmEB6X9UZyXDkwf+UAoCAJ4H3chvQyZGDkcscyxjlpRUvvxNwCw5FmScJ8G05MrCcJ3nvbRuizi4jKKA46oNTqiPTKZeKTp6oZwYWaBYl8RZAjMIOAIoxXF5CUMQdQsAtD4PYAYxAmE7EuCdMYiwDoiLQ2CHMeY-xcztxMMRb+6ii7cPwSQFQpB95EDuE0sAdAICQCyWAkROk+SjhgStCIElyaQhkY6GYK1YrWQiCsRqai7IfUaVAZprT2kZPWV0npEAslWD8ZXT2QyjYjPCGsEw-wjCk3tMJS+VVBwWhqhOJJTBkCpPuCQIgYA2BYFgL07J5ocx5OMuwopjpx7WKCLDTszgmGREiqo62P8NGMDaR04+WM1YgKBWI6hOZaEIIieye0Vpx4RFWhEd+Tg3noq2YA7FDYjngNETfUy48oiFIepYpBcxTLkyWE-RF7YrYLnehjJQ-ztnsAgDoI4dBkAqAANbvOarbYCUr0lHwQPQJVlAsC0haHiiSVCJGEqkYgyJtNggrVmFMdenYBx0q1TK4gRAWmMCUDgQ1AAzFpZBGDio1UiV1Oq9UqANUa+QJqoHmrgXQq1gsBymSGGJKcYllp0vdS0kgOAVAeMyXiyK5gLRBCKfacyOZ+IPVzFyIYy1aFfhsHSygKglA+EAXK8UiqVVqq3r-JgbaO3ht7VG+4xr+kBPPhJYSBKE3Epra3bC2d7B-GDssFtdSVkY2HZ2zJOaiBep9Rof1RBA3Bu3nkPdo79WGonTGqdBUZ3kxCCbbOCw5h2FNjW9+hsPiEUEjIWmHhW0YA0DK7tCqlWqqDeqq9Q7wPbN1WO+9OhJ0soGRQ2d4iYEWsTSSnJ8QAQfDEuCT4CQwMQcAYe49fqA1wYHWiygSHb2RrQ3QDD3Np3YdfQk-4xkcxjjWAEX9iV61rpsRCUErzt0SuAm2ugDBKAyr0fwPFor62dgWqvIp5NH6dkYA9UxiUzJgnJq2nQymZW8P4ZiPFhFzBPyfhfLCDpwSk3iBmKqXZbCzjFfBwdjBFPWZ4SxOz0hDncefRQm0FUzA9lCWscJMiFiMEBGsL9oRzJ0p+eofAgCWZsxqLip9BNDFBIS46JhD0JyEcmOvJzZn7Ar2UbluABBCtVFZuzDT78jOhASU-CSdgwjWOMrDahqwbRgrpRgJQEB71NNUPQDQ7B5aK2Vv1QazLovlf8EsCqxn3CXyEtnaxjgIQiXfg9Kcl8vhzYW0t9ZK26BrY28SLbqsSs+KBctFYpkIRYTWEtOL1j2y2o+A9e1CSXAuqwEpwBJc-s2hQURC+T9IQzZrYlExTiwiOicLODeyz5OhoR3QJH5RvG+L21Xc078UEQgcCsR0OYbl12iIbS+El251dqkslF9TVl7zwTstgZAukaBIACtgKnAVlfpwTpr4Jx6zEsRYW57ZTIThWk6JYkJQgup+WgMA+8SCoAoDAPNKgsAQC7fK5gvbYOXqC0oE3qAzcW6t2AG3du2PjvQ4+zDPHDFcqNgk8IOdzEebNN2JwOFexlsIlMLBcmQ3JI917y3WBrf5v9weogHqj3evo+exjqKi7u7AKb83Oe8+2-t-glDd7o1yBNeCUyftnCfHc7YUmUxDbAjiJg2qa7jc1893Xn3fu9lAN6iqQew9ZQ9z7rt4RoffjwJwrOCIP4HoOFJt2ORDV36E87EJALTGi71992s2VjuI0u8C2i2-JA1kt-Y23v7xjzBY6IkUpdhCJ8KTMBovFFI6GsIlKbMsHSm-vfrRqXqegxq7q-jPh-hGoHpxsHnTicpFNhM1rDvYmCL7GTOSmYIMOYgkMiqgUXPnk3sfFBk7jBv2pXh9PQQHhxlxhvjFr0J3oRBJKCIsMYsdrctEFyGTIzpEAfolHShwYXsXnRsgeXrQewY3pwd-orp7AALTdj-ruBxBhCgjRC1RuCkzgjCSzALJ86661Iuh0AqA9LwBtCqHLi4GtjaE2KGyEqOjGKDiRBjhmFmjaGZwvI1TwomxOCjZwEFDuF3jGTCRJ6Sz3aWT1aBzkrUqiRvz3Qk5C47pcKi5HxxHnyjKVQxS2DRDZx1YyKLC4btiDiuCfAuLp4IaMBaI6L4LFEUKzSwwRAwI2iOhBCNrWKCHyL2hTjlS2K5GuHATyFQBdG9C6HuBGbVStwG4BHGS3KDjpblI1Smy9iZouqfLaqdE8H7bmgjAzA8hCFLA9g1rrxyLtxzJhAAHjx0prIbIkAYrbIkC7KQALFb4mBGwmwziDhGIrC3IUz3zAb2gOjEZbqk4Z7vKfI6DfK-JgD-L-FnH061qwyiQtaJiGHWImDYSHaXwp6iRYR0rfFFHYmeyuZnKoI9gCbuBWBa6PGzRkwjJESUrw4nHzF0kQLAYrrZzZwSRGKfAxDQpiQhBOJMIPErAIl5Fk55CHo26FoCknS8HDhFICpCRjjAHZygg1r9hOZOIrQrRR6C4zFIg3qnFannHvzhCVSzTGbWDAgWlLpETWhvA1RY6cpUbbIAkCTAaGwUpunTyel1wj6J5rrfgSTWCWZKZgAqa0kOn05ky6kGxTCJSzRGma5x5YSwyzBfgGx4a1Ttb5Zpn+LakCSzRyJwntweCrrOD1ZEQeAiT9gtb-BtYtFBbzaLY-GvYaDBk9j9buAGzGKWRThBGCySQ752DZaTEmDw6I72k1nnHK44SiRxTq5VH3E2iWAmz4nLzjJQh9loofHomS5vYy7ony4QDBmtw2KVRRLRBES0wuC+zWTYQ9iRTMngjua1KImtHV617e656+5zHBlLyWBYS5juCQqXyzn+BQFGzH7WQJJjKRQT7gVv70FYnpn0kJJlLLrOYRDWAJJH6zjWiGEskWlKk2nijoGFHrnHKtgLDa45jLAeDXKIw2CgFjghAwpBD9jLCcnJDJBAA */
   createMachine(
     {
       id: "visualizer machine",
@@ -80,11 +83,19 @@ export const visualizerMachine =
           copySelectedElements: {
             data: void;
           };
-          uploadImage: {
+          loadPreviewImage: {
+            data: void;
+          };
+          loadImageInfo: {
             data: {
-              url: string;
+              fileId: FileId;
               size: Size;
+              imageElement: HTMLImageElement;
+              dataURL: string;
             };
+          };
+          loadImages: {
+            data: ImageCache;
           };
         },
       },
@@ -99,6 +110,8 @@ export const visualizerMachine =
             elementOptions: PERSISTED_CONTEXT["elementOptions"],
           },
         ],
+        imageFile: null,
+        imageCache: {},
       },
 
       states: {
@@ -221,7 +234,10 @@ export const visualizerMachine =
               target: "panning",
             },
 
-            IMAGE_UPLOAD: "uploading image",
+            IMAGE_UPLOAD: {
+              target: "preview image loading",
+              actions: "assignImageFile",
+            },
           },
         },
 
@@ -264,8 +280,20 @@ export const visualizerMachine =
         },
 
         loading: {
-          always: "idle",
-          entry: "loadSavedContext",
+          entry: ["loadSavedContext"],
+
+          invoke: {
+            src: "loadImages",
+            onDone: {
+              target: "idle",
+              actions: "assignImages",
+            },
+
+            onError: {
+              target: "loading",
+              internal: true,
+            },
+          },
         },
 
         persisting: {
@@ -407,28 +435,39 @@ export const visualizerMachine =
           always: "version released",
         },
 
-        "uploading image": {
+        "preview image loading": {
           invoke: {
-            src: "uploadImage",
+            src: "loadPreviewImage",
             onDone: {
-              target: "image uploaded",
-              actions: "assignUploadedImage",
+              target: "preview image loaded",
             },
-            onError: "error logging",
+            onError: {
+              target: "error logging",
+              actions: "resetCursor",
+            },
           },
         },
 
-        "image uploaded": {
+        "preview image loaded": {
           on: {
             DRAW_UPLOADED_IMAGE: {
-              target: "version released",
-              actions: [
-                "assignDrawStartPoint",
-                "addImageElement",
-                "updateTool",
-              ],
+              target: "image drawing",
+              actions: ["assignDrawStartPoint"],
             },
           },
+        },
+
+        "image drawing": {
+          invoke: {
+            src: "loadImageInfo",
+            onDone: {
+              target: "version released",
+              actions: ["addImageElement", "assignFiles", "assignImageCache"],
+            },
+            onError: "error logging",
+          },
+
+          exit: "updateTool",
         },
       },
 
@@ -451,36 +490,6 @@ export const visualizerMachine =
           return {
             elements: [...context.elements, element],
             drawingElementId: element.id,
-          };
-        }),
-        assignUploadedImage: assign((_, { data }) => {
-          return {
-            uploadedImage: {
-              url: data.url,
-              size: data.size,
-            },
-          };
-        }),
-        addImageElement: assign((context) => {
-          invariant(isDrawingTool(context.tool));
-          invariant(context.uploadedImage);
-
-          const imageElement: VisualizerImageElement = {
-            id: uuidv4(),
-            x: context.drawStartPoint.x,
-            y: context.drawStartPoint.y,
-            status: "selected",
-            options: context.elementOptions,
-            groupIds: [],
-            shape: "image",
-
-            width: context.uploadedImage.size.width,
-            height: context.uploadedImage.size.height,
-            url: context.uploadedImage.url,
-          };
-
-          return {
-            elements: [...context.elements, imageElement],
           };
         }),
         addTextElement: assign((context, { devicePixelRatio }) => {
@@ -748,8 +757,10 @@ export const visualizerMachine =
           };
         }),
         persist: debounce((context: VisualizerMachineContext) => {
+          // prettier-ignore
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          const { history, historyStep, ...persistedContext } = context;
+          const { history, historyStep, imageCache, imageFile, ...persistedContext } =
+            context;
 
           try {
             localStorage.setItem("context", JSON.stringify(persistedContext));
@@ -1286,6 +1297,63 @@ export const visualizerMachine =
         logError: (_, event) => {
           console.error(event.data);
         },
+        assignImageFile: assign((_, { event }) => {
+          const fileList = event.target.files;
+          invariant(fileList);
+
+          const file = fileList[0];
+          invariant(file);
+
+          return {
+            imageFile: file,
+          };
+        }),
+        resetCursor: () => {
+          document.body.style.cursor = "default";
+        },
+        addImageElement: assign((context, { data }) => {
+          invariant(context.imageFile);
+
+          const imageElement: VisualizerImageElement = {
+            id: uuidv4(),
+            x: context.drawStartPoint.x,
+            y: context.drawStartPoint.y,
+            status: "selected",
+            options: context.elementOptions,
+            groupIds: [],
+            shape: "image",
+
+            width: data.size.width,
+            height: data.size.height,
+            fileId: data.fileId,
+          };
+
+          return {
+            elements: [...context.elements, imageElement],
+          };
+        }),
+        assignFiles: assign((context, { data }) => {
+          return {
+            files: {
+              ...context.files,
+              [data.fileId]: {
+                dataURL: data.dataURL,
+              },
+            },
+          };
+        }),
+        assignImageCache: assign((_, { data }) => {
+          return {
+            imageCache: {
+              [data.fileId]: data.imageElement,
+            },
+          };
+        }),
+        assignImages: assign((_, { data }) => {
+          return {
+            imageCache: data,
+          };
+        }),
       },
       services: {
         readClipboardText: async (_, { canvasElement }) => {
@@ -1307,7 +1375,7 @@ export const visualizerMachine =
           };
           navigator.clipboard.writeText(JSON.stringify(newClipText));
         },
-        uploadImage: async (_, { event }) => {
+        loadPreviewImage: async (_, { event }) => {
           document.body.style.cursor = "wait";
 
           const fileList = event.target.files;
@@ -1330,19 +1398,43 @@ export const visualizerMachine =
             MAX_SIZE
           );
 
-          const thumbnailUrl = createImageUrl(imageElement, thumbnailSize);
+          const thumbnailUrl = createImageDataURL(imageElement, thumbnailSize);
           document.body.style.cursor = `url(${thumbnailUrl}), auto`;
+        },
+        loadImageInfo: async (context) => {
+          invariant(isDrawingTool(context.tool));
+          invariant(context.imageFile);
 
-          const originalSize = {
+          const fileId = await createFileId(context.imageFile);
+
+          const { target: fileReader } = await readAsDataURL(context.imageFile);
+          invariant(fileReader);
+
+          const imageDataURL = fileReader.result;
+          invariant(typeof imageDataURL === "string");
+
+          const imageElement = await loadImageElement(imageDataURL);
+          const size = {
             width: imageElement.width,
             height: imageElement.height,
           };
-          const originalUrl = createImageUrl(imageElement, originalSize);
 
-          return {
-            url: originalUrl,
-            size: originalSize,
-          };
+          return { fileId, size, imageElement, dataURL: imageDataURL };
+        },
+        loadImages: async () => {
+          const value = localStorage.getItem("context");
+          if (value === null) {
+            return {};
+          }
+
+          const { files } = JSON.parse(value) as VisualizerMachineContext;
+          const imageCache: ImageCache = {};
+
+          for (const [fileId, { dataURL }] of Object.entries(files)) {
+            imageCache[fileId] = await loadImageElement(dataURL);
+          }
+
+          return imageCache;
         },
       },
       guards: {

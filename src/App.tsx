@@ -108,6 +108,8 @@ function App() {
     history,
     historyStep,
     drawStartPoint,
+    files,
+    imageCache,
   } = state.context;
 
   const drawStartViewportPoint = calculateViewportPoint({
@@ -190,7 +192,10 @@ function App() {
       }
 
       const drawElement = createDraw(element, canvasElement);
-      drawElement();
+      drawElement({
+        files,
+        imageCache,
+      });
 
       const absolutePoint = calculateElementAbsolutePoint(element);
       const isGroupedElement = element.groupIds.length !== 0;
@@ -233,6 +238,8 @@ function App() {
     devicePixelRatio,
     drawingElementId,
     isWritingState,
+    files,
+    imageCache,
   ]);
 
   useEffect(() => {
@@ -619,6 +626,8 @@ function App() {
       type: "IMAGE_UPLOAD",
       event,
     });
+
+    event.target.value = "";
   };
 
   const editableRefCallback = useCallback(
@@ -904,7 +913,7 @@ function App() {
         onMouseDown={
           state.matches("idle")
             ? handleMouseDown
-            : state.matches("image uploaded")
+            : state.matches("preview image loaded")
             ? drawImage
             : undefined
         }

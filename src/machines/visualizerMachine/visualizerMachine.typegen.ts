@@ -14,13 +14,18 @@ export interface Typegen0 {
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "done.invoke.visualizer machine.pasting:invocation[0]": {
-      type: "done.invoke.visualizer machine.pasting:invocation[0]";
+    "done.invoke.visualizer machine.image drawing:invocation[0]": {
+      type: "done.invoke.visualizer machine.image drawing:invocation[0]";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "done.invoke.visualizer machine.uploading image:invocation[0]": {
-      type: "done.invoke.visualizer machine.uploading image:invocation[0]";
+    "done.invoke.visualizer machine.loading:invocation[0]": {
+      type: "done.invoke.visualizer machine.loading:invocation[0]";
+      data: unknown;
+      __tip: "See the XState TS docs to learn how to strongly type this.";
+    };
+    "done.invoke.visualizer machine.pasting:invocation[0]": {
+      type: "done.invoke.visualizer machine.pasting:invocation[0]";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
@@ -32,22 +37,33 @@ export interface Typegen0 {
       type: "error.platform.visualizer machine.cutting:invocation[0]";
       data: unknown;
     };
+    "error.platform.visualizer machine.image drawing:invocation[0]": {
+      type: "error.platform.visualizer machine.image drawing:invocation[0]";
+      data: unknown;
+    };
+    "error.platform.visualizer machine.loading:invocation[0]": {
+      type: "error.platform.visualizer machine.loading:invocation[0]";
+      data: unknown;
+    };
     "error.platform.visualizer machine.pasting:invocation[0]": {
       type: "error.platform.visualizer machine.pasting:invocation[0]";
       data: unknown;
     };
-    "error.platform.visualizer machine.uploading image:invocation[0]": {
-      type: "error.platform.visualizer machine.uploading image:invocation[0]";
+    "error.platform.visualizer machine.preview image loading:invocation[0]": {
+      type: "error.platform.visualizer machine.preview image loading:invocation[0]";
       data: unknown;
     };
     "xstate.init": { type: "xstate.init" };
+    "xstate.stop": { type: "xstate.stop" };
   };
   invokeSrcNameMap: {
     copySelectedElements:
       | "done.invoke.visualizer machine.copying:invocation[0]"
       | "done.invoke.visualizer machine.cutting:invocation[0]";
+    loadImageInfo: "done.invoke.visualizer machine.image drawing:invocation[0]";
+    loadImages: "done.invoke.visualizer machine.loading:invocation[0]";
+    loadPreviewImage: "done.invoke.visualizer machine.preview image loading:invocation[0]";
     readClipboardText: "done.invoke.visualizer machine.pasting:invocation[0]";
-    uploadImage: "done.invoke.visualizer machine.uploading image:invocation[0]";
   };
   missingImplementations: {
     actions: "loadSavedContext";
@@ -57,28 +73,31 @@ export interface Typegen0 {
   };
   eventsCausingActions: {
     addElement: "DRAW_START";
-    addImageElement: "DRAW_UPLOADED_IMAGE";
+    addImageElement: "done.invoke.visualizer machine.image drawing:invocation[0]";
     addTextElement: "WRITE_START";
     addVersionToHistory:
       | ""
       | "CHANGE_ELEMENT_OPTIONS"
       | "DRAG_END"
-      | "DRAW_UPLOADED_IMAGE"
       | "POINT.UPDATE_END"
       | "RESIZE_END"
       | "SELECTED_ELEMENTS.DELETE"
       | "SELECTED_ELEMENTS.GROUP"
       | "SELECTED_ELEMENTS.UNGROUP"
+      | "done.invoke.visualizer machine.image drawing:invocation[0]"
       | "done.invoke.visualizer machine.pasting:invocation[0]";
     assignCurrentPoint: "MOUSE_MOVE";
     assignDrawStartPoint: "DRAW_START" | "DRAW_UPLOADED_IMAGE" | "WRITE_START";
     assignElementOptions: "CHANGE_ELEMENT_OPTIONS";
+    assignFiles: "done.invoke.visualizer machine.image drawing:invocation[0]";
+    assignImageCache: "done.invoke.visualizer machine.image drawing:invocation[0]";
+    assignImageFile: "IMAGE_UPLOAD";
+    assignImages: "done.invoke.visualizer machine.loading:invocation[0]";
     assignPreviousPoint: "DRAG" | "DRAG_START";
     assignResizeFixedPoint: "RESIZE_START";
     assignResizingDirection: "RESIZE_START";
     assignResizingStartPoint: "POINT.UPDATE_START" | "RESIZE_START";
     assignUpdatingPointIndex: "POINT.UPDATE_START";
-    assignUploadedImage: "done.invoke.visualizer machine.uploading image:invocation[0]";
     assignZoom: "CHANGE_ZOOM";
     assignZoomToCurrentPoint: "CHANGE_ZOOM_WITH_PINCH";
     changeTool: "CHANGE_TOOL";
@@ -92,12 +111,15 @@ export interface Typegen0 {
     editWrite: "WRITE_EDIT";
     endConnect: "CONNECT";
     groupSelectedElements: "SELECTED_ELEMENTS.GROUP";
-    loadSavedContext: "xstate.init";
+    loadSavedContext:
+      | "error.platform.visualizer machine.loading:invocation[0]"
+      | "xstate.init";
     logError:
       | "error.platform.visualizer machine.copying:invocation[0]"
       | "error.platform.visualizer machine.cutting:invocation[0]"
+      | "error.platform.visualizer machine.image drawing:invocation[0]"
       | "error.platform.visualizer machine.pasting:invocation[0]"
-      | "error.platform.visualizer machine.uploading image:invocation[0]";
+      | "error.platform.visualizer machine.preview image loading:invocation[0]";
     pan: "PAN";
     panWithGesture: "GESTURE.PAN";
     pasteSelectedElements: "done.invoke.visualizer machine.pasting:invocation[0]";
@@ -115,6 +137,7 @@ export interface Typegen0 {
       | "WRITE"
       | "done.invoke.visualizer machine.copying:invocation[0]"
       | "done.invoke.visualizer machine.cutting:invocation[0]";
+    resetCursor: "error.platform.visualizer machine.preview image loading:invocation[0]";
     resetDrawingElementId: "" | "DELETE_SELECTION";
     resize: "RESIZE";
     selectAllElements: "ELEMENTS.SELECT_ALL";
@@ -125,7 +148,13 @@ export interface Typegen0 {
     updateHistory: "HISTORY_UPDATE";
     updateIntersecting: "DRAW" | "DRAW_END";
     updatePoint: "POINT.UPDATE";
-    updateTool: "CONNECT" | "DRAW_END" | "DRAW_UPLOADED_IMAGE" | "WRITE_END";
+    updateTool:
+      | "CONNECT"
+      | "DRAW_END"
+      | "WRITE_END"
+      | "done.invoke.visualizer machine.image drawing:invocation[0]"
+      | "error.platform.visualizer machine.image drawing:invocation[0]"
+      | "xstate.stop";
     write: "WRITE";
   };
   eventsCausingDelays: {};
@@ -138,8 +167,12 @@ export interface Typegen0 {
   };
   eventsCausingServices: {
     copySelectedElements: "SELECTED_ELEMENTS.COPY" | "SELECTED_ELEMENTS.CUT";
+    loadImageInfo: "DRAW_UPLOADED_IMAGE";
+    loadImages:
+      | "error.platform.visualizer machine.loading:invocation[0]"
+      | "xstate.init";
+    loadPreviewImage: "IMAGE_UPLOAD";
     readClipboardText: "SELECTED_ELEMENTS.PASTE";
-    uploadImage: "IMAGE_UPLOAD";
   };
   matchesStates:
     | "connecting"
@@ -151,14 +184,15 @@ export interface Typegen0 {
     | "drawing or writing ended"
     | "error logging"
     | "idle"
-    | "image uploaded"
+    | "image drawing"
     | "loading"
     | "panning"
     | "pasting"
     | "persisting"
+    | "preview image loaded"
+    | "preview image loading"
     | "resizing"
     | "updating point"
-    | "uploading image"
     | "version released"
     | "writing";
   tags: never;

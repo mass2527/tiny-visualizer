@@ -1,7 +1,7 @@
 import invariant from "tiny-invariant";
 import { Size } from "./resize";
 
-export const createImageUrl = (
+export const createImageDataURL = (
   canvasImageSource: CanvasImageSource,
   size: Size
 ) => {
@@ -13,10 +13,10 @@ export const createImageUrl = (
   canvasElement.height = size.height;
   ctx.drawImage(canvasImageSource, 0, 0, size.width, size.height);
 
-  const imageUrl = canvasElement.toDataURL();
+  const imageDataURL = canvasElement.toDataURL();
   canvasElement.remove();
 
-  return imageUrl;
+  return imageDataURL;
 };
 
 type DataURL = string;
@@ -46,4 +46,33 @@ export const readAsDataURL = (blob: Blob) => {
       reject(error);
     };
   });
+};
+
+export const readAsArrayBuffer = (blob: Blob) => {
+  return new Promise<ProgressEvent<FileReader>>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsArrayBuffer(blob);
+
+    reader.onload = (event) => {
+      resolve(event);
+    };
+    reader.onerror = (error) => {
+      reject(error);
+    };
+  });
+};
+
+export const createFileId = async (file: File) => {
+  const { target } = await readAsArrayBuffer(file);
+  invariant(target);
+
+  const arrayBuffer = target.result as ArrayBuffer;
+  const buffer = await crypto.subtle.digest("SHA-256", arrayBuffer);
+
+  const hashArray = Array.from(new Uint8Array(buffer));
+  const hashHex = hashArray
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+
+  return hashHex;
 };

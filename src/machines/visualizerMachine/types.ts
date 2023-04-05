@@ -1,7 +1,6 @@
 import { ChangeEvent, MouseEvent, MouseEventHandler } from "react";
 import { Options as RoughJSOptions } from "roughjs/bin/core";
 import { Direction } from "../../components/ElementResizer";
-import { Size } from "../../utils";
 
 export type VisualizerElementBase = {
   id: string;
@@ -68,7 +67,7 @@ export type VisualizerTextElement = VisualizerElementBase &
 
 export type VisualizerImageElement = VisualizerElementBase & {
   shape: "image";
-  url: string;
+  fileId: FileId;
 };
 
 export type VisualizerElement =
@@ -106,6 +105,14 @@ export type DrawingTool = VisualizerElement["shape"];
 export type NonDrawingTool = "hand";
 export type Tool = DrawingTool | NonDrawingTool;
 
+export type FileId = string;
+export type Files = Record<
+  FileId,
+  {
+    dataURL: string;
+  }
+>;
+
 // context that is saved to localStorage
 export type VisualizerMachinePersistedContext = {
   elements: VisualizerElement[];
@@ -127,16 +134,18 @@ export type VisualizerMachinePersistedContext = {
     y: number;
   };
 
-  uploadedImage: null | {
-    url: string;
-    size: Size;
-  };
+  files: Files;
 };
+
+export type ImageCache = Record<FileId, HTMLImageElement>;
 
 export type VisualizerMachineContext = VisualizerMachinePersistedContext & {
   // context that is **not** saved to localStorage
   history: Version[];
   historyStep: number;
+
+  imageFile: File | null;
+  imageCache: ImageCache;
 };
 
 /* #region events within machine  */
