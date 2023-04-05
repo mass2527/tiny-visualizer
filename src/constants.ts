@@ -4,7 +4,7 @@ import {
   VisualizerMachineContext,
 } from "./machines/visualizerMachine";
 
-export type HOT_KEY = "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8";
+export type HOT_KEY = "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9";
 
 export const HOT_KEYS = {
   selection: "1",
@@ -15,6 +15,7 @@ export const HOT_KEYS = {
   line: "6",
   freedraw: "7",
   text: "8",
+  image: "9",
 } as const satisfies Record<VisualizerElement["shape"], HOT_KEY>;
 
 export const TOOL_LABELS: Record<Tool, string> = {
@@ -27,6 +28,7 @@ export const TOOL_LABELS: Record<Tool, string> = {
   line: "(6) Line",
   freedraw: "(7) Freedraw",
   text: "(8) Text",
+  image: "(9) Image",
 };
 
 type Option<T> = {
