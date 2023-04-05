@@ -1342,9 +1342,10 @@ export const visualizerMachine =
             },
           };
         }),
-        assignImageCache: assign((_, { data }) => {
+        assignImageCache: assign((context, { data }) => {
           return {
             imageCache: {
+              ...context.imageCache,
               [data.fileId]: data.imageElement,
             },
           };
