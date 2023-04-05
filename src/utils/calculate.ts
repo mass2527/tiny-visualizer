@@ -1,5 +1,6 @@
 import invariant from "tiny-invariant";
 import {
+  FileId,
   Point,
   VisualizerElement,
   VisualizerElementBase,
@@ -22,6 +23,7 @@ import {
   isGenericElement,
   isGenericShape,
   isImageElement,
+  isImageShape,
   isLinearElement,
   isLinearShape,
 } from "./type-guard";
@@ -300,21 +302,28 @@ export const createElement = ({
   drawStartPoint,
   elementOptions,
   devicePixelRatio,
+  width,
+  height,
+  fileId,
+  status,
 }: {
   elements: VisualizerMachineContext["elements"];
-  // REFACTOR: include image or not?!
-  shape: Exclude<VisualizerElement["shape"], "image">;
+  shape: VisualizerElement["shape"];
   drawStartPoint: VisualizerMachineContext["drawStartPoint"];
   elementOptions: VisualizerMachineContext["elementOptions"];
   devicePixelRatio: number;
+  width?: VisualizerElement["width"];
+  height?: VisualizerElement["height"];
+  fileId?: FileId;
+  status?: VisualizerElement["status"];
 }): VisualizerElement => {
   const elementBase: VisualizerElementBase = {
     id: uuid.v4(),
     x: drawStartPoint.x,
     y: drawStartPoint.y,
-    width: 0,
-    height: 0,
-    status: "idle",
+    width: width ?? 0,
+    height: height ?? 0,
+    status: status ?? "idle",
     options: elementOptions,
     groupIds: [],
   };
@@ -348,6 +357,18 @@ export const createElement = ({
         seed: createRandomSeed(existingSeeds),
       };
     }
+  }
+
+  if (isImageShape(shape)) {
+    invariant(fileId);
+
+    const imageElement: VisualizerImageElement = {
+      ...elementBase,
+      shape,
+      fileId,
+    };
+
+    return imageElement;
   }
 
   if (isLinearShape(shape) || isFreeDrawShape(shape)) {
