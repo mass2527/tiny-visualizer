@@ -443,6 +443,14 @@ function App() {
       return;
     }
 
+    if (tool === "image") {
+      send({
+        type: "DRAW_UPLOADED_IMAGE",
+        event,
+        devicePixelRatio,
+      });
+    }
+
     const selectedElements = elements.filter(
       (element) => element.status === "selected"
     );
@@ -455,14 +463,6 @@ function App() {
     } else {
       startDraw(event);
     }
-  };
-
-  const drawImage: MouseEventHandler<HTMLCanvasElement> = (event) => {
-    send({
-      type: "DRAW_UPLOADED_IMAGE",
-      event,
-      devicePixelRatio,
-    });
   };
 
   const startPanWithHand: MouseEventHandler<HTMLCanvasElement> = (event) => {
@@ -910,13 +910,7 @@ function App() {
         // actual size
         width={Math.floor(windowSize.width * devicePixelRatio)}
         height={Math.floor(windowSize.height * devicePixelRatio)}
-        onMouseDown={
-          state.matches("idle")
-            ? handleMouseDown
-            : state.matches("preview image loaded")
-            ? drawImage
-            : undefined
-        }
+        onMouseDown={state.matches("idle") ? handleMouseDown : undefined}
         onMouseMove={
           state.matches("drawing") || state.matches("connecting")
             ? draw

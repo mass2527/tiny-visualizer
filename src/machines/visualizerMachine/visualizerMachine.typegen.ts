@@ -190,7 +190,6 @@ export interface Typegen0 {
     | "panning"
     | "pasting"
     | "persisting"
-    | "preview image loaded"
     | "preview image loading"
     | "resizing"
     | "updating point"
