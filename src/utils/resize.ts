@@ -564,7 +564,7 @@ export const resizePointBasedElement = <T extends VisualizerPointBasedElement>({
     height: previousAbsolutePoint.maxY - previousAbsolutePoint.minY,
   };
 
-  // if currentCanvasPoint and previousCanvasPoint is on the another side,
+  // if currentCanvasPoint and previousCanvasPoint is on the other side,
   // we need to multiply by -1 for symmetry
   const flipSign = calculateFlipSign({
     previousCanvasPoint,
