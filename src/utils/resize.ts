@@ -16,6 +16,7 @@ import {
   Point,
   VisualizerElement,
   VisualizerGenericElement,
+  VisualizerImageElement,
   VisualizerLinearElement,
   VisualizerPointBasedElement,
   VisualizerTextElement,
@@ -192,6 +193,103 @@ export const resizeGenericElement = ({
     case "down":
       return {
         ...element,
+        y: resizeFixedPoint.y,
+        height: currentCanvasPoint.y - resizeFixedPoint.y,
+      };
+  }
+};
+
+export const resizeImageElement = ({
+  element,
+  direction,
+  previousCanvasPoint,
+  currentCanvasPoint,
+  resizeFixedPoint,
+}: {
+  element: VisualizerImageElement;
+  direction: Direction;
+  previousCanvasPoint: Point;
+  currentCanvasPoint: Point;
+  resizeFixedPoint: Point;
+}): VisualizerImageElement => {
+  const flipSign = calculateFlipSign({
+    previousCanvasPoint,
+    currentCanvasPoint,
+    resizeFixedPoint,
+  });
+  const elementBase: VisualizerImageElement = {
+    ...element,
+    scale: [element.scale[0] * flipSign.x, element.scale[1] * flipSign.y],
+  };
+
+  if (isDiagonalDirection(direction)) {
+    const diagonalDirection = calculateDiagonalDirection(
+      currentCanvasPoint,
+      resizeFixedPoint
+    );
+    switch (diagonalDirection) {
+      case "up-left":
+        return {
+          ...elementBase,
+          x: currentCanvasPoint.x,
+          y: currentCanvasPoint.y,
+          width: resizeFixedPoint.x - currentCanvasPoint.x,
+          height: resizeFixedPoint.y - currentCanvasPoint.y,
+        };
+      case "up-right":
+        return {
+          ...elementBase,
+          x: resizeFixedPoint.x,
+          y: currentCanvasPoint.y,
+          width: currentCanvasPoint.x - resizeFixedPoint.x,
+          height: resizeFixedPoint.y - currentCanvasPoint.y,
+        };
+      case "down-left":
+        return {
+          ...elementBase,
+          x: currentCanvasPoint.x,
+          y: resizeFixedPoint.y,
+          width: resizeFixedPoint.x - currentCanvasPoint.x,
+          height: currentCanvasPoint.y - resizeFixedPoint.y,
+        };
+      case "down-right":
+        return {
+          ...elementBase,
+          x: resizeFixedPoint.x,
+          y: resizeFixedPoint.y,
+          width: currentCanvasPoint.x - resizeFixedPoint.x,
+          height: currentCanvasPoint.y - resizeFixedPoint.y,
+        };
+    }
+  }
+
+  const orthogonalDirection = calculateOrthogonalDirection({
+    currentCanvasPoint,
+    direction,
+    resizeFixedPoint,
+  });
+  switch (orthogonalDirection) {
+    case "up":
+      return {
+        ...elementBase,
+        y: currentCanvasPoint.y,
+        height: resizeFixedPoint.y - currentCanvasPoint.y,
+      };
+    case "left":
+      return {
+        ...elementBase,
+        x: currentCanvasPoint.x,
+        width: resizeFixedPoint.x - currentCanvasPoint.x,
+      };
+    case "right":
+      return {
+        ...elementBase,
+        x: resizeFixedPoint.x,
+        width: currentCanvasPoint.x - resizeFixedPoint.x,
+      };
+    case "down":
+      return {
+        ...elementBase,
         y: resizeFixedPoint.y,
         height: currentCanvasPoint.y - resizeFixedPoint.y,
       };
@@ -426,6 +524,27 @@ export const resizeTextElement = ({
   }
 };
 
+const calculateFlipSign = ({
+  previousCanvasPoint,
+  currentCanvasPoint,
+  resizeFixedPoint,
+}: {
+  previousCanvasPoint: Point;
+  currentCanvasPoint: Point;
+  resizeFixedPoint: Point;
+}) => {
+  return {
+    x: Math.sign(
+      (currentCanvasPoint.x - resizeFixedPoint.x) *
+        (previousCanvasPoint.x - resizeFixedPoint.x)
+    ),
+    y: Math.sign(
+      (currentCanvasPoint.y - resizeFixedPoint.y) *
+        (previousCanvasPoint.y - resizeFixedPoint.y)
+    ),
+  };
+};
+
 export const resizePointBasedElement = <T extends VisualizerPointBasedElement>({
   element,
   direction,
@@ -445,18 +564,13 @@ export const resizePointBasedElement = <T extends VisualizerPointBasedElement>({
     height: previousAbsolutePoint.maxY - previousAbsolutePoint.minY,
   };
 
-  // if currentCanvasPoint and previousCanvasPoint is on the another side,
+  // if currentCanvasPoint and previousCanvasPoint is on the other side,
   // we need to multiply by -1 for symmetry
-  const flipSign = {
-    x: Math.sign(
-      (currentCanvasPoint.x - resizeFixedPoint.x) *
-        (previousCanvasPoint.x - resizeFixedPoint.x)
-    ),
-    y: Math.sign(
-      (currentCanvasPoint.y - resizeFixedPoint.y) *
-        (previousCanvasPoint.y - resizeFixedPoint.y)
-    ),
-  };
+  const flipSign = calculateFlipSign({
+    previousCanvasPoint,
+    currentCanvasPoint,
+    resizeFixedPoint,
+  });
 
   const resizedSize = {
     width: Math.abs(currentCanvasPoint.x - resizeFixedPoint.x),

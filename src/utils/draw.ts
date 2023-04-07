@@ -226,6 +226,12 @@ export const createDraw = (
     return ({ files, imageCache }) => {
       ctx.save();
 
+      ctx.scale(element.scale[0], element.scale[1]);
+      ctx.translate(
+        element.scale[0] === 1 ? 0 : -(element.x * 2 + element.width),
+        element.scale[1] === 1 ? 0 : -(element.y * 2 + element.height)
+      );
+
       const file = files?.[element.fileId];
       invariant(file);
 
