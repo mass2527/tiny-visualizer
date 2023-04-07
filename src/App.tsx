@@ -52,6 +52,7 @@ import {
   calculateSelectedElementsAbsolutePoint,
   isSameGroup,
   groupBy,
+  isImageElement,
 } from "./utils";
 import ElementResizer from "./components/ElementResizer";
 
@@ -1046,6 +1047,25 @@ function App() {
       {selectedElements.length === 1 &&
         selectedElements[0] &&
         isGenericElement(selectedElements[0]) && (
+          <ElementResizer
+            absolutePoint={calculateElementAbsolutePoint(selectedElements[0])}
+            devicePixelRatio={devicePixelRatio}
+            origin={origin}
+            zoom={zoom}
+            onMouseDown={(event, direction) => {
+              send({
+                type: "RESIZE_START",
+                event,
+                devicePixelRatio,
+                resizingDirection: direction,
+              });
+            }}
+          />
+        )}
+
+      {selectedElements.length === 1 &&
+        selectedElements[0] &&
+        isImageElement(selectedElements[0]) && (
           <ElementResizer
             absolutePoint={calculateElementAbsolutePoint(selectedElements[0])}
             devicePixelRatio={devicePixelRatio}

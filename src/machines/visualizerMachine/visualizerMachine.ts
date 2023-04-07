@@ -40,6 +40,8 @@ import {
   Size,
   isImageShape,
   calculateReadableFileSize,
+  isImageElement,
+  resizeImageElement,
 } from "../../utils";
 import debounce from "lodash.debounce";
 import { TEXTAREA_UNIT_LESS_LINE_HEIGHT } from "../../constants";
@@ -1188,6 +1190,24 @@ export const visualizerMachine =
                   const resizedElement = resizeGenericElement({
                     element,
                     direction: context.resizingDirection,
+                    currentCanvasPoint,
+                    resizeFixedPoint: context.resizeFixedPoint,
+                  });
+
+                  return resizedElement;
+                }
+
+                if (isImageElement(element)) {
+                  const dx = currentCanvasPoint.x - context.resizeStartPoint.x;
+                  const dy = currentCanvasPoint.y - context.resizeStartPoint.y;
+                  if (element.width + dx === 0 || element.height + dy === 0) {
+                    return element;
+                  }
+
+                  const resizedElement = resizeImageElement({
+                    element,
+                    direction: context.resizingDirection,
+                    previousCanvasPoint: context.resizeStartPoint,
                     currentCanvasPoint,
                     resizeFixedPoint: context.resizeFixedPoint,
                   });

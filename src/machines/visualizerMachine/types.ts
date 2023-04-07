@@ -68,6 +68,7 @@ export type VisualizerTextElement = VisualizerElementBase &
 export type VisualizerImageElement = VisualizerElementBase & {
   shape: "image";
   fileId: FileId;
+  scale: [number, number];
 };
 
 export type VisualizerElement =

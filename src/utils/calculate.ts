@@ -366,6 +366,7 @@ export const createElement = ({
       ...elementBase,
       shape,
       fileId,
+      scale: [1, 1],
     };
 
     return imageElement;
