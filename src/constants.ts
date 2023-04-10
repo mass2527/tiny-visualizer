@@ -1,5 +1,4 @@
 import {
-  Tool,
   VisualizerElement,
   VisualizerMachineContext,
 } from "./machines/visualizerMachine";
@@ -17,19 +16,6 @@ export const HOT_KEYS = {
   text: "8",
   image: "9",
 } as const satisfies Record<VisualizerElement["shape"], HOT_KEY>;
-
-export const TOOL_LABELS: Record<Tool, string> = {
-  hand: "Hand",
-  selection: "(1) Selection",
-  rectangle: "(2) Rectangle",
-  diamond: "(3) Diamond",
-  ellipse: "(4) Ellipse",
-  arrow: "(5) Arrow",
-  line: "(6) Line",
-  freedraw: "(7) Freedraw",
-  text: "(8) Text",
-  image: "(9) Image",
-};
 
 type Option<T> = {
   label: string;
