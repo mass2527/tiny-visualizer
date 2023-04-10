@@ -18,7 +18,7 @@ function RadioCardGroupItem({
   return (
     <label aria-label={label} className="pointer-events-auto">
       <RadioGroup.Item
-        className={`flex items-center justify-center w-8 h-8 rounded-lg text-gray11 cursor-pointer 
+        className={`flex items-center justify-center w-8 h-8 rounded-lg text-gray11 
         ${checked && "bg-blue9 text-white"}
         ${!checked && "hover:bg-blue10 hover:text-white"}`}
         value={value}
