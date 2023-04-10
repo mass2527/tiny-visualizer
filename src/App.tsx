@@ -66,6 +66,10 @@ import PencilIcon from "./components/PencilIcon";
 import TextIcon from "./components/TextIcon";
 import ImageIcon from "./components/ImageIcon";
 
+import LockClosedIcon from "./components/LockClosedIcon";
+import LockOpenIcon from "./components/LockOpenIcon";
+import CheckboxCard from "./components/CheckboxCard";
+
 export const TOOL_LABELS = {
   hand: {
     label: "Hand",
@@ -705,31 +709,8 @@ function App() {
 
   return (
     <div style={{ height: "100vh", overflow: "hidden" }}>
-      <div
-        style={{
-          position: "absolute",
-          width: "100%",
-          height: "100%",
-          pointerEvents: "none",
-          padding: "16px",
-        }}
-      >
-        <header
-          style={{
-            position: "relative",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <label style={{ pointerEvents: "all" }}>
-            <input
-              type="checkbox"
-              checked={isToolFixed}
-              onChange={() => send("IS_ELEMENT_SHAPE_FIXED_TOGGLE")}
-            />
-            Fix shape
-          </label>
+      <div className="absolute w-full h-full p-4 pointer-events-none">
+        <header className="relative flex justify-center items-center gap-1 bg-black">
           <input
             ref={fileInputRef}
             type="file"
@@ -740,9 +721,17 @@ function App() {
             onChange={uploadImage}
           />
 
+          <CheckboxCard
+            label="fix shape"
+            checked={isToolFixed}
+            onCheckedChange={() => send("IS_ELEMENT_SHAPE_FIXED_TOGGLE")}
+            defaultIcon={<LockOpenIcon />}
+            checkedIcon={<LockClosedIcon />}
+          />
+
           <RadioCardGroup.Root
             aria-label="Tool"
-            className="flex flex-row gap-1 bg-black p-2 text-gray11"
+            className="flex flex-row gap-1 p-2"
             value={tool}
             onValueChange={(tool) => {
               const fileInputElement = fileInputRef.current;
@@ -762,7 +751,6 @@ function App() {
               return (
                 <RadioCardGroup.Item
                   key={shape}
-                  className="pointer-events-auto"
                   label={label}
                   value={shape}
                   icon={icon}
