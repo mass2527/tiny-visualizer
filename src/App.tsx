@@ -710,7 +710,7 @@ function App() {
   return (
     <div style={{ height: "100vh", overflow: "hidden" }}>
       <div className="absolute w-full h-full p-4 pointer-events-none">
-        <header className="relative flex justify-center items-center gap-1 bg-black">
+        <header className="relative flex justify-center items-center gap-1 bg-black rounded-lg">
           <input
             ref={fileInputRef}
             type="file"
