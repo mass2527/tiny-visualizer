@@ -9,18 +9,16 @@ function RadioCardGroupItem({
   value,
   checked,
   icon,
-  className,
 }: {
   label: RadioGroupItemProps["aria-label"];
   value: RadioGroupItemProps["value"];
   checked: boolean;
   icon: ReactNode;
-  className?: string;
 }) {
   return (
-    <label aria-label={label} className={className}>
+    <label aria-label={label} className="pointer-events-auto">
       <RadioGroup.Item
-        className={`flex items-center justify-center w-8 h-8 rounded-lg outline-none cursor-pointer 
+        className={`flex items-center justify-center w-8 h-8 rounded-lg text-gray11 cursor-pointer 
         ${checked && "bg-blue9 text-white"}
         ${!checked && "hover:bg-blue10 hover:text-white"}`}
         value={value}
