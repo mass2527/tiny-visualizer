@@ -762,6 +762,7 @@ function App() {
               return (
                 <RadioCardGroup.Item
                   key={shape}
+                  className="pointer-events-auto"
                   label={label}
                   value={shape}
                   icon={icon}
