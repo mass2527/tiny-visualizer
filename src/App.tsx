@@ -5,6 +5,7 @@ import {
   CSSProperties,
   ChangeEvent,
   MouseEventHandler,
+  ReactNode,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -20,7 +21,6 @@ import {
   Fill_STYLE_OPTIONS,
   FONT_SIZE_OPTIONS,
   HOT_KEYS,
-  TOOL_LABELS,
   ROUGHNESS_OPTIONS,
   STROKE_LINE_DASH_OPTIONS,
   STROKE_WIDTH_OPTIONS,
@@ -55,6 +55,69 @@ import {
   isImageElement,
 } from "./utils";
 import ElementResizer from "./components/ElementResizer";
+import RadioCardGroup from "./components/RadioCardGroup";
+import HandIcon from "./components/HandIcon";
+import CursorArrowIcon from "./components/CursorArrowIcon";
+import SquareIcon from "./components/SquareIcon";
+import CircleIcon from "./components/CircleIcon";
+import ArrowRightIcon from "./components/ArrowRightIcon";
+import BorderSolidIcon from "./components/BorderSolidIcon";
+import PencilIcon from "./components/PencilIcon";
+import TextIcon from "./components/TextIcon";
+import ImageIcon from "./components/ImageIcon";
+
+import LockClosedIcon from "./components/LockClosedIcon";
+import LockOpenIcon from "./components/LockOpenIcon";
+import CheckboxCard from "./components/CheckboxCard";
+
+export const TOOL_LABELS = {
+  hand: {
+    label: "Hand",
+    icon: <HandIcon />,
+  },
+  selection: {
+    label: "(1) Selection",
+    icon: <CursorArrowIcon />,
+  },
+  rectangle: {
+    label: "(2) Rectangle",
+    icon: <SquareIcon />,
+  },
+  diamond: {
+    label: "(3) Diamond",
+    icon: <SquareIcon className="rotate-45" />,
+  },
+  ellipse: {
+    label: "(4) Ellipse",
+    icon: <CircleIcon />,
+  },
+  arrow: {
+    label: "(5) Arrow",
+    icon: <ArrowRightIcon />,
+  },
+  line: {
+    label: "(6) Line",
+    icon: <BorderSolidIcon />,
+  },
+  freedraw: {
+    label: "(7) Freedraw",
+    icon: <PencilIcon />,
+  },
+  text: {
+    label: "(8) Text",
+    icon: <TextIcon />,
+  },
+  image: {
+    label: "(9) Image",
+    icon: <ImageIcon />,
+  },
+} as const satisfies Record<
+  Tool,
+  {
+    label: string;
+    icon: ReactNode;
+  }
+>;
 
 function App() {
   const windowSize = useWindowSize();
@@ -646,31 +709,8 @@ function App() {
 
   return (
     <div style={{ height: "100vh", overflow: "hidden" }}>
-      <div
-        style={{
-          position: "absolute",
-          width: "100%",
-          height: "100%",
-          pointerEvents: "none",
-          padding: "16px",
-        }}
-      >
-        <header
-          style={{
-            position: "relative",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <label style={{ pointerEvents: "all" }}>
-            <input
-              type="checkbox"
-              checked={isToolFixed}
-              onChange={() => send("IS_ELEMENT_SHAPE_FIXED_TOGGLE")}
-            />
-            Fix shape
-          </label>
+      <div className="absolute w-full h-full p-4 pointer-events-none">
+        <header className="relative flex justify-center items-center gap-1 bg-black rounded-lg">
           <input
             ref={fileInputRef}
             type="file"
@@ -680,28 +720,45 @@ function App() {
             }}
             onChange={uploadImage}
           />
-          {Object.entries(TOOL_LABELS).map(([shape, label]) => (
-            <Radio
-              key={shape}
-              label={label}
-              value={shape}
-              checked={tool === shape}
-              onChange={(event) => {
-                const fileInputElement = fileInputRef.current;
-                invariant(fileInputElement);
 
-                const tool = event.currentTarget.value as Tool;
-                send({
-                  type: "CHANGE_TOOL",
-                  tool,
-                });
+          <CheckboxCard
+            label="fix shape"
+            checked={isToolFixed}
+            onCheckedChange={() => send("IS_ELEMENT_SHAPE_FIXED_TOGGLE")}
+            defaultIcon={<LockOpenIcon />}
+            checkedIcon={<LockClosedIcon />}
+          />
 
-                if (tool === "image") {
-                  fileInputElement.click();
-                }
-              }}
-            />
-          ))}
+          <RadioCardGroup.Root
+            aria-label="Tool"
+            className="flex flex-row gap-1 p-2"
+            value={tool}
+            onValueChange={(tool) => {
+              const fileInputElement = fileInputRef.current;
+              invariant(fileInputElement);
+
+              send({
+                type: "CHANGE_TOOL",
+                tool: tool as Tool,
+              });
+
+              if (tool === "image") {
+                fileInputElement.click();
+              }
+            }}
+          >
+            {Object.entries(TOOL_LABELS).map(([shape, { label, icon }]) => {
+              return (
+                <RadioCardGroup.Item
+                  key={shape}
+                  label={label}
+                  value={shape}
+                  icon={icon}
+                  checked={tool === shape}
+                />
+              );
+            })}
+          </RadioCardGroup.Root>
 
           <div
             style={{

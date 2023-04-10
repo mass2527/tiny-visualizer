@@ -1,0 +1,31 @@
+import * as Checkbox from "@radix-ui/react-checkbox";
+import { ReactNode } from "react";
+
+function CheckboxCard({
+  label,
+  checked,
+  onCheckedChange,
+  checkedIcon,
+  defaultIcon,
+}: {
+  label: Checkbox.CheckboxProps["aria-label"];
+  checked: Checkbox.CheckboxProps["checked"];
+  onCheckedChange: Checkbox.CheckboxProps["onCheckedChange"];
+  checkedIcon: ReactNode;
+  defaultIcon: ReactNode;
+}) {
+  return (
+    <label
+      aria-label={label}
+      className={`flex items-center justify-center w-8 h-8 rounded-lg pointer-events-auto text-gray11
+     ${checked && "bg-blue9 text-white"}`}
+    >
+      <Checkbox.Root checked={checked} onCheckedChange={onCheckedChange}>
+        <Checkbox.Indicator>{checkedIcon}</Checkbox.Indicator>
+      </Checkbox.Root>
+      {!checked && defaultIcon}
+    </label>
+  );
+}
+
+export default CheckboxCard;
