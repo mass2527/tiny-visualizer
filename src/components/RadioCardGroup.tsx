@@ -23,7 +23,8 @@ function RadioCardGroupItem({
         ${!checked && "hover:bg-blue10 hover:text-white"}`}
         value={value}
       >
-        {icon}
+        {!checked && icon}
+        <RadioGroup.Indicator>{icon}</RadioGroup.Indicator>
       </RadioGroup.Item>
     </label>
   );
