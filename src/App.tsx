@@ -806,12 +806,10 @@ function App() {
         <div className="w-full h-full relative flex flex-col gap-4">
           <header className="flex justify-center items-center gap-1 bg-black rounded-lg">
             <input
+              className="hidden"
               ref={fileInputRef}
               type="file"
               accept="image/*"
-              style={{
-                display: "none",
-              }}
               onChange={uploadImage}
             />
 
