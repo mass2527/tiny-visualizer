@@ -45,6 +45,11 @@ import {
   isSameGroup,
   groupBy,
   isImageElement,
+  isGenericShape,
+  isLinearShape,
+  isFreeDrawShape,
+  isImageShape,
+  isTextShape,
 } from "./utils";
 import ElementResizer from "./components/ElementResizer";
 import RadioCardGroup from "./components/RadioCardGroup";
@@ -853,203 +858,228 @@ function App() {
             </RadioCardGroup.Root>
           </header>
 
-          <div className="flex">
-            <div className="flex flex-col gap-2 bg-black text-gray11 text-sm p-2 rounded-lg">
-              <ColorPicker
-                label="Stroke Color"
-                value={elementOptions.stroke}
-                onChange={(event) => {
-                  send({
-                    type: "CHANGE_ELEMENT_OPTIONS",
-                    elementOptions: {
-                      stroke: event.currentTarget.value,
-                    },
-                  });
-                }}
-              />
-              <ColorPicker
-                label="Fill Color"
-                value={elementOptions.fill}
-                onChange={(event) => {
-                  send({
-                    type: "CHANGE_ELEMENT_OPTIONS",
-                    elementOptions: {
-                      fill: event.currentTarget.value,
-                    },
-                  });
-                }}
-              />
+          {tool !== "hand" && tool !== "selection" && tool !== "image" && (
+            <div className="w-[156px]">
+              <div className="flex flex-col gap-2 bg-black text-gray11 text-sm p-2 rounded-lg">
+                {!isImageShape(tool) && (
+                  <ColorPicker
+                    label="Stroke Color"
+                    value={elementOptions.stroke}
+                    onChange={(event) => {
+                      send({
+                        type: "CHANGE_ELEMENT_OPTIONS",
+                        elementOptions: {
+                          stroke: event.currentTarget.value,
+                        },
+                      });
+                    }}
+                  />
+                )}
 
-              <Option title="Fill Style">
-                <RadioCardGroup.Root
-                  aria-label="fill style"
-                  className="flex gap-1"
-                  value={elementOptions.fillStyle}
-                  onValueChange={(fillStyle) => {
-                    send({
-                      type: "CHANGE_ELEMENT_OPTIONS",
-                      elementOptions: {
-                        fillStyle,
-                      },
-                    });
-                  }}
-                >
-                  {Fill_STYLE_OPTIONS.map(({ label, value, icon }) => {
-                    return (
-                      <RadioCardGroup.Item
-                        key={value}
-                        label={label}
-                        value={value}
-                        icon={icon}
-                        checked={elementOptions.fillStyle === value}
-                        className={
-                          elementOptions.fillStyle !== value
-                            ? "bg-gray12"
-                            : undefined
-                        }
-                      />
-                    );
-                  })}
-                </RadioCardGroup.Root>
-              </Option>
+                {isGenericShape(tool) && (
+                  <ColorPicker
+                    label="Fill Color"
+                    value={elementOptions.fill}
+                    onChange={(event) => {
+                      send({
+                        type: "CHANGE_ELEMENT_OPTIONS",
+                        elementOptions: {
+                          fill: event.currentTarget.value,
+                        },
+                      });
+                    }}
+                  />
+                )}
 
-              <Option title="Stroke Width">
-                <RadioCardGroup.Root
-                  aria-label="stroke width"
-                  className="flex gap-1"
-                  value={String(elementOptions.strokeWidth)}
-                  onValueChange={(strokeWidth) => {
-                    send({
-                      type: "CHANGE_ELEMENT_OPTIONS",
-                      elementOptions: {
-                        strokeWidth: Number(strokeWidth),
-                      },
-                    });
-                  }}
-                >
-                  {STROKE_WIDTH_OPTIONS.map(({ label, value, icon }) => {
-                    return (
-                      <RadioCardGroup.Item
-                        key={value}
-                        label={label}
-                        value={String(value)}
-                        icon={icon}
-                        checked={elementOptions.strokeWidth === value}
-                        className={
-                          elementOptions.strokeWidth !== value
-                            ? "bg-gray12"
-                            : undefined
-                        }
-                      />
-                    );
-                  })}
-                </RadioCardGroup.Root>
-              </Option>
+                {isGenericShape(tool) && (
+                  <Option title="Fill Style">
+                    <RadioCardGroup.Root
+                      aria-label="fill style"
+                      className="flex gap-1"
+                      value={elementOptions.fillStyle}
+                      onValueChange={(fillStyle) => {
+                        send({
+                          type: "CHANGE_ELEMENT_OPTIONS",
+                          elementOptions: {
+                            fillStyle,
+                          },
+                        });
+                      }}
+                    >
+                      {Fill_STYLE_OPTIONS.map(({ label, value, icon }) => {
+                        return (
+                          <RadioCardGroup.Item
+                            key={value}
+                            label={label}
+                            value={value}
+                            icon={icon}
+                            checked={elementOptions.fillStyle === value}
+                            className={
+                              elementOptions.fillStyle !== value
+                                ? "bg-gray12"
+                                : undefined
+                            }
+                          />
+                        );
+                      })}
+                    </RadioCardGroup.Root>
+                  </Option>
+                )}
 
-              <Option title="Stroke Line Dash">
-                <RadioCardGroup.Root
-                  aria-label="stroke line dash"
-                  className="flex gap-1"
-                  value={JSON.stringify(elementOptions.strokeLineDash)}
-                  onValueChange={(strokeLineDash) => {
-                    send({
-                      type: "CHANGE_ELEMENT_OPTIONS",
-                      elementOptions: {
-                        strokeLineDash: JSON.parse(strokeLineDash) as number[],
-                      },
-                    });
-                  }}
-                >
-                  {STROKE_LINE_DASH_OPTIONS.map(({ label, value, icon }) => {
-                    return (
-                      <RadioCardGroup.Item
-                        key={label}
-                        label={label}
-                        value={JSON.stringify(value)}
-                        icon={icon}
-                        checked={
-                          JSON.stringify(elementOptions.strokeLineDash) ===
-                          JSON.stringify(value)
-                        }
-                        className={
-                          JSON.stringify(elementOptions.strokeLineDash) !==
-                          JSON.stringify(value)
-                            ? "bg-gray12"
-                            : undefined
-                        }
-                      />
-                    );
-                  })}
-                </RadioCardGroup.Root>
-              </Option>
+                {(isGenericShape(tool) ||
+                  isLinearShape(tool) ||
+                  isFreeDrawShape(tool)) && (
+                  <Option title="Stroke Width">
+                    <RadioCardGroup.Root
+                      aria-label="stroke width"
+                      className="flex gap-1"
+                      value={String(elementOptions.strokeWidth)}
+                      onValueChange={(strokeWidth) => {
+                        send({
+                          type: "CHANGE_ELEMENT_OPTIONS",
+                          elementOptions: {
+                            strokeWidth: Number(strokeWidth),
+                          },
+                        });
+                      }}
+                    >
+                      {STROKE_WIDTH_OPTIONS.map(({ label, value, icon }) => {
+                        return (
+                          <RadioCardGroup.Item
+                            key={value}
+                            label={label}
+                            value={String(value)}
+                            icon={icon}
+                            checked={elementOptions.strokeWidth === value}
+                            className={
+                              elementOptions.strokeWidth !== value
+                                ? "bg-gray12"
+                                : undefined
+                            }
+                          />
+                        );
+                      })}
+                    </RadioCardGroup.Root>
+                  </Option>
+                )}
 
-              <Option title="Roughness">
-                <RadioCardGroup.Root
-                  aria-label="roughness"
-                  className="flex gap-1"
-                  value={String(elementOptions.roughness)}
-                  onValueChange={(roughness) => {
-                    send({
-                      type: "CHANGE_ELEMENT_OPTIONS",
-                      elementOptions: {
-                        roughness: Number(roughness),
-                      },
-                    });
-                  }}
-                >
-                  {ROUGHNESS_OPTIONS.map(({ label, value, icon }) => {
-                    return (
-                      <RadioCardGroup.Item
-                        key={label}
-                        label={label}
-                        value={String(value)}
-                        icon={icon}
-                        checked={elementOptions.roughness === value}
-                        className={
-                          elementOptions.roughness !== value
-                            ? "bg-gray12"
-                            : undefined
+                {(isGenericShape(tool) || isLinearShape(tool)) && (
+                  <Option title="Stroke Line Dash">
+                    <RadioCardGroup.Root
+                      aria-label="stroke line dash"
+                      className="flex gap-1"
+                      value={JSON.stringify(elementOptions.strokeLineDash)}
+                      onValueChange={(strokeLineDash) => {
+                        send({
+                          type: "CHANGE_ELEMENT_OPTIONS",
+                          elementOptions: {
+                            strokeLineDash: JSON.parse(
+                              strokeLineDash
+                            ) as number[],
+                          },
+                        });
+                      }}
+                    >
+                      {STROKE_LINE_DASH_OPTIONS.map(
+                        ({ label, value, icon }) => {
+                          return (
+                            <RadioCardGroup.Item
+                              key={label}
+                              label={label}
+                              value={JSON.stringify(value)}
+                              icon={icon}
+                              checked={
+                                JSON.stringify(
+                                  elementOptions.strokeLineDash
+                                ) === JSON.stringify(value)
+                              }
+                              className={
+                                JSON.stringify(
+                                  elementOptions.strokeLineDash
+                                ) !== JSON.stringify(value)
+                                  ? "bg-gray12"
+                                  : undefined
+                              }
+                            />
+                          );
                         }
-                      />
-                    );
-                  })}
-                </RadioCardGroup.Root>
-              </Option>
+                      )}
+                    </RadioCardGroup.Root>
+                  </Option>
+                )}
 
-              <Option title="Font Size">
-                <RadioCardGroup.Root
-                  aria-label="font size"
-                  className="flex gap-1"
-                  value={String(elementOptions.fontSize)}
-                  onValueChange={(fontSize) => {
-                    send({
-                      type: "CHANGE_ELEMENT_OPTIONS",
-                      elementOptions: {
-                        fontSize: Number(fontSize),
-                      },
-                    });
-                  }}
-                >
-                  {FONT_SIZE_OPTIONS.map(({ label, value, icon }) => {
-                    return (
-                      <RadioCardGroup.Item
-                        key={label}
-                        label={label}
-                        value={String(value)}
-                        icon={icon}
-                        checked={elementOptions.fontSize === value}
-                        className={
-                          elementOptions.fontSize !== value
-                            ? "bg-gray12"
-                            : undefined
-                        }
-                      />
-                    );
-                  })}
-                </RadioCardGroup.Root>
-              </Option>
+                {(isGenericShape(tool) || isLinearShape(tool)) && (
+                  <Option title="Roughness">
+                    <RadioCardGroup.Root
+                      aria-label="roughness"
+                      className="flex gap-1"
+                      value={String(elementOptions.roughness)}
+                      onValueChange={(roughness) => {
+                        send({
+                          type: "CHANGE_ELEMENT_OPTIONS",
+                          elementOptions: {
+                            roughness: Number(roughness),
+                          },
+                        });
+                      }}
+                    >
+                      {ROUGHNESS_OPTIONS.map(({ label, value, icon }) => {
+                        return (
+                          <RadioCardGroup.Item
+                            key={label}
+                            label={label}
+                            value={String(value)}
+                            icon={icon}
+                            checked={elementOptions.roughness === value}
+                            className={
+                              elementOptions.roughness !== value
+                                ? "bg-gray12"
+                                : undefined
+                            }
+                          />
+                        );
+                      })}
+                    </RadioCardGroup.Root>
+                  </Option>
+                )}
+
+                {isTextShape(tool) && (
+                  <Option title="Font Size">
+                    <RadioCardGroup.Root
+                      aria-label="font size"
+                      className="flex gap-1"
+                      value={String(elementOptions.fontSize)}
+                      onValueChange={(fontSize) => {
+                        send({
+                          type: "CHANGE_ELEMENT_OPTIONS",
+                          elementOptions: {
+                            fontSize: Number(fontSize),
+                          },
+                        });
+                      }}
+                    >
+                      {FONT_SIZE_OPTIONS.map(({ label, value, icon }) => {
+                        return (
+                          <RadioCardGroup.Item
+                            key={label}
+                            label={label}
+                            value={String(value)}
+                            icon={icon}
+                            checked={elementOptions.fontSize === value}
+                            className={
+                              elementOptions.fontSize !== value
+                                ? "bg-gray12"
+                                : undefined
+                            }
+                          />
+                        );
+                      })}
+                    </RadioCardGroup.Root>
+                  </Option>
+                )}
+              </div>
             </div>
-          </div>
+          )}
 
           <div className="absolute bottom-0 left-0 flex gap-2">
             <div className="flex">
