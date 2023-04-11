@@ -397,3 +397,55 @@ export function BoldLineIcon({
     </svg>
   );
 }
+
+export function DashedLineIcon({
+  className = "w-4 h-4",
+}: {
+  className?: string;
+}) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke-width="2"
+      stroke="currentColor"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <g stroke-width="2">
+        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+        <path d="M5 12h2"></path>
+        <path d="M17 12h2"></path>
+        <path d="M11 12h2"></path>
+      </g>
+    </svg>
+  );
+}
+
+export function DottedLineIcon({
+  className = "w-4 h-4",
+}: {
+  className?: string;
+}) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke-width="2"
+      stroke="currentColor"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <g stroke-width="2">
+        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+        <path d="M4 12v.01"></path>
+        <path d="M8 12v.01"></path>
+        <path d="M12 12v.01"></path>
+        <path d="M16 12v.01"></path>
+        <path d="M20 12v.01"></path>
+      </g>
+    </svg>
+  );
+}

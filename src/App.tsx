@@ -21,7 +21,6 @@ import {
   FONT_SIZE_OPTIONS,
   HOT_KEYS,
   ROUGHNESS_OPTIONS,
-  STROKE_LINE_DASH_OPTIONS,
   TEXTAREA_UNIT_LESS_LINE_HEIGHT,
 } from "./constants";
 import {
@@ -64,6 +63,8 @@ import {
   CircleIcon,
   CrossHatchIcon,
   CursorArrowIcon,
+  DashedLineIcon,
+  DottedLineIcon,
   HachureIcon,
   HandIcon,
   ImageIcon,
@@ -157,6 +158,20 @@ export const STROKE_WIDTH_OPTIONS: ElementOption<"strokeWidth">[] = [
     label: "Bold",
     value: 6,
     icon: <BoldLineIcon />,
+  },
+];
+
+export const STROKE_LINE_DASH_OPTIONS: ElementOption<"strokeLineDash">[] = [
+  { label: "Solid", value: [], icon: <ThinLineIcon /> },
+  {
+    label: "Dashed",
+    value: [20, 5],
+    icon: <DashedLineIcon />,
+  },
+  {
+    label: "Dotted",
+    value: [5, 10],
+    icon: <DottedLineIcon />,
   },
 ];
 
@@ -801,7 +816,7 @@ function App() {
             })}
           </RadioCardGroup.Root>
 
-          <div className="absolute top-[60px] left-0 bg-black text-gray11 text-sm p-2 rounded-lg">
+          <div className="absolute top-[60px] left-0 flex flex-col gap-2 bg-black text-gray11 text-sm p-2 rounded-lg">
             <ColorPicker
               label="Stroke Color"
               value={elementOptions.stroke}
@@ -893,28 +908,43 @@ function App() {
               </RadioCardGroup.Root>
             </Option>
 
-            <div style={{ display: "flex", flexDirection: "column" }}>
-              <span>Stroke Line Dash</span>
-              {STROKE_LINE_DASH_OPTIONS.map(({ label, value }) => (
-                <Radio
-                  key={label}
-                  label={label}
-                  value={String(value)}
-                  checked={
-                    JSON.stringify(elementOptions.strokeLineDash) ===
-                    JSON.stringify(value)
-                  }
-                  onChange={() => {
-                    send({
-                      type: "CHANGE_ELEMENT_OPTIONS",
-                      elementOptions: {
-                        strokeLineDash: value,
-                      },
-                    });
-                  }}
-                />
-              ))}
-            </div>
+            <Option title="Stroke Line Dash">
+              <RadioCardGroup.Root
+                aria-label="stroke line dash"
+                className="flex gap-1"
+                value={JSON.stringify(elementOptions.strokeLineDash)}
+                onValueChange={(strokeLineDash) => {
+                  send({
+                    type: "CHANGE_ELEMENT_OPTIONS",
+                    elementOptions: {
+                      strokeLineDash: JSON.parse(strokeLineDash) as number[],
+                    },
+                  });
+                }}
+              >
+                {STROKE_LINE_DASH_OPTIONS.map(({ label, value, icon }) => {
+                  return (
+                    <RadioCardGroup.Item
+                      key={label}
+                      label={label}
+                      value={JSON.stringify(value)}
+                      icon={icon}
+                      checked={
+                        JSON.stringify(elementOptions.strokeLineDash) ===
+                        JSON.stringify(value)
+                      }
+                      className={
+                        JSON.stringify(elementOptions.strokeLineDash) !==
+                        JSON.stringify(value)
+                          ? "bg-gray12"
+                          : undefined
+                      }
+                    />
+                  );
+                })}
+              </RadioCardGroup.Root>
+            </Option>
+
             <div style={{ display: "flex", flexDirection: "column" }}>
               <span>Roughness</span>
               {ROUGHNESS_OPTIONS.map(({ label, value }) => (
