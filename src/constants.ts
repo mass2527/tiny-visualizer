@@ -25,12 +25,6 @@ type Option<T> = {
 type ElementOption<T extends keyof VisualizerMachineContext["elementOptions"]> =
   Option<VisualizerMachineContext["elementOptions"][T]>;
 
-export const ROUGHNESS_OPTIONS: ElementOption<"roughness">[] = [
-  { label: "Architect", value: 0 },
-  { label: "Artist", value: 1 },
-  { label: "Cartoonist", value: 3 },
-];
-
 export const FONT_SIZE_OPTIONS: ElementOption<"fontSize">[] = [
   {
     label: "Small",

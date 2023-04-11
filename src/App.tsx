@@ -20,7 +20,6 @@ import { useDevicePixelRatio, useWindowSize } from "./hooks";
 import {
   FONT_SIZE_OPTIONS,
   HOT_KEYS,
-  ROUGHNESS_OPTIONS,
   TEXTAREA_UNIT_LESS_LINE_HEIGHT,
 } from "./constants";
 import {
@@ -57,9 +56,12 @@ import RadioCardGroup from "./components/RadioCardGroup";
 import CheckboxCard from "./components/CheckboxCard";
 
 import {
+  ArchitectRoughnessIcon,
   ArrowRightIcon,
+  ArtistRoughnessIcon,
   BoldLineIcon,
   BorderSolidIcon,
+  CartoonistRoughnessIcon,
   CircleIcon,
   CrossHatchIcon,
   CursorArrowIcon,
@@ -173,6 +175,12 @@ export const STROKE_LINE_DASH_OPTIONS: ElementOption<"strokeLineDash">[] = [
     value: [5, 10],
     icon: <DottedLineIcon />,
   },
+];
+
+export const ROUGHNESS_OPTIONS: ElementOption<"roughness">[] = [
+  { label: "Architect", value: 0, icon: <ArchitectRoughnessIcon /> },
+  { label: "Artist", value: 1, icon: <ArtistRoughnessIcon /> },
+  { label: "Cartoonist", value: 3, icon: <CartoonistRoughnessIcon /> },
 ];
 
 function App() {
@@ -945,25 +953,38 @@ function App() {
               </RadioCardGroup.Root>
             </Option>
 
-            <div style={{ display: "flex", flexDirection: "column" }}>
-              <span>Roughness</span>
-              {ROUGHNESS_OPTIONS.map(({ label, value }) => (
-                <Radio
-                  key={label}
-                  label={label}
-                  value={String(value)}
-                  checked={elementOptions.roughness === value}
-                  onChange={() => {
-                    send({
-                      type: "CHANGE_ELEMENT_OPTIONS",
-                      elementOptions: {
-                        roughness: value,
-                      },
-                    });
-                  }}
-                />
-              ))}
-            </div>
+            <Option title="Roughness">
+              <RadioCardGroup.Root
+                aria-label="roughness"
+                className="flex gap-1"
+                value={String(elementOptions.roughness)}
+                onValueChange={(roughness) => {
+                  send({
+                    type: "CHANGE_ELEMENT_OPTIONS",
+                    elementOptions: {
+                      roughness: Number(roughness),
+                    },
+                  });
+                }}
+              >
+                {ROUGHNESS_OPTIONS.map(({ label, value, icon }) => {
+                  return (
+                    <RadioCardGroup.Item
+                      key={label}
+                      label={label}
+                      value={String(value)}
+                      icon={icon}
+                      checked={elementOptions.roughness === value}
+                      className={
+                        elementOptions.roughness !== value
+                          ? "bg-gray12"
+                          : undefined
+                      }
+                    />
+                  );
+                })}
+              </RadioCardGroup.Root>
+            </Option>
 
             <div style={{ display: "flex", flexDirection: "column" }}>
               <span>Font Size</span>
