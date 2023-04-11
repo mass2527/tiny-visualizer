@@ -14,18 +14,10 @@ import {
 import invariant from "tiny-invariant";
 import { assign } from "xstate";
 import ColorPicker from "./components/ColorPicker";
-import Radio from "./components/Radio";
+
 import { useDevicePixelRatio, useWindowSize } from "./hooks";
 
-import {
-  Fill_STYLE_OPTIONS,
-  FONT_SIZE_OPTIONS,
-  HOT_KEYS,
-  ROUGHNESS_OPTIONS,
-  STROKE_LINE_DASH_OPTIONS,
-  STROKE_WIDTH_OPTIONS,
-  TEXTAREA_UNIT_LESS_LINE_HEIGHT,
-} from "./constants";
+import { HOT_KEYS, TEXTAREA_UNIT_LESS_LINE_HEIGHT } from "./constants";
 import {
   Tool,
   visualizerMachine,
@@ -56,19 +48,44 @@ import {
 } from "./utils";
 import ElementResizer from "./components/ElementResizer";
 import RadioCardGroup from "./components/RadioCardGroup";
-import HandIcon from "./components/HandIcon";
-import CursorArrowIcon from "./components/CursorArrowIcon";
-import SquareIcon from "./components/SquareIcon";
-import CircleIcon from "./components/CircleIcon";
-import ArrowRightIcon from "./components/ArrowRightIcon";
-import BorderSolidIcon from "./components/BorderSolidIcon";
-import PencilIcon from "./components/PencilIcon";
-import TextIcon from "./components/TextIcon";
-import ImageIcon from "./components/ImageIcon";
 
-import LockClosedIcon from "./components/LockClosedIcon";
-import LockOpenIcon from "./components/LockOpenIcon";
 import CheckboxCard from "./components/CheckboxCard";
+
+import {
+  ArchitectRoughnessIcon,
+  ArrowRightIcon,
+  ArtistRoughnessIcon,
+  BoldLineIcon,
+  BorderSolidIcon,
+  CartoonistRoughnessIcon,
+  CircleIcon,
+  CrossHatchIcon,
+  CursorArrowIcon,
+  DashedLineIcon,
+  DottedLineIcon,
+  HachureIcon,
+  HandIcon,
+  ImageIcon,
+  LargeSizeIcon,
+  LockClosedIcon,
+  LockOpenIcon,
+  MediumSizeIcon,
+  MinusIcon,
+  PencilIcon,
+  PlusIcon,
+  RedoIcon,
+  RegularLineIcon,
+  SmallSizeIcon,
+  SolidIcon,
+  SquareIcon,
+  TextIcon,
+  ThinLineIcon,
+  UndoIcon,
+  XLargeSizeIcon,
+} from "./components/Icons";
+import Option from "./components/Option";
+
+import Button from "./components/Button";
 
 export const TOOL_LABELS = {
   hand: {
@@ -118,6 +135,82 @@ export const TOOL_LABELS = {
     icon: ReactNode;
   }
 >;
+
+type Option<T> = {
+  label: string;
+  value: T;
+  icon: ReactNode;
+};
+
+type ElementOption<T extends keyof VisualizerMachineContext["elementOptions"]> =
+  Option<VisualizerMachineContext["elementOptions"][T]>;
+
+const Fill_STYLE_OPTIONS: ElementOption<"fillStyle">[] = [
+  { label: "Hachure", value: "hachure", icon: <HachureIcon /> },
+  { label: "Cross-hatch", value: "cross-hatch", icon: <CrossHatchIcon /> },
+  { label: "Solid", value: "solid", icon: <SolidIcon /> },
+];
+
+const STROKE_WIDTH_OPTIONS: ElementOption<"strokeWidth">[] = [
+  {
+    label: "Thin",
+    value: 2,
+    icon: <ThinLineIcon />,
+  },
+  {
+    label: "Regular",
+    value: 4,
+    icon: <RegularLineIcon />,
+  },
+  {
+    label: "Bold",
+    value: 6,
+    icon: <BoldLineIcon />,
+  },
+];
+
+const STROKE_LINE_DASH_OPTIONS: ElementOption<"strokeLineDash">[] = [
+  { label: "Solid", value: [], icon: <ThinLineIcon /> },
+  {
+    label: "Dashed",
+    value: [20, 5],
+    icon: <DashedLineIcon />,
+  },
+  {
+    label: "Dotted",
+    value: [5, 10],
+    icon: <DottedLineIcon />,
+  },
+];
+
+const ROUGHNESS_OPTIONS: ElementOption<"roughness">[] = [
+  { label: "Architect", value: 0, icon: <ArchitectRoughnessIcon /> },
+  { label: "Artist", value: 1, icon: <ArtistRoughnessIcon /> },
+  { label: "Cartoonist", value: 3, icon: <CartoonistRoughnessIcon /> },
+];
+
+const FONT_SIZE_OPTIONS: ElementOption<"fontSize">[] = [
+  {
+    label: "Small",
+    value: 12,
+    icon: <SmallSizeIcon />,
+  },
+  {
+    label: "Medium",
+    value: 16,
+    icon: <MediumSizeIcon />,
+  },
+  {
+    label: "Large",
+    value: 20,
+    icon: <LargeSizeIcon />,
+  },
+  {
+    label: "X-Large",
+    value: 24,
+    icon: <XLargeSizeIcon />,
+  },
+];
 
 function App() {
   const windowSize = useWindowSize();
@@ -710,252 +803,319 @@ function App() {
   return (
     <div style={{ height: "100vh", overflow: "hidden" }}>
       <div className="absolute w-full h-full p-4 pointer-events-none">
-        <header className="relative flex justify-center items-center gap-1 bg-black rounded-lg">
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            style={{
-              display: "none",
-            }}
-            onChange={uploadImage}
-          />
-
-          <CheckboxCard
-            label="fix shape"
-            checked={isToolFixed}
-            onCheckedChange={() => send("IS_ELEMENT_SHAPE_FIXED_TOGGLE")}
-            defaultIcon={<LockOpenIcon />}
-            checkedIcon={<LockClosedIcon />}
-          />
-
-          <RadioCardGroup.Root
-            aria-label="Tool"
-            className="flex flex-row gap-1 p-2"
-            value={tool}
-            onValueChange={(tool) => {
-              const fileInputElement = fileInputRef.current;
-              invariant(fileInputElement);
-
-              send({
-                type: "CHANGE_TOOL",
-                tool: tool as Tool,
-              });
-
-              if (tool === "image") {
-                fileInputElement.click();
-              }
-            }}
-          >
-            {Object.entries(TOOL_LABELS).map(([shape, { label, icon }]) => {
-              return (
-                <RadioCardGroup.Item
-                  key={shape}
-                  label={label}
-                  value={shape}
-                  icon={icon}
-                  checked={tool === shape}
-                />
-              );
-            })}
-          </RadioCardGroup.Root>
-
-          <div
-            style={{
-              position: "absolute",
-              top: "50px",
-              left: 0,
-            }}
-          >
-            <ColorPicker
-              label="Stroke Color"
-              value={elementOptions.stroke}
-              onChange={(event) => {
-                send({
-                  type: "CHANGE_ELEMENT_OPTIONS",
-                  elementOptions: {
-                    stroke: event.currentTarget.value,
-                  },
-                });
+        <div className="w-full h-full relative flex flex-col gap-4">
+          <header className="flex justify-center items-center gap-1 bg-black rounded-lg">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              style={{
+                display: "none",
               }}
+              onChange={uploadImage}
             />
-            <ColorPicker
-              label="Fill Color"
-              value={elementOptions.fill}
-              onChange={(event) => {
+
+            <CheckboxCard
+              label="fix shape"
+              checked={isToolFixed}
+              onCheckedChange={() => send("IS_ELEMENT_SHAPE_FIXED_TOGGLE")}
+              defaultIcon={<LockOpenIcon />}
+              checkedIcon={<LockClosedIcon />}
+            />
+
+            <RadioCardGroup.Root
+              aria-label="Tool"
+              className="flex gap-1 p-2"
+              value={tool}
+              onValueChange={(tool) => {
+                const fileInputElement = fileInputRef.current;
+                invariant(fileInputElement);
+
                 send({
-                  type: "CHANGE_ELEMENT_OPTIONS",
-                  elementOptions: {
-                    fill: event.currentTarget.value,
-                  },
+                  type: "CHANGE_TOOL",
+                  tool: tool as Tool,
                 });
+
+                if (tool === "image") {
+                  fileInputElement.click();
+                }
               }}
-            />
-            <div style={{ display: "flex", flexDirection: "column" }}>
-              <span>Fill Style</span>
-              {Fill_STYLE_OPTIONS.map(({ label, value }) => (
-                <Radio
-                  key={label}
-                  label={label}
-                  value={String(value)}
-                  checked={elementOptions.fillStyle === value}
-                  onChange={() => {
+            >
+              {Object.entries(TOOL_LABELS).map(([shape, { label, icon }]) => {
+                return (
+                  <RadioCardGroup.Item
+                    key={shape}
+                    label={label}
+                    value={shape}
+                    icon={icon}
+                    checked={tool === shape}
+                  />
+                );
+              })}
+            </RadioCardGroup.Root>
+          </header>
+
+          <div className="flex">
+            <div className="flex flex-col gap-2 bg-black text-gray11 text-sm p-2 rounded-lg">
+              <ColorPicker
+                label="Stroke Color"
+                value={elementOptions.stroke}
+                onChange={(event) => {
+                  send({
+                    type: "CHANGE_ELEMENT_OPTIONS",
+                    elementOptions: {
+                      stroke: event.currentTarget.value,
+                    },
+                  });
+                }}
+              />
+              <ColorPicker
+                label="Fill Color"
+                value={elementOptions.fill}
+                onChange={(event) => {
+                  send({
+                    type: "CHANGE_ELEMENT_OPTIONS",
+                    elementOptions: {
+                      fill: event.currentTarget.value,
+                    },
+                  });
+                }}
+              />
+
+              <Option title="Fill Style">
+                <RadioCardGroup.Root
+                  aria-label="fill style"
+                  className="flex gap-1"
+                  value={elementOptions.fillStyle}
+                  onValueChange={(fillStyle) => {
                     send({
                       type: "CHANGE_ELEMENT_OPTIONS",
                       elementOptions: {
-                        fillStyle: value,
+                        fillStyle,
                       },
                     });
                   }}
-                />
-              ))}
-            </div>
-            <div style={{ display: "flex", flexDirection: "column" }}>
-              <span>Stroke Width</span>
-              {STROKE_WIDTH_OPTIONS.map(({ label, value }) => (
-                <Radio
-                  key={label}
-                  label={label}
-                  value={String(value)}
-                  checked={elementOptions.strokeWidth === value}
-                  onChange={() => {
+                >
+                  {Fill_STYLE_OPTIONS.map(({ label, value, icon }) => {
+                    return (
+                      <RadioCardGroup.Item
+                        key={value}
+                        label={label}
+                        value={value}
+                        icon={icon}
+                        checked={elementOptions.fillStyle === value}
+                        className={
+                          elementOptions.fillStyle !== value
+                            ? "bg-gray12"
+                            : undefined
+                        }
+                      />
+                    );
+                  })}
+                </RadioCardGroup.Root>
+              </Option>
+
+              <Option title="Stroke Width">
+                <RadioCardGroup.Root
+                  aria-label="stroke width"
+                  className="flex gap-1"
+                  value={String(elementOptions.strokeWidth)}
+                  onValueChange={(strokeWidth) => {
                     send({
                       type: "CHANGE_ELEMENT_OPTIONS",
                       elementOptions: {
-                        strokeWidth: value,
+                        strokeWidth: Number(strokeWidth),
                       },
                     });
                   }}
-                />
-              ))}
-            </div>
-            <div style={{ display: "flex", flexDirection: "column" }}>
-              <span>Stroke Line Dash</span>
-              {STROKE_LINE_DASH_OPTIONS.map(({ label, value }) => (
-                <Radio
-                  key={label}
-                  label={label}
-                  value={String(value)}
-                  checked={
-                    JSON.stringify(elementOptions.strokeLineDash) ===
-                    JSON.stringify(value)
-                  }
-                  onChange={() => {
+                >
+                  {STROKE_WIDTH_OPTIONS.map(({ label, value, icon }) => {
+                    return (
+                      <RadioCardGroup.Item
+                        key={value}
+                        label={label}
+                        value={String(value)}
+                        icon={icon}
+                        checked={elementOptions.strokeWidth === value}
+                        className={
+                          elementOptions.strokeWidth !== value
+                            ? "bg-gray12"
+                            : undefined
+                        }
+                      />
+                    );
+                  })}
+                </RadioCardGroup.Root>
+              </Option>
+
+              <Option title="Stroke Line Dash">
+                <RadioCardGroup.Root
+                  aria-label="stroke line dash"
+                  className="flex gap-1"
+                  value={JSON.stringify(elementOptions.strokeLineDash)}
+                  onValueChange={(strokeLineDash) => {
                     send({
                       type: "CHANGE_ELEMENT_OPTIONS",
                       elementOptions: {
-                        strokeLineDash: value,
+                        strokeLineDash: JSON.parse(strokeLineDash) as number[],
                       },
                     });
                   }}
-                />
-              ))}
-            </div>
-            <div style={{ display: "flex", flexDirection: "column" }}>
-              <span>Roughness</span>
-              {ROUGHNESS_OPTIONS.map(({ label, value }) => (
-                <Radio
-                  key={label}
-                  label={label}
-                  value={String(value)}
-                  checked={elementOptions.roughness === value}
-                  onChange={() => {
+                >
+                  {STROKE_LINE_DASH_OPTIONS.map(({ label, value, icon }) => {
+                    return (
+                      <RadioCardGroup.Item
+                        key={label}
+                        label={label}
+                        value={JSON.stringify(value)}
+                        icon={icon}
+                        checked={
+                          JSON.stringify(elementOptions.strokeLineDash) ===
+                          JSON.stringify(value)
+                        }
+                        className={
+                          JSON.stringify(elementOptions.strokeLineDash) !==
+                          JSON.stringify(value)
+                            ? "bg-gray12"
+                            : undefined
+                        }
+                      />
+                    );
+                  })}
+                </RadioCardGroup.Root>
+              </Option>
+
+              <Option title="Roughness">
+                <RadioCardGroup.Root
+                  aria-label="roughness"
+                  className="flex gap-1"
+                  value={String(elementOptions.roughness)}
+                  onValueChange={(roughness) => {
                     send({
                       type: "CHANGE_ELEMENT_OPTIONS",
                       elementOptions: {
-                        roughness: value,
+                        roughness: Number(roughness),
                       },
                     });
                   }}
-                />
-              ))}
-            </div>
+                >
+                  {ROUGHNESS_OPTIONS.map(({ label, value, icon }) => {
+                    return (
+                      <RadioCardGroup.Item
+                        key={label}
+                        label={label}
+                        value={String(value)}
+                        icon={icon}
+                        checked={elementOptions.roughness === value}
+                        className={
+                          elementOptions.roughness !== value
+                            ? "bg-gray12"
+                            : undefined
+                        }
+                      />
+                    );
+                  })}
+                </RadioCardGroup.Root>
+              </Option>
 
-            <div style={{ display: "flex", flexDirection: "column" }}>
-              <span>Font Size</span>
-              {FONT_SIZE_OPTIONS.map(({ label, value }) => (
-                <Radio
-                  key={label}
-                  label={label}
-                  value={String(value)}
-                  checked={elementOptions.fontSize === value}
-                  onChange={(event) => {
+              <Option title="Font Size">
+                <RadioCardGroup.Root
+                  aria-label="font size"
+                  className="flex gap-1"
+                  value={String(elementOptions.fontSize)}
+                  onValueChange={(fontSize) => {
                     send({
                       type: "CHANGE_ELEMENT_OPTIONS",
                       elementOptions: {
-                        fontSize: Number(event.currentTarget.value),
+                        fontSize: Number(fontSize),
                       },
                     });
                   }}
-                />
-              ))}
-            </div>
-
-            <div style={{ display: "flex", flexDirection: "column" }}>
-              <span>Zoom</span>
-              <div style={{ display: "flex", pointerEvents: "all" }}>
-                <button
-                  type="button"
-                  onClick={() => updateZoom(-10)}
-                  disabled={zoom === ZOOM.MIN}
                 >
-                  -
-                </button>
-                <button
-                  onClick={() => {
-                    const canvasElement = canvasRef.current;
-                    invariant(canvasElement);
-
-                    send({
-                      type: "CHANGE_ZOOM",
-                      setZoom: () => 1,
-                      canvasElement,
-                    });
-                  }}
-                >
-                  {Math.round(zoom * 100)}%
-                </button>
-                <button
-                  type="button"
-                  onClick={() => updateZoom(10)}
-                  disabled={zoom === ZOOM.MAX}
-                >
-                  +
-                </button>
-              </div>
-            </div>
-
-            <div style={{ display: "flex", flexDirection: "column" }}>
-              <div style={{ display: "flex", pointerEvents: "all" }}>
-                <button
-                  type="button"
-                  onClick={() =>
-                    send({
-                      type: "HISTORY_UPDATE",
-                      changedStep: -1,
-                    })
-                  }
-                  disabled={historyStep === 0}
-                >
-                  undo
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    send({
-                      type: "HISTORY_UPDATE",
-                      changedStep: 1,
-                    });
-                  }}
-                  disabled={historyStep === history.length - 1}
-                >
-                  redo
-                </button>
-              </div>
+                  {FONT_SIZE_OPTIONS.map(({ label, value, icon }) => {
+                    return (
+                      <RadioCardGroup.Item
+                        key={label}
+                        label={label}
+                        value={String(value)}
+                        icon={icon}
+                        checked={elementOptions.fontSize === value}
+                        className={
+                          elementOptions.fontSize !== value
+                            ? "bg-gray12"
+                            : undefined
+                        }
+                      />
+                    );
+                  })}
+                </RadioCardGroup.Root>
+              </Option>
             </div>
           </div>
-        </header>
+
+          <div className="absolute bottom-0 left-0 flex gap-2">
+            <div className="flex">
+              <Button
+                className="rounded-l-lg"
+                onClick={() => updateZoom(-10)}
+                disabled={zoom === ZOOM.MIN}
+              >
+                <MinusIcon />
+              </Button>
+
+              <Button
+                onClick={() => {
+                  const canvasElement = canvasRef.current;
+                  invariant(canvasElement);
+
+                  send({
+                    type: "CHANGE_ZOOM",
+                    setZoom: () => 1,
+                    canvasElement,
+                  });
+                }}
+                disabled={zoom === 1}
+              >
+                {Math.round(zoom * 100)}%
+              </Button>
+
+              <Button
+                className="rounded-r-lg"
+                onClick={() => updateZoom(10)}
+                disabled={zoom === ZOOM.MAX}
+              >
+                <PlusIcon />
+              </Button>
+            </div>
+
+            <div className="flex">
+              <Button
+                className="rounded-l-lg"
+                onClick={() =>
+                  send({
+                    type: "HISTORY_UPDATE",
+                    changedStep: -1,
+                  })
+                }
+                disabled={historyStep === 0}
+              >
+                <UndoIcon />
+              </Button>
+              <Button
+                className="rounded-r-lg"
+                onClick={() => {
+                  send({
+                    type: "HISTORY_UPDATE",
+                    changedStep: 1,
+                  });
+                }}
+                disabled={historyStep === history.length - 1}
+              >
+                <RedoIcon />
+              </Button>
+            </div>
+          </div>
+        </div>
       </div>
 
       <canvas
