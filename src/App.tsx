@@ -14,7 +14,7 @@ import {
 import invariant from "tiny-invariant";
 import { assign } from "xstate";
 import ColorPicker from "./components/ColorPicker";
-import Radio from "./components/Radio";
+
 import { useDevicePixelRatio, useWindowSize } from "./hooks";
 
 import { HOT_KEYS, TEXTAREA_UNIT_LESS_LINE_HEIGHT } from "./constants";
