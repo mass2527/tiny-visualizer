@@ -66,14 +66,14 @@ export function CrossHatchIcon({
       className={className}
       fill="none"
       stroke="currentColor"
-      stroke-linecap="round"
-      stroke-linejoin="round"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     >
-      <g clip-path="url(#a)">
+      <g clipPath="url(#a)">
         <path
           d="M5.879 2.625h8.242a3.254 3.254 0 0 1 3.254 3.254v8.242a3.254 3.254 0 0 1-3.254 3.254H5.88a3.254 3.254 0 0 1-3.254-3.254V5.88a3.254 3.254 0 0 1 3.254-3.254Z"
           stroke="currentColor"
-          stroke-width="1.25"
+          strokeWidth="1.25"
         ></path>
         <mask
           id="FillCrossHatchIcon"
@@ -87,9 +87,9 @@ export function CrossHatchIcon({
           <path
             d="M2.426 15.044 15.044 2.426M7.383 20 20 7.383M0 12.617 12.617 0m-7.98 17.941L17.256 5.324m-2.211 12.25L2.426 4.956M20 12.617 7.383 0m5.234 20L0 7.383m17.941 7.98L5.324 2.745"
             stroke="currentColor"
-            stroke-width="1.25"
-            stroke-linecap="round"
-            stroke-linejoin="round"
+            strokeWidth="1.25"
+            strokeLinecap="round"
+            strokeLinejoin="round"
           ></path>
         </mask>
         <g mask="url(#FillCrossHatchIcon)">
@@ -152,11 +152,11 @@ export function HachureIcon({ className = "w-4 h-4" }: { className?: string }) {
       viewBox="0 0 20 20"
       fill="none"
       stroke="currentColor"
-      stroke-linecap="round"
-      stroke-linejoin="round"
+      strokeLinecap="round"
+      strokeLinejoin="round"
       className={className}
     >
-      <g stroke-width="1.25">
+      <g strokeWidth="1.25">
         <path d="M5.879 2.625h8.242a3.27 3.27 0 0 1 3.254 3.254v8.242a3.27 3.27 0 0 1-3.254 3.254H5.88a3.27 3.27 0 0 1-3.254-3.254V5.88A3.27 3.27 0 0 1 5.88 2.626l-.001-.001ZM4.518 16.118l7.608-12.83m.198 13.934 5.051-9.897M2.778 9.675l9.348-6.387m-7.608 12.83 12.857-8.793"></path>
       </g>
     </svg>
@@ -265,14 +265,14 @@ export function SolidIcon({ className = "w-4 h-4" }: { className?: string }) {
       viewBox="0 0 20 20"
       fill="currentColor"
       stroke="currentColor"
-      stroke-linecap="round"
-      stroke-linejoin="round"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     >
-      <g clip-path="url(#a)">
+      <g clipPath="url(#a)">
         <path
           d="M4.91 2.625h10.18a2.284 2.284 0 0 1 2.285 2.284v10.182a2.284 2.284 0 0 1-2.284 2.284H4.909a2.284 2.284 0 0 1-2.284-2.284V4.909a2.284 2.284 0 0 1 2.284-2.284Z"
           stroke="currentColor"
-          stroke-width="1.25"
+          strokeWidth="1.25"
         ></path>
       </g>
       <defs>
@@ -334,15 +334,15 @@ export function ThinLineIcon({
       viewBox="0 0 20 20"
       fill="none"
       stroke="currentColor"
-      stroke-linecap="round"
-      stroke-linejoin="round"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     >
       <path
         d="M4.167 10h11.666"
         stroke="currentColor"
-        stroke-width="1.25"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeWidth="1.25"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       ></path>
     </svg>
   );
@@ -359,15 +359,15 @@ export function RegularLineIcon({
       viewBox="0 0 20 20"
       fill="none"
       stroke="currentColor"
-      stroke-linecap="round"
-      stroke-linejoin="round"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     >
       <path
         d="M5 10h10"
         stroke="currentColor"
-        stroke-width="2.5"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       ></path>
     </svg>
   );
@@ -384,15 +384,15 @@ export function BoldLineIcon({
       viewBox="0 0 20 20"
       fill="none"
       stroke="currentColor"
-      stroke-linecap="round"
-      stroke-linejoin="round"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     >
       <path
         d="M5 10h10"
         stroke="currentColor"
-        stroke-width="3.75"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeWidth="3.75"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       ></path>
     </svg>
   );
@@ -408,12 +408,12 @@ export function DashedLineIcon({
       className={className}
       viewBox="0 0 24 24"
       fill="none"
-      stroke-width="2"
+      strokeWidth="2"
       stroke="currentColor"
-      stroke-linecap="round"
-      stroke-linejoin="round"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     >
-      <g stroke-width="2">
+      <g strokeWidth="2">
         <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
         <path d="M5 12h2"></path>
         <path d="M17 12h2"></path>
@@ -433,12 +433,12 @@ export function DottedLineIcon({
       className={className}
       viewBox="0 0 24 24"
       fill="none"
-      stroke-width="2"
+      strokeWidth="2"
       stroke="currentColor"
-      stroke-linecap="round"
-      stroke-linejoin="round"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     >
-      <g stroke-width="2">
+      <g strokeWidth="2">
         <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
         <path d="M4 12v.01"></path>
         <path d="M8 12v.01"></path>
