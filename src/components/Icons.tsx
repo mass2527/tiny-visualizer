@@ -322,3 +322,78 @@ export function TextIcon() {
     </svg>
   );
 }
+
+export function ThinLineIcon({
+  className = "w-4 h-4",
+}: {
+  className?: string;
+}) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 20 20"
+      fill="none"
+      stroke="currentColor"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <path
+        d="M4.167 10h11.666"
+        stroke="currentColor"
+        stroke-width="1.25"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      ></path>
+    </svg>
+  );
+}
+
+export function RegularLineIcon({
+  className = "w-4 h-4",
+}: {
+  className?: string;
+}) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 20 20"
+      fill="none"
+      stroke="currentColor"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <path
+        d="M5 10h10"
+        stroke="currentColor"
+        stroke-width="2.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      ></path>
+    </svg>
+  );
+}
+
+export function BoldLineIcon({
+  className = "w-4 h-4",
+}: {
+  className?: string;
+}) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 20 20"
+      fill="none"
+      stroke="currentColor"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <path
+        d="M5 10h10"
+        stroke="currentColor"
+        stroke-width="3.75"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      ></path>
+    </svg>
+  );
+}

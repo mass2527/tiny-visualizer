@@ -22,7 +22,6 @@ import {
   HOT_KEYS,
   ROUGHNESS_OPTIONS,
   STROKE_LINE_DASH_OPTIONS,
-  STROKE_WIDTH_OPTIONS,
   TEXTAREA_UNIT_LESS_LINE_HEIGHT,
 } from "./constants";
 import {
@@ -60,6 +59,7 @@ import CheckboxCard from "./components/CheckboxCard";
 
 import {
   ArrowRightIcon,
+  BoldLineIcon,
   BorderSolidIcon,
   CircleIcon,
   CrossHatchIcon,
@@ -70,10 +70,13 @@ import {
   LockClosedIcon,
   LockOpenIcon,
   PencilIcon,
+  RegularLineIcon,
   SolidIcon,
   SquareIcon,
   TextIcon,
+  ThinLineIcon,
 } from "./components/Icons";
+import Option from "./components/Option";
 
 export const TOOL_LABELS = {
   hand: {
@@ -137,6 +140,24 @@ export const Fill_STYLE_OPTIONS: ElementOption<"fillStyle">[] = [
   { label: "Hachure", value: "hachure", icon: <HachureIcon /> },
   { label: "Cross-hatch", value: "cross-hatch", icon: <CrossHatchIcon /> },
   { label: "Solid", value: "solid", icon: <SolidIcon /> },
+];
+
+export const STROKE_WIDTH_OPTIONS: ElementOption<"strokeWidth">[] = [
+  {
+    label: "Thin",
+    value: 2,
+    icon: <ThinLineIcon />,
+  },
+  {
+    label: "Regular",
+    value: 4,
+    icon: <RegularLineIcon />,
+  },
+  {
+    label: "Bold",
+    value: 6,
+    icon: <BoldLineIcon />,
+  },
 ];
 
 function App() {
@@ -806,8 +827,7 @@ function App() {
               }}
             />
 
-            <div className="flex flex-col gap-1">
-              <span>Fill Style</span>
+            <Option title="Fill Style">
               <RadioCardGroup.Root
                 aria-label="fill style"
                 className="flex gap-1"
@@ -838,26 +858,41 @@ function App() {
                   );
                 })}
               </RadioCardGroup.Root>
-            </div>
-            <div style={{ display: "flex", flexDirection: "column" }}>
-              <span>Stroke Width</span>
-              {STROKE_WIDTH_OPTIONS.map(({ label, value }) => (
-                <Radio
-                  key={label}
-                  label={label}
-                  value={String(value)}
-                  checked={elementOptions.strokeWidth === value}
-                  onChange={() => {
-                    send({
-                      type: "CHANGE_ELEMENT_OPTIONS",
-                      elementOptions: {
-                        strokeWidth: value,
-                      },
-                    });
-                  }}
-                />
-              ))}
-            </div>
+            </Option>
+
+            <Option title="Stroke Width">
+              <RadioCardGroup.Root
+                aria-label="stroke width"
+                className="flex gap-1"
+                value={String(elementOptions.strokeWidth)}
+                onValueChange={(strokeWidth) => {
+                  send({
+                    type: "CHANGE_ELEMENT_OPTIONS",
+                    elementOptions: {
+                      strokeWidth: Number(strokeWidth),
+                    },
+                  });
+                }}
+              >
+                {STROKE_WIDTH_OPTIONS.map(({ label, value, icon }) => {
+                  return (
+                    <RadioCardGroup.Item
+                      key={value}
+                      label={label}
+                      value={String(value)}
+                      icon={icon}
+                      checked={elementOptions.strokeWidth === value}
+                      className={
+                        elementOptions.strokeWidth !== value
+                          ? "bg-gray12"
+                          : undefined
+                      }
+                    />
+                  );
+                })}
+              </RadioCardGroup.Root>
+            </Option>
+
             <div style={{ display: "flex", flexDirection: "column" }}>
               <span>Stroke Line Dash</span>
               {STROKE_LINE_DASH_OPTIONS.map(({ label, value }) => (
