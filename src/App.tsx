@@ -17,11 +17,7 @@ import ColorPicker from "./components/ColorPicker";
 import Radio from "./components/Radio";
 import { useDevicePixelRatio, useWindowSize } from "./hooks";
 
-import {
-  FONT_SIZE_OPTIONS,
-  HOT_KEYS,
-  TEXTAREA_UNIT_LESS_LINE_HEIGHT,
-} from "./constants";
+import { HOT_KEYS, TEXTAREA_UNIT_LESS_LINE_HEIGHT } from "./constants";
 import {
   Tool,
   visualizerMachine,
@@ -70,14 +66,18 @@ import {
   HachureIcon,
   HandIcon,
   ImageIcon,
+  LargeSizeIcon,
   LockClosedIcon,
   LockOpenIcon,
+  MediumSizeIcon,
   PencilIcon,
   RegularLineIcon,
+  SmallSizeIcon,
   SolidIcon,
   SquareIcon,
   TextIcon,
   ThinLineIcon,
+  XLargeSizeIcon,
 } from "./components/Icons";
 import Option from "./components/Option";
 
@@ -139,13 +139,13 @@ type Option<T> = {
 type ElementOption<T extends keyof VisualizerMachineContext["elementOptions"]> =
   Option<VisualizerMachineContext["elementOptions"][T]>;
 
-export const Fill_STYLE_OPTIONS: ElementOption<"fillStyle">[] = [
+const Fill_STYLE_OPTIONS: ElementOption<"fillStyle">[] = [
   { label: "Hachure", value: "hachure", icon: <HachureIcon /> },
   { label: "Cross-hatch", value: "cross-hatch", icon: <CrossHatchIcon /> },
   { label: "Solid", value: "solid", icon: <SolidIcon /> },
 ];
 
-export const STROKE_WIDTH_OPTIONS: ElementOption<"strokeWidth">[] = [
+const STROKE_WIDTH_OPTIONS: ElementOption<"strokeWidth">[] = [
   {
     label: "Thin",
     value: 2,
@@ -163,7 +163,7 @@ export const STROKE_WIDTH_OPTIONS: ElementOption<"strokeWidth">[] = [
   },
 ];
 
-export const STROKE_LINE_DASH_OPTIONS: ElementOption<"strokeLineDash">[] = [
+const STROKE_LINE_DASH_OPTIONS: ElementOption<"strokeLineDash">[] = [
   { label: "Solid", value: [], icon: <ThinLineIcon /> },
   {
     label: "Dashed",
@@ -177,10 +177,33 @@ export const STROKE_LINE_DASH_OPTIONS: ElementOption<"strokeLineDash">[] = [
   },
 ];
 
-export const ROUGHNESS_OPTIONS: ElementOption<"roughness">[] = [
+const ROUGHNESS_OPTIONS: ElementOption<"roughness">[] = [
   { label: "Architect", value: 0, icon: <ArchitectRoughnessIcon /> },
   { label: "Artist", value: 1, icon: <ArtistRoughnessIcon /> },
   { label: "Cartoonist", value: 3, icon: <CartoonistRoughnessIcon /> },
+];
+
+const FONT_SIZE_OPTIONS: ElementOption<"fontSize">[] = [
+  {
+    label: "Small",
+    value: 12,
+    icon: <SmallSizeIcon />,
+  },
+  {
+    label: "Medium",
+    value: 16,
+    icon: <MediumSizeIcon />,
+  },
+  {
+    label: "Large",
+    value: 20,
+    icon: <LargeSizeIcon />,
+  },
+  {
+    label: "X-Large",
+    value: 24,
+    icon: <XLargeSizeIcon />,
+  },
 ];
 
 function App() {
@@ -986,25 +1009,38 @@ function App() {
               </RadioCardGroup.Root>
             </Option>
 
-            <div style={{ display: "flex", flexDirection: "column" }}>
-              <span>Font Size</span>
-              {FONT_SIZE_OPTIONS.map(({ label, value }) => (
-                <Radio
-                  key={label}
-                  label={label}
-                  value={String(value)}
-                  checked={elementOptions.fontSize === value}
-                  onChange={(event) => {
-                    send({
-                      type: "CHANGE_ELEMENT_OPTIONS",
-                      elementOptions: {
-                        fontSize: Number(event.currentTarget.value),
-                      },
-                    });
-                  }}
-                />
-              ))}
-            </div>
+            <Option title="Font Size">
+              <RadioCardGroup.Root
+                aria-label="font size"
+                className="flex gap-1"
+                value={String(elementOptions.fontSize)}
+                onValueChange={(fontSize) => {
+                  send({
+                    type: "CHANGE_ELEMENT_OPTIONS",
+                    elementOptions: {
+                      fontSize: Number(fontSize),
+                    },
+                  });
+                }}
+              >
+                {FONT_SIZE_OPTIONS.map(({ label, value, icon }) => {
+                  return (
+                    <RadioCardGroup.Item
+                      key={label}
+                      label={label}
+                      value={String(value)}
+                      icon={icon}
+                      checked={elementOptions.fontSize === value}
+                      className={
+                        elementOptions.fontSize !== value
+                          ? "bg-gray12"
+                          : undefined
+                      }
+                    />
+                  );
+                })}
+              </RadioCardGroup.Root>
+            </Option>
 
             <div style={{ display: "flex", flexDirection: "column" }}>
               <span>Zoom</span>
