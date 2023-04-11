@@ -18,7 +18,6 @@ import Radio from "./components/Radio";
 import { useDevicePixelRatio, useWindowSize } from "./hooks";
 
 import {
-  Fill_STYLE_OPTIONS,
   FONT_SIZE_OPTIONS,
   HOT_KEYS,
   ROUGHNESS_OPTIONS,
@@ -56,19 +55,25 @@ import {
 } from "./utils";
 import ElementResizer from "./components/ElementResizer";
 import RadioCardGroup from "./components/RadioCardGroup";
-import HandIcon from "./components/HandIcon";
-import CursorArrowIcon from "./components/CursorArrowIcon";
-import SquareIcon from "./components/SquareIcon";
-import CircleIcon from "./components/CircleIcon";
-import ArrowRightIcon from "./components/ArrowRightIcon";
-import BorderSolidIcon from "./components/BorderSolidIcon";
-import PencilIcon from "./components/PencilIcon";
-import TextIcon from "./components/TextIcon";
-import ImageIcon from "./components/ImageIcon";
 
-import LockClosedIcon from "./components/LockClosedIcon";
-import LockOpenIcon from "./components/LockOpenIcon";
 import CheckboxCard from "./components/CheckboxCard";
+
+import {
+  ArrowRightIcon,
+  BorderSolidIcon,
+  CircleIcon,
+  CrossHatchIcon,
+  CursorArrowIcon,
+  HachureIcon,
+  HandIcon,
+  ImageIcon,
+  LockClosedIcon,
+  LockOpenIcon,
+  PencilIcon,
+  SolidIcon,
+  SquareIcon,
+  TextIcon,
+} from "./components/Icons";
 
 export const TOOL_LABELS = {
   hand: {
@@ -118,6 +123,21 @@ export const TOOL_LABELS = {
     icon: ReactNode;
   }
 >;
+
+type Option<T> = {
+  label: string;
+  value: T;
+  icon: ReactNode;
+};
+
+type ElementOption<T extends keyof VisualizerMachineContext["elementOptions"]> =
+  Option<VisualizerMachineContext["elementOptions"][T]>;
+
+export const Fill_STYLE_OPTIONS: ElementOption<"fillStyle">[] = [
+  { label: "Hachure", value: "hachure", icon: <HachureIcon /> },
+  { label: "Cross-hatch", value: "cross-hatch", icon: <CrossHatchIcon /> },
+  { label: "Solid", value: "solid", icon: <SolidIcon /> },
+];
 
 function App() {
   const windowSize = useWindowSize();
@@ -731,7 +751,7 @@ function App() {
 
           <RadioCardGroup.Root
             aria-label="Tool"
-            className="flex flex-row gap-1 p-2"
+            className="flex gap-1 p-2"
             value={tool}
             onValueChange={(tool) => {
               const fileInputElement = fileInputRef.current;
@@ -760,13 +780,7 @@ function App() {
             })}
           </RadioCardGroup.Root>
 
-          <div
-            style={{
-              position: "absolute",
-              top: "50px",
-              left: 0,
-            }}
-          >
+          <div className="absolute top-[60px] left-0 bg-black text-gray11 text-sm p-2 rounded-lg">
             <ColorPicker
               label="Stroke Color"
               value={elementOptions.stroke}
@@ -791,24 +805,39 @@ function App() {
                 });
               }}
             />
-            <div style={{ display: "flex", flexDirection: "column" }}>
+
+            <div className="flex flex-col gap-1">
               <span>Fill Style</span>
-              {Fill_STYLE_OPTIONS.map(({ label, value }) => (
-                <Radio
-                  key={label}
-                  label={label}
-                  value={String(value)}
-                  checked={elementOptions.fillStyle === value}
-                  onChange={() => {
-                    send({
-                      type: "CHANGE_ELEMENT_OPTIONS",
-                      elementOptions: {
-                        fillStyle: value,
-                      },
-                    });
-                  }}
-                />
-              ))}
+              <RadioCardGroup.Root
+                aria-label="fill style"
+                className="flex gap-1"
+                value={elementOptions.fillStyle}
+                onValueChange={(fillStyle) => {
+                  send({
+                    type: "CHANGE_ELEMENT_OPTIONS",
+                    elementOptions: {
+                      fillStyle,
+                    },
+                  });
+                }}
+              >
+                {Fill_STYLE_OPTIONS.map(({ label, value, icon }) => {
+                  return (
+                    <RadioCardGroup.Item
+                      key={value}
+                      label={label}
+                      value={value}
+                      icon={icon}
+                      checked={elementOptions.fillStyle === value}
+                      className={
+                        elementOptions.fillStyle !== value
+                          ? "bg-gray12"
+                          : undefined
+                      }
+                    />
+                  );
+                })}
+              </RadioCardGroup.Root>
             </div>
             <div style={{ display: "flex", flexDirection: "column" }}>
               <span>Stroke Width</span>
