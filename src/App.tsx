@@ -17,7 +17,11 @@ import ColorPicker from "./components/ColorPicker";
 
 import { useDevicePixelRatio, useWindowSize } from "./hooks";
 
-import { HOT_KEYS, TEXTAREA_UNIT_LESS_LINE_HEIGHT } from "./constants";
+import {
+  HOT_KEYS,
+  SELECTABLE_ELEMENT_OPTIONS,
+  TEXTAREA_UNIT_LESS_LINE_HEIGHT,
+} from "./constants";
 import {
   Tool,
   visualizerMachine,
@@ -45,11 +49,6 @@ import {
   isSameGroup,
   groupBy,
   isImageElement,
-  isGenericShape,
-  isLinearShape,
-  isFreeDrawShape,
-  isImageShape,
-  isTextShape,
 } from "./utils";
 import ElementResizer from "./components/ElementResizer";
 import RadioCardGroup from "./components/RadioCardGroup";
@@ -861,7 +860,7 @@ function App() {
           {tool !== "hand" && tool !== "selection" && tool !== "image" && (
             <div className="w-[156px]">
               <div className="flex flex-col gap-2 bg-black text-gray11 text-sm p-2 rounded-lg">
-                {!isImageShape(tool) && (
+                {SELECTABLE_ELEMENT_OPTIONS[tool]?.stroke && (
                   <ColorPicker
                     label="Stroke Color"
                     value={elementOptions.stroke}
@@ -876,7 +875,7 @@ function App() {
                   />
                 )}
 
-                {isGenericShape(tool) && (
+                {SELECTABLE_ELEMENT_OPTIONS[tool]?.fill && (
                   <ColorPicker
                     label="Fill Color"
                     value={elementOptions.fill}
@@ -891,7 +890,7 @@ function App() {
                   />
                 )}
 
-                {isGenericShape(tool) && (
+                {SELECTABLE_ELEMENT_OPTIONS[tool]?.fillStyle && (
                   <Fieldset legend="Fill Style">
                     <RadioCardGroup.Root
                       aria-label="fill style"
@@ -926,9 +925,7 @@ function App() {
                   </Fieldset>
                 )}
 
-                {(isGenericShape(tool) ||
-                  isLinearShape(tool) ||
-                  isFreeDrawShape(tool)) && (
+                {SELECTABLE_ELEMENT_OPTIONS[tool]?.strokeWidth && (
                   <Fieldset legend="Stroke Width">
                     <RadioCardGroup.Root
                       aria-label="stroke width"
@@ -963,7 +960,7 @@ function App() {
                   </Fieldset>
                 )}
 
-                {(isGenericShape(tool) || isLinearShape(tool)) && (
+                {SELECTABLE_ELEMENT_OPTIONS[tool]?.strokeLineDash && (
                   <Fieldset legend="Stroke Line Dash">
                     <RadioCardGroup.Root
                       aria-label="stroke line dash"
@@ -1008,7 +1005,7 @@ function App() {
                   </Fieldset>
                 )}
 
-                {(isGenericShape(tool) || isLinearShape(tool)) && (
+                {SELECTABLE_ELEMENT_OPTIONS[tool]?.roughness && (
                   <Fieldset legend="Roughness">
                     <RadioCardGroup.Root
                       aria-label="roughness"
@@ -1043,7 +1040,7 @@ function App() {
                   </Fieldset>
                 )}
 
-                {isTextShape(tool) && (
+                {SELECTABLE_ELEMENT_OPTIONS[tool]?.fontSize && (
                   <Fieldset legend="Font Size">
                     <RadioCardGroup.Root
                       aria-label="font size"
