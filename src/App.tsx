@@ -88,7 +88,7 @@ import {
   UndoIcon,
   XLargeSizeIcon,
 } from "./components/Icons";
-import Option from "./components/Option";
+import Fieldset from "./components/Fieldset";
 
 import Button from "./components/Button";
 
@@ -892,7 +892,7 @@ function App() {
                 )}
 
                 {isGenericShape(tool) && (
-                  <Option title="Fill Style">
+                  <Fieldset legend="Fill Style">
                     <RadioCardGroup.Root
                       aria-label="fill style"
                       className="flex gap-1"
@@ -923,13 +923,13 @@ function App() {
                         );
                       })}
                     </RadioCardGroup.Root>
-                  </Option>
+                  </Fieldset>
                 )}
 
                 {(isGenericShape(tool) ||
                   isLinearShape(tool) ||
                   isFreeDrawShape(tool)) && (
-                  <Option title="Stroke Width">
+                  <Fieldset legend="Stroke Width">
                     <RadioCardGroup.Root
                       aria-label="stroke width"
                       className="flex gap-1"
@@ -960,11 +960,11 @@ function App() {
                         );
                       })}
                     </RadioCardGroup.Root>
-                  </Option>
+                  </Fieldset>
                 )}
 
                 {(isGenericShape(tool) || isLinearShape(tool)) && (
-                  <Option title="Stroke Line Dash">
+                  <Fieldset legend="Stroke Line Dash">
                     <RadioCardGroup.Root
                       aria-label="stroke line dash"
                       className="flex gap-1"
@@ -1005,11 +1005,11 @@ function App() {
                         }
                       )}
                     </RadioCardGroup.Root>
-                  </Option>
+                  </Fieldset>
                 )}
 
                 {(isGenericShape(tool) || isLinearShape(tool)) && (
-                  <Option title="Roughness">
+                  <Fieldset legend="Roughness">
                     <RadioCardGroup.Root
                       aria-label="roughness"
                       className="flex gap-1"
@@ -1040,11 +1040,11 @@ function App() {
                         );
                       })}
                     </RadioCardGroup.Root>
-                  </Option>
+                  </Fieldset>
                 )}
 
                 {isTextShape(tool) && (
-                  <Option title="Font Size">
+                  <Fieldset legend="Font Size">
                     <RadioCardGroup.Root
                       aria-label="font size"
                       className="flex gap-1"
@@ -1075,7 +1075,7 @@ function App() {
                         );
                       })}
                     </RadioCardGroup.Root>
-                  </Option>
+                  </Fieldset>
                 )}
               </div>
             </div>
