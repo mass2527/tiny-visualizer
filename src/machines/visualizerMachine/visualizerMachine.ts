@@ -906,6 +906,10 @@ export const visualizerMachine =
                   // TODO: ADD TEXT ELEMENT LOGIC
                   return {
                     ...element,
+                    options: {
+                      ...element.options,
+                      ...event.elementOptions,
+                    },
                   };
                 }
 

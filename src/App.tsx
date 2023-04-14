@@ -1289,6 +1289,7 @@ function App() {
               top: drawStartViewportPoint.y,
               fontFamily: drawingElement.fontFamily,
               fontSize: drawingElement.fontSize,
+              color: drawingElement.options.stroke,
               lineHeight: TEXTAREA_UNIT_LESS_LINE_HEIGHT,
               padding: 0,
               outline: 0,
