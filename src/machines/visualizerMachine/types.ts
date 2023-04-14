@@ -16,7 +16,7 @@ export type VisualizerElementBase = {
   width: number;
   height: number;
 
-  options: RoughJSOptions;
+  options: ElementOptions;
   groupIds: string[];
 };
 

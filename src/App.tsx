@@ -17,11 +17,7 @@ import ColorPicker from "./components/ColorPicker";
 
 import { useDevicePixelRatio, useWindowSize } from "./hooks";
 
-import {
-  HOT_KEYS,
-  SELECTABLE_ELEMENT_OPTIONS,
-  TEXTAREA_UNIT_LESS_LINE_HEIGHT,
-} from "./constants";
+import { HOT_KEYS, TEXTAREA_UNIT_LESS_LINE_HEIGHT } from "./constants";
 import {
   Tool,
   visualizerMachine,
@@ -49,6 +45,8 @@ import {
   isSameGroup,
   groupBy,
   isImageElement,
+  calculateElementOptionValue,
+  getSelectableElementOptions,
 } from "./utils";
 import ElementResizer from "./components/ElementResizer";
 import RadioCardGroup from "./components/RadioCardGroup";
@@ -804,6 +802,11 @@ function App() {
     []
   );
 
+  const shouldShowElementOptions = getSelectableElementOptions(
+    tool,
+    selectedElements
+  );
+
   return (
     <div style={{ height: "100vh", overflow: "hidden" }}>
       <div className="absolute w-full h-full p-4 pointer-events-none">
@@ -857,13 +860,21 @@ function App() {
             </RadioCardGroup.Root>
           </header>
 
-          {tool !== "hand" && tool !== "selection" && tool !== "image" && (
+          {((selectedElements.length === 0 &&
+            tool !== "hand" &&
+            tool !== "selection" &&
+            tool !== "image") ||
+            (selectedElements.length >= 1 && tool === "selection")) && (
             <div className="w-[156px]">
               <div className="flex flex-col gap-2 bg-black text-gray11 text-sm p-2 rounded-lg">
-                {SELECTABLE_ELEMENT_OPTIONS[tool]?.stroke && (
+                {shouldShowElementOptions?.stroke && (
                   <ColorPicker
                     label="Stroke Color"
-                    value={elementOptions.stroke}
+                    value={calculateElementOptionValue({
+                      selectedElements,
+                      elementOptions,
+                      option: "stroke",
+                    })}
                     onChange={(event) => {
                       send({
                         type: "CHANGE_ELEMENT_OPTIONS",
@@ -875,10 +886,14 @@ function App() {
                   />
                 )}
 
-                {SELECTABLE_ELEMENT_OPTIONS[tool]?.fill && (
+                {shouldShowElementOptions?.fill && (
                   <ColorPicker
                     label="Fill Color"
-                    value={elementOptions.fill}
+                    value={calculateElementOptionValue({
+                      selectedElements,
+                      elementOptions,
+                      option: "fill",
+                    })}
                     onChange={(event) => {
                       send({
                         type: "CHANGE_ELEMENT_OPTIONS",
@@ -890,12 +905,16 @@ function App() {
                   />
                 )}
 
-                {SELECTABLE_ELEMENT_OPTIONS[tool]?.fillStyle && (
+                {shouldShowElementOptions?.fillStyle && (
                   <Fieldset legend="Fill Style">
                     <RadioCardGroup.Root
                       aria-label="fill style"
                       className="flex gap-1"
-                      value={elementOptions.fillStyle}
+                      value={calculateElementOptionValue({
+                        selectedElements,
+                        elementOptions,
+                        option: "fillStyle",
+                      })}
                       onValueChange={(fillStyle) => {
                         send({
                           type: "CHANGE_ELEMENT_OPTIONS",
@@ -912,9 +931,19 @@ function App() {
                             label={label}
                             value={value}
                             icon={icon}
-                            checked={elementOptions.fillStyle === value}
+                            checked={
+                              calculateElementOptionValue({
+                                selectedElements,
+                                elementOptions,
+                                option: "fillStyle",
+                              }) === value
+                            }
                             className={
-                              elementOptions.fillStyle !== value
+                              calculateElementOptionValue({
+                                selectedElements,
+                                elementOptions,
+                                option: "fillStyle",
+                              }) !== value
                                 ? "bg-gray12"
                                 : undefined
                             }
@@ -925,12 +954,18 @@ function App() {
                   </Fieldset>
                 )}
 
-                {SELECTABLE_ELEMENT_OPTIONS[tool]?.strokeWidth && (
+                {shouldShowElementOptions?.strokeWidth && (
                   <Fieldset legend="Stroke Width">
                     <RadioCardGroup.Root
                       aria-label="stroke width"
                       className="flex gap-1"
-                      value={String(elementOptions.strokeWidth)}
+                      value={String(
+                        calculateElementOptionValue({
+                          selectedElements,
+                          elementOptions,
+                          option: "strokeWidth",
+                        })
+                      )}
                       onValueChange={(strokeWidth) => {
                         send({
                           type: "CHANGE_ELEMENT_OPTIONS",
@@ -947,9 +982,19 @@ function App() {
                             label={label}
                             value={String(value)}
                             icon={icon}
-                            checked={elementOptions.strokeWidth === value}
+                            checked={
+                              calculateElementOptionValue({
+                                selectedElements,
+                                elementOptions,
+                                option: "strokeWidth",
+                              }) === value
+                            }
                             className={
-                              elementOptions.strokeWidth !== value
+                              calculateElementOptionValue({
+                                selectedElements,
+                                elementOptions,
+                                option: "strokeWidth",
+                              }) !== value
                                 ? "bg-gray12"
                                 : undefined
                             }
@@ -960,12 +1005,18 @@ function App() {
                   </Fieldset>
                 )}
 
-                {SELECTABLE_ELEMENT_OPTIONS[tool]?.strokeLineDash && (
+                {shouldShowElementOptions?.strokeLineDash && (
                   <Fieldset legend="Stroke Line Dash">
                     <RadioCardGroup.Root
                       aria-label="stroke line dash"
                       className="flex gap-1"
-                      value={JSON.stringify(elementOptions.strokeLineDash)}
+                      value={JSON.stringify(
+                        calculateElementOptionValue({
+                          selectedElements,
+                          elementOptions,
+                          option: "strokeLineDash",
+                        })
+                      )}
                       onValueChange={(strokeLineDash) => {
                         send({
                           type: "CHANGE_ELEMENT_OPTIONS",
@@ -987,12 +1038,20 @@ function App() {
                               icon={icon}
                               checked={
                                 JSON.stringify(
-                                  elementOptions.strokeLineDash
+                                  calculateElementOptionValue({
+                                    selectedElements,
+                                    elementOptions,
+                                    option: "strokeLineDash",
+                                  })
                                 ) === JSON.stringify(value)
                               }
                               className={
                                 JSON.stringify(
-                                  elementOptions.strokeLineDash
+                                  calculateElementOptionValue({
+                                    selectedElements,
+                                    elementOptions,
+                                    option: "strokeLineDash",
+                                  })
                                 ) !== JSON.stringify(value)
                                   ? "bg-gray12"
                                   : undefined
@@ -1005,12 +1064,18 @@ function App() {
                   </Fieldset>
                 )}
 
-                {SELECTABLE_ELEMENT_OPTIONS[tool]?.roughness && (
+                {shouldShowElementOptions?.roughness && (
                   <Fieldset legend="Roughness">
                     <RadioCardGroup.Root
                       aria-label="roughness"
                       className="flex gap-1"
-                      value={String(elementOptions.roughness)}
+                      value={String(
+                        calculateElementOptionValue({
+                          selectedElements,
+                          elementOptions,
+                          option: "roughness",
+                        })
+                      )}
                       onValueChange={(roughness) => {
                         send({
                           type: "CHANGE_ELEMENT_OPTIONS",
@@ -1027,9 +1092,19 @@ function App() {
                             label={label}
                             value={String(value)}
                             icon={icon}
-                            checked={elementOptions.roughness === value}
+                            checked={
+                              calculateElementOptionValue({
+                                selectedElements,
+                                elementOptions,
+                                option: "roughness",
+                              }) === value
+                            }
                             className={
-                              elementOptions.roughness !== value
+                              calculateElementOptionValue({
+                                selectedElements,
+                                elementOptions,
+                                option: "roughness",
+                              }) !== value
                                 ? "bg-gray12"
                                 : undefined
                             }
@@ -1040,12 +1115,18 @@ function App() {
                   </Fieldset>
                 )}
 
-                {SELECTABLE_ELEMENT_OPTIONS[tool]?.fontSize && (
+                {shouldShowElementOptions?.fontSize && (
                   <Fieldset legend="Font Size">
                     <RadioCardGroup.Root
                       aria-label="font size"
                       className="flex gap-1"
-                      value={String(elementOptions.fontSize)}
+                      value={String(
+                        calculateElementOptionValue({
+                          selectedElements,
+                          elementOptions,
+                          option: "fontSize",
+                        })
+                      )}
                       onValueChange={(fontSize) => {
                         send({
                           type: "CHANGE_ELEMENT_OPTIONS",
@@ -1062,9 +1143,19 @@ function App() {
                             label={label}
                             value={String(value)}
                             icon={icon}
-                            checked={elementOptions.fontSize === value}
+                            checked={
+                              calculateElementOptionValue({
+                                selectedElements,
+                                elementOptions,
+                                option: "fontSize",
+                              }) === value
+                            }
                             className={
-                              elementOptions.fontSize !== value
+                              calculateElementOptionValue({
+                                selectedElements,
+                                elementOptions,
+                                option: "fontSize",
+                              }) !== value
                                 ? "bg-gray12"
                                 : undefined
                             }

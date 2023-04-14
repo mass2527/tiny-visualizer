@@ -94,7 +94,6 @@ export interface Typegen0 {
       | "error.platform.visualizer machine.preview image loading:invocation[0]";
     assignCurrentPoint: "MOUSE_MOVE";
     assignDrawStartPoint: "DRAW_START" | "DRAW_UPLOADED_IMAGE" | "WRITE_START";
-    assignElementOptions: "CHANGE_ELEMENT_OPTIONS";
     assignFiles: "done.invoke.visualizer machine.image drawing:invocation[0]";
     assignImageCache: "done.invoke.visualizer machine.image drawing:invocation[0]";
     assignImageFile: "IMAGE_UPLOAD";
@@ -117,6 +116,7 @@ export interface Typegen0 {
     editWrite: "WRITE_EDIT";
     endConnect: "CONNECT";
     groupSelectedElements: "SELECTED_ELEMENTS.GROUP";
+    handleElementOptionsChange: "CHANGE_ELEMENT_OPTIONS";
     loadSavedContext:
       | "error.platform.visualizer machine.loading:invocation[0]"
       | "xstate.init";

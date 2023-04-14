@@ -1,7 +1,9 @@
 import invariant from "tiny-invariant";
 import {
+  ElementOptions,
   FileId,
   Point,
+  Tool,
   VisualizerElement,
   VisualizerElementBase,
   VisualizerFreeDrawElement,
@@ -30,6 +32,7 @@ import {
 import * as uuid from "uuid";
 import { TEXTAREA_UNIT_LESS_LINE_HEIGHT } from "../constants";
 import { Size } from "./resize";
+import { haveSameItems } from "./array";
 
 export const calculateCanvasPoint = ({
   devicePixelRatio,
@@ -566,4 +569,113 @@ export const calculateReadableFileSize = (fileSize: number) => {
   } else if (fileSize >= 1048576) {
     return (fileSize / 1048576).toFixed(1) + "MB";
   }
+};
+
+export const calculateElementOptionValue = <
+  T extends keyof VisualizerElement["options"]
+>({
+  selectedElements,
+  elementOptions,
+  option,
+}: {
+  selectedElements: VisualizerElement[];
+  elementOptions: ElementOptions;
+  option: T;
+}) => {
+  if (selectedElements.length === 0) {
+    return elementOptions[option];
+  }
+
+  invariant(selectedElements[0]);
+
+  if (selectedElements.length === 1) {
+    return selectedElements[0].options[option];
+  }
+
+  if (
+    haveSameItems(
+      selectedElements.map((element) => String(element.options[option]))
+    )
+  ) {
+    return selectedElements[0].options[option];
+  }
+
+  return undefined;
+};
+
+export const getSelectableElementOptions = (
+  tool: Tool,
+  selectedElements: VisualizerElement[]
+) => {
+  const result: Record<
+    Tool,
+    Partial<Record<keyof Omit<ElementOptions, "fontFamily">, boolean>> | null
+  > = {
+    hand: null,
+    selection: null,
+    rectangle: {
+      stroke: true,
+      fill: true,
+      fillStyle: true,
+      strokeWidth: true,
+      strokeLineDash: true,
+      roughness: true,
+    },
+    diamond: {
+      stroke: true,
+      fill: true,
+      fillStyle: true,
+      strokeWidth: true,
+      strokeLineDash: true,
+      roughness: true,
+    },
+    ellipse: {
+      stroke: true,
+      fill: true,
+      fillStyle: true,
+      strokeWidth: true,
+      strokeLineDash: true,
+      roughness: true,
+    },
+    arrow: {
+      stroke: true,
+      strokeWidth: true,
+      strokeLineDash: true,
+      roughness: true,
+    },
+    line: {
+      stroke: true,
+      strokeWidth: true,
+      strokeLineDash: true,
+      roughness: true,
+    },
+    freedraw: {
+      stroke: true,
+      strokeWidth: true,
+    },
+    text: {
+      stroke: true,
+      fontSize: true,
+    },
+    image: null,
+  };
+
+  if (selectedElements.length === 0) {
+    return result[tool];
+  }
+
+  if (selectedElements.length === 1 && selectedElements[0]) {
+    // TODO: ADD
+    return result[selectedElements[0].shape];
+  }
+
+  return {
+    stroke: true,
+    fill: true,
+    fillStyle: true,
+    strokeWidth: true,
+    strokeLineDash: true,
+    roughness: true,
+    fontSize: true,
+  };
 };

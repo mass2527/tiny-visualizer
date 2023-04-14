@@ -6,7 +6,7 @@ function ColorPicker({
   onChange,
 }: {
   label: string;
-  value: string;
+  value: string | undefined;
   onChange: ChangeEventHandler<HTMLInputElement>;
 }) {
   return (
