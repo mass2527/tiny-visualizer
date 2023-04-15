@@ -19,7 +19,7 @@ function RadioCardGroupItem({
   className?: string;
 }) {
   return (
-    <label aria-label={label} className="pointer-events-auto">
+    <label aria-label={label}>
       <RadioGroup.Item
         className={`${centeredSquare} rounded-lg text-gray11 ${className}
         ${checked && "bg-blue9 text-white"}

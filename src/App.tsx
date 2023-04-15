@@ -811,7 +811,7 @@ function App() {
     <div style={{ height: "100vh", overflow: "hidden" }}>
       <div className="absolute w-full h-full p-4 pointer-events-none">
         <div className="w-full h-full relative flex flex-col gap-4">
-          <header className="flex justify-center items-center gap-1 bg-black rounded-lg">
+          <header className="flex justify-center items-center gap-1 bg-black rounded-lg pointer-events-auto">
             <input
               className="hidden"
               ref={fileInputRef}
@@ -865,7 +865,7 @@ function App() {
             tool !== "selection" &&
             tool !== "image") ||
             (selectedElements.length >= 1 && tool === "selection")) && (
-            <div className="w-[156px]">
+            <div className="w-[156px] pointer-events-auto">
               <div className="flex flex-col gap-2 bg-black text-gray11 text-sm p-2 rounded-lg">
                 {shouldShowElementOptions?.stroke && (
                   <ColorPicker
@@ -1179,7 +1179,7 @@ function App() {
             </div>
           )}
 
-          <div className="absolute bottom-0 left-0 flex gap-2">
+          <div className="absolute bottom-0 left-0 flex gap-2 pointer-events-auto">
             <div className="flex">
               <Button
                 className="rounded-l-lg"
