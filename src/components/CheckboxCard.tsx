@@ -17,7 +17,7 @@ function CheckboxCard({
   return (
     <label
       aria-label={label}
-      className={`flex items-center justify-center w-8 h-8 rounded-lg pointer-events-auto text-gray11
+      className={`flex items-center justify-center w-8 h-8 rounded-lg text-gray11
      ${checked && "bg-blue9 text-white"}`}
     >
       <Checkbox.Root checked={checked} onCheckedChange={onCheckedChange}>

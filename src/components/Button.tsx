@@ -15,7 +15,7 @@ function Button({
   return (
     <button
       type="button"
-      className={`${centeredSquare} bg-black text-white disabled:text-gray11  pointer-events-auto text-xs ${className}`}
+      className={`${centeredSquare} bg-black text-white disabled:text-gray11 text-xs ${className}`}
       onClick={onClick}
       disabled={disabled}
     >

@@ -6,17 +6,11 @@ function ColorPicker({
   onChange,
 }: {
   label: string;
-  value: string;
+  value: string | undefined;
   onChange: ChangeEventHandler<HTMLInputElement>;
 }) {
   return (
-    <label
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        pointerEvents: "all",
-      }}
-    >
+    <label className="flex flex-col">
       {label}
       <input type="color" value={value} onChange={onChange} />
     </label>

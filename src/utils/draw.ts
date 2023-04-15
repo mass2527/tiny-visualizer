@@ -262,6 +262,7 @@ export const createDraw = (
 
       ctx.textBaseline = "top";
       ctx.font = `${fontSize}px ${element.fontFamily}`;
+      ctx.fillStyle = element.options.stroke;
 
       const lines = element.text.split("\n");
       for (let i = 0; i < lines.length; i++) {

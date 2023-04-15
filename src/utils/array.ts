@@ -42,3 +42,11 @@ export const groupBy = <T>(
 
   return groups;
 };
+
+export const haveSameItems = <T extends string | number | undefined>(
+  items: T[]
+) => {
+  const firstItem = items[0];
+
+  return firstItem && items.every((item) => item === firstItem);
+};
