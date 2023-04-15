@@ -876,11 +876,16 @@ function App() {
                       option: "stroke",
                     })}
                     onChange={(event) => {
+                      const canvasElement = canvasRef.current;
+                      invariant(canvasElement);
+
                       send({
                         type: "CHANGE_ELEMENT_OPTIONS",
                         elementOptions: {
                           stroke: event.currentTarget.value,
                         },
+                        canvasElement,
+                        devicePixelRatio,
                       });
                     }}
                   />
@@ -1128,11 +1133,16 @@ function App() {
                         })
                       )}
                       onValueChange={(fontSize) => {
+                        const canvasElement = canvasRef.current;
+                        invariant(canvasElement);
+
                         send({
                           type: "CHANGE_ELEMENT_OPTIONS",
                           elementOptions: {
                             fontSize: Number(fontSize),
                           },
+                          canvasElement,
+                          devicePixelRatio,
                         });
                       }}
                     >

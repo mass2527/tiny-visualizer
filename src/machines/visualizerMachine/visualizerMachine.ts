@@ -878,54 +878,77 @@ export const visualizerMachine =
             isToolFixed: !context.isToolFixed,
           };
         }),
-        handleElementOptionsChange: assign((context, event) => {
-          const selectedElements = context.elements.filter(
-            (element) => element.status === "selected"
-          );
-          if (selectedElements.length === 0) {
+        handleElementOptionsChange: assign(
+          (context, { elementOptions, canvasElement, devicePixelRatio }) => {
+            const selectedElements = context.elements.filter(
+              (element) => element.status === "selected"
+            );
+            if (selectedElements.length === 0) {
+              return {
+                elementOptions: {
+                  ...context.elementOptions,
+                  ...elementOptions,
+                },
+              };
+            }
+
+            const selectedElementsIds = selectedElements.map(
+              (element) => element.id
+            );
+
             return {
               elementOptions: {
                 ...context.elementOptions,
-                ...event.elementOptions,
+                ...elementOptions,
               },
-            };
-          }
+              elements: context.elements.map((element) => {
+                if (selectedElementsIds.includes(element.id)) {
+                  if (isTextElement(element)) {
+                    invariant(canvasElement);
+                    invariant(devicePixelRatio);
 
-          const selectedElementsIds = selectedElements.map(
-            (element) => element.id
-          );
+                    const updatedFontSize =
+                      elementOptions.fontSize ?? element.fontSize;
 
-          return {
-            elementOptions: {
-              ...context.elementOptions,
-              ...event.elementOptions,
-            },
-            elements: context.elements.map((element) => {
-              if (selectedElementsIds.includes(element.id)) {
-                if (isTextElement(element) && event.elementOptions.fontSize) {
-                  // TODO: ADD TEXT ELEMENT LOGIC
+                    const { width, height } = measureText({
+                      fontFamily: element.fontFamily,
+                      fontSize: updatedFontSize,
+                      lineHeight: TEXTAREA_UNIT_LESS_LINE_HEIGHT,
+                      text: element.text,
+                      canvasElement,
+                    });
+
+                    return {
+                      ...element,
+                      options: {
+                        ...element.options,
+                        ...elementOptions,
+                      },
+                      fontSize: updatedFontSize,
+                      y:
+                        element.y +
+                        ((element.fontSize - updatedFontSize) *
+                          (TEXTAREA_UNIT_LESS_LINE_HEIGHT * devicePixelRatio)) /
+                          2,
+                      width,
+                      height,
+                    };
+                  }
+
                   return {
                     ...element,
                     options: {
                       ...element.options,
-                      ...event.elementOptions,
+                      ...elementOptions,
                     },
                   };
                 }
 
-                return {
-                  ...element,
-                  options: {
-                    ...element.options,
-                    ...event.elementOptions,
-                  },
-                };
-              }
-
-              return element;
-            }),
-          };
-        }),
+                return element;
+              }),
+            };
+          }
+        ),
         assignZoom: assign((context, { setZoom, canvasElement }) => {
           const updatedZoom = calculateNormalizedZoom(setZoom(context.zoom));
           const targetPoint = {

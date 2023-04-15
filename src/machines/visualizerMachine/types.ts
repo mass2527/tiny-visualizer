@@ -212,6 +212,8 @@ export type VisualizerMachineEvents =
   | {
       type: "CHANGE_ELEMENT_OPTIONS";
       elementOptions: Partial<VisualizerMachineContext["elementOptions"]>;
+      canvasElement?: HTMLCanvasElement;
+      devicePixelRatio?: number;
     }
   | {
       type: "CHANGE_ZOOM";
