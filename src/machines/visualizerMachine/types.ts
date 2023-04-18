@@ -6,13 +6,9 @@ export type VisualizerElementBase = {
   id: string;
   status: "idle" | "selected" | "deleted";
 
-  // VisualizerGenericElement: left top point
-  // VisualizerLinearElement: start point
   x: number;
   y: number;
 
-  // VisualizerGenericElement: absolute width, height
-  // VisualizerLinearElement: absolute width, height
   width: number;
   height: number;
 
