@@ -88,6 +88,7 @@ import {
 import Fieldset from "./components/Fieldset";
 
 import Button from "./components/Button";
+import { inspect } from "@xstate/inspect";
 
 export const TOOL_LABELS = {
   hand: {
@@ -214,6 +215,10 @@ const FONT_SIZE_OPTIONS: ElementOption<"fontSize">[] = [
   },
 ];
 
+inspect({
+  iframe: false,
+});
+
 function App() {
   const windowSize = useWindowSize();
   const devicePixelRatio = useDevicePixelRatio();
@@ -255,6 +260,7 @@ function App() {
         }
       }),
     },
+    devTools: false,
   });
   const {
     tool,
