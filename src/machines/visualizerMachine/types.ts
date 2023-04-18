@@ -20,8 +20,11 @@ export type VisualizerElementBase = {
   groupIds: string[];
 };
 
-export type VisualizerSelectionElement = VisualizerElementBase & {
-  shape: "selection";
+export type VisualizerSelection = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
 };
 export type VisualizerRectangleElement = VisualizerElementBase & {
   shape: "rectangle";
@@ -37,7 +40,6 @@ export type VisualizerDiamondElement = VisualizerElementBase & {
 };
 
 export type VisualizerGenericElement =
-  | VisualizerSelectionElement
   | VisualizerRectangleElement
   | VisualizerDiamondElement
   | VisualizerEllipseElement;
@@ -103,7 +105,7 @@ export type ElementOptions = Required<
   VisualizerTextElementOptions;
 
 export type DrawingTool = VisualizerElement["shape"];
-export type NonDrawingTool = "hand";
+export type NonDrawingTool = "hand" | "selection";
 export type Tool = DrawingTool | NonDrawingTool;
 
 export type FileId = string;
@@ -116,6 +118,8 @@ export type Files = Record<
 
 // context that is saved to localStorage
 export type VisualizerMachinePersistedContext = {
+  selection: VisualizerSelection | null;
+
   elements: VisualizerElement[];
   elementOptions: ElementOptions;
 
@@ -165,9 +169,6 @@ export type VisualizerMachineEvents =
       type: "DRAW_END";
       event: Parameters<MouseEventHandler<HTMLCanvasElement>>[0];
       devicePixelRatio: number;
-    }
-  | {
-      type: "DELETE_SELECTION";
     }
   | {
       type: "CHANGE_TOOL";
@@ -324,6 +325,21 @@ export type VisualizerMachineEvents =
     }
   | {
       type: "DRAW_UPLOADED_IMAGE";
+      event: Parameters<MouseEventHandler<HTMLCanvasElement>>[0];
+      devicePixelRatio: number;
+    }
+  | {
+      type: "SELECT_START";
+      event: Parameters<MouseEventHandler<HTMLCanvasElement>>[0];
+      devicePixelRatio: number;
+    }
+  | {
+      type: "SELECT";
+      event: Parameters<MouseEventHandler<HTMLCanvasElement>>[0];
+      devicePixelRatio: number;
+    }
+  | {
+      type: "SELECT_END";
       event: Parameters<MouseEventHandler<HTMLCanvasElement>>[0];
       devicePixelRatio: number;
     };

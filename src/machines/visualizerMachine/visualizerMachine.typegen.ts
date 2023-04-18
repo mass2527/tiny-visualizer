@@ -74,6 +74,7 @@ export interface Typegen0 {
   eventsCausingActions: {
     addElement: "DRAW_START";
     addImageElement: "done.invoke.visualizer machine.image drawing:invocation[0]";
+    addSelection: "SELECT_START";
     addTextElement: "WRITE_START";
     addVersionToHistory:
       | ""
@@ -84,6 +85,7 @@ export interface Typegen0 {
       | "SELECTED_ELEMENTS.DELETE"
       | "SELECTED_ELEMENTS.GROUP"
       | "SELECTED_ELEMENTS.UNGROUP"
+      | "SELECT_END"
       | "done.invoke.visualizer machine.image drawing:invocation[0]"
       | "done.invoke.visualizer machine.pasting:invocation[0]";
     alertError:
@@ -93,7 +95,11 @@ export interface Typegen0 {
       | "error.platform.visualizer machine.pasting:invocation[0]"
       | "error.platform.visualizer machine.preview image loading:invocation[0]";
     assignCurrentPoint: "MOUSE_MOVE";
-    assignDrawStartPoint: "DRAW_START" | "DRAW_UPLOADED_IMAGE" | "WRITE_START";
+    assignDrawStartPoint:
+      | "DRAW_START"
+      | "DRAW_UPLOADED_IMAGE"
+      | "SELECT_START"
+      | "WRITE_START";
     assignFiles: "done.invoke.visualizer machine.image drawing:invocation[0]";
     assignImageCache: "done.invoke.visualizer machine.image drawing:invocation[0]";
     assignImageFile: "IMAGE_UPLOAD";
@@ -105,12 +111,13 @@ export interface Typegen0 {
     assignUpdatingPointIndex: "POINT.UPDATE_START";
     assignZoom: "CHANGE_ZOOM";
     assignZoomToCurrentPoint: "CHANGE_ZOOM_WITH_PINCH";
+    changeSelection: "SELECT" | "SELECT_END";
     changeTool: "CHANGE_TOOL";
     connect: "CONNECT";
     deleteSelectedElements:
       | "SELECTED_ELEMENTS.DELETE"
       | "done.invoke.visualizer machine.cutting:invocation[0]";
-    deleteSelection: "DELETE_SELECTION";
+    deleteSelection: "SELECT_END";
     drag: "DRAG" | "DRAG_END";
     draw: "DRAW" | "DRAW_END";
     editWrite: "WRITE_EDIT";
@@ -128,7 +135,6 @@ export interface Typegen0 {
       | "CHANGE_TOOL"
       | "CHANGE_ZOOM"
       | "CHANGE_ZOOM_WITH_PINCH"
-      | "DELETE_SELECTION"
       | "ELEMENTS.SELECT_ALL"
       | "GESTURE.PAN"
       | "HISTORY_UPDATE"
@@ -138,15 +144,19 @@ export interface Typegen0 {
       | "done.invoke.visualizer machine.copying:invocation[0]"
       | "done.invoke.visualizer machine.cutting:invocation[0]";
     resetCursor: "error.platform.visualizer machine.preview image loading:invocation[0]";
-    resetDrawingElementId: "" | "DELETE_SELECTION";
+    resetDrawingElementId: "";
     resize: "RESIZE";
     selectAllElements: "ELEMENTS.SELECT_ALL";
     selectDrawingElement: "";
     toggleIsToolFixed: "IS_ELEMENT_SHAPE_FIXED_TOGGLE";
     ungroupSelectedElements: "SELECTED_ELEMENTS.UNGROUP";
-    unselectElements: "CHANGE_TOOL" | "DRAW_START" | "WRITE_START";
+    unselectElements:
+      | "CHANGE_TOOL"
+      | "DRAW_START"
+      | "SELECT_START"
+      | "WRITE_START";
     updateHistory: "HISTORY_UPDATE";
-    updateIntersecting: "DRAW" | "DRAW_END";
+    updateIntersecting: "SELECT" | "SELECT_END";
     updatePoint: "POINT.UPDATE";
     updateTool:
       | "CONNECT"
@@ -192,6 +202,7 @@ export interface Typegen0 {
     | "persisting"
     | "preview image loading"
     | "resizing"
+    | "selecting"
     | "updating point"
     | "version released"
     | "writing";

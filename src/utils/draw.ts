@@ -37,11 +37,7 @@ export const createDraw = (
   const roughCanvas = rough.canvas(canvasElement);
   const { generator } = roughCanvas;
 
-  if (element.shape === "selection") {
-    return () => {
-      ctx.strokeRect(element.x, element.y, element.width, element.height);
-    };
-  } else if (element.shape === "rectangle") {
+  if (element.shape === "rectangle") {
     const rectangleDrawable = generator.rectangle(
       element.x,
       element.y,

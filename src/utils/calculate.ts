@@ -11,6 +11,7 @@ import {
   VisualizerImageElement,
   VisualizerLinearElement,
   VisualizerMachineContext,
+  VisualizerSelection,
   VisualizerTextElement,
   ZOOM,
 } from "../machines/visualizerMachine";
@@ -107,6 +108,15 @@ export const calculateElementSize = (element: VisualizerElement) => {
   return {
     width: maxX - minX,
     height: maxY - minY,
+  };
+};
+
+const calculateSelectionAbsolutePoint = (selection: VisualizerSelection) => {
+  return {
+    minX: selection.x,
+    minY: selection.y,
+    maxX: selection.x + selection.width,
+    maxY: selection.y + selection.height,
   };
 };
 
@@ -214,10 +224,10 @@ export const isPointInsideOfAbsolutePoint = (
 };
 
 export const isIntersecting = (
-  selection: VisualizerElement,
+  selection: VisualizerSelection,
   elements: VisualizerElement[]
 ) => {
-  const selectionAbsolutePoint = calculateElementAbsolutePoint(selection);
+  const selectionAbsolutePoint = calculateSelectionAbsolutePoint(selection);
   const elementAbsolutePoint = calculateElementsAbsolutePoint(elements);
 
   if (selectionAbsolutePoint.minX > elementAbsolutePoint.maxX) {
@@ -348,18 +358,11 @@ export const createElement = ({
   );
 
   if (isGenericShape(shape)) {
-    if (shape === "selection") {
-      return {
-        ...elementBase,
-        shape,
-      };
-    } else {
-      return {
-        ...elementBase,
-        shape,
-        seed: createRandomSeed(existingSeeds),
-      };
-    }
+    return {
+      ...elementBase,
+      shape,
+      seed: createRandomSeed(existingSeeds),
+    };
   }
 
   if (isImageShape(shape)) {

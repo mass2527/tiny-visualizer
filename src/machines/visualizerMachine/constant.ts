@@ -14,6 +14,7 @@ export const ELEMENT_STATUS = {
 } satisfies Record<VisualizerElement["status"], VisualizerElement["status"]>;
 
 export const PERSISTED_CONTEXT: VisualizerMachinePersistedContext = {
+  selection: null,
   // track
   elements: [],
   elementOptions: {

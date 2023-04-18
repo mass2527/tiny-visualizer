@@ -275,6 +275,7 @@ function App() {
     drawStartPoint,
     files,
     imageCache,
+    selection,
   } = state.context;
 
   const drawStartViewportPoint = calculateViewportPoint({
@@ -375,6 +376,15 @@ function App() {
     ctx.translate(origin.x, origin.y);
     ctx.scale(zoom, zoom);
 
+    if (selection) {
+      ctx.strokeRect(
+        selection.x,
+        selection.y,
+        selection.width,
+        selection.height
+      );
+    }
+
     const selectedElements = elements.filter(
       (element) => element.status === "selected"
     );
@@ -405,6 +415,7 @@ function App() {
     isWritingState,
     files,
     imageCache,
+    selection,
   ]);
 
   useEffect(() => {
@@ -603,6 +614,14 @@ function App() {
       return;
     }
 
+    if (tool === "selection") {
+      send({
+        type: "SELECT_START",
+        event,
+        devicePixelRatio,
+      });
+    }
+
     if (tool === "text") {
       startWrite(event);
       return;
@@ -695,15 +714,11 @@ function App() {
       }
     }
 
-    if (drawingElement.shape === "selection") {
-      send("DELETE_SELECTION");
-    } else {
-      send({
-        type: "DRAW_END",
-        event,
-        devicePixelRatio,
-      });
-    }
+    send({
+      type: "DRAW_END",
+      event,
+      devicePixelRatio,
+    });
   };
 
   const connect: MouseEventHandler<HTMLCanvasElement> = (event) => {
@@ -715,6 +730,14 @@ function App() {
 
   const endPan: MouseEventHandler<HTMLCanvasElement> = () => {
     send("PAN_END");
+  };
+
+  const endSelect: MouseEventHandler<HTMLCanvasElement> = (event) => {
+    send({
+      type: "SELECT_END",
+      devicePixelRatio,
+      event,
+    });
   };
 
   const resize: MouseEventHandler<HTMLCanvasElement> = (event) => {
@@ -752,6 +775,14 @@ function App() {
   const pan: MouseEventHandler<HTMLCanvasElement> = (event) => {
     send({
       type: "PAN",
+      event,
+      devicePixelRatio,
+    });
+  };
+
+  const select: MouseEventHandler<HTMLCanvasElement> = (event) => {
+    send({
+      type: "SELECT",
       event,
       devicePixelRatio,
     });
@@ -1272,6 +1303,8 @@ function App() {
             ? updatePoint
             : state.matches("panning")
             ? pan
+            : state.matches("selecting")
+            ? select
             : moveMouse
         }
         onMouseUp={
@@ -1283,6 +1316,8 @@ function App() {
             ? connect
             : state.matches("panning")
             ? endPan
+            : state.matches("selecting")
+            ? endSelect
             : undefined
         }
         onDoubleClick={(event) => {
