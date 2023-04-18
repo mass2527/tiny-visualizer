@@ -5,15 +5,13 @@ import {
   Point,
   Tool,
   VisualizerElement,
-  VisualizerElementBase,
-  VisualizerFreeDrawElement,
-  VisualizerGenericElement,
+  VisualizerShapeElementBase,
   VisualizerImageElement,
   VisualizerLinearElement,
   VisualizerMachineContext,
-  VisualizerSelection,
-  VisualizerTextElement,
   ZOOM,
+  VisualizerElementBase,
+  VisualizerPointBasedElement,
 } from "../machines/visualizerMachine";
 import {
   calculateDistance,
@@ -21,14 +19,11 @@ import {
   createRandomNumber,
 } from "./math";
 import {
-  isFreeDrawElement,
   isFreeDrawShape,
-  isGenericElement,
   isGenericShape,
-  isImageElement,
   isImageShape,
-  isLinearElement,
   isLinearShape,
+  isPointBasedElement,
 } from "./type-guard";
 import * as uuid from "uuid";
 import { TEXTAREA_UNIT_LESS_LINE_HEIGHT } from "../constants";
@@ -83,23 +78,11 @@ export type AbsolutePoint = {
 export const calculateElementAbsolutePoint = (
   element: VisualizerElement
 ): AbsolutePoint => {
-  if (isGenericElement(element)) {
-    return calculateGenericElementAbsolutePoint(element);
+  if (isPointBasedElement(element)) {
+    return calculatePointBasedElementAbsolutePoint(element);
+  } else {
+    return calculateAbsolutePointByElementBase(element);
   }
-
-  if (isLinearElement(element)) {
-    return calculateLinearElementAbsolutePoint(element);
-  }
-
-  if (isFreeDrawElement(element)) {
-    return calculateFreeDrawElementAbsolutePoint(element);
-  }
-
-  if (isImageElement(element)) {
-    return calculateImageElementAbsolutePoint(element);
-  }
-
-  return calculateTextElementAbsolutePoint(element);
 };
 
 export const calculateElementSize = (element: VisualizerElement) => {
@@ -111,41 +94,19 @@ export const calculateElementSize = (element: VisualizerElement) => {
   };
 };
 
-const calculateSelectionAbsolutePoint = (selection: VisualizerSelection) => {
-  return {
-    minX: selection.x,
-    minY: selection.y,
-    maxX: selection.x + selection.width,
-    maxY: selection.y + selection.height,
-  };
-};
-
-const calculateGenericElementAbsolutePoint = (
-  element: VisualizerGenericElement
+const calculateAbsolutePointByElementBase = (
+  elementBase: VisualizerElementBase
 ) => {
   return {
-    minX: element.x,
-    minY: element.y,
-    maxX: element.x + element.width,
-    maxY: element.y + element.height,
+    minX: elementBase.x,
+    minY: elementBase.y,
+    maxX: elementBase.x + elementBase.width,
+    maxY: elementBase.y + elementBase.height,
   };
 };
 
-const calculateLinearElementAbsolutePoint = (
-  element: VisualizerLinearElement
-) => {
-  const { points } = element;
-
-  return {
-    minX: Math.min(...points.map((point) => element.x + point.x)),
-    minY: Math.min(...points.map((point) => element.y + point.y)),
-    maxX: Math.max(...points.map((point) => element.x + point.x)),
-    maxY: Math.max(...points.map((point) => element.y + point.y)),
-  };
-};
-
-export const calculateFreeDrawElementAbsolutePoint = (
-  element: VisualizerFreeDrawElement
+export const calculatePointBasedElementAbsolutePoint = (
+  element: VisualizerPointBasedElement
 ) => {
   const { points } = element;
   return {
@@ -153,26 +114,6 @@ export const calculateFreeDrawElementAbsolutePoint = (
     minY: Math.min(...points.map((point) => element.y + point.y)),
     maxX: Math.max(...points.map((point) => element.x + point.x)),
     maxY: Math.max(...points.map((point) => element.y + point.y)),
-  };
-};
-
-export const calculateImageElementAbsolutePoint = (
-  element: VisualizerImageElement
-) => {
-  return {
-    minX: element.x,
-    minY: element.y,
-    maxX: element.x + element.width,
-    maxY: element.y + element.height,
-  };
-};
-
-const calculateTextElementAbsolutePoint = (element: VisualizerTextElement) => {
-  return {
-    minX: element.x,
-    minY: element.y,
-    maxX: element.x + element.width,
-    maxY: element.y + element.height,
   };
 };
 
@@ -224,10 +165,10 @@ export const isPointInsideOfAbsolutePoint = (
 };
 
 export const isIntersecting = (
-  selection: VisualizerSelection,
+  selection: VisualizerElementBase,
   elements: VisualizerElement[]
 ) => {
-  const selectionAbsolutePoint = calculateSelectionAbsolutePoint(selection);
+  const selectionAbsolutePoint = calculateAbsolutePointByElementBase(selection);
   const elementAbsolutePoint = calculateElementsAbsolutePoint(elements);
 
   if (selectionAbsolutePoint.minX > elementAbsolutePoint.maxX) {
@@ -330,7 +271,7 @@ export const createElement = ({
   fileId?: FileId;
   status?: VisualizerElement["status"];
 }): VisualizerElement => {
-  const elementBase: VisualizerElementBase = {
+  const elementBase: VisualizerShapeElementBase = {
     id: uuid.v4(),
     x: drawStartPoint.x,
     y: drawStartPoint.y,

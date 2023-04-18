@@ -11,7 +11,7 @@ import {
   createElement,
   isGenericElement,
   isLinearElement,
-  calculateFreeDrawElementAbsolutePoint,
+  calculatePointBasedElementAbsolutePoint,
   isTextElement,
   isFreeDrawElement,
   calculateClientPoint,
@@ -649,7 +649,7 @@ export const visualizerMachine =
 
                 if (isFreeDrawElement(element)) {
                   const absolutePoint =
-                    calculateFreeDrawElementAbsolutePoint(element);
+                    calculatePointBasedElementAbsolutePoint(element);
                   return {
                     ...element,
                     width: absolutePoint.maxX - absolutePoint.minX,
