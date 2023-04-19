@@ -39,7 +39,6 @@ import {
   isLinearElement,
   isTextElement,
   isWithPlatformMetaKey,
-  strokeDashedRectangle,
   isPointInsideOfAbsolutePoint,
   calculateSelectedElementsAbsolutePoint,
   isSameGroup,
@@ -47,6 +46,8 @@ import {
   isImageElement,
   calculateElementOptionValue,
   getSelectableElementOptions,
+  strokeRectangle,
+  calculateAbsolutePointByElementBase,
 } from "./utils";
 import ElementResizer from "./components/ElementResizer";
 import RadioCardGroup from "./components/RadioCardGroup";
@@ -361,7 +362,12 @@ function App() {
       const absolutePoint = calculateElementAbsolutePoint(element);
       const isGroupedElement = element.groupIds.length !== 0;
       if (element.status === "selected" && !isGroupedElement) {
-        strokeDashedRectangle(ctx, absolutePoint);
+        strokeRectangle({
+          absolutePoint,
+          ctx,
+          strokeStyle: blue.blue9,
+          lineWidth: 2,
+        });
       }
 
       ctx.restore();
@@ -380,25 +386,35 @@ function App() {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     for (const elements of Object.values(groupedElements)) {
       const absolutePoint = calculateElementsAbsolutePoint(elements);
-      strokeDashedRectangle(ctx, absolutePoint, [16, 8]);
+      strokeRectangle({
+        ctx,
+        absolutePoint,
+        lineWidth: 2,
+        segments: [16, 8],
+      });
     }
 
     const isEverySelectedElementsSameGroup = isSameGroup(selectedElements);
     if (!isEverySelectedElementsSameGroup) {
       const selectedElementsAbsolutePoint =
         calculateSelectedElementsAbsolutePoint(elements);
-      strokeDashedRectangle(ctx, selectedElementsAbsolutePoint);
+      strokeRectangle({
+        ctx,
+        absolutePoint: selectedElementsAbsolutePoint,
+        lineWidth: 2,
+        strokeStyle: blue.blue9,
+        segments: [4, 4],
+      });
     }
 
     if (selection) {
-      ctx.lineWidth = 2;
-      ctx.strokeStyle = blue.blue9;
-      ctx.strokeRect(
-        selection.point.x,
-        selection.point.y,
-        selection.size.width,
-        selection.size.height
-      );
+      const absolutePoint = calculateAbsolutePointByElementBase(selection);
+      strokeRectangle({
+        absolutePoint,
+        ctx,
+        lineWidth: 2,
+        strokeStyle: blue.blue9,
+      });
     }
 
     ctx.restore();
