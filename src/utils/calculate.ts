@@ -95,7 +95,7 @@ export const calculateElementSize = (element: VisualizerElement) => {
   };
 };
 
-const calculateAbsolutePointByElementBase = (
+export const calculateAbsolutePointByElementBase = (
   elementBase: VisualizerElementBase
 ) => {
   return {

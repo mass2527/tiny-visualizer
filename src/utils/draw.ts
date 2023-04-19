@@ -288,17 +288,43 @@ export const createDraw = (
 };
 
 const MARGIN = 8;
-export const strokeDashedRectangle = (
-  ctx: CanvasRenderingContext2D,
-  absolutePoint: AbsolutePoint,
-  segments: [number, number] = [8, 4]
-) => {
-  ctx.setLineDash(segments);
+export const strokeRectangle = ({
+  ctx,
+  absolutePoint,
+  segments,
+  lineWidth,
+  strokeStyle,
+  margin = MARGIN,
+}: {
+  ctx: CanvasRenderingContext2D;
+  absolutePoint: AbsolutePoint;
+  segments?: [number, number];
+  lineWidth?: CanvasPathDrawingStyles["lineWidth"];
+  strokeStyle?: CanvasFillStrokeStyles["strokeStyle"];
+  margin?: number;
+}) => {
+  ctx.save();
+
+  if (segments) {
+    ctx.setLineDash(segments);
+  }
+  if (lineWidth) {
+    ctx.lineWidth = lineWidth;
+  }
+  if (strokeStyle) {
+    ctx.strokeStyle = strokeStyle;
+  }
+
   ctx.strokeRect(
-    absolutePoint.minX - MARGIN,
-    absolutePoint.minY - MARGIN,
-    absolutePoint.maxX - absolutePoint.minX + MARGIN * 2,
-    absolutePoint.maxY - absolutePoint.minY + MARGIN * 2
+    absolutePoint.minX - margin,
+    absolutePoint.minY - margin,
+    absolutePoint.maxX - absolutePoint.minX + margin * 2,
+    absolutePoint.maxY - absolutePoint.minY + margin * 2
   );
-  ctx.setLineDash([]);
+
+  if (segments) {
+    ctx.setLineDash([]);
+  }
+
+  ctx.restore();
 };

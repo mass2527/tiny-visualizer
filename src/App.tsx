@@ -39,7 +39,6 @@ import {
   isLinearElement,
   isTextElement,
   isWithPlatformMetaKey,
-  strokeDashedRectangle,
   isPointInsideOfAbsolutePoint,
   calculateSelectedElementsAbsolutePoint,
   isSameGroup,
@@ -47,6 +46,8 @@ import {
   isImageElement,
   calculateElementOptionValue,
   getSelectableElementOptions,
+  strokeRectangle,
+  calculateAbsolutePointByElementBase,
 } from "./utils";
 import ElementResizer from "./components/ElementResizer";
 import RadioCardGroup from "./components/RadioCardGroup";
@@ -88,7 +89,7 @@ import {
 import Fieldset from "./components/Fieldset";
 
 import Button from "./components/Button";
-import { inspect } from "@xstate/inspect";
+import { blue } from "@radix-ui/colors";
 
 export const TOOL_LABELS = {
   hand: {
@@ -215,10 +216,6 @@ const FONT_SIZE_OPTIONS: ElementOption<"fontSize">[] = [
   },
 ];
 
-inspect({
-  iframe: false,
-});
-
 function App() {
   const windowSize = useWindowSize();
   const devicePixelRatio = useDevicePixelRatio();
@@ -260,7 +257,6 @@ function App() {
         }
       }),
     },
-    devTools: false,
   });
   const {
     tool,
@@ -366,7 +362,12 @@ function App() {
       const absolutePoint = calculateElementAbsolutePoint(element);
       const isGroupedElement = element.groupIds.length !== 0;
       if (element.status === "selected" && !isGroupedElement) {
-        strokeDashedRectangle(ctx, absolutePoint);
+        strokeRectangle({
+          absolutePoint,
+          ctx,
+          strokeStyle: blue.blue9,
+          lineWidth: 2,
+        });
       }
 
       ctx.restore();
@@ -375,15 +376,6 @@ function App() {
     ctx.save();
     ctx.translate(origin.x, origin.y);
     ctx.scale(zoom, zoom);
-
-    if (selection) {
-      ctx.strokeRect(
-        selection.point.x,
-        selection.point.y,
-        selection.size.width,
-        selection.size.height
-      );
-    }
 
     const selectedElements = elements.filter(
       (element) => element.status === "selected"
@@ -394,14 +386,45 @@ function App() {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     for (const elements of Object.values(groupedElements)) {
       const absolutePoint = calculateElementsAbsolutePoint(elements);
-      strokeDashedRectangle(ctx, absolutePoint, [16, 8]);
+      strokeRectangle({
+        ctx,
+        absolutePoint,
+        lineWidth: 2,
+        segments: [16, 8],
+      });
     }
 
     const isEverySelectedElementsSameGroup = isSameGroup(selectedElements);
     if (!isEverySelectedElementsSameGroup) {
       const selectedElementsAbsolutePoint =
         calculateSelectedElementsAbsolutePoint(elements);
-      strokeDashedRectangle(ctx, selectedElementsAbsolutePoint);
+      strokeRectangle({
+        ctx,
+        absolutePoint: selectedElementsAbsolutePoint,
+        lineWidth: 2,
+        strokeStyle: blue.blue9,
+        segments: [4, 4],
+      });
+    }
+
+    if (selection) {
+      const absolutePoint = calculateAbsolutePointByElementBase(selection);
+      strokeRectangle({
+        absolutePoint,
+        ctx,
+        lineWidth: 2,
+        strokeStyle: blue.blue9,
+        margin: 0,
+      });
+
+      ctx.globalCompositeOperation = "destination-over";
+      ctx.fillStyle = blue.blue2;
+      ctx.fillRect(
+        selection.point.x,
+        selection.point.y,
+        selection.size.width,
+        selection.size.height
+      );
     }
 
     ctx.restore();
@@ -609,43 +632,42 @@ function App() {
       origin,
     });
 
-    if (tool === "hand") {
-      startPanWithHand(event);
-      return;
-    }
-
-    if (tool === "selection") {
-      send({
-        type: "SELECT_START",
-        event,
-        devicePixelRatio,
-      });
-    }
-
-    if (tool === "text") {
-      startWrite(event);
-      return;
-    }
-
-    if (tool === "image") {
-      send({
-        type: "DRAW_UPLOADED_IMAGE",
-        event,
-        devicePixelRatio,
-      });
-    }
-
-    const selectedElements = elements.filter(
-      (element) => element.status === "selected"
-    );
-    const absolutePoint = calculateElementsAbsolutePoint(selectedElements);
-    if (
-      tool === "selection" &&
-      isPointInsideOfAbsolutePoint(absolutePoint, mousePoint)
-    ) {
-      startDrag(event);
-    } else {
-      startDraw(event);
+    switch (tool) {
+      case "hand": {
+        startPanWithHand(event);
+        break;
+      }
+      case "text": {
+        startWrite(event);
+        break;
+      }
+      case "image":
+        send({
+          type: "DRAW_UPLOADED_IMAGE",
+          event,
+          devicePixelRatio,
+        });
+        break;
+      case "selection": {
+        const selectedElements = elements.filter(
+          (element) => element.status === "selected"
+        );
+        const absolutePoint = calculateElementsAbsolutePoint(selectedElements);
+        if (isPointInsideOfAbsolutePoint(absolutePoint, mousePoint)) {
+          startDrag(event);
+        } else {
+          send({
+            type: "SELECT_START",
+            event,
+            devicePixelRatio,
+          });
+        }
+        break;
+      }
+      default: {
+        startDraw(event);
+        break;
+      }
     }
   };
 
@@ -845,10 +867,14 @@ function App() {
   );
 
   return (
-    <div style={{ height: "100vh", overflow: "hidden" }}>
-      <div className="absolute w-full h-full p-4 pointer-events-none">
+    <div className="h-screen overflow-hidden">
+      <div className="absolute w-full h-full p-4 pointer-events-none z-10">
         <div className="w-full h-full relative flex flex-col gap-4">
-          <header className="flex justify-center items-center gap-1 bg-black rounded-lg pointer-events-auto">
+          <header
+            className={`flex justify-center items-center gap-1 bg-black rounded-lg ${
+              state.matches("idle") && "pointer-events-auto"
+            }`}
+          >
             <input
               className="hidden"
               ref={fileInputRef}
@@ -902,7 +928,11 @@ function App() {
             tool !== "selection" &&
             tool !== "image") ||
             (selectedElements.length >= 1 && tool === "selection")) && (
-            <div className="w-[156px] pointer-events-auto">
+            <div
+              className={`w-[156px] ${
+                state.matches("idle") && "pointer-events-auto"
+              }`}
+            >
               <div className="flex flex-col gap-2 bg-black text-gray11 text-sm p-2 rounded-lg">
                 {shouldShowElementOptions?.stroke && (
                   <ColorPicker
@@ -1216,7 +1246,11 @@ function App() {
             </div>
           )}
 
-          <div className="absolute bottom-0 left-0 flex gap-2 pointer-events-auto">
+          <div
+            className={`absolute bottom-0 left-0 flex gap-2 ${
+              state.matches("idle") && "pointer-events-auto"
+            }`}
+          >
             <div className="flex">
               <Button
                 className="rounded-l-lg"
@@ -1334,21 +1368,14 @@ function App() {
             contentEditable
             role="textbox"
             ref={editableRefCallback}
+            className="absolute bg-transparent overflow-hidden whitespace-pre resize-none border-none p-0 outline-0"
             style={{
-              position: "absolute",
               left: drawStartViewportPoint.x,
               top: drawStartViewportPoint.y,
               fontFamily: drawingElement.fontFamily,
               fontSize: drawingElement.fontSize,
               color: drawingElement.options.stroke,
               lineHeight: TEXTAREA_UNIT_LESS_LINE_HEIGHT,
-              padding: 0,
-              outline: 0,
-              border: 0,
-              overflow: "hidden",
-              whiteSpace: "pre",
-              backgroundColor: "transparent",
-              resize: "none",
               // initialize width = '1px' to show input caret
               width: drawingElement.text === "" ? 1 : "auto",
               maxWidth: (windowSize.width - drawStartViewportPoint.x) / zoom,

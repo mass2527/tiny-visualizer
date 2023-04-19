@@ -23,15 +23,13 @@ function VirtualPoint({
   return (
     <div
       role="button"
+      className={`absolute border border-blue9 bg-white cursor-pointer
+      ${type === "circle" ? "rounded-full" : "rounded-sm"}`}
       style={{
-        position: "absolute",
         left: left - width / 2,
         top: top - height / 2,
         width,
         height,
-        backgroundColor: "dodgerblue",
-        cursor: "pointer",
-        borderRadius: type === "circle" ? "50%" : undefined,
       }}
       onMouseDown={onMouseDown}
     />
