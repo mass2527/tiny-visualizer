@@ -868,7 +868,7 @@ function App() {
 
   return (
     <div className="h-screen overflow-hidden">
-      <div className="absolute w-full h-full p-4 pointer-events-none">
+      <div className="absolute w-full h-full p-4 pointer-events-none z-10">
         <div className="w-full h-full relative flex flex-col gap-4">
           <header
             className={`flex justify-center items-center gap-1 bg-black rounded-lg ${
