@@ -88,7 +88,7 @@ import {
 import Fieldset from "./components/Fieldset";
 
 import Button from "./components/Button";
-import { inspect } from "@xstate/inspect";
+import { blue } from "@radix-ui/colors";
 
 export const TOOL_LABELS = {
   hand: {
@@ -215,10 +215,6 @@ const FONT_SIZE_OPTIONS: ElementOption<"fontSize">[] = [
   },
 ];
 
-inspect({
-  iframe: false,
-});
-
 function App() {
   const windowSize = useWindowSize();
   const devicePixelRatio = useDevicePixelRatio();
@@ -260,7 +256,6 @@ function App() {
         }
       }),
     },
-    devTools: false,
   });
   const {
     tool,
@@ -376,15 +371,6 @@ function App() {
     ctx.translate(origin.x, origin.y);
     ctx.scale(zoom, zoom);
 
-    if (selection) {
-      ctx.strokeRect(
-        selection.point.x,
-        selection.point.y,
-        selection.size.width,
-        selection.size.height
-      );
-    }
-
     const selectedElements = elements.filter(
       (element) => element.status === "selected"
     );
@@ -402,6 +388,17 @@ function App() {
       const selectedElementsAbsolutePoint =
         calculateSelectedElementsAbsolutePoint(elements);
       strokeDashedRectangle(ctx, selectedElementsAbsolutePoint);
+    }
+
+    if (selection) {
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = blue.blue9;
+      ctx.strokeRect(
+        selection.point.x,
+        selection.point.y,
+        selection.size.width,
+        selection.size.height
+      );
     }
 
     ctx.restore();
