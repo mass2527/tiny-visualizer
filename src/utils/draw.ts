@@ -294,12 +294,14 @@ export const strokeRectangle = ({
   segments,
   lineWidth,
   strokeStyle,
+  margin = MARGIN,
 }: {
   ctx: CanvasRenderingContext2D;
   absolutePoint: AbsolutePoint;
   segments?: [number, number];
   lineWidth?: CanvasPathDrawingStyles["lineWidth"];
   strokeStyle?: CanvasFillStrokeStyles["strokeStyle"];
+  margin?: number;
 }) => {
   ctx.save();
 
@@ -314,10 +316,10 @@ export const strokeRectangle = ({
   }
 
   ctx.strokeRect(
-    absolutePoint.minX - MARGIN,
-    absolutePoint.minY - MARGIN,
-    absolutePoint.maxX - absolutePoint.minX + MARGIN * 2,
-    absolutePoint.maxY - absolutePoint.minY + MARGIN * 2
+    absolutePoint.minX - margin,
+    absolutePoint.minY - margin,
+    absolutePoint.maxX - absolutePoint.minX + margin * 2,
+    absolutePoint.maxY - absolutePoint.minY + margin * 2
   );
 
   if (segments) {

@@ -414,7 +414,17 @@ function App() {
         ctx,
         lineWidth: 2,
         strokeStyle: blue.blue9,
+        margin: 0,
       });
+
+      ctx.globalCompositeOperation = "destination-over";
+      ctx.fillStyle = blue.blue2;
+      ctx.fillRect(
+        selection.point.x,
+        selection.point.y,
+        selection.size.width,
+        selection.size.height
+      );
     }
 
     ctx.restore();
