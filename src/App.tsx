@@ -867,7 +867,7 @@ function App() {
   );
 
   return (
-    <div style={{ height: "100vh", overflow: "hidden" }}>
+    <div className="h-screen overflow-hidden">
       <div className="absolute w-full h-full p-4 pointer-events-none">
         <div className="w-full h-full relative flex flex-col gap-4">
           <header className="flex justify-center items-center gap-1 bg-black rounded-lg pointer-events-auto">
@@ -1356,21 +1356,14 @@ function App() {
             contentEditable
             role="textbox"
             ref={editableRefCallback}
+            className="absolute bg-transparent overflow-hidden whitespace-pre resize-none border-none p-0 outline-0"
             style={{
-              position: "absolute",
               left: drawStartViewportPoint.x,
               top: drawStartViewportPoint.y,
               fontFamily: drawingElement.fontFamily,
               fontSize: drawingElement.fontSize,
               color: drawingElement.options.stroke,
               lineHeight: TEXTAREA_UNIT_LESS_LINE_HEIGHT,
-              padding: 0,
-              outline: 0,
-              border: 0,
-              overflow: "hidden",
-              whiteSpace: "pre",
-              backgroundColor: "transparent",
-              resize: "none",
               // initialize width = '1px' to show input caret
               width: drawingElement.text === "" ? 1 : "auto",
               maxWidth: (windowSize.width - drawStartViewportPoint.x) / zoom,
