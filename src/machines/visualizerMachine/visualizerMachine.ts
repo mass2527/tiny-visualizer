@@ -856,23 +856,27 @@ export const visualizerMachine =
               const centerY =
                 copiedElement.point.y + copiedElement.size.height / 2;
 
-              return {
+              const element: VisualizerElement = {
                 ...copiedElement,
                 id: uuidv4(),
-                x:
-                  context.currentPoint.x -
-                  copiedElement.size.width / 2 +
-                  centerX -
-                  centerPoint.x,
-                y:
-                  context.currentPoint.y -
-                  copiedElement.size.height / 2 +
-                  centerY -
-                  centerPoint.y,
+                point: {
+                  x:
+                    context.currentPoint.x -
+                    copiedElement.size.width / 2 +
+                    centerX -
+                    centerPoint.x,
+                  y:
+                    context.currentPoint.y -
+                    copiedElement.size.height / 2 +
+                    centerY -
+                    centerPoint.y,
+                },
                 groupIds: copiedElement.groupIds.map((groupId) =>
                   createUuid(groupId, now)
                 ),
               };
+
+              return element;
             });
 
             return {
