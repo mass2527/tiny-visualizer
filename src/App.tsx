@@ -609,43 +609,42 @@ function App() {
       origin,
     });
 
-    if (tool === "hand") {
-      startPanWithHand(event);
-      return;
-    }
-
-    if (tool === "selection") {
-      send({
-        type: "SELECT_START",
-        event,
-        devicePixelRatio,
-      });
-    }
-
-    if (tool === "text") {
-      startWrite(event);
-      return;
-    }
-
-    if (tool === "image") {
-      send({
-        type: "DRAW_UPLOADED_IMAGE",
-        event,
-        devicePixelRatio,
-      });
-    }
-
-    const selectedElements = elements.filter(
-      (element) => element.status === "selected"
-    );
-    const absolutePoint = calculateElementsAbsolutePoint(selectedElements);
-    if (
-      tool === "selection" &&
-      isPointInsideOfAbsolutePoint(absolutePoint, mousePoint)
-    ) {
-      startDrag(event);
-    } else {
-      startDraw(event);
+    switch (tool) {
+      case "hand": {
+        startPanWithHand(event);
+        break;
+      }
+      case "text": {
+        startWrite(event);
+        break;
+      }
+      case "image":
+        send({
+          type: "DRAW_UPLOADED_IMAGE",
+          event,
+          devicePixelRatio,
+        });
+        break;
+      case "selection": {
+        const selectedElements = elements.filter(
+          (element) => element.status === "selected"
+        );
+        const absolutePoint = calculateElementsAbsolutePoint(selectedElements);
+        if (isPointInsideOfAbsolutePoint(absolutePoint, mousePoint)) {
+          startDrag(event);
+        } else {
+          send({
+            type: "SELECT_START",
+            event,
+            devicePixelRatio,
+          });
+        }
+        break;
+      }
+      default: {
+        startDraw(event);
+        break;
+      }
     }
   };
 
