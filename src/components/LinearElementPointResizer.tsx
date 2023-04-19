@@ -47,8 +47,8 @@ function LinearElementPointResizer({
 
         const resizingStartViewportPoint = calculateViewportPoint({
           canvasPoint: {
-            x: linearElement.x + x,
-            y: linearElement.y + y,
+            x: linearElement.point.x + x,
+            y: linearElement.point.y + y,
           },
           devicePixelRatio,
           origin,

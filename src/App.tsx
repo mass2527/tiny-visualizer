@@ -378,10 +378,10 @@ function App() {
 
     if (selection) {
       ctx.strokeRect(
-        selection.x,
-        selection.y,
-        selection.width,
-        selection.height
+        selection.point.x,
+        selection.point.y,
+        selection.size.width,
+        selection.size.height
       );
     }
 
@@ -708,7 +708,7 @@ function App() {
     invariant(drawingElement);
 
     if (drawingElement.shape === "line" || drawingElement.shape === "arrow") {
-      if (drawingElement.width === 0 && drawingElement.height === 0) {
+      if (drawingElement.size.width === 0 && drawingElement.size.height === 0) {
         send("CONNECT_START");
         return;
       }

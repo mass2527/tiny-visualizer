@@ -12,6 +12,7 @@ import {
   ZOOM,
   VisualizerElementBase,
   VisualizerPointBasedElement,
+  Size,
 } from "../machines/visualizerMachine";
 import {
   calculateDistance,
@@ -27,7 +28,7 @@ import {
 } from "./type-guard";
 import * as uuid from "uuid";
 import { TEXTAREA_UNIT_LESS_LINE_HEIGHT } from "../constants";
-import { Size } from "./resize";
+
 import { haveSameItems } from "./array";
 
 export const calculateCanvasPoint = ({
@@ -98,10 +99,10 @@ const calculateAbsolutePointByElementBase = (
   elementBase: VisualizerElementBase
 ) => {
   return {
-    minX: elementBase.x,
-    minY: elementBase.y,
-    maxX: elementBase.x + elementBase.width,
-    maxY: elementBase.y + elementBase.height,
+    minX: elementBase.point.x,
+    minY: elementBase.point.y,
+    maxX: elementBase.point.x + elementBase.size.width,
+    maxY: elementBase.point.y + elementBase.size.height,
   };
 };
 
@@ -110,10 +111,10 @@ export const calculatePointBasedElementAbsolutePoint = (
 ) => {
   const { points } = element;
   return {
-    minX: Math.min(...points.map((point) => element.x + point.x)),
-    minY: Math.min(...points.map((point) => element.y + point.y)),
-    maxX: Math.max(...points.map((point) => element.x + point.x)),
-    maxY: Math.max(...points.map((point) => element.y + point.y)),
+    minX: Math.min(...points.map((point) => element.point.x + point.x)),
+    minY: Math.min(...points.map((point) => element.point.y + point.y)),
+    maxX: Math.max(...points.map((point) => element.point.x + point.x)),
+    maxY: Math.max(...points.map((point) => element.point.y + point.y)),
   };
 };
 
@@ -266,17 +267,21 @@ export const createElement = ({
   drawStartPoint: VisualizerMachineContext["drawStartPoint"];
   elementOptions: VisualizerMachineContext["elementOptions"];
   devicePixelRatio: number;
-  width?: VisualizerElement["width"];
-  height?: VisualizerElement["height"];
+  width?: VisualizerElement["size"]["width"];
+  height?: VisualizerElement["size"]["height"];
   fileId?: FileId;
   status?: VisualizerElement["status"];
 }): VisualizerElement => {
   const elementBase: VisualizerShapeElementBase = {
     id: uuid.v4(),
-    x: drawStartPoint.x,
-    y: drawStartPoint.y,
-    width: width ?? 0,
-    height: height ?? 0,
+    point: {
+      x: drawStartPoint.x,
+      y: drawStartPoint.y,
+    },
+    size: {
+      width: width ?? 0,
+      height: height ?? 0,
+    },
     status: status ?? "idle",
     options: elementOptions,
     groupIds: [],
@@ -339,9 +344,12 @@ export const createElement = ({
 
   return {
     ...elementBase,
-    y:
-      elementBase.y -
-      (fontSize * TEXTAREA_UNIT_LESS_LINE_HEIGHT * devicePixelRatio) / 2,
+    point: {
+      ...elementBase.point,
+      y:
+        elementBase.point.y -
+        (fontSize * TEXTAREA_UNIT_LESS_LINE_HEIGHT * devicePixelRatio) / 2,
+    },
     shape,
     fontSize,
     fontFamily,

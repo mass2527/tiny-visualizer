@@ -2,11 +2,16 @@ import { ChangeEvent, MouseEvent, MouseEventHandler } from "react";
 import { Options as RoughJSOptions } from "roughjs/bin/core";
 import { Direction } from "../../components/ElementResizer";
 
-export type VisualizerElementBase = {
-  x: number;
-  y: number;
+export type Point = { x: number; y: number };
+
+export type Size = {
   width: number;
   height: number;
+};
+
+export type VisualizerElementBase = {
+  point: Point;
+  size: Size;
 };
 
 export type VisualizerShapeElementBase = VisualizerElementBase & {
@@ -79,8 +84,6 @@ export type Version = {
   elementOptions: VisualizerMachineContext["elementOptions"];
 };
 
-export type Point = { x: number; y: number };
-
 export type ElementOptions = Required<
   Pick<
     RoughJSOptions,
@@ -124,10 +127,7 @@ export type VisualizerMachinePersistedContext = {
   currentPoint: Point;
   isToolFixed: boolean;
   zoom: number;
-  origin: {
-    x: number;
-    y: number;
-  };
+  origin: Point;
 
   files: Files;
 };

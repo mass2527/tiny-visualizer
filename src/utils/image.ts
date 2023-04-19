@@ -1,5 +1,5 @@
 import invariant from "tiny-invariant";
-import { Size } from "./resize";
+import { Size } from "../machines/visualizerMachine";
 
 export const createImageDataURL = (
   canvasImageSource: CanvasImageSource,

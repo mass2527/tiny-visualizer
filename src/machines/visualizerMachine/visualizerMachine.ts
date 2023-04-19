@@ -37,7 +37,6 @@ import {
   calculateSameGroup,
   isDrawingTool,
   calculateScaledSize,
-  Size,
   isImageShape,
   calculateReadableFileSize,
   isImageElement,
@@ -49,6 +48,7 @@ import {
   FileId,
   ImageCache,
   Point,
+  Size,
   VisualizerElement,
   VisualizerImageElement,
   VisualizerLinearElement,
@@ -516,10 +516,14 @@ export const visualizerMachine =
         addSelection: assign((context) => {
           return {
             selection: {
-              x: context.drawStartPoint.x,
-              y: context.drawStartPoint.y,
-              width: 0,
-              height: 0,
+              point: {
+                x: context.drawStartPoint.x,
+                y: context.drawStartPoint.y,
+              },
+              size: {
+                width: 0,
+                height: 0,
+              },
             },
           };
         }),
@@ -536,10 +540,14 @@ export const visualizerMachine =
 
           return {
             selection: {
-              x: Math.min(currentPoint.x, context.drawStartPoint.x),
-              y: Math.min(currentPoint.y, context.drawStartPoint.y),
-              width: Math.abs(changeInX),
-              height: Math.abs(changeInY),
+              point: {
+                x: Math.min(currentPoint.x, context.drawStartPoint.x),
+                y: Math.min(currentPoint.y, context.drawStartPoint.y),
+              },
+              size: {
+                width: Math.abs(changeInX),
+                height: Math.abs(changeInY),
+              },
             },
           };
         }),
@@ -621,10 +629,14 @@ export const visualizerMachine =
                 if (isGenericElement(element)) {
                   return {
                     ...element,
-                    x: Math.min(currentPoint.x, context.drawStartPoint.x),
-                    y: Math.min(currentPoint.y, context.drawStartPoint.y),
-                    width: Math.abs(changeInX),
-                    height: Math.abs(changeInY),
+                    point: {
+                      x: Math.min(currentPoint.x, context.drawStartPoint.x),
+                      y: Math.min(currentPoint.y, context.drawStartPoint.y),
+                    },
+                    size: {
+                      width: Math.abs(changeInX),
+                      height: Math.abs(changeInY),
+                    },
                   };
                 }
 
@@ -641,8 +653,10 @@ export const visualizerMachine =
                         });
                   return {
                     ...element,
-                    width: Math.abs(changeInX),
-                    height: Math.abs(changeInY),
+                    size: {
+                      width: Math.abs(changeInX),
+                      height: Math.abs(changeInY),
+                    },
                     points,
                   };
                 }
@@ -652,8 +666,10 @@ export const visualizerMachine =
                     calculatePointBasedElementAbsolutePoint(element);
                   return {
                     ...element,
-                    width: absolutePoint.maxX - absolutePoint.minX,
-                    height: absolutePoint.maxY - absolutePoint.minY,
+                    size: {
+                      width: absolutePoint.maxX - absolutePoint.minX,
+                      height: absolutePoint.maxY - absolutePoint.minY,
+                    },
                     points: [...element.points, { x: changeInX, y: changeInY }],
                   };
                 }
@@ -683,8 +699,10 @@ export const visualizerMachine =
 
                 return {
                   ...element,
-                  width: Math.abs(changeInX),
-                  height: Math.abs(changeInY),
+                  size: {
+                    width: Math.abs(changeInX),
+                    height: Math.abs(changeInY),
+                  },
                   points: [...element.points, { x: changeInX, y: changeInY }],
                 };
               }
@@ -783,8 +801,14 @@ export const visualizerMachine =
               if (element.status === "selected") {
                 return {
                   ...element,
-                  x: element.x + (currentPoint.x - context.previousPoint.x),
-                  y: element.y + (currentPoint.y - context.previousPoint.y),
+                  point: {
+                    x:
+                      element.point.x +
+                      (currentPoint.x - context.previousPoint.x),
+                    y:
+                      element.point.y +
+                      (currentPoint.y - context.previousPoint.y),
+                  },
                 };
               }
               return element;
@@ -827,20 +851,22 @@ export const visualizerMachine =
             const now = Date.now().toString();
 
             const copiedElements = elements.map((copiedElement) => {
-              const centerX = copiedElement.x + copiedElement.width / 2;
-              const centerY = copiedElement.y + copiedElement.height / 2;
+              const centerX =
+                copiedElement.point.x + copiedElement.size.width / 2;
+              const centerY =
+                copiedElement.point.y + copiedElement.size.height / 2;
 
               return {
                 ...copiedElement,
                 id: uuidv4(),
                 x:
                   context.currentPoint.x -
-                  copiedElement.width / 2 +
+                  copiedElement.size.width / 2 +
                   centerX -
                   centerPoint.x,
                 y:
                   context.currentPoint.y -
-                  copiedElement.height / 2 +
+                  copiedElement.size.height / 2 +
                   centerY -
                   centerPoint.y,
                 groupIds: copiedElement.groupIds.map((groupId) =>
@@ -870,7 +896,7 @@ export const visualizerMachine =
             const { fontFamily, fontSize } = context.elementOptions;
             const text = data.clipText;
 
-            const { width, height } = measureText({
+            const size = measureText({
               fontFamily,
               fontSize,
               lineHeight: TEXTAREA_UNIT_LESS_LINE_HEIGHT,
@@ -881,15 +907,16 @@ export const visualizerMachine =
             const textElement: VisualizerTextElement = {
               id: uuidv4(),
               shape: "text",
+              point: {
+                x: context.currentPoint.x,
+                y: context.currentPoint.y,
+              },
+              size,
               text,
-              x: context.currentPoint.x,
-              y: context.currentPoint.y,
               fontFamily,
               fontSize,
               status: ELEMENT_STATUS["selected"],
               options: context.elementOptions,
-              width,
-              height,
               groupIds: [],
             };
 
@@ -963,7 +990,7 @@ export const visualizerMachine =
                       },
                       fontSize: updatedFontSize,
                       y:
-                        element.y +
+                        element.point.y +
                         ((element.fontSize - updatedFontSize) *
                           (TEXTAREA_UNIT_LESS_LINE_HEIGHT * devicePixelRatio)) /
                           2,
@@ -1107,7 +1134,7 @@ export const visualizerMachine =
                 element.id === context.drawingElementId &&
                 isTextElement(element)
               ) {
-                const { width, height } = measureText({
+                const size = measureText({
                   fontFamily: element.fontFamily,
                   fontSize: element.fontSize,
                   lineHeight: TEXTAREA_UNIT_LESS_LINE_HEIGHT,
@@ -1118,8 +1145,7 @@ export const visualizerMachine =
                 return {
                   ...element,
                   text,
-                  width,
-                  height,
+                  size,
                 };
               }
               return element;
@@ -1128,7 +1154,7 @@ export const visualizerMachine =
         }),
         updateTool: assign((context) => {
           const nonZeroSizeElements = context.elements.filter(
-            (element) => element.width !== 0 && element.height !== 0
+            (element) => element.size.width !== 0 && element.size.height !== 0
           );
           const isElementAdded =
             context.elements.length === nonZeroSizeElements.length;
@@ -1184,8 +1210,8 @@ export const visualizerMachine =
           return {
             drawingElementId,
             drawStartPoint: {
-              x: element.x,
-              y: element.y + lineHeight / 2,
+              x: element.point.x,
+              y: element.point.y + lineHeight / 2,
             },
           };
         }),
@@ -1283,7 +1309,10 @@ export const visualizerMachine =
                 if (isGenericElement(element)) {
                   const dx = currentCanvasPoint.x - context.resizeStartPoint.x;
                   const dy = currentCanvasPoint.y - context.resizeStartPoint.y;
-                  if (element.width + dx === 0 || element.height + dy === 0) {
+                  if (
+                    element.size.width + dx === 0 ||
+                    element.size.height + dy === 0
+                  ) {
                     return element;
                   }
 
@@ -1300,7 +1329,10 @@ export const visualizerMachine =
                 if (isImageElement(element)) {
                   const dx = currentCanvasPoint.x - context.resizeStartPoint.x;
                   const dy = currentCanvasPoint.y - context.resizeStartPoint.y;
-                  if (element.width + dx === 0 || element.height + dy === 0) {
+                  if (
+                    element.size.width + dx === 0 ||
+                    element.size.height + dy === 0
+                  ) {
                     return element;
                   }
 
