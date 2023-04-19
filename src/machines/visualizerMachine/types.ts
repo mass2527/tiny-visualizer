@@ -2,54 +2,51 @@ import { ChangeEvent, MouseEvent, MouseEventHandler } from "react";
 import { Options as RoughJSOptions } from "roughjs/bin/core";
 import { Direction } from "../../components/ElementResizer";
 
-export type VisualizerElementBase = {
-  id: string;
-  status: "idle" | "selected" | "deleted";
+export type Point = { x: number; y: number };
 
-  // VisualizerGenericElement: left top point
-  // VisualizerLinearElement: start point
-  x: number;
-  y: number;
-
-  // VisualizerGenericElement: absolute width, height
-  // VisualizerLinearElement: absolute width, height
+export type Size = {
   width: number;
   height: number;
+};
 
+export type VisualizerElementBase = {
+  point: Point;
+  size: Size;
+};
+
+export type VisualizerShapeElementBase = VisualizerElementBase & {
+  id: string;
+  status: "idle" | "selected" | "deleted";
   options: ElementOptions;
   groupIds: string[];
 };
 
-export type VisualizerSelectionElement = VisualizerElementBase & {
-  shape: "selection";
-};
-export type VisualizerRectangleElement = VisualizerElementBase & {
+export type VisualizerRectangleElement = VisualizerShapeElementBase & {
   shape: "rectangle";
   seed: number;
 };
-export type VisualizerEllipseElement = VisualizerElementBase & {
+export type VisualizerEllipseElement = VisualizerShapeElementBase & {
   shape: "ellipse";
   seed: number;
 };
-export type VisualizerDiamondElement = VisualizerElementBase & {
+export type VisualizerDiamondElement = VisualizerShapeElementBase & {
   shape: "diamond";
   seed: number;
 };
 
 export type VisualizerGenericElement =
-  | VisualizerSelectionElement
   | VisualizerRectangleElement
   | VisualizerDiamondElement
   | VisualizerEllipseElement;
 
-export type VisualizerLinearElement = VisualizerElementBase & {
+export type VisualizerLinearElement = VisualizerShapeElementBase & {
   shape: "line" | "arrow";
   // first point always starts with {x:0, y:0} since origin is element.x, element.y
   points: Point[];
   seed: number;
 };
 
-export type VisualizerFreeDrawElement = VisualizerElementBase & {
+export type VisualizerFreeDrawElement = VisualizerShapeElementBase & {
   shape: "freedraw";
   points: Point[];
 };
@@ -59,13 +56,13 @@ type VisualizerTextElementOptions = {
   fontSize: number;
 };
 
-export type VisualizerTextElement = VisualizerElementBase &
+export type VisualizerTextElement = VisualizerShapeElementBase &
   VisualizerTextElementOptions & {
     shape: "text";
     text: string;
   };
 
-export type VisualizerImageElement = VisualizerElementBase & {
+export type VisualizerImageElement = VisualizerShapeElementBase & {
   shape: "image";
   fileId: FileId;
   scale: [number, number];
@@ -87,8 +84,6 @@ export type Version = {
   elementOptions: VisualizerMachineContext["elementOptions"];
 };
 
-export type Point = { x: number; y: number };
-
 export type ElementOptions = Required<
   Pick<
     RoughJSOptions,
@@ -103,7 +98,7 @@ export type ElementOptions = Required<
   VisualizerTextElementOptions;
 
 export type DrawingTool = VisualizerElement["shape"];
-export type NonDrawingTool = "hand";
+export type NonDrawingTool = "hand" | "selection";
 export type Tool = DrawingTool | NonDrawingTool;
 
 export type FileId = string;
@@ -116,6 +111,8 @@ export type Files = Record<
 
 // context that is saved to localStorage
 export type VisualizerMachinePersistedContext = {
+  selection: VisualizerElementBase | null;
+
   elements: VisualizerElement[];
   elementOptions: ElementOptions;
 
@@ -130,10 +127,7 @@ export type VisualizerMachinePersistedContext = {
   currentPoint: Point;
   isToolFixed: boolean;
   zoom: number;
-  origin: {
-    x: number;
-    y: number;
-  };
+  origin: Point;
 
   files: Files;
 };
@@ -165,9 +159,6 @@ export type VisualizerMachineEvents =
       type: "DRAW_END";
       event: Parameters<MouseEventHandler<HTMLCanvasElement>>[0];
       devicePixelRatio: number;
-    }
-  | {
-      type: "DELETE_SELECTION";
     }
   | {
       type: "CHANGE_TOOL";
@@ -324,6 +315,21 @@ export type VisualizerMachineEvents =
     }
   | {
       type: "DRAW_UPLOADED_IMAGE";
+      event: Parameters<MouseEventHandler<HTMLCanvasElement>>[0];
+      devicePixelRatio: number;
+    }
+  | {
+      type: "SELECT_START";
+      event: Parameters<MouseEventHandler<HTMLCanvasElement>>[0];
+      devicePixelRatio: number;
+    }
+  | {
+      type: "SELECT";
+      event: Parameters<MouseEventHandler<HTMLCanvasElement>>[0];
+      devicePixelRatio: number;
+    }
+  | {
+      type: "SELECT_END";
       event: Parameters<MouseEventHandler<HTMLCanvasElement>>[0];
       devicePixelRatio: number;
     };

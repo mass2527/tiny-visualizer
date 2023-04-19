@@ -14,7 +14,7 @@ const TOOL_TYPES: Record<
   VisualizerMachineContext["tool"],
   "drawing" | "non-drawing"
 > = {
-  selection: "drawing",
+  selection: "non-drawing",
   rectangle: "drawing",
   diamond: "drawing",
   ellipse: "drawing",
@@ -30,7 +30,6 @@ const SHAPE_TYPES: Record<
   VisualizerElement["shape"],
   "generic" | "linear" | "freedraw" | "text" | "image"
 > = {
-  selection: "generic",
   rectangle: "generic",
   diamond: "generic",
   ellipse: "generic",

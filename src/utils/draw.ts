@@ -37,16 +37,12 @@ export const createDraw = (
   const roughCanvas = rough.canvas(canvasElement);
   const { generator } = roughCanvas;
 
-  if (element.shape === "selection") {
-    return () => {
-      ctx.strokeRect(element.x, element.y, element.width, element.height);
-    };
-  } else if (element.shape === "rectangle") {
+  if (element.shape === "rectangle") {
     const rectangleDrawable = generator.rectangle(
-      element.x,
-      element.y,
-      element.width,
-      element.height,
+      element.point.x,
+      element.point.y,
+      element.size.width,
+      element.size.height,
       { ...element.options, seed: element.seed }
     );
     return () => {
@@ -54,10 +50,16 @@ export const createDraw = (
     };
   } else if (element.shape === "diamond") {
     const vertices: Record<OrthogonalDirection, [number, number]> = {
-      up: [element.x + element.width / 2, element.y],
-      left: [element.x, element.y + element.height / 2],
-      down: [element.x + element.width / 2, element.y + element.height],
-      right: [element.x + element.width, element.y + element.height / 2],
+      up: [element.point.x + element.size.width / 2, element.point.y],
+      left: [element.point.x, element.point.y + element.size.height / 2],
+      down: [
+        element.point.x + element.size.width / 2,
+        element.point.y + element.size.height,
+      ],
+      right: [
+        element.point.x + element.size.width,
+        element.point.y + element.size.height / 2,
+      ],
     };
     const diamondDrawable = generator.polygon(
       [vertices.up, vertices.left, vertices.down, vertices.right],
@@ -69,10 +71,10 @@ export const createDraw = (
     };
   } else if (element.shape === "ellipse") {
     const ellipseDrawable = generator.ellipse(
-      element.x + element.width / 2,
-      element.y + element.height / 2,
-      element.width,
-      element.height,
+      element.point.x + element.size.width / 2,
+      element.point.y + element.size.height / 2,
+      element.size.width,
+      element.size.height,
       { ...element.options, seed: element.seed }
     );
     return () => {
@@ -82,8 +84,8 @@ export const createDraw = (
     if (element.shape === "line") {
       const drawables: Drawable[] = [];
       const startPoint = {
-        x: element.x,
-        y: element.y,
+        x: element.point.x,
+        y: element.point.y,
       };
 
       for (const point of element.points) {
@@ -91,14 +93,14 @@ export const createDraw = (
         const lineDrawable = generator.line(
           startPoint.x,
           startPoint.y,
-          element.x + x,
-          element.y + y,
+          element.point.x + x,
+          element.point.y + y,
           { ...element.options, seed: element.seed }
         );
         drawables.push(lineDrawable);
 
-        startPoint.x = element.x + x;
-        startPoint.y = element.y + y;
+        startPoint.x = element.point.x + x;
+        startPoint.y = element.point.y + y;
       }
 
       return () => {
@@ -109,8 +111,8 @@ export const createDraw = (
     } else {
       const arrowDrawables: Drawable[] = [];
       const startPoint = {
-        x: element.x,
-        y: element.y,
+        x: element.point.x,
+        y: element.point.y,
       };
 
       // if last and second last have same items, arrow will be disappear
@@ -133,8 +135,8 @@ export const createDraw = (
 
       for (const point of points) {
         const { x, y } = point;
-        const endX = element.x + x;
-        const endY = element.y + y;
+        const endX = element.point.x + x;
+        const endY = element.point.y + y;
 
         // -
         arrowDrawables.push(
@@ -210,13 +212,13 @@ export const createDraw = (
       ctx.lineWidth = element.options.strokeWidth!;
       ctx.strokeStyle = element.options.stroke || "black";
 
-      ctx.moveTo(element.x, element.y);
+      ctx.moveTo(element.point.x, element.point.y);
       for (let i = 1; i < element.points.length; i++) {
         const point = element.points[i];
         invariant(point);
 
         const { x, y } = point;
-        ctx.lineTo(element.x + x, element.y + y);
+        ctx.lineTo(element.point.x + x, element.point.y + y);
       }
       ctx.stroke();
 
@@ -228,8 +230,12 @@ export const createDraw = (
 
       ctx.scale(element.scale[0], element.scale[1]);
       ctx.translate(
-        element.scale[0] === 1 ? 0 : -(element.x * 2 + element.width),
-        element.scale[1] === 1 ? 0 : -(element.y * 2 + element.height)
+        element.scale[0] === 1
+          ? 0
+          : -(element.point.x * 2 + element.size.width),
+        element.scale[1] === 1
+          ? 0
+          : -(element.point.y * 2 + element.size.height)
       );
 
       const file = files?.[element.fileId];
@@ -239,10 +245,10 @@ export const createDraw = (
       if (cachedImage) {
         ctx.drawImage(
           cachedImage,
-          element.x,
-          element.y,
-          element.width,
-          element.height
+          element.point.x,
+          element.point.y,
+          element.size.width,
+          element.size.height
         );
       }
 
@@ -268,7 +274,11 @@ export const createDraw = (
       for (let i = 0; i < lines.length; i++) {
         const text = lines[i];
         if (text) {
-          ctx.fillText(text, element.x, element.y + lineGap + i * lineHeight);
+          ctx.fillText(
+            text,
+            element.point.x,
+            element.point.y + lineGap + i * lineHeight
+          );
         }
       }
 

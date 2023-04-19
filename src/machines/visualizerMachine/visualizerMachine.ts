@@ -11,7 +11,7 @@ import {
   createElement,
   isGenericElement,
   isLinearElement,
-  calculateFreeDrawElementAbsolutePoint,
+  calculatePointBasedElementAbsolutePoint,
   isTextElement,
   isFreeDrawElement,
   calculateClientPoint,
@@ -37,7 +37,6 @@ import {
   calculateSameGroup,
   isDrawingTool,
   calculateScaledSize,
-  Size,
   isImageShape,
   calculateReadableFileSize,
   isImageElement,
@@ -49,6 +48,7 @@ import {
   FileId,
   ImageCache,
   Point,
+  Size,
   VisualizerElement,
   VisualizerImageElement,
   VisualizerLinearElement,
@@ -65,7 +65,7 @@ import {
 } from "../../utils/image";
 
 export const visualizerMachine =
-  /** @xstate-layout N4IgpgJg5mDOIC5QDcCWsCuBDANqgXmAE4AEAtlgMYAWqAdmAHSoQ5gDEAIgEoCCA6gH0AygBVe3UQG0ADAF1EoAA4B7WKgAuqFXUUgAHogBsRgOyMAnAEYALDKNWArEbumATKYA0IAJ6JbABxWjAFuATIyjo7WAMwxNhYAvoneaJi4BMTkVLQMzKwcAMIAErwAcgDiAKKCogDydQAysgpIIKrqWjp6hggm5tZ2Ds6uHt5+CG4RjKaOEW4xFjZGUTIxyano2HiEpBQ09EwsbFx8FSLiki16HZraum29-Za29k4uMu5evogLMeZhKxuZYBCwBAKmIwbEBpbaZPY5Q75E7CKqNKqFURVTiCNFVACyVTKomEjE4eKx1zaty6D1ATzMLyG71G3wmQMijCBcw8wM+9mhsIyu2yBzyxw4qPRmOxuPRhOJpMKdQACgBNKnKNR3bqPYyMwZvEafMY-BAxYEBSwWezzUymCxuJIpGFbYVZfa5I4FdhSjFYnF4hUkxgq3hiKqa9ra2k9fUDV7DD5fca-G1W0H2WYxRyLf6Ct07D2I8U+-F1ACqqME5YAapH5DcY-c4+bTMEbLmrFYLIsZI6bGz-GZzDJlhZojEe+ErOsXUKiwixd6TgBJYRyglE0QiUoqmoAMVXAA1ZfUKhV0VGaS29X0DYmWSah+bgVznMDIbnBxPTAX0ouopesikp4jKgbytuSoVtIjbUs2ur0vGTJGsmpoTHEjg2IwCS2iMyxGG4jj-nCIqekiErsCU5TVJuwaCKqoirnUZTCNeCF0gYyGGkmrKpggPYyG4lhGAEzgxKJE7hG4JHukuwGUdRlQ1AAWg0+LsZ0t5IfeCbMsaKZmjYUyMEY-b-EEQKmBasmAeRpYnEptFqXU+KCPwq6iMUggqquZQlJpOqcQyemoXxZqOFYo6EXMYntmCNgBLZ8JARRPrVGIFbcFUoblIFsZ3s8PFPoZEwODEjCRVEFgWGYcz-H+86Fil9krhwxTrvU3BqoIFYqpwvCUnBWpaYhXG6ShvHPvxpj9iJAQrLYbhWKC3bJWRJZtew-DcJ5NRiBIsGtCNQWtkVj4Geh-juFaHydjEESRb2zqbABLWbSB7BBlBjB+pigi8I0zTDdGo3BdxF1oS+4RGDhy0LZEvZYXOr2kcWy6fTte24pwnn5dp43nfpUP8VYRgWlyEJ2NyATxGs63owpPrZcIq4qftlxHU2YNnQ+xPhRMwJYZVU7-LOYnRECDPyWlJwqnUfmiIwfUDViFyHfjY0hZNJVXZMJgyIwY42DEoJTLNY4o66b0bRjlF-QGdE-RU3CViqmvgxNxWXS+PY1XDUU3Q4CwrdLqUOaB0qO99irK5Urt9R7vOhVNpW-P2jghKYiXAmZ4RiWHrWfWGZTq1cIM3lrEP89NZo5rTXK9qJ5NuOTMizoXH2Uau+K8LRfWNHUvCcEnd6OPaISzkCIJBFOvv2BVC0mLT7hzI4MlNTbjOyxwPACL1KqD8Pso933DbHaDp13m45umbOYuRYsbikw9sM1XYTpEU6s2Najcnh0wCARAsAAHd6BQFOAIUeOluw2GwnA2cSwTBLGcKTGw3YuTtwSFYNYDUkqbzRjLPIQDQHgMgUIIkI8K4cVbLORkcxTC0yiLOceE5SYrEzmTU2Kw8xRQWJ3DGJCwF0AgeSdEasHbMTKNA8adDzAMKYY-Vhjh+ITkNoEbhBFao1QEcBIRZDlRlDKP6MuXN4I8zvHIyqnxFEsIdCos0ThFhG0+OTMyYQHr4L-nZD6JCoBQDIXvCoMjehkyMBYHCZkm6Om7NnGw-Eb7OLMk4T4NpyZWF0UiPxASRGQPOJQkJ-h0ymXik6eqGcHGC3iNhLsrds6MNGJkvIOAVBYAgGQiAOgjh0GQCoAA1kwBc70MYtLaeAhA9BemUCwLSFohSEDglMgsSSixwkPUHKTWYETuwOEiJEV+iUmlMFGe03JxAiAqCIIwJQOAZkADNLlkEYEM22wETnjMmSoaZsz5DzIALTdkNmYP4YRQTRFqs-Rx4JhKzAiMkmqVUjnXOIOoWAWhcnzMwhEkwxltEWAdERaGwQ5jzH+LmduJhiIEP-kXfRIiSCXJICAogdx6VgDoBASA7B5l8lHIwlaEQJLk0hKTaIMKVqxWsnC8eSK6VQAZaQZlrL5Xss5RAblVgL6V09ryo2-LwhrBMP8Iwmz3A4U7E4QcFoaoTiRcgFF9wSBEDAGwLAsAuWYpzNilwTpwn4sdOPBJQRYadmcGoyIkUvHW0IQAxgSr0UQKxmrAp1CLEwIkvImxOYlH2NNVaceERVoRBwU4JF8ayFJvPtzK+MDEGmXHlEP1D0orxMcSsIF5MljoIje2K2Lzt55CUG6hN7BOnih6f0wZzVXlIiHWij5E7vn3DmammtsiM3WMYdmuxbCzQeOCCtWYUx16dgHEiudI7zmXOubcjQDyiBPP7UQpgF6F1TJmcu35q6CrpvoVm5hOZc17oHKZIYYkpxiWWkiq9pAWn+LIfMpwUVGAWiCPi+05kcz8QermLkQxlqPy-DYJFlAVBKB8B0rpzAJ0DOedOgdTBSPkbfV8j9OgV1apoZYiSwkFHbsA7ujCrdsLZ3sH8YOyxiPUp8RjJjFGzlEAuVcm59zHl0a3s+xgcmWNLvY1+zjab13kxCCbbOCw5h2FNthnBQL8OCRkLTDwJGMAaBHWO7pvTaNPtjZQFzCaJmLrY3QDj1af1Gd4-+nNgnEBxEHIwYTDnHDgk+AkZzrmyEwZvaph96mY1F18+lkRAX30-LkIhiSi9TPGRzGONYARrOJTw2Jm+EJQS2uk8M4CpG6AMEoCOve-BEO9rw52Baq98XkzQZ2FDY4zKJSiQtPt9HNPdd6yOwxxjMSIcIuYdB6DYFYQdOCF+jWxJOC7LYe+JGdBrYMSxTb0hNWhYJqEm0FUzA9jKWsCpoqFjxaCGsCzoRzJIudeofAZCWZsxqCmgza7XsOZKZ9tRD0JyVN+OvXbUT7Arw8aDuABBIdVFZuzIbOCUOhACAgiSH96t7uMrDBRqwbS4qRRgJQEAP30tUPQDQ7B5aK2Vv1QaVbzHw6KSbGbg5gQf2zgkpLAxdkPSnHAr4bOOdc-lTzugfOBfEiF6rGHZQqFw7C70ZaKxTIQiwmsJab2EntgPR8B6R6qcuHPVgHrZCS48ptJwoisD0GQhZ9hxKETcKETNkhmyHWZ2Ds93Qb35RcTG8xTgzhEIHArEdDmE1ddoiGzgRJduaPaq-2jTS3xwDhEqrYGQdlGgSDurYH1j136Xu-FBFj8E49ZgtosKa4I4TI1OiWJCUI57nVoDACAkgqAKAwBIO83J7nqOeanRp2NSgp+oBn3PhfYAl+tNOVAYrrHSuIcbUbKn4Qc7hNBaTbsmcEhxDCIRKY-DY8MeuTvvf8+sCL7L4QKZYqZ3pqbeZFzb5gDT6z7-6AHH46ZBYhZi5m7+Cmy3R+zOCfBHa2CkxTCGzAhxB8K1RiZIpwGH5yqjpUafJebLaxrkEkBypn66bBb6bPZVz6z4ozD37RCzDgg-ykwOaLxRSOhrCJSmzLBkEH6MHV4ZaKbXqgH3qPp0FFwMFMGfIsHIEnSoGTCRTYTY5u7woQiP6iSVRmCDD34JBRoQFdw+gxwhhOQ1CMRSJsTt4cGxKwxAiAowyDifAJJ1Y4QThgiiQ95YTOguh0AqCcrwBtA2HLjsGex-I3yGzZqOjhK+EWaQoTB-KwwRB5HWpmTDCMJkEFAJGtjGTCS9heq2CDiWTo4CT2j5rFqiTYL3QbzeKdZZKyEiJlGWICpmEB6nrZxo6irOIMLtiDiuCfAZJf6abZLgK9EwKzS5E2I2iOhBAEYJISRWgRD2hTjlQLCOhIpAGLHjQApmqpGtxj57LGSbJxZEQRA1Smy9iQbnoOrzo9EoEd7mgjAzA8igiLDoID755OhGwpIQhhBES-iyrdHyqMrlpsocqQCnHm5hJGwmwziDhhIrCbIUwoIOb2gOjxDZx2oOo6BOoupgBurIlfEcE4awyiQ46Jiv4JI4qWAmxwLv6iRYRlosoJoon+C2CZzTHpK9j1LLSmoRL8hkz8oPEOYe4fFQACkCQOYib1ImxZ5mTWRBpiQhBpJqLry1Q8mzGxowZH7wafHaHfFkxcEGxTCJQ-xh7Yb9i7ZpIrQrS37l5xFdZkbyZKm0mew4LhCVSzTrLWDAjunYY3yZw1RvA1TB4Nppb8kBm0IOaGwFphnTyRl1xEGBFibfgSTWDXY9ZgB9YLEpmWLhLmB2ljgQgpagiirLB-FfgGxbq1T47g7llWnuGzQRJEntweCibOD1FfyK79g47-B44mlFzs6c4JokDa4aDKk9jk7uAGzhKWRThZG-CSQ4SvDA4HEmAe5e6WmXw6FhBcEzy96RTDHYYF7snbH2CiRCpQjTlV6kJsp14N5N6Umt4QDKmtw3yVQLCnpES0wuC+zWTYQ9iRQ9joFHZUodFx4vq-6wHSEnEVk6RLyWBYS5juABpwLbkqnxBgk9jWRU6CqRRSEAEUGwkAViwoZYQ7bGqIytrsgRDYTghkwA5IKzQzHJBAA */
+  /** @xstate-layout N4IgpgJg5mDOIC5QDcCWsCuBDANqgXmAE4AEAtlgMYAWqAdmAHSoQ5gDEAIgEoCCA6gH0AygBVe3UQG0ADAF1EoAA4B7WKgAuqFXUUgAHogBsRgOyMAnAEYALDKNWArEbumATKYA0IAJ6JbABxWjAFuATIyjo7WAMwxNhYAvoneaJi4BMTkVLQMzKwcAMIAErwAcgDiAKKCogDydQAysgpIIKrqWjp6hggm5tZ2Ds6uHt5+CG4RjKaOEW4xFjZGUTIxyano2HiEpBQ09EwsbFx8FSLiki16HZraum29-Za29k4uMu5evogLMeZhKxuZYBCwBAKmIwbEBpbaZPY5Q75E7CKqNKqFURVTiCNFVACyVTKomEjE4eKx1zaty6D1ATzMLyG71G3wmQMijCBcw8wM+9mhsIyu2yBzyxw4qPRmOxuPRhOJpMKdQACgBNKnKNR3bqPYyMwZvEafMY-BAxYEBSwWezzUymCxuJIpGFbYVZfa5I4FdhSjFYnF4hUkxgq3hiKqa9ra2k9fUDV7DD5fca-G1W0H2WYxRyLf6Ct07D2I8U+-F1ACqqME5YAapH5DcY-c4+bTMEbLmrFYLIsZI6bGz-GZzDJlhZojEe+ErOsXUKiwixd6TgBJYRyglE0QiUoqmoAMVXAA1ZfUKhV0VGaS29X0DYmWSah+bgVznMDIbnBxPTAX0ouopesikp4jKgbytuSoVtIjbUs2ur0vGTJGsmpoTHEjg2IwCS2iMyxGG4jj-nCIqekiErsCU5TVJuwaCKqoirnUZTCNeCF0gYyGGkmrKpggPYyG4lhGAEzgxKJE7hG4JHukuwGUdRlQ1AAWg0+LsZ0t5IfeCbMsaKZmjYUyMEY-b-EEQKmBasmAeRpYnEptFqXU+KCPwq6iMUggqquZQlJpOqcQyemoXxZqOFYo6EXMYntmCNgBLZ8JARRPrVGIFbcFUoblIFsZ3s8PFPoZEwODEjCRVEFgWGYcz-H+86Fil9krhwxTrvU3BqoIFYqpwvCUnBWpaYhXG6ShvHPvxpj9iJAQrLYbhWKC3bJWRJZtew-DcJ5NRiBIsGtCNQWtkVj4Geh-juFaHydjEESRb2zqbABLWbSB7BBlBjB+pigi8I0zTDdGo3BdxF1oS+4RGDhy0LZEvZYXOr2kcWy6fTte24pwnn5dp43nfpUP8VYRgWlyEJ2NyATxGs63owpPrZcIq4qftlxHU2YNnQ+xPhRMwJYZVU7-LOYnRECDPyWlJwqnUfmiIwfUDViFyHfjY0hZNJVXZMJgyIwY42DEoJTLNY4o66b0bRjlF-QGdE-RU3CViqmvgxNxWXS+PY1XDUU3Q4CwrdLqUOaB0qO99irK5Urt9R7vOhVNpW-P2jghKYiXAmZ4RiWHrWfWGZTq1cIM3lrEP89NZo5rTXK9qJ5NuOTMizoXH2Uau+K8LRfWNHUvCcEnd6OPaISzkCIJBFOvv2BVC0mLT7hzI4MlNTbjOyxwPACL1KqD8Pso933DbHaDp13m45umbOYuRYsbikw9sM1XYTpEU6s2Najcnh1tB2ZcubwR5neUEFVCKLQWGERw4IXw32WHDJuQQhLdlDpvNGMs8gQCIFgAA7vQKApwBCjx0t2Gw2FKGziWCYJYzhSY2G7FyduCQrBrAaklTB-8i64IIUQkhQgiQjwrhxVss5GRzFMLTKIs5x4TlJisTOZNTYrDzFFBYncMZ8MIXQYh5J0RqwdsxMoZDxoSPMFImRj95GOH4hOQ2gRVEEVqjVLRwEdECOVGUMo-pgFmN6BYyqnxrFyIdHYs0ThFhG0+OTMyYQHpcL-nZD6fCoBQAEXvCoAThxGAsDhMyTdHTdmzjYfiN9olmScJ8G05MrDuKRGkjJeiSHnGETkgS6ZTLxSdPVDOETBbxGwl2Vu2dpGjAaXkHAKgsAQAERAHQRw6DIBUAAayYAud6GNpmzKIQgegKzKBYFpC0Dp4JTILEkosPJD1Byk1mPk7sDhIiRFfolSZTAdlzJacQIgKgiCMCUDgY5AAzf5ZBGCbNtsBL5eyDkqCOSc+QHSAC03ZDZmD+GEUE0RarP0ieCYSswIhVJqlVD5gLiDqFgFoFpHTML5JMMZVxFgHREWhsEOY8x-i5nbiYYi3CUnaLwboqAJB-kkHwUQO4eiSBgDoBASA7AOl8lHNIlaEQJLk0hKTaIRKVqxWsiS8eFLPGyolVKmVYr5WKogMqqwF9K6e1VUbdV4Q1gmH+EYe57gcKdicIOC0NUJwUuQFS+4JAiBgDYFgWASr6U5kZS4J0eTWWOnHuUoIsNOzOAcZESKSTrZYIAYwS1tLiFYzVu00RYDyESUsSEnMNjwk+qtOPCIq0IjsKcBSstAjK3n25lfchNDTLjyiKmh6UUymRJWBi8mSwmH5vbFbKF288hKFjeW9gCzxTLLWRs5q0KkSbppXC-diL7inJrcO8x9bgnSKbWEhRZoEnBBWrMKY69OwDgpae7dvz-mAuBRoMFRAIVruwUwf957DnHKvcim9BU62SMbbInMLbX0DlMkMMSU4xLLQpYB0g0z0kCI6U4KKjALRBFZfacyOZ+IPVzFyIYy1H5fhsBSygKglA+HmYs5g+71mQqPeupgPG+OwYRfBnQ17HViLvBI4SVin0YZfRhVu2Fs72D+MHZYXHBVbOApJ-jPyiB-IBUC0F4LRNbyg4wUz0nL1ycQwp2td7yYhBNtnBYcw7CmyY+wjFbHBIyFph4bjGANDbt3UslZInIMlsoNF8t+yL2yboPJodyHPMqbQ82jTiA4iDkYFp8LcDwjZxekWnhH0UsxYEcR4DNnwN2eLUXBraX4Uuay25nLBNAkSUXj54yOYxxrACEFxKrHdM3whKCENRnj15B43QBglBt1734BRldrHOwLVXqy8mjDOzUbHGZRKhSFqrrEw5tbG3t3eN8ZiCjhFzBMKYRQrCDpwQvxm2JJwXZbD324zoR7XiWIvekA6gbVdOlrG6T2Xpax+m6oWGV1B42c7mQpVG9Q+ABEszZjUat7nb2BK6WYZHDiHoTgGb8deH3Cn2BXgkvHcACBE6qKzdmu32HUdCAEahEkP5TdfcZWGVjVg2mZRSjASgIDwdlaoegGh2Dy0Vsrfqg1B2gIp-4JYFVbnuEoUJbO5S4EDGeQ9KclCvjy8V8rsVqu6Dq818SbXqtSdlBEeT3LvRlorFMhCLCawlo2hiOU9s76PgPU-cLlwf6sDrYESXFVNplFEQoUwyEsumOJXybhQiZtKM2WW+JwFKe6Bp-KLiX39L2HKIhA4FYjoczerrtEQ2lCJLt3p7VX+tWhUeJFUQuVbAyDyo0CQONbBNvxqQ4N34oJmfgnHrMadFgfXBDyQWp0SxIShD-VGtAYB8EkFQBQGAJBYUtLi0JhLh77MlqUKf1A5-L-X7ALfmZ3yoDpZwZIpyAUYTpGzC7hA5x5LYqkzdiZwJBxBhCERTCaIV4OZv5gBn4X5X5YA3537ELNbWaga2ZJZFwYFYFf64E-74GAEybAEUamy3R+zOCfC-a2CkxTCGzAhxAaK1S6YUo4E35mrEIP7wqJZ3YlqCE-7CG0G9bZb64B6-B5LmB55ESsqVY-ykzhaLxRSOhrCJSmzLACHf4kDCHsCEEgZgYQYSFFxSGmFj56KyGZbyEnSKGTCRTYQs6J6koQiwGiSVRmCDDQEJCFqkEfRz5gCbYCIOwUbdj5JeqDhRQrTU7lJCTCSLC0zTpQKUIbzJLGZIgRFREtJAJk5w6exAimyTzXJTguCDjuDlIrQVQfw1S2DRBLpzguh0AqCKrwBtBhHLhlGtgoo3yGxNqOh5KDgvLGT8QoqZzBpghRQSTspRC3Yv62EFCDF3jGTCS9iJq2CDiWQM4CT2htpdqiRsL3S5HD75E4IOFQCbEjrhABHZ4-rVZRC6rRJSLtiDiuCfD1JoElpNJEIPHmKzSwwRDSI2iOhBDsblISRWgQnWRkyzgLCOgUr4Egm9Boq+pjGtyH5TH4rshjJlZco1Smy9gEZ-rhpnp6KYnFYjAzA8gQJLA9hMbrz5LtyGphBqEmoAm8J3HiqkB9qyo2qQB0mTBkzgkmwziJEmArD3IUz0Lhb2gOjxDZyhrho6CRrRpgCxpikKHL7miRCwyiSs6JiIHlJMqWAmyULIGiRYS9rSrlrinfauoqI9j-CDjLQ+ocmzRkzqpEQdrJ40n3EGnw7sLC4zBjImyt5mTWSZpiQhC1IOLskrCGZ5ErZMDEa-5ka0lhnlHKGmTxJjgQifCF5Mb9gfa1IrQrSQFD79Ema8ZmahmuGGkRmGztq3LWDAg1lMY3xzHVk1R57jpRaNZ5mtnhnhYdmzRdnTy9l1w8E4S1JETxASTWBg7raRHOn5niKFkGxTCJQ-zlmRJYSwyzBfgGyPq1Qc4E7Ak7lKazT5KqntweA6bOBHFfzW79is7-Ds58kfQK5K7lokCu4aAunWCGzuAGx5KWRTiElKGgg4SvChBvAWgmDJ6p7jmXxuFhCsoFLr72iRTVZsk2jWnwn2CiRapQj-nCr8IimT7T6z46kL4QDimtw3yVQLA-pES0wuC+zWTYQ9iRQenwJggCoZmV7kEf7YEmEYn3k6RLyWBYS5juDpo5FaHxBGxxHWTC6aqRTGFUH2F0UtnYWGkLDtjUankeBeqIwzrsgRDYTghkyoK0J+kUqFHbkTnlEUJGwThcVOCHZhANGhDvhTpETlTXnJCJBAA */
   createMachine(
     {
       id: "visualizer machine",
@@ -247,6 +247,15 @@ export const visualizerMachine =
               target: "image drawing",
               actions: "assignDrawStartPoint",
             },
+
+            SELECT_START: {
+              target: "selecting",
+              actions: [
+                "unselectElements",
+                "assignDrawStartPoint",
+                "addSelection",
+              ],
+            },
           },
         },
 
@@ -255,18 +264,13 @@ export const visualizerMachine =
             DRAW: {
               target: "drawing",
               internal: true,
-              actions: ["draw", "updateIntersecting"],
+              actions: ["draw"],
             },
 
             DRAW_END: {
               target: "drawing or writing ended",
 
-              actions: ["draw", "updateIntersecting"],
-            },
-
-            DELETE_SELECTION: {
-              target: "persisting",
-              actions: ["deleteSelection", "resetDrawingElementId"],
+              actions: ["draw"],
             },
 
             CONNECT_START: "connecting",
@@ -467,6 +471,25 @@ export const visualizerMachine =
 
           exit: "updateTool",
         },
+
+        selecting: {
+          on: {
+            SELECT: {
+              target: "selecting",
+              internal: true,
+              actions: ["changeSelection", "updateIntersecting"],
+            },
+
+            SELECT_END: {
+              target: "version released",
+              actions: [
+                "changeSelection",
+                "updateIntersecting",
+                "deleteSelection",
+              ],
+            },
+          },
+        },
       },
 
       initial: "loading",
@@ -490,6 +513,44 @@ export const visualizerMachine =
             drawingElementId: element.id,
           };
         }),
+        addSelection: assign((context) => {
+          return {
+            selection: {
+              point: {
+                x: context.drawStartPoint.x,
+                y: context.drawStartPoint.y,
+              },
+              size: {
+                width: 0,
+                height: 0,
+              },
+            },
+          };
+        }),
+        changeSelection: assign((context, { devicePixelRatio, event }) => {
+          const currentPoint = calculateCanvasPoint({
+            devicePixelRatio,
+            event,
+            zoom: context.zoom,
+            origin: context.origin,
+          });
+
+          const changeInX = currentPoint.x - context.drawStartPoint.x;
+          const changeInY = currentPoint.y - context.drawStartPoint.y;
+
+          return {
+            selection: {
+              point: {
+                x: Math.min(currentPoint.x, context.drawStartPoint.x),
+                y: Math.min(currentPoint.y, context.drawStartPoint.y),
+              },
+              size: {
+                width: Math.abs(changeInX),
+                height: Math.abs(changeInY),
+              },
+            },
+          };
+        }),
         addTextElement: assign((context, { devicePixelRatio }) => {
           const textElement = createElement({
             elements: context.elements,
@@ -504,12 +565,9 @@ export const visualizerMachine =
             drawingElementId: textElement.id,
           };
         }),
-        deleteSelection: assign((context) => {
-          return {
-            elements: context.elements.filter(
-              (element) => element.shape !== "selection"
-            ),
-          };
+
+        deleteSelection: assign({
+          selection: (_) => null,
         }),
         changeTool: assign((_, { tool }) => {
           return {
@@ -571,10 +629,14 @@ export const visualizerMachine =
                 if (isGenericElement(element)) {
                   return {
                     ...element,
-                    x: Math.min(currentPoint.x, context.drawStartPoint.x),
-                    y: Math.min(currentPoint.y, context.drawStartPoint.y),
-                    width: Math.abs(changeInX),
-                    height: Math.abs(changeInY),
+                    point: {
+                      x: Math.min(currentPoint.x, context.drawStartPoint.x),
+                      y: Math.min(currentPoint.y, context.drawStartPoint.y),
+                    },
+                    size: {
+                      width: Math.abs(changeInX),
+                      height: Math.abs(changeInY),
+                    },
                   };
                 }
 
@@ -591,19 +653,23 @@ export const visualizerMachine =
                         });
                   return {
                     ...element,
-                    width: Math.abs(changeInX),
-                    height: Math.abs(changeInY),
+                    size: {
+                      width: Math.abs(changeInX),
+                      height: Math.abs(changeInY),
+                    },
                     points,
                   };
                 }
 
                 if (isFreeDrawElement(element)) {
                   const absolutePoint =
-                    calculateFreeDrawElementAbsolutePoint(element);
+                    calculatePointBasedElementAbsolutePoint(element);
                   return {
                     ...element,
-                    width: absolutePoint.maxX - absolutePoint.minX,
-                    height: absolutePoint.maxY - absolutePoint.minY,
+                    size: {
+                      width: absolutePoint.maxX - absolutePoint.minX,
+                      height: absolutePoint.maxY - absolutePoint.minY,
+                    },
                     points: [...element.points, { x: changeInX, y: changeInY }],
                   };
                 }
@@ -633,8 +699,10 @@ export const visualizerMachine =
 
                 return {
                   ...element,
-                  width: Math.abs(changeInX),
-                  height: Math.abs(changeInY),
+                  size: {
+                    width: Math.abs(changeInX),
+                    height: Math.abs(changeInY),
+                  },
                   points: [...element.points, { x: changeInX, y: changeInY }],
                 };
               }
@@ -685,40 +753,27 @@ export const visualizerMachine =
           };
         }),
         updateIntersecting: assign((context) => {
-          const drawingElement = context.elements.find(
-            (element) => element.id === context.drawingElementId
-          );
-          invariant(drawingElement);
+          return {
+            elements: context.elements.map((element) => {
+              invariant(context.selection);
 
-          if (drawingElement.shape === "selection") {
-            return {
-              elements: context.elements.map((element) => {
-                if (element.shape === "selection") {
-                  return element;
-                }
-
-                if (
-                  element.status === "idle" ||
-                  element.status === "selected"
-                ) {
-                  const sameGroupElements = calculateSameGroup(
-                    context.elements,
-                    element.id
-                  );
-
-                  return {
-                    ...element,
-                    status: isIntersecting(drawingElement, sameGroupElements)
-                      ? ELEMENT_STATUS["selected"]
-                      : ELEMENT_STATUS["idle"],
-                  };
-                }
-
+              if (element.status === "deleted") {
                 return element;
-              }),
-            };
-          }
-          return {};
+              }
+
+              const sameGroupElements = calculateSameGroup(
+                context.elements,
+                element.id
+              );
+
+              return {
+                ...element,
+                status: isIntersecting(context.selection, sameGroupElements)
+                  ? ELEMENT_STATUS["selected"]
+                  : ELEMENT_STATUS["idle"],
+              };
+            }),
+          };
         }),
         selectDrawingElement: assign((context) => {
           return {
@@ -746,8 +801,14 @@ export const visualizerMachine =
               if (element.status === "selected") {
                 return {
                   ...element,
-                  x: element.x + (currentPoint.x - context.previousPoint.x),
-                  y: element.y + (currentPoint.y - context.previousPoint.y),
+                  point: {
+                    x:
+                      element.point.x +
+                      (currentPoint.x - context.previousPoint.x),
+                    y:
+                      element.point.y +
+                      (currentPoint.y - context.previousPoint.y),
+                  },
                 };
               }
               return element;
@@ -790,20 +851,22 @@ export const visualizerMachine =
             const now = Date.now().toString();
 
             const copiedElements = elements.map((copiedElement) => {
-              const centerX = copiedElement.x + copiedElement.width / 2;
-              const centerY = copiedElement.y + copiedElement.height / 2;
+              const centerX =
+                copiedElement.point.x + copiedElement.size.width / 2;
+              const centerY =
+                copiedElement.point.y + copiedElement.size.height / 2;
 
               return {
                 ...copiedElement,
                 id: uuidv4(),
                 x:
                   context.currentPoint.x -
-                  copiedElement.width / 2 +
+                  copiedElement.size.width / 2 +
                   centerX -
                   centerPoint.x,
                 y:
                   context.currentPoint.y -
-                  copiedElement.height / 2 +
+                  copiedElement.size.height / 2 +
                   centerY -
                   centerPoint.y,
                 groupIds: copiedElement.groupIds.map((groupId) =>
@@ -833,7 +896,7 @@ export const visualizerMachine =
             const { fontFamily, fontSize } = context.elementOptions;
             const text = data.clipText;
 
-            const { width, height } = measureText({
+            const size = measureText({
               fontFamily,
               fontSize,
               lineHeight: TEXTAREA_UNIT_LESS_LINE_HEIGHT,
@@ -844,15 +907,16 @@ export const visualizerMachine =
             const textElement: VisualizerTextElement = {
               id: uuidv4(),
               shape: "text",
+              point: {
+                x: context.currentPoint.x,
+                y: context.currentPoint.y,
+              },
+              size,
               text,
-              x: context.currentPoint.x,
-              y: context.currentPoint.y,
               fontFamily,
               fontSize,
               status: ELEMENT_STATUS["selected"],
               options: context.elementOptions,
-              width,
-              height,
               groupIds: [],
             };
 
@@ -926,7 +990,7 @@ export const visualizerMachine =
                       },
                       fontSize: updatedFontSize,
                       y:
-                        element.y +
+                        element.point.y +
                         ((element.fontSize - updatedFontSize) *
                           (TEXTAREA_UNIT_LESS_LINE_HEIGHT * devicePixelRatio)) /
                           2,
@@ -1070,7 +1134,7 @@ export const visualizerMachine =
                 element.id === context.drawingElementId &&
                 isTextElement(element)
               ) {
-                const { width, height } = measureText({
+                const size = measureText({
                   fontFamily: element.fontFamily,
                   fontSize: element.fontSize,
                   lineHeight: TEXTAREA_UNIT_LESS_LINE_HEIGHT,
@@ -1081,8 +1145,7 @@ export const visualizerMachine =
                 return {
                   ...element,
                   text,
-                  width,
-                  height,
+                  size,
                 };
               }
               return element;
@@ -1091,7 +1154,7 @@ export const visualizerMachine =
         }),
         updateTool: assign((context) => {
           const nonZeroSizeElements = context.elements.filter(
-            (element) => element.width !== 0 && element.height !== 0
+            (element) => element.size.width !== 0 && element.size.height !== 0
           );
           const isElementAdded =
             context.elements.length === nonZeroSizeElements.length;
@@ -1147,8 +1210,8 @@ export const visualizerMachine =
           return {
             drawingElementId,
             drawStartPoint: {
-              x: element.x,
-              y: element.y + lineHeight / 2,
+              x: element.point.x,
+              y: element.point.y + lineHeight / 2,
             },
           };
         }),
@@ -1246,7 +1309,10 @@ export const visualizerMachine =
                 if (isGenericElement(element)) {
                   const dx = currentCanvasPoint.x - context.resizeStartPoint.x;
                   const dy = currentCanvasPoint.y - context.resizeStartPoint.y;
-                  if (element.width + dx === 0 || element.height + dy === 0) {
+                  if (
+                    element.size.width + dx === 0 ||
+                    element.size.height + dy === 0
+                  ) {
                     return element;
                   }
 
@@ -1263,7 +1329,10 @@ export const visualizerMachine =
                 if (isImageElement(element)) {
                   const dx = currentCanvasPoint.x - context.resizeStartPoint.x;
                   const dy = currentCanvasPoint.y - context.resizeStartPoint.y;
-                  if (element.width + dx === 0 || element.height + dy === 0) {
+                  if (
+                    element.size.width + dx === 0 ||
+                    element.size.height + dy === 0
+                  ) {
                     return element;
                   }
 

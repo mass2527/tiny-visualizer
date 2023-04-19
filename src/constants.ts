@@ -1,10 +1,6 @@
-import {
-  ElementOptions,
-  Tool,
-  VisualizerElement,
-} from "./machines/visualizerMachine";
+import { ElementOptions, Tool } from "./machines/visualizerMachine";
 
-export type HOT_KEY = "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9";
+export type HOT_KEY = "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "h";
 
 export const HOT_KEYS = {
   selection: "1",
@@ -16,7 +12,8 @@ export const HOT_KEYS = {
   freedraw: "7",
   text: "8",
   image: "9",
-} as const satisfies Record<VisualizerElement["shape"], HOT_KEY>;
+  hand: "h",
+} as const satisfies Record<Tool, HOT_KEY>;
 
 export const TEXTAREA_UNIT_LESS_LINE_HEIGHT = 1.5;
 

@@ -88,6 +88,7 @@ import {
 import Fieldset from "./components/Fieldset";
 
 import Button from "./components/Button";
+import { inspect } from "@xstate/inspect";
 
 export const TOOL_LABELS = {
   hand: {
@@ -214,6 +215,10 @@ const FONT_SIZE_OPTIONS: ElementOption<"fontSize">[] = [
   },
 ];
 
+inspect({
+  iframe: false,
+});
+
 function App() {
   const windowSize = useWindowSize();
   const devicePixelRatio = useDevicePixelRatio();
@@ -255,6 +260,7 @@ function App() {
         }
       }),
     },
+    devTools: false,
   });
   const {
     tool,
@@ -269,6 +275,7 @@ function App() {
     drawStartPoint,
     files,
     imageCache,
+    selection,
   } = state.context;
 
   const drawStartViewportPoint = calculateViewportPoint({
@@ -369,6 +376,15 @@ function App() {
     ctx.translate(origin.x, origin.y);
     ctx.scale(zoom, zoom);
 
+    if (selection) {
+      ctx.strokeRect(
+        selection.point.x,
+        selection.point.y,
+        selection.size.width,
+        selection.size.height
+      );
+    }
+
     const selectedElements = elements.filter(
       (element) => element.status === "selected"
     );
@@ -399,6 +415,7 @@ function App() {
     isWritingState,
     files,
     imageCache,
+    selection,
   ]);
 
   useEffect(() => {
@@ -597,6 +614,14 @@ function App() {
       return;
     }
 
+    if (tool === "selection") {
+      send({
+        type: "SELECT_START",
+        event,
+        devicePixelRatio,
+      });
+    }
+
     if (tool === "text") {
       startWrite(event);
       return;
@@ -683,21 +708,17 @@ function App() {
     invariant(drawingElement);
 
     if (drawingElement.shape === "line" || drawingElement.shape === "arrow") {
-      if (drawingElement.width === 0 && drawingElement.height === 0) {
+      if (drawingElement.size.width === 0 && drawingElement.size.height === 0) {
         send("CONNECT_START");
         return;
       }
     }
 
-    if (drawingElement.shape === "selection") {
-      send("DELETE_SELECTION");
-    } else {
-      send({
-        type: "DRAW_END",
-        event,
-        devicePixelRatio,
-      });
-    }
+    send({
+      type: "DRAW_END",
+      event,
+      devicePixelRatio,
+    });
   };
 
   const connect: MouseEventHandler<HTMLCanvasElement> = (event) => {
@@ -709,6 +730,14 @@ function App() {
 
   const endPan: MouseEventHandler<HTMLCanvasElement> = () => {
     send("PAN_END");
+  };
+
+  const endSelect: MouseEventHandler<HTMLCanvasElement> = (event) => {
+    send({
+      type: "SELECT_END",
+      devicePixelRatio,
+      event,
+    });
   };
 
   const resize: MouseEventHandler<HTMLCanvasElement> = (event) => {
@@ -746,6 +775,14 @@ function App() {
   const pan: MouseEventHandler<HTMLCanvasElement> = (event) => {
     send({
       type: "PAN",
+      event,
+      devicePixelRatio,
+    });
+  };
+
+  const select: MouseEventHandler<HTMLCanvasElement> = (event) => {
+    send({
+      type: "SELECT",
       event,
       devicePixelRatio,
     });
@@ -1266,6 +1303,8 @@ function App() {
             ? updatePoint
             : state.matches("panning")
             ? pan
+            : state.matches("selecting")
+            ? select
             : moveMouse
         }
         onMouseUp={
@@ -1277,6 +1316,8 @@ function App() {
             ? connect
             : state.matches("panning")
             ? endPan
+            : state.matches("selecting")
+            ? endSelect
             : undefined
         }
         onDoubleClick={(event) => {

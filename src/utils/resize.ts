@@ -14,7 +14,9 @@ import {
 import { TEXTAREA_UNIT_LESS_LINE_HEIGHT } from "../constants";
 import {
   Point,
+  Size,
   VisualizerElement,
+  VisualizerElementBase,
   VisualizerGenericElement,
   VisualizerImageElement,
   VisualizerLinearElement,
@@ -134,34 +136,50 @@ export const resizeGenericElement = ({
       case "up-left":
         return {
           ...element,
-          x: currentCanvasPoint.x,
-          y: currentCanvasPoint.y,
-          width: resizeFixedPoint.x - currentCanvasPoint.x,
-          height: resizeFixedPoint.y - currentCanvasPoint.y,
+          point: {
+            x: currentCanvasPoint.x,
+            y: currentCanvasPoint.y,
+          },
+          size: {
+            width: resizeFixedPoint.x - currentCanvasPoint.x,
+            height: resizeFixedPoint.y - currentCanvasPoint.y,
+          },
         };
       case "up-right":
         return {
           ...element,
-          x: resizeFixedPoint.x,
-          y: currentCanvasPoint.y,
-          width: currentCanvasPoint.x - resizeFixedPoint.x,
-          height: resizeFixedPoint.y - currentCanvasPoint.y,
+          point: {
+            x: resizeFixedPoint.x,
+            y: currentCanvasPoint.y,
+          },
+          size: {
+            width: currentCanvasPoint.x - resizeFixedPoint.x,
+            height: resizeFixedPoint.y - currentCanvasPoint.y,
+          },
         };
       case "down-left":
         return {
           ...element,
-          x: currentCanvasPoint.x,
-          y: resizeFixedPoint.y,
-          width: resizeFixedPoint.x - currentCanvasPoint.x,
-          height: currentCanvasPoint.y - resizeFixedPoint.y,
+          point: {
+            x: currentCanvasPoint.x,
+            y: resizeFixedPoint.y,
+          },
+          size: {
+            width: resizeFixedPoint.x - currentCanvasPoint.x,
+            height: currentCanvasPoint.y - resizeFixedPoint.y,
+          },
         };
       case "down-right":
         return {
           ...element,
-          x: resizeFixedPoint.x,
-          y: resizeFixedPoint.y,
-          width: currentCanvasPoint.x - resizeFixedPoint.x,
-          height: currentCanvasPoint.y - resizeFixedPoint.y,
+          point: {
+            x: resizeFixedPoint.x,
+            y: resizeFixedPoint.y,
+          },
+          size: {
+            width: currentCanvasPoint.x - resizeFixedPoint.x,
+            height: currentCanvasPoint.y - resizeFixedPoint.y,
+          },
         };
     }
   }
@@ -175,26 +193,50 @@ export const resizeGenericElement = ({
     case "up":
       return {
         ...element,
-        y: currentCanvasPoint.y,
-        height: resizeFixedPoint.y - currentCanvasPoint.y,
+        point: {
+          ...element.point,
+          y: currentCanvasPoint.y,
+        },
+        size: {
+          ...element.size,
+          height: resizeFixedPoint.y - currentCanvasPoint.y,
+        },
       };
     case "left":
       return {
         ...element,
-        x: currentCanvasPoint.x,
-        width: resizeFixedPoint.x - currentCanvasPoint.x,
+        point: {
+          ...element.point,
+          x: currentCanvasPoint.x,
+        },
+        size: {
+          ...element.size,
+          width: resizeFixedPoint.x - currentCanvasPoint.x,
+        },
       };
     case "right":
       return {
         ...element,
-        x: resizeFixedPoint.x,
-        width: currentCanvasPoint.x - resizeFixedPoint.x,
+        point: {
+          ...element.point,
+          x: resizeFixedPoint.x,
+        },
+        size: {
+          ...element.size,
+          width: currentCanvasPoint.x - resizeFixedPoint.x,
+        },
       };
     case "down":
       return {
         ...element,
-        y: resizeFixedPoint.y,
-        height: currentCanvasPoint.y - resizeFixedPoint.y,
+        point: {
+          ...element.point,
+          y: resizeFixedPoint.y,
+        },
+        size: {
+          ...element.size,
+          height: currentCanvasPoint.y - resizeFixedPoint.y,
+        },
       };
   }
 };
@@ -231,34 +273,50 @@ export const resizeImageElement = ({
       case "up-left":
         return {
           ...elementBase,
-          x: currentCanvasPoint.x,
-          y: currentCanvasPoint.y,
-          width: resizeFixedPoint.x - currentCanvasPoint.x,
-          height: resizeFixedPoint.y - currentCanvasPoint.y,
+          point: {
+            x: currentCanvasPoint.x,
+            y: currentCanvasPoint.y,
+          },
+          size: {
+            width: resizeFixedPoint.x - currentCanvasPoint.x,
+            height: resizeFixedPoint.y - currentCanvasPoint.y,
+          },
         };
       case "up-right":
         return {
           ...elementBase,
-          x: resizeFixedPoint.x,
-          y: currentCanvasPoint.y,
-          width: currentCanvasPoint.x - resizeFixedPoint.x,
-          height: resizeFixedPoint.y - currentCanvasPoint.y,
+          point: {
+            x: resizeFixedPoint.x,
+            y: currentCanvasPoint.y,
+          },
+          size: {
+            width: currentCanvasPoint.x - resizeFixedPoint.x,
+            height: resizeFixedPoint.y - currentCanvasPoint.y,
+          },
         };
       case "down-left":
         return {
           ...elementBase,
-          x: currentCanvasPoint.x,
-          y: resizeFixedPoint.y,
-          width: resizeFixedPoint.x - currentCanvasPoint.x,
-          height: currentCanvasPoint.y - resizeFixedPoint.y,
+          point: {
+            x: currentCanvasPoint.x,
+            y: resizeFixedPoint.y,
+          },
+          size: {
+            width: resizeFixedPoint.x - currentCanvasPoint.x,
+            height: currentCanvasPoint.y - resizeFixedPoint.y,
+          },
         };
       case "down-right":
         return {
           ...elementBase,
-          x: resizeFixedPoint.x,
-          y: resizeFixedPoint.y,
-          width: currentCanvasPoint.x - resizeFixedPoint.x,
-          height: currentCanvasPoint.y - resizeFixedPoint.y,
+          point: {
+            x: resizeFixedPoint.x,
+            y: resizeFixedPoint.y,
+          },
+          size: {
+            width: currentCanvasPoint.x - resizeFixedPoint.x,
+            height: currentCanvasPoint.y - resizeFixedPoint.y,
+          },
         };
     }
   }
@@ -272,26 +330,50 @@ export const resizeImageElement = ({
     case "up":
       return {
         ...elementBase,
-        y: currentCanvasPoint.y,
-        height: resizeFixedPoint.y - currentCanvasPoint.y,
+        point: {
+          ...elementBase.point,
+          y: currentCanvasPoint.y,
+        },
+        size: {
+          ...elementBase.size,
+          height: resizeFixedPoint.y - currentCanvasPoint.y,
+        },
       };
     case "left":
       return {
         ...elementBase,
-        x: currentCanvasPoint.x,
-        width: resizeFixedPoint.x - currentCanvasPoint.x,
+        point: {
+          ...elementBase.point,
+          x: currentCanvasPoint.x,
+        },
+        size: {
+          ...elementBase.size,
+          width: resizeFixedPoint.x - currentCanvasPoint.x,
+        },
       };
     case "right":
       return {
         ...elementBase,
-        x: resizeFixedPoint.x,
-        width: currentCanvasPoint.x - resizeFixedPoint.x,
+        point: {
+          ...elementBase.point,
+          x: resizeFixedPoint.x,
+        },
+        size: {
+          ...elementBase.size,
+          width: currentCanvasPoint.x - resizeFixedPoint.x,
+        },
       };
     case "down":
       return {
         ...elementBase,
-        y: resizeFixedPoint.y,
-        height: currentCanvasPoint.y - resizeFixedPoint.y,
+        point: {
+          ...elementBase.point,
+          y: resizeFixedPoint.y,
+        },
+        size: {
+          ...element.size,
+          height: currentCanvasPoint.y - resizeFixedPoint.y,
+        },
       };
   }
 };
@@ -336,16 +418,17 @@ export const resizeLinearElementPoint = ({
 
         const resizedElement: VisualizerLinearElement = {
           ...element,
-          x: element.x + dx,
-          y: element.y + dy,
+          point: {
+            x: element.point.x + dx,
+            y: element.point.y + dy,
+          },
           points,
         };
-        const { width, height } = calculateElementSize(resizedElement);
+        const size = calculateElementSize(resizedElement);
 
         return {
           ...resizedElement,
-          width,
-          height,
+          size,
         };
       }
       case "virtual center": {
@@ -367,12 +450,11 @@ export const resizeLinearElementPoint = ({
           ...element,
           points,
         };
-        const { width, height } = calculateElementSize(resizedElement);
+        const size = calculateElementSize(resizedElement);
 
         return {
           ...resizedElement,
-          width,
-          height,
+          size,
         };
       }
       case "rest": {
@@ -384,12 +466,11 @@ export const resizeLinearElementPoint = ({
           ...element,
           points,
         };
-        const { width, height } = calculateElementSize(resizedElement);
+        const size = calculateElementSize(resizedElement);
 
         return {
           ...resizedElement,
-          width,
-          height,
+          size,
         };
       }
     }
@@ -409,16 +490,17 @@ export const resizeLinearElementPoint = ({
     });
     const resizedElement: VisualizerLinearElement = {
       ...element,
-      x: element.x + dx,
-      y: element.y + dy,
+      point: {
+        x: element.point.x + dx,
+        y: element.point.y + dy,
+      },
       points,
     };
-    const { width, height } = calculateElementSize(resizedElement);
+    const size = calculateElementSize(resizedElement);
 
     return {
       ...resizedElement,
-      width,
-      height,
+      size,
     };
   }
 
@@ -434,12 +516,11 @@ export const resizeLinearElementPoint = ({
     ...element,
     points,
   };
-  const { width, height } = calculateElementSize(resizedElement);
+  const size = calculateElementSize(resizedElement);
 
   return {
     ...resizedElement,
-    width,
-    height,
+    size,
   };
 };
 
@@ -572,27 +653,34 @@ export const resizePointBasedElement = <T extends VisualizerPointBasedElement>({
     resizeFixedPoint,
   });
 
-  const resizedSize = {
+  const updatedSize = {
     width: Math.abs(currentCanvasPoint.x - resizeFixedPoint.x),
     height: Math.abs(currentCanvasPoint.y - resizeFixedPoint.y),
   };
   if (isDiagonalDirection(direction)) {
     return {
       ...element,
-      width: resizedSize.width,
-      height: resizedSize.height,
-      x:
-        (flipSign.x * ((element.x - resizeFixedPoint.x) * resizedSize.width)) /
-          previousSize.width +
-        resizeFixedPoint.x,
-      y:
-        (flipSign.y * (element.y - resizeFixedPoint.y) * resizedSize.height) /
-          previousSize.height +
-        resizeFixedPoint.y,
+      point: {
+        x:
+          (flipSign.x *
+            ((element.point.x - resizeFixedPoint.x) * updatedSize.width)) /
+            previousSize.width +
+          resizeFixedPoint.x,
+        y:
+          (flipSign.y *
+            (element.point.y - resizeFixedPoint.y) *
+            updatedSize.height) /
+            previousSize.height +
+          resizeFixedPoint.y,
+      },
+      size: {
+        width: updatedSize.width,
+        height: updatedSize.height,
+      },
       points: element.points.map((point) => {
         return {
-          x: flipSign.x * point.x * (resizedSize.width / previousSize.width),
-          y: flipSign.y * point.y * (resizedSize.height / previousSize.height),
+          x: flipSign.x * point.x * (updatedSize.width / previousSize.width),
+          y: flipSign.y * point.y * (updatedSize.height / previousSize.height),
         };
       }),
     };
@@ -603,16 +691,24 @@ export const resizePointBasedElement = <T extends VisualizerPointBasedElement>({
     case "down":
       return {
         ...element,
-        height: resizedSize.height,
-        y:
-          (flipSign.y * (element.y - resizeFixedPoint.y) * resizedSize.height) /
-            previousSize.height +
-          resizeFixedPoint.y,
+        point: {
+          ...element.point,
+          y:
+            (flipSign.y *
+              (element.point.y - resizeFixedPoint.y) *
+              updatedSize.height) /
+              previousSize.height +
+            resizeFixedPoint.y,
+        },
+        size: {
+          ...element.size,
+          height: updatedSize.height,
+        },
         points: element.points.map((point) => {
           return {
             x: point.x,
             y:
-              flipSign.y * point.y * (resizedSize.height / previousSize.height),
+              flipSign.y * point.y * (updatedSize.height / previousSize.height),
           };
         }),
       };
@@ -620,15 +716,21 @@ export const resizePointBasedElement = <T extends VisualizerPointBasedElement>({
     case "right":
       return {
         ...element,
-        width: resizedSize.width,
-        x:
-          (flipSign.x *
-            ((element.x - resizeFixedPoint.x) * resizedSize.width)) /
-            previousSize.width +
-          resizeFixedPoint.x,
+        point: {
+          ...element.point,
+          x:
+            (flipSign.x *
+              ((element.point.x - resizeFixedPoint.x) * updatedSize.width)) /
+              previousSize.width +
+            resizeFixedPoint.x,
+        },
+        size: {
+          ...element.size,
+          width: updatedSize.width,
+        },
         points: element.points.map((point) => {
           return {
-            x: flipSign.x * point.x * (resizedSize.width / previousSize.width),
+            x: flipSign.x * point.x * (updatedSize.width / previousSize.width),
             y: point.y,
           };
         }),
@@ -685,11 +787,6 @@ export const calculateFixedPoint = (
         y: absolutePoint.minY,
       };
   }
-};
-
-export type Size = {
-  width: number;
-  height: number;
 };
 
 export const resizeMultipleElements = ({
@@ -779,7 +876,7 @@ export const resizeMultipleElements = ({
       const minHeight = 30 * previousNumberOfLines;
       const resizedHeight = Math.max(
         minHeight,
-        element.height * changeInSurroundingBoxSize.height
+        element.size.height * changeInSurroundingBoxSize.height
       );
 
       const resizedFontSize =
@@ -795,10 +892,11 @@ export const resizeMultipleElements = ({
         ...element,
         x:
           resizeFixedPoint.x -
-          ((resizeFixedPoint.x - element.x) * width) / element.width,
+          ((resizeFixedPoint.x - element.point.x) * width) / element.size.width,
         y:
           resizeFixedPoint.y -
-          ((resizeFixedPoint.y - element.y) * height) / element.height,
+          ((resizeFixedPoint.y - element.point.y) * height) /
+            element.size.height,
         width,
         height,
         fontSize: resizedFontSize,
@@ -807,17 +905,23 @@ export const resizeMultipleElements = ({
       return resizedElement;
     }
 
-    const resizedElementBase = {
-      x:
-        ((element.x - resizeFixedPoint.x) * resizedSurroundingBoxSize.width) /
-          previousSurroundingBoxSize.width +
-        resizeFixedPoint.x,
-      y:
-        ((element.y - resizeFixedPoint.y) * resizedSurroundingBoxSize.height) /
-          previousSurroundingBoxSize.height +
-        resizeFixedPoint.y,
-      width: element.width * changeInSurroundingBoxSize.width,
-      height: element.height * changeInSurroundingBoxSize.height,
+    const resizedElementBase: VisualizerElementBase = {
+      point: {
+        x:
+          ((element.point.x - resizeFixedPoint.x) *
+            resizedSurroundingBoxSize.width) /
+            previousSurroundingBoxSize.width +
+          resizeFixedPoint.x,
+        y:
+          ((element.point.y - resizeFixedPoint.y) *
+            resizedSurroundingBoxSize.height) /
+            previousSurroundingBoxSize.height +
+          resizeFixedPoint.y,
+      },
+      size: {
+        width: element.size.width * changeInSurroundingBoxSize.width,
+        height: element.size.height * changeInSurroundingBoxSize.height,
+      },
     };
 
     if (isGenericElement(element)) {

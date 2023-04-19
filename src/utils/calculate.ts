@@ -5,14 +5,14 @@ import {
   Point,
   Tool,
   VisualizerElement,
-  VisualizerElementBase,
-  VisualizerFreeDrawElement,
-  VisualizerGenericElement,
+  VisualizerShapeElementBase,
   VisualizerImageElement,
   VisualizerLinearElement,
   VisualizerMachineContext,
-  VisualizerTextElement,
   ZOOM,
+  VisualizerElementBase,
+  VisualizerPointBasedElement,
+  Size,
 } from "../machines/visualizerMachine";
 import {
   calculateDistance,
@@ -20,18 +20,15 @@ import {
   createRandomNumber,
 } from "./math";
 import {
-  isFreeDrawElement,
   isFreeDrawShape,
-  isGenericElement,
   isGenericShape,
-  isImageElement,
   isImageShape,
-  isLinearElement,
   isLinearShape,
+  isPointBasedElement,
 } from "./type-guard";
 import * as uuid from "uuid";
 import { TEXTAREA_UNIT_LESS_LINE_HEIGHT } from "../constants";
-import { Size } from "./resize";
+
 import { haveSameItems } from "./array";
 
 export const calculateCanvasPoint = ({
@@ -82,23 +79,11 @@ export type AbsolutePoint = {
 export const calculateElementAbsolutePoint = (
   element: VisualizerElement
 ): AbsolutePoint => {
-  if (isGenericElement(element)) {
-    return calculateGenericElementAbsolutePoint(element);
+  if (isPointBasedElement(element)) {
+    return calculatePointBasedElementAbsolutePoint(element);
+  } else {
+    return calculateAbsolutePointByElementBase(element);
   }
-
-  if (isLinearElement(element)) {
-    return calculateLinearElementAbsolutePoint(element);
-  }
-
-  if (isFreeDrawElement(element)) {
-    return calculateFreeDrawElementAbsolutePoint(element);
-  }
-
-  if (isImageElement(element)) {
-    return calculateImageElementAbsolutePoint(element);
-  }
-
-  return calculateTextElementAbsolutePoint(element);
 };
 
 export const calculateElementSize = (element: VisualizerElement) => {
@@ -110,59 +95,26 @@ export const calculateElementSize = (element: VisualizerElement) => {
   };
 };
 
-const calculateGenericElementAbsolutePoint = (
-  element: VisualizerGenericElement
+const calculateAbsolutePointByElementBase = (
+  elementBase: VisualizerElementBase
 ) => {
   return {
-    minX: element.x,
-    minY: element.y,
-    maxX: element.x + element.width,
-    maxY: element.y + element.height,
+    minX: elementBase.point.x,
+    minY: elementBase.point.y,
+    maxX: elementBase.point.x + elementBase.size.width,
+    maxY: elementBase.point.y + elementBase.size.height,
   };
 };
 
-const calculateLinearElementAbsolutePoint = (
-  element: VisualizerLinearElement
-) => {
-  const { points } = element;
-
-  return {
-    minX: Math.min(...points.map((point) => element.x + point.x)),
-    minY: Math.min(...points.map((point) => element.y + point.y)),
-    maxX: Math.max(...points.map((point) => element.x + point.x)),
-    maxY: Math.max(...points.map((point) => element.y + point.y)),
-  };
-};
-
-export const calculateFreeDrawElementAbsolutePoint = (
-  element: VisualizerFreeDrawElement
+export const calculatePointBasedElementAbsolutePoint = (
+  element: VisualizerPointBasedElement
 ) => {
   const { points } = element;
   return {
-    minX: Math.min(...points.map((point) => element.x + point.x)),
-    minY: Math.min(...points.map((point) => element.y + point.y)),
-    maxX: Math.max(...points.map((point) => element.x + point.x)),
-    maxY: Math.max(...points.map((point) => element.y + point.y)),
-  };
-};
-
-export const calculateImageElementAbsolutePoint = (
-  element: VisualizerImageElement
-) => {
-  return {
-    minX: element.x,
-    minY: element.y,
-    maxX: element.x + element.width,
-    maxY: element.y + element.height,
-  };
-};
-
-const calculateTextElementAbsolutePoint = (element: VisualizerTextElement) => {
-  return {
-    minX: element.x,
-    minY: element.y,
-    maxX: element.x + element.width,
-    maxY: element.y + element.height,
+    minX: Math.min(...points.map((point) => element.point.x + point.x)),
+    minY: Math.min(...points.map((point) => element.point.y + point.y)),
+    maxX: Math.max(...points.map((point) => element.point.x + point.x)),
+    maxY: Math.max(...points.map((point) => element.point.y + point.y)),
   };
 };
 
@@ -214,10 +166,10 @@ export const isPointInsideOfAbsolutePoint = (
 };
 
 export const isIntersecting = (
-  selection: VisualizerElement,
+  selection: VisualizerElementBase,
   elements: VisualizerElement[]
 ) => {
-  const selectionAbsolutePoint = calculateElementAbsolutePoint(selection);
+  const selectionAbsolutePoint = calculateAbsolutePointByElementBase(selection);
   const elementAbsolutePoint = calculateElementsAbsolutePoint(elements);
 
   if (selectionAbsolutePoint.minX > elementAbsolutePoint.maxX) {
@@ -315,17 +267,21 @@ export const createElement = ({
   drawStartPoint: VisualizerMachineContext["drawStartPoint"];
   elementOptions: VisualizerMachineContext["elementOptions"];
   devicePixelRatio: number;
-  width?: VisualizerElement["width"];
-  height?: VisualizerElement["height"];
+  width?: VisualizerElement["size"]["width"];
+  height?: VisualizerElement["size"]["height"];
   fileId?: FileId;
   status?: VisualizerElement["status"];
 }): VisualizerElement => {
-  const elementBase: VisualizerElementBase = {
+  const elementBase: VisualizerShapeElementBase = {
     id: uuid.v4(),
-    x: drawStartPoint.x,
-    y: drawStartPoint.y,
-    width: width ?? 0,
-    height: height ?? 0,
+    point: {
+      x: drawStartPoint.x,
+      y: drawStartPoint.y,
+    },
+    size: {
+      width: width ?? 0,
+      height: height ?? 0,
+    },
     status: status ?? "idle",
     options: elementOptions,
     groupIds: [],
@@ -348,18 +304,11 @@ export const createElement = ({
   );
 
   if (isGenericShape(shape)) {
-    if (shape === "selection") {
-      return {
-        ...elementBase,
-        shape,
-      };
-    } else {
-      return {
-        ...elementBase,
-        shape,
-        seed: createRandomSeed(existingSeeds),
-      };
-    }
+    return {
+      ...elementBase,
+      shape,
+      seed: createRandomSeed(existingSeeds),
+    };
   }
 
   if (isImageShape(shape)) {
@@ -395,9 +344,12 @@ export const createElement = ({
 
   return {
     ...elementBase,
-    y:
-      elementBase.y -
-      (fontSize * TEXTAREA_UNIT_LESS_LINE_HEIGHT * devicePixelRatio) / 2,
+    point: {
+      ...elementBase.point,
+      y:
+        elementBase.point.y -
+        (fontSize * TEXTAREA_UNIT_LESS_LINE_HEIGHT * devicePixelRatio) / 2,
+    },
     shape,
     fontSize,
     fontFamily,
