@@ -536,7 +536,7 @@ export const resizeTextElement = ({
   currentCanvasPoint: Point;
   resizeFixedPoint: Point;
   canvasElement: HTMLCanvasElement;
-}) => {
+}): VisualizerTextElement => {
   const { height: previousHeight, lineHeight: previousLineHeight } =
     measureText({
       canvasElement,
@@ -564,10 +564,12 @@ export const resizeTextElement = ({
     lineHeight: TEXTAREA_UNIT_LESS_LINE_HEIGHT,
   });
 
-  const resizedElement = {
+  const resizedElement: VisualizerTextElement = {
     ...element,
-    width,
-    height,
+    size: {
+      width,
+      height,
+    },
     fontSize: resizedFontSize,
   };
 
@@ -575,29 +577,37 @@ export const resizeTextElement = ({
     case "up-left": {
       return {
         ...resizedElement,
-        x: resizeFixedPoint.x - width,
-        y: resizeFixedPoint.y - height,
+        point: {
+          x: resizeFixedPoint.x - width,
+          y: resizeFixedPoint.y - height,
+        },
       };
     }
     case "up-right": {
       return {
         ...resizedElement,
-        x: resizeFixedPoint.x,
-        y: resizeFixedPoint.y - height,
+        point: {
+          x: resizeFixedPoint.x,
+          y: resizeFixedPoint.y - height,
+        },
       };
     }
     case "down-left": {
       return {
         ...resizedElement,
-        x: resizeFixedPoint.x - width,
-        y: resizeFixedPoint.y,
+        point: {
+          x: resizeFixedPoint.x - width,
+          y: resizeFixedPoint.y,
+        },
       };
     }
     case "down-right": {
       return {
         ...resizedElement,
-        x: resizeFixedPoint.x,
-        y: resizeFixedPoint.y,
+        point: {
+          x: resizeFixedPoint.x,
+          y: resizeFixedPoint.y,
+        },
       };
     }
     default:
