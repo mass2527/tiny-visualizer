@@ -972,11 +972,12 @@ export const visualizerMachine =
               elements: context.elements.map((element) => {
                 if (selectedElementsIds.includes(element.id)) {
                   if (isTextElement(element)) {
-                    invariant(canvasElement);
-                    invariant(devicePixelRatio);
-
                     const updatedFontSize =
                       elementOptions.fontSize ?? element.fontSize;
+
+                    if (!canvasElement || !devicePixelRatio) {
+                      return element;
+                    }
 
                     const size = measureText({
                       fontFamily: element.fontFamily,
