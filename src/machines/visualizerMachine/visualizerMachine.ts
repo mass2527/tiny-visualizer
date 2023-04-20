@@ -978,7 +978,7 @@ export const visualizerMachine =
                     const updatedFontSize =
                       elementOptions.fontSize ?? element.fontSize;
 
-                    const { width, height } = measureText({
+                    const size = measureText({
                       fontFamily: element.fontFamily,
                       fontSize: updatedFontSize,
                       lineHeight: TEXTAREA_UNIT_LESS_LINE_HEIGHT,
@@ -986,21 +986,26 @@ export const visualizerMachine =
                       canvasElement,
                     });
 
-                    return {
+                    const textElement: VisualizerTextElement = {
                       ...element,
                       options: {
                         ...element.options,
                         ...elementOptions,
                       },
                       fontSize: updatedFontSize,
-                      y:
-                        element.point.y +
-                        ((element.fontSize - updatedFontSize) *
-                          (TEXTAREA_UNIT_LESS_LINE_HEIGHT * devicePixelRatio)) /
-                          2,
-                      width,
-                      height,
+                      point: {
+                        ...element.point,
+                        y:
+                          element.point.y +
+                          ((element.fontSize - updatedFontSize) *
+                            (TEXTAREA_UNIT_LESS_LINE_HEIGHT *
+                              devicePixelRatio)) /
+                            2,
+                      },
+                      size,
                     };
+
+                    return textElement;
                   }
 
                   return {
