@@ -296,8 +296,8 @@ export const createElement = ({
       points: [{ x: 0, y: 0 }],
       options: {
         ...shapeElementBase.options,
-        stroke: "#fff",
-        strokeWidth: 1,
+        stroke: elementOptions.stroke,
+        strokeWidth: elementOptions.strokeWidth,
       },
     };
 
