@@ -13,7 +13,6 @@ import {
   VisualizerElementBase,
   VisualizerPointBasedElement,
   Size,
-  VisualizerRoughJSElementBase,
   VisualizerTextElement,
   VisualizerFreeDrawElement,
 } from "../machines/visualizerMachine";
@@ -355,20 +354,19 @@ export const createElement = ({
       })
       .filter(Boolean)
   );
-  const roughJSElementBase: VisualizerRoughJSElementBase = {
-    ...shapeElementBase,
-    options: elementOptions,
-    seed: createRandomSeed(existingSeeds),
-  };
+
   if (isGenericShape(shape)) {
     return {
-      ...roughJSElementBase,
+      ...shapeElementBase,
+      options: elementOptions,
+      seed: createRandomSeed(existingSeeds),
       shape,
     };
   }
   if (isLinearShape(shape)) {
     return {
-      ...roughJSElementBase,
+      ...shapeElementBase,
+      options: elementOptions,
       shape,
       points: [{ x: 0, y: 0 }],
       seed: createRandomSeed(existingSeeds),

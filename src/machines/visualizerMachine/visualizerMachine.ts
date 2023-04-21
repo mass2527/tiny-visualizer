@@ -1019,7 +1019,17 @@ export const visualizerMachine =
                     return textElement;
                   }
 
-                  if (isGenericElement(element) || isLinearElement(element)) {
+                  if (isGenericElement(element)) {
+                    return {
+                      ...element,
+                      options: {
+                        ...element.options,
+                        ...elementOptions,
+                      },
+                    };
+                  }
+
+                  if (isLinearElement(element)) {
                     return {
                       ...element,
                       options: {

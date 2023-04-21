@@ -23,18 +23,32 @@ export type VisualizerShapeElementBase = VisualizerElementBase & {
   };
 };
 
-export type VisualizerRoughJSElementBase = VisualizerShapeElementBase & {
-  options: Required<ElementOptions>;
-  seed: number;
-};
+type VisualizerRoughJSElementBase<T extends keyof RoughJSOptions> =
+  VisualizerShapeElementBase & {
+    options: Required<Pick<RoughJSOptions, T>>;
+    seed: number;
+  };
 
-export type VisualizerRectangleElement = VisualizerRoughJSElementBase & {
+type VisualizerRoughJSGenericElementBase = VisualizerRoughJSElementBase<
+  | "stroke"
+  | "fill"
+  | "fillStyle"
+  | "strokeWidth"
+  | "strokeLineDash"
+  | "roughness"
+>;
+
+type VisualizerRoughJSLinearElementBase = VisualizerRoughJSElementBase<
+  "stroke" | "strokeWidth" | "strokeLineDash" | "roughness"
+>;
+
+export type VisualizerRectangleElement = VisualizerRoughJSGenericElementBase & {
   shape: "rectangle";
 };
-export type VisualizerEllipseElement = VisualizerRoughJSElementBase & {
+export type VisualizerEllipseElement = VisualizerRoughJSGenericElementBase & {
   shape: "ellipse";
 };
-export type VisualizerDiamondElement = VisualizerRoughJSElementBase & {
+export type VisualizerDiamondElement = VisualizerRoughJSGenericElementBase & {
   shape: "diamond";
 };
 
@@ -43,7 +57,7 @@ export type VisualizerGenericElement =
   | VisualizerDiamondElement
   | VisualizerEllipseElement;
 
-export type VisualizerLinearElement = VisualizerRoughJSElementBase & {
+export type VisualizerLinearElement = VisualizerRoughJSLinearElementBase & {
   shape: "line" | "arrow";
   // first point always starts with {x:0, y:0} since origin is element.x, element.y
   points: Point[];
