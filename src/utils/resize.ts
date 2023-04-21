@@ -540,8 +540,8 @@ export const resizeTextElement = ({
   const { height: previousHeight, lineHeight: previousLineHeight } =
     measureText({
       canvasElement,
-      fontSize: element.fontSize,
-      fontFamily: element.fontFamily,
+      fontSize: element.options.fontSize,
+      fontFamily: element.options.fontFamily,
       text: element.text,
       lineHeight: TEXTAREA_UNIT_LESS_LINE_HEIGHT,
     });
@@ -554,12 +554,13 @@ export const resizeTextElement = ({
 
   // previousHeight : previousFontSize = resizedHeight : resizedFontSize
   // ∴ resizedFontSize = previousFontSize * resizedHeight / previousHeight
-  const resizedFontSize = element.fontSize * (resizedHeight / previousHeight);
+  const resizedFontSize =
+    element.options.fontSize * (resizedHeight / previousHeight);
 
   const { width, height } = measureText({
     canvasElement,
     fontSize: resizedFontSize,
-    fontFamily: element.fontFamily,
+    fontFamily: element.options.fontFamily,
     text: element.text,
     lineHeight: TEXTAREA_UNIT_LESS_LINE_HEIGHT,
   });
@@ -570,7 +571,10 @@ export const resizeTextElement = ({
       width,
       height,
     },
-    fontSize: resizedFontSize,
+    options: {
+      ...element.options,
+      fontSize: resizedFontSize,
+    },
   };
 
   switch (direction) {
@@ -877,8 +881,8 @@ export const resizeMultipleElements = ({
       const { height: previousHeight, lineHeight: previousLineHeight } =
         measureText({
           canvasElement,
-          fontSize: element.fontSize,
-          fontFamily: element.fontFamily,
+          fontSize: element.options.fontSize,
+          fontFamily: element.options.fontFamily,
           text: element.text,
           lineHeight: TEXTAREA_UNIT_LESS_LINE_HEIGHT,
         });
@@ -890,11 +894,11 @@ export const resizeMultipleElements = ({
       );
 
       const resizedFontSize =
-        element.fontSize * (resizedHeight / previousHeight);
+        element.options.fontSize * (resizedHeight / previousHeight);
       const { width, height } = measureText({
         canvasElement,
         fontSize: resizedFontSize,
-        fontFamily: element.fontFamily,
+        fontFamily: element.options.fontFamily,
         text: element.text,
         lineHeight: TEXTAREA_UNIT_LESS_LINE_HEIGHT,
       });

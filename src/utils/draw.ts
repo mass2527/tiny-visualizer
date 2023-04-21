@@ -259,15 +259,15 @@ export const createDraw = (
       ctx.save();
 
       const { fontSize, lineGap, lineHeight } = measureText({
-        fontFamily: element.fontFamily,
-        fontSize: element.fontSize,
+        fontFamily: element.options.fontFamily,
+        fontSize: element.options.fontSize,
         lineHeight: TEXTAREA_UNIT_LESS_LINE_HEIGHT,
         text: element.text,
         canvasElement,
       });
 
       ctx.textBaseline = "top";
-      ctx.font = `${fontSize}px ${element.fontFamily}`;
+      ctx.font = `${fontSize}px ${element.options.fontFamily}`;
       ctx.fillStyle = element.options.stroke;
 
       const lines = element.text.split("\n");

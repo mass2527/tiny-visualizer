@@ -13,6 +13,8 @@ import {
   VisualizerElementBase,
   VisualizerPointBasedElement,
   Size,
+  VisualizerTextElement,
+  VisualizerFreeDrawElement,
 } from "../machines/visualizerMachine";
 import {
   calculateDistance,
@@ -25,11 +27,14 @@ import {
   isImageShape,
   isLinearShape,
   isPointBasedElement,
+  isTextShape,
 } from "./type-guard";
 import * as uuid from "uuid";
-import { TEXTAREA_UNIT_LESS_LINE_HEIGHT } from "../constants";
-
-import { haveSameItems } from "./array";
+import {
+  AVAILABLE_OPTIONS,
+  TEXTAREA_UNIT_LESS_LINE_HEIGHT,
+} from "../constants";
+import { mergeItems } from "./array";
 
 export const calculateCanvasPoint = ({
   devicePixelRatio,
@@ -272,7 +277,7 @@ export const createElement = ({
   fileId?: FileId;
   status?: VisualizerElement["status"];
 }): VisualizerElement => {
-  const elementBase: VisualizerShapeElementBase = {
+  const shapeElementBase: VisualizerShapeElementBase = {
     id: uuid.v4(),
     point: {
       x: drawStartPoint.x,
@@ -283,9 +288,60 @@ export const createElement = ({
       height: height ?? 0,
     },
     status: status ?? "idle",
-    options: elementOptions,
     groupIds: [],
+    options: {
+      opacity: 100,
+    },
   };
+  if (isFreeDrawShape(shape)) {
+    const freedrawElement: VisualizerFreeDrawElement = {
+      ...shapeElementBase,
+      shape,
+      points: [{ x: 0, y: 0 }],
+      options: {
+        ...shapeElementBase.options,
+        stroke: elementOptions.stroke,
+        strokeWidth: elementOptions.strokeWidth,
+      },
+    };
+
+    return freedrawElement;
+  }
+  if (isTextShape(shape)) {
+    const { fontSize, fontFamily } = elementOptions;
+
+    const textElement: VisualizerTextElement = {
+      ...shapeElementBase,
+      point: {
+        ...shapeElementBase.point,
+        y:
+          shapeElementBase.point.y -
+          (fontSize * TEXTAREA_UNIT_LESS_LINE_HEIGHT * devicePixelRatio) / 2,
+      },
+      shape,
+      options: {
+        ...shapeElementBase.options,
+        stroke: elementOptions.stroke,
+        fontSize,
+        fontFamily,
+      },
+      text: "",
+    };
+
+    return textElement;
+  }
+  if (isImageShape(shape)) {
+    invariant(fileId);
+
+    const imageElement: VisualizerImageElement = {
+      ...shapeElementBase,
+      shape,
+      fileId,
+      scale: [1, 1],
+    };
+
+    return imageElement;
+  }
 
   const existingSeeds = new Set(
     elements
@@ -305,56 +361,23 @@ export const createElement = ({
 
   if (isGenericShape(shape)) {
     return {
-      ...elementBase,
+      ...shapeElementBase,
+      options: elementOptions,
+      seed: createRandomSeed(existingSeeds),
       shape,
+    };
+  }
+  if (isLinearShape(shape)) {
+    return {
+      ...shapeElementBase,
+      options: elementOptions,
+      shape,
+      points: [{ x: 0, y: 0 }],
       seed: createRandomSeed(existingSeeds),
     };
   }
 
-  if (isImageShape(shape)) {
-    invariant(fileId);
-
-    const imageElement: VisualizerImageElement = {
-      ...elementBase,
-      shape,
-      fileId,
-      scale: [1, 1],
-    };
-
-    return imageElement;
-  }
-
-  if (isLinearShape(shape) || isFreeDrawShape(shape)) {
-    if (isLinearShape(shape)) {
-      return {
-        ...elementBase,
-        shape,
-        points: [{ x: 0, y: 0 }],
-        seed: createRandomSeed(existingSeeds),
-      };
-    } else {
-      return {
-        ...elementBase,
-        shape,
-        points: [{ x: 0, y: 0 }],
-      };
-    }
-  }
-  const { fontSize, fontFamily } = elementOptions;
-
-  return {
-    ...elementBase,
-    point: {
-      ...elementBase.point,
-      y:
-        elementBase.point.y -
-        (fontSize * TEXTAREA_UNIT_LESS_LINE_HEIGHT * devicePixelRatio) / 2,
-    },
-    shape,
-    fontSize,
-    fontFamily,
-    text: "",
-  };
+  throw new Error(`shape ${shape}'s logic is not defined here`);
 };
 
 // https://github.com/rough-stuff/rough/wiki#seed
@@ -523,111 +546,78 @@ export const calculateReadableFileSize = (fileSize: number) => {
   }
 };
 
-export const calculateElementOptionValue = <
-  T extends keyof VisualizerElement["options"]
->({
+export const calculateElementOptionValue = ({
   selectedElements,
   elementOptions,
   option,
 }: {
   selectedElements: VisualizerElement[];
   elementOptions: ElementOptions;
-  option: T;
+  option:
+    | keyof VisualizerMachineContext["elementOptions"]
+    | keyof VisualizerElement["options"];
 }) => {
   if (selectedElements.length === 0) {
     return elementOptions[option];
   }
 
   invariant(selectedElements[0]);
-
   if (selectedElements.length === 1) {
-    return selectedElements[0].options[option];
+    return selectedElements[0].options[
+      option as keyof VisualizerElement["options"]
+    ];
   }
 
+  //  selectedElements.length > 1
+  // 1. have same value A:x, B:x, C:x
+
+  const selectedElementsOptions = selectedElements.map(
+    (element) => element.options[option as keyof VisualizerElement["options"]]
+  );
   if (
-    haveSameItems(
-      selectedElements.map((element) => String(element.options[option]))
+    selectedElementsOptions.every(
+      (element) => element === selectedElementsOptions[0]
     )
   ) {
-    return selectedElements[0].options[option];
+    return selectedElements[0].options[
+      option as keyof VisualizerElement["options"]
+    ];
   }
 
-  return undefined;
+  // 2. only one have value A:x, B:undefined, C:undefined
+  // 3. have different value A:x, B:y, C:z
+  const options = selectedElements
+    .map(
+      (element) => element.options[option as keyof VisualizerElement["options"]]
+    )
+    .filter((element) => element !== undefined);
+
+  if (options.length === 1) {
+    return options[0];
+  } else {
+    return undefined;
+  }
 };
 
-export const getSelectableElementOptions = (
+export const calculateShouldShowElementOptions = (
   tool: Tool,
   selectedElements: VisualizerElement[]
 ) => {
-  const result: Record<
-    Tool,
-    Partial<Record<keyof Omit<ElementOptions, "fontFamily">, boolean>> | null
-  > = {
-    hand: null,
-    selection: null,
-    rectangle: {
-      stroke: true,
-      fill: true,
-      fillStyle: true,
-      strokeWidth: true,
-      strokeLineDash: true,
-      roughness: true,
-    },
-    diamond: {
-      stroke: true,
-      fill: true,
-      fillStyle: true,
-      strokeWidth: true,
-      strokeLineDash: true,
-      roughness: true,
-    },
-    ellipse: {
-      stroke: true,
-      fill: true,
-      fillStyle: true,
-      strokeWidth: true,
-      strokeLineDash: true,
-      roughness: true,
-    },
-    arrow: {
-      stroke: true,
-      strokeWidth: true,
-      strokeLineDash: true,
-      roughness: true,
-    },
-    line: {
-      stroke: true,
-      strokeWidth: true,
-      strokeLineDash: true,
-      roughness: true,
-    },
-    freedraw: {
-      stroke: true,
-      strokeWidth: true,
-    },
-    text: {
-      stroke: true,
-      fontSize: true,
-    },
-    image: null,
-  };
-
   if (selectedElements.length === 0) {
-    return result[tool];
+    return AVAILABLE_OPTIONS[tool];
   }
 
   if (selectedElements.length === 1 && selectedElements[0]) {
-    // TODO: ADD
-    return result[selectedElements[0].shape];
+    return {
+      ...AVAILABLE_OPTIONS[selectedElements[0].shape],
+      copy: true,
+      delete: true,
+    };
   }
 
-  return {
-    stroke: true,
-    fill: true,
-    fillStyle: true,
-    strokeWidth: true,
-    strokeLineDash: true,
-    roughness: true,
-    fontSize: true,
-  };
+  const availableOptions = mergeItems(
+    selectedElements.map((element) => AVAILABLE_OPTIONS[element.shape])
+  );
+
+  return availableOptions;
 };
