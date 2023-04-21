@@ -590,7 +590,7 @@ export const calculateElementOptionValue = ({
     .map(
       (element) => element.options[option as keyof VisualizerElement["options"]]
     )
-    .filter(Boolean);
+    .filter((element) => element !== undefined);
 
   if (options.length === 1) {
     return options[0];
