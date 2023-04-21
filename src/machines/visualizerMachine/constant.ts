@@ -28,6 +28,7 @@ export const PERSISTED_CONTEXT: VisualizerMachinePersistedContext = {
 
     fontSize: 16,
     fontFamily: "serif",
+    opacity: 100,
   },
 
   // untrack

@@ -937,11 +937,13 @@ function App() {
                 {shouldShowElementOptions?.stroke && (
                   <ColorPicker
                     label="Stroke Color"
-                    value={calculateElementOptionValue({
-                      selectedElements,
-                      elementOptions,
-                      option: "stroke",
-                    })}
+                    value={String(
+                      calculateElementOptionValue({
+                        selectedElements,
+                        elementOptions,
+                        option: "stroke",
+                      })
+                    )}
                     onChange={(event) => {
                       const canvasElement = canvasRef.current;
                       invariant(canvasElement);
@@ -961,11 +963,13 @@ function App() {
                 {shouldShowElementOptions?.fill && (
                   <ColorPicker
                     label="Fill Color"
-                    value={calculateElementOptionValue({
-                      selectedElements,
-                      elementOptions,
-                      option: "fill",
-                    })}
+                    value={String(
+                      calculateElementOptionValue({
+                        selectedElements,
+                        elementOptions,
+                        option: "fill",
+                      })
+                    )}
                     onChange={(event) => {
                       send({
                         type: "CHANGE_ELEMENT_OPTIONS",
@@ -982,11 +986,13 @@ function App() {
                     <RadioCardGroup.Root
                       aria-label="fill style"
                       className="flex gap-1"
-                      value={calculateElementOptionValue({
-                        selectedElements,
-                        elementOptions,
-                        option: "fillStyle",
-                      })}
+                      value={String(
+                        calculateElementOptionValue({
+                          selectedElements,
+                          elementOptions,
+                          option: "fillStyle",
+                        })
+                      )}
                       onValueChange={(fillStyle) => {
                         send({
                           type: "CHANGE_ELEMENT_OPTIONS",
@@ -1372,8 +1378,8 @@ function App() {
             style={{
               left: drawStartViewportPoint.x,
               top: drawStartViewportPoint.y,
-              fontFamily: drawingElement.fontFamily,
-              fontSize: drawingElement.fontSize,
+              fontFamily: drawingElement.options.fontFamily,
+              fontSize: drawingElement.options.fontSize,
               color: drawingElement.options.stroke,
               lineHeight: TEXTAREA_UNIT_LESS_LINE_HEIGHT,
               // initialize width = '1px' to show input caret
@@ -1382,14 +1388,18 @@ function App() {
               maxHeight: Math.max(
                 (windowSize.height -
                   drawStartViewportPoint.y +
-                  (drawingElement.fontSize * TEXTAREA_UNIT_LESS_LINE_HEIGHT) /
+                  (drawingElement.options.fontSize *
+                    TEXTAREA_UNIT_LESS_LINE_HEIGHT) /
                     2) /
                   zoom,
-                drawingElement.fontSize * TEXTAREA_UNIT_LESS_LINE_HEIGHT
+                drawingElement.options.fontSize * TEXTAREA_UNIT_LESS_LINE_HEIGHT
               ),
               transformOrigin: "top left",
               transform: `scale(${zoom}) translateY(${
-                -(drawingElement.fontSize * TEXTAREA_UNIT_LESS_LINE_HEIGHT) / 2
+                -(
+                  drawingElement.options.fontSize *
+                  TEXTAREA_UNIT_LESS_LINE_HEIGHT
+                ) / 2
               }px)`,
             }}
             onBlur={() => {

@@ -50,6 +50,7 @@ import {
   Point,
   Size,
   VisualizerElement,
+  VisualizerFreeDrawElement,
   VisualizerImageElement,
   VisualizerLinearElement,
   VisualizerMachineContext,
@@ -897,12 +898,11 @@ export const visualizerMachine =
           } catch (error) {
             console.error(error);
 
-            const { fontFamily, fontSize } = context.elementOptions;
             const text = data.clipText;
 
             const size = measureText({
-              fontFamily,
-              fontSize,
+              fontFamily: context.elementOptions.fontFamily,
+              fontSize: context.elementOptions.fontSize,
               lineHeight: TEXTAREA_UNIT_LESS_LINE_HEIGHT,
               text,
               canvasElement: data.canvasElement,
@@ -917,15 +917,25 @@ export const visualizerMachine =
               },
               size,
               text,
-              fontFamily,
-              fontSize,
+              options: {
+                fontFamily: context.elementOptions.fontFamily,
+                fontSize: context.elementOptions.fontSize,
+                stroke: context.elementOptions.stroke,
+                opacity: context.elementOptions.opacity,
+              },
               status: ELEMENT_STATUS["selected"],
-              options: context.elementOptions,
               groupIds: [],
             };
 
             return {
-              elements: [...context.elements, textElement],
+              elements: [
+                ...context.elements.map((element) => ({
+                  ...element,
+                  status:
+                    element.status === "selected" ? "idle" : element.status,
+                })),
+                textElement,
+              ],
             };
           }
         }),
@@ -973,14 +983,14 @@ export const visualizerMachine =
                 if (selectedElementsIds.includes(element.id)) {
                   if (isTextElement(element)) {
                     const updatedFontSize =
-                      elementOptions.fontSize ?? element.fontSize;
+                      elementOptions.fontSize ?? element.options.fontSize;
 
                     if (!canvasElement || !devicePixelRatio) {
                       return element;
                     }
 
                     const size = measureText({
-                      fontFamily: element.fontFamily,
+                      fontFamily: element.options.fontFamily,
                       fontSize: updatedFontSize,
                       lineHeight: TEXTAREA_UNIT_LESS_LINE_HEIGHT,
                       text: element.text,
@@ -991,14 +1001,14 @@ export const visualizerMachine =
                       ...element,
                       options: {
                         ...element.options,
-                        ...elementOptions,
+                        fontSize: updatedFontSize,
+                        stroke: elementOptions.stroke ?? element.options.stroke,
                       },
-                      fontSize: updatedFontSize,
                       point: {
                         ...element.point,
                         y:
                           element.point.y +
-                          ((element.fontSize - updatedFontSize) *
+                          ((element.options.fontSize - updatedFontSize) *
                             (TEXTAREA_UNIT_LESS_LINE_HEIGHT *
                               devicePixelRatio)) /
                             2,
@@ -1009,13 +1019,40 @@ export const visualizerMachine =
                     return textElement;
                   }
 
-                  return {
+                  if (isGenericElement(element) || isLinearElement(element)) {
+                    return {
+                      ...element,
+                      options: {
+                        ...element.options,
+                        ...elementOptions,
+                      },
+                    };
+                  }
+
+                  if (isFreeDrawElement(element)) {
+                    const freedrawElement: VisualizerFreeDrawElement = {
+                      ...element,
+                      options: {
+                        ...element.options,
+                        stroke: elementOptions.stroke ?? element.options.stroke,
+                        strokeWidth:
+                          elementOptions.strokeWidth ??
+                          element.options.strokeWidth,
+                      },
+                    };
+
+                    return freedrawElement;
+                  }
+
+                  const imageElement: VisualizerImageElement = {
                     ...element,
                     options: {
                       ...element.options,
                       ...elementOptions,
                     },
                   };
+
+                  return imageElement;
                 }
 
                 return element;
@@ -1145,8 +1182,8 @@ export const visualizerMachine =
                 isTextElement(element)
               ) {
                 const size = measureText({
-                  fontFamily: element.fontFamily,
-                  fontSize: element.fontSize,
+                  fontFamily: element.options.fontFamily,
+                  fontSize: element.options.fontSize,
                   lineHeight: TEXTAREA_UNIT_LESS_LINE_HEIGHT,
                   text,
                   canvasElement,
@@ -1211,8 +1248,8 @@ export const visualizerMachine =
 
           const { lineHeight } = measureText({
             canvasElement,
-            fontSize: element.fontSize,
-            fontFamily: element.fontFamily,
+            fontSize: element.options.fontSize,
+            fontFamily: element.options.fontFamily,
             text: element.text,
             lineHeight: TEXTAREA_UNIT_LESS_LINE_HEIGHT,
           });

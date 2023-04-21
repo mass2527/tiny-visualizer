@@ -17,21 +17,25 @@ export type VisualizerElementBase = {
 export type VisualizerShapeElementBase = VisualizerElementBase & {
   id: string;
   status: "idle" | "selected" | "deleted";
-  options: ElementOptions;
   groupIds: string[];
+  options: {
+    opacity: number;
+  };
 };
 
-export type VisualizerRectangleElement = VisualizerShapeElementBase & {
+export type VisualizerRoughJSElementBase = VisualizerShapeElementBase & {
+  options: Required<ElementOptions>;
+  seed: number;
+};
+
+export type VisualizerRectangleElement = VisualizerRoughJSElementBase & {
   shape: "rectangle";
-  seed: number;
 };
-export type VisualizerEllipseElement = VisualizerShapeElementBase & {
+export type VisualizerEllipseElement = VisualizerRoughJSElementBase & {
   shape: "ellipse";
-  seed: number;
 };
-export type VisualizerDiamondElement = VisualizerShapeElementBase & {
+export type VisualizerDiamondElement = VisualizerRoughJSElementBase & {
   shape: "diamond";
-  seed: number;
 };
 
 export type VisualizerGenericElement =
@@ -39,28 +43,30 @@ export type VisualizerGenericElement =
   | VisualizerDiamondElement
   | VisualizerEllipseElement;
 
-export type VisualizerLinearElement = VisualizerShapeElementBase & {
+export type VisualizerLinearElement = VisualizerRoughJSElementBase & {
   shape: "line" | "arrow";
   // first point always starts with {x:0, y:0} since origin is element.x, element.y
   points: Point[];
-  seed: number;
 };
 
 export type VisualizerFreeDrawElement = VisualizerShapeElementBase & {
   shape: "freedraw";
   points: Point[];
-};
-
-type VisualizerTextElementOptions = {
-  fontFamily: "serif";
-  fontSize: number;
-};
-
-export type VisualizerTextElement = VisualizerShapeElementBase &
-  VisualizerTextElementOptions & {
-    shape: "text";
-    text: string;
+  options: {
+    stroke: string;
+    strokeWidth: number;
   };
+};
+
+export type VisualizerTextElement = VisualizerShapeElementBase & {
+  shape: "text";
+  text: string;
+  options: {
+    stroke: string;
+    fontFamily: "serif";
+    fontSize: number;
+  };
+};
 
 export type VisualizerImageElement = VisualizerShapeElementBase & {
   shape: "image";
@@ -95,7 +101,7 @@ export type ElementOptions = Required<
     | "roughness"
   >
 > &
-  VisualizerTextElementOptions;
+  VisualizerTextElement["options"];
 
 export type DrawingTool = VisualizerElement["shape"];
 export type NonDrawingTool = "hand" | "selection";
