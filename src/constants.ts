@@ -1,5 +1,4 @@
 import {
-  ElementOptions,
   Tool,
   VisualizerFreeDrawElement,
   VisualizerGenericElement,
@@ -24,59 +23,6 @@ export const HOT_KEYS = {
 } as const satisfies Record<Tool, HOT_KEY>;
 
 export const TEXTAREA_UNIT_LESS_LINE_HEIGHT = 1.5;
-
-export const SELECTABLE_ELEMENT_OPTIONS: Record<
-  Tool,
-  Partial<Record<keyof Omit<ElementOptions, "fontFamily">, boolean>> | null
-> = {
-  hand: null,
-  selection: null,
-  rectangle: {
-    stroke: true,
-    fill: true,
-    fillStyle: true,
-    strokeWidth: true,
-    strokeLineDash: true,
-    roughness: true,
-  },
-  diamond: {
-    stroke: true,
-    fill: true,
-    fillStyle: true,
-    strokeWidth: true,
-    strokeLineDash: true,
-    roughness: true,
-  },
-  ellipse: {
-    stroke: true,
-    fill: true,
-    fillStyle: true,
-    strokeWidth: true,
-    strokeLineDash: true,
-    roughness: true,
-  },
-  arrow: {
-    stroke: true,
-    strokeWidth: true,
-    strokeLineDash: true,
-    roughness: true,
-  },
-  line: {
-    stroke: true,
-    strokeWidth: true,
-    strokeLineDash: true,
-    roughness: true,
-  },
-  freedraw: {
-    stroke: true,
-    strokeWidth: true,
-  },
-  text: {
-    stroke: true,
-    fontSize: true,
-  },
-  image: null,
-};
 
 export const AVAILABLE_OPTIONS: {
   hand: null;
