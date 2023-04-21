@@ -1,4 +1,12 @@
-import { ElementOptions, Tool } from "./machines/visualizerMachine";
+import {
+  ElementOptions,
+  Tool,
+  VisualizerFreeDrawElement,
+  VisualizerGenericElement,
+  VisualizerImageElement,
+  VisualizerLinearElement,
+  VisualizerTextElement,
+} from "./machines/visualizerMachine";
 
 export type HOT_KEY = "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "h";
 
@@ -68,4 +76,75 @@ export const SELECTABLE_ELEMENT_OPTIONS: Record<
     fontSize: true,
   },
   image: null,
+};
+
+export const AVAILABLE_OPTIONS: {
+  hand: null;
+  selection: null;
+  rectangle: Record<keyof VisualizerGenericElement["options"], boolean>;
+  diamond: Record<keyof VisualizerGenericElement["options"], boolean>;
+  ellipse: Record<keyof VisualizerGenericElement["options"], boolean>;
+  arrow: Record<keyof VisualizerLinearElement["options"], boolean>;
+  line: Record<keyof VisualizerLinearElement["options"], boolean>;
+  freedraw: Record<keyof VisualizerFreeDrawElement["options"], boolean>;
+  text: Record<keyof VisualizerTextElement["options"], boolean>;
+  image: Record<keyof VisualizerImageElement["options"], boolean>;
+} = {
+  hand: null,
+  selection: null,
+  rectangle: {
+    stroke: true,
+    fill: true,
+    fillStyle: true,
+    strokeWidth: true,
+    strokeLineDash: true,
+    roughness: true,
+    opacity: true,
+  },
+  diamond: {
+    stroke: true,
+    fill: true,
+    fillStyle: true,
+    strokeWidth: true,
+    strokeLineDash: true,
+    roughness: true,
+    opacity: true,
+  },
+  ellipse: {
+    stroke: true,
+    fill: true,
+    fillStyle: true,
+    strokeWidth: true,
+    strokeLineDash: true,
+    roughness: true,
+    opacity: true,
+  },
+  arrow: {
+    stroke: true,
+    strokeWidth: true,
+    strokeLineDash: true,
+    roughness: true,
+    opacity: true,
+  },
+  line: {
+    stroke: true,
+    strokeWidth: true,
+    strokeLineDash: true,
+    roughness: true,
+    opacity: true,
+  },
+  freedraw: {
+    stroke: true,
+    strokeWidth: true,
+    opacity: true,
+  },
+  text: {
+    fontFamily: false,
+    stroke: true,
+    fontSize: true,
+    opacity: true,
+  },
+  image: {
+    opacity: true,
+  },
 };

@@ -42,3 +42,16 @@ export const groupBy = <T>(
 
   return groups;
 };
+
+export const mergeItems = <T>(items: T[]) => {
+  let result = {} as T;
+
+  for (let i = 0; i < items.length; i++) {
+    result = {
+      ...result,
+      ...items[i],
+    };
+  }
+
+  return result;
+};

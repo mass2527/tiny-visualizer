@@ -30,7 +30,11 @@ import {
   isTextShape,
 } from "./type-guard";
 import * as uuid from "uuid";
-import { TEXTAREA_UNIT_LESS_LINE_HEIGHT } from "../constants";
+import {
+  AVAILABLE_OPTIONS,
+  TEXTAREA_UNIT_LESS_LINE_HEIGHT,
+} from "../constants";
+import { mergeItems } from "./array";
 
 export const calculateCanvasPoint = ({
   devicePixelRatio,
@@ -595,79 +599,25 @@ export const calculateElementOptionValue = ({
   }
 };
 
-export const getSelectableElementOptions = (
+export const calculateShouldShowElementOptions = (
   tool: Tool,
   selectedElements: VisualizerElement[]
 ) => {
-  const result: Record<
-    Tool,
-    Partial<Record<keyof Omit<ElementOptions, "fontFamily">, boolean>> | null
-  > = {
-    hand: null,
-    selection: null,
-    rectangle: {
-      stroke: true,
-      fill: true,
-      fillStyle: true,
-      strokeWidth: true,
-      strokeLineDash: true,
-      roughness: true,
-    },
-    diamond: {
-      stroke: true,
-      fill: true,
-      fillStyle: true,
-      strokeWidth: true,
-      strokeLineDash: true,
-      roughness: true,
-    },
-    ellipse: {
-      stroke: true,
-      fill: true,
-      fillStyle: true,
-      strokeWidth: true,
-      strokeLineDash: true,
-      roughness: true,
-    },
-    arrow: {
-      stroke: true,
-      strokeWidth: true,
-      strokeLineDash: true,
-      roughness: true,
-    },
-    line: {
-      stroke: true,
-      strokeWidth: true,
-      strokeLineDash: true,
-      roughness: true,
-    },
-    freedraw: {
-      stroke: true,
-      strokeWidth: true,
-    },
-    text: {
-      stroke: true,
-      fontSize: true,
-    },
-    image: null,
-  };
-
   if (selectedElements.length === 0) {
-    return result[tool];
+    return AVAILABLE_OPTIONS[tool];
   }
 
   if (selectedElements.length === 1 && selectedElements[0]) {
-    // TODO: ADD
-    return result[selectedElements[0].shape];
+    return {
+      ...AVAILABLE_OPTIONS[selectedElements[0].shape],
+      copy: true,
+      delete: true,
+    };
   }
 
-  return {
-    stroke: true,
-    fill: true,
-    fillStyle: true,
-    strokeWidth: true,
-    strokeLineDash: true,
-    roughness: true,
-    fontSize: true,
-  };
+  const availableOptions = mergeItems(
+    selectedElements.map((element) => AVAILABLE_OPTIONS[element.shape])
+  );
+
+  return availableOptions;
 };
