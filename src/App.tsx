@@ -1313,19 +1313,20 @@ function App() {
                             </Button>
                           )}
 
-                          {selectedElements.some(
-                            (element) => element.groupIds.length !== 0
-                          ) && (
-                            <Button
-                              variant="primary"
-                              onClick={() => {
-                                send("SELECTED_ELEMENTS.UNGROUP");
-                              }}
-                              aria-label="ungroup"
-                            >
-                              <UnGroupIcon />
-                            </Button>
-                          )}
+                          {!isSameGroup(selectedElements) &&
+                            selectedElements.some(
+                              (element) => element.groupIds.length !== 0
+                            ) && (
+                              <Button
+                                variant="primary"
+                                onClick={() => {
+                                  send("SELECTED_ELEMENTS.UNGROUP");
+                                }}
+                                aria-label="ungroup"
+                              >
+                                <UnGroupIcon />
+                              </Button>
+                            )}
                         </>
                       )}
                     </div>
