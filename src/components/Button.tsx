@@ -3,20 +3,18 @@ import { centeredSquare } from "../utils/style";
 
 type ButtonProps = {
   className?: string;
-  type?: ButtonHTMLAttributes<HTMLButtonElement>["type"];
   onClick: VoidFunction;
-  disabled?: boolean;
   children: ReactNode;
   variant?: "primary" | "secondary";
-};
+} & ButtonHTMLAttributes<HTMLButtonElement>;
 
 export function Button({
   className,
   variant = "secondary",
   onClick,
   type = "button",
-  disabled,
   children,
+  ...props
 }: ButtonProps) {
   const baseClassName = (
     {
@@ -30,7 +28,7 @@ export function Button({
       type={type}
       className={`${centeredSquare} rounded-lg ${baseClassName} ${className}`}
       onClick={onClick}
-      disabled={disabled}
+      {...props}
     >
       {children}
     </button>
