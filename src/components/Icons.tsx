@@ -55,15 +55,12 @@ export function CircleIcon() {
   );
 }
 
-export function CrossHatchIcon({
-  className = "w-4 h-4",
-}: {
-  className?: string;
-}) {
+export function CrossHatchIcon() {
   return (
     <svg
+      width="16"
+      height="16"
       viewBox="0 0 20 20"
-      className={className}
       fill="none"
       stroke="currentColor"
       strokeLinecap="round"
@@ -146,15 +143,16 @@ export function DividerVerticalIcon() {
   );
 }
 
-export function HachureIcon({ className = "w-4 h-4" }: { className?: string }) {
+export function HachureIcon() {
   return (
     <svg
+      width="16"
+      height="16"
       viewBox="0 0 20 20"
       fill="none"
       stroke="currentColor"
       strokeLinecap="round"
       strokeLinejoin="round"
-      className={className}
     >
       <g strokeWidth="1.25">
         <path d="M5.879 2.625h8.242a3.27 3.27 0 0 1 3.254 3.254v8.242a3.27 3.27 0 0 1-3.254 3.254H5.88a3.27 3.27 0 0 1-3.254-3.254V5.88A3.27 3.27 0 0 1 5.88 2.626l-.001-.001ZM4.518 16.118l7.608-12.83m.198 13.934 5.051-9.897M2.778 9.675l9.348-6.387m-7.608 12.83 12.857-8.793"></path>
@@ -258,10 +256,11 @@ export function PencilIcon() {
   );
 }
 
-export function SolidIcon({ className = "w-4 h-4" }: { className?: string }) {
+export function SolidIcon() {
   return (
     <svg
-      className={className}
+      width="16"
+      height="16"
       viewBox="0 0 20 20"
       fill="currentColor"
       stroke="currentColor"
@@ -323,14 +322,11 @@ export function TextIcon() {
   );
 }
 
-export function ThinLineIcon({
-  className = "w-4 h-4",
-}: {
-  className?: string;
-}) {
+export function ThinLineIcon() {
   return (
     <svg
-      className={className}
+      width="16"
+      height="16"
       viewBox="0 0 20 20"
       fill="none"
       stroke="currentColor"
@@ -348,14 +344,11 @@ export function ThinLineIcon({
   );
 }
 
-export function RegularLineIcon({
-  className = "w-4 h-4",
-}: {
-  className?: string;
-}) {
+export function RegularLineIcon() {
   return (
     <svg
-      className={className}
+      width="16"
+      height="16"
       viewBox="0 0 20 20"
       fill="none"
       stroke="currentColor"
@@ -373,14 +366,11 @@ export function RegularLineIcon({
   );
 }
 
-export function BoldLineIcon({
-  className = "w-4 h-4",
-}: {
-  className?: string;
-}) {
+export function BoldLineIcon() {
   return (
     <svg
-      className={className}
+      width="16"
+      height="16"
       viewBox="0 0 20 20"
       fill="none"
       stroke="currentColor"
@@ -398,14 +388,11 @@ export function BoldLineIcon({
   );
 }
 
-export function DashedLineIcon({
-  className = "w-4 h-4",
-}: {
-  className?: string;
-}) {
+export function DashedLineIcon() {
   return (
     <svg
-      className={className}
+      width="16"
+      height="16"
       viewBox="0 0 24 24"
       fill="none"
       strokeWidth="2"
@@ -423,14 +410,11 @@ export function DashedLineIcon({
   );
 }
 
-export function DottedLineIcon({
-  className = "w-4 h-4",
-}: {
-  className?: string;
-}) {
+export function DottedLineIcon() {
   return (
     <svg
-      className={className}
+      width="16"
+      height="16"
       viewBox="0 0 24 24"
       fill="none"
       strokeWidth="2"
@@ -450,14 +434,11 @@ export function DottedLineIcon({
   );
 }
 
-export function ArchitectRoughnessIcon({
-  className = "w-4 h-4",
-}: {
-  className?: string;
-}) {
+export function ArchitectRoughnessIcon() {
   return (
     <svg
-      className={className}
+      width="16"
+      height="16"
       viewBox="0 0 20 20"
       fill="none"
       stroke="currentColor"
@@ -472,14 +453,11 @@ export function ArchitectRoughnessIcon({
   );
 }
 
-export function ArtistRoughnessIcon({
-  className = "w-4 h-4",
-}: {
-  className?: string;
-}) {
+export function ArtistRoughnessIcon() {
   return (
     <svg
-      className={className}
+      width="16"
+      height="16"
       viewBox="0 0 20 20"
       fill="none"
       stroke="currentColor"
@@ -494,14 +472,11 @@ export function ArtistRoughnessIcon({
   );
 }
 
-export function CartoonistRoughnessIcon({
-  className = "w-4 h-4",
-}: {
-  className?: string;
-}) {
+export function CartoonistRoughnessIcon() {
   return (
     <svg
-      className={className}
+      width="16"
+      height="16"
       viewBox="0 0 20 20"
       fill="none"
       stroke="currentColor"
@@ -516,14 +491,11 @@ export function CartoonistRoughnessIcon({
   );
 }
 
-export function SmallSizeIcon({
-  className = "w-4 h-4",
-}: {
-  className?: string;
-}) {
+export function SmallSizeIcon() {
   return (
     <svg
-      className={className}
+      width="16"
+      height="16"
       viewBox="0 0 20 20"
       fill="none"
       stroke="currentColor"
@@ -548,14 +520,11 @@ export function SmallSizeIcon({
   );
 }
 
-export function MediumSizeIcon({
-  className = "w-4 h-4",
-}: {
-  className?: string;
-}) {
+export function MediumSizeIcon() {
   return (
     <svg
-      className={className}
+      width="16"
+      height="16"
       viewBox="0 0 20 20"
       fill="none"
       stroke="currentColor"
@@ -580,14 +549,11 @@ export function MediumSizeIcon({
   );
 }
 
-export function LargeSizeIcon({
-  className = "w-4 h-4",
-}: {
-  className?: string;
-}) {
+export function LargeSizeIcon() {
   return (
     <svg
-      className={className}
+      width="16"
+      height="16"
       viewBox="0 0 20 20"
       fill="none"
       stroke="currentColor"
@@ -612,14 +578,11 @@ export function LargeSizeIcon({
   );
 }
 
-export function XLargeSizeIcon({
-  className = "w-4 h-4",
-}: {
-  className?: string;
-}) {
+export function XLargeSizeIcon() {
   return (
     <svg
-      className={className}
+      width="16"
+      height="16"
       viewBox="0 0 20 20"
       fill="none"
       stroke="currentColor"
@@ -637,10 +600,11 @@ export function XLargeSizeIcon({
   );
 }
 
-export function UndoIcon({ className = "w-4 h-4" }: { className?: string }) {
+export function UndoIcon() {
   return (
     <svg
-      className={className}
+      width="16"
+      height="16"
       viewBox="0 0 20 20"
       fill="none"
       stroke="currentColor"
@@ -655,10 +619,11 @@ export function UndoIcon({ className = "w-4 h-4" }: { className?: string }) {
   );
 }
 
-export function RedoIcon({ className = "w-4 h-4" }: { className?: string }) {
+export function RedoIcon() {
   return (
     <svg
-      className={className}
+      width="16"
+      height="16"
       viewBox="0 0 20 20"
       fill="none"
       stroke="currentColor"
@@ -707,6 +672,99 @@ export function PlusIcon() {
         fillRule="evenodd"
         clipRule="evenodd"
       ></path>
+    </svg>
+  );
+}
+
+export function CopyIcon() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 20 20"
+      fill="none"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <g strokeWidth="1.25">
+        <path d="M14.375 6.458H8.958a2.5 2.5 0 0 0-2.5 2.5v5.417a2.5 2.5 0 0 0 2.5 2.5h5.417a2.5 2.5 0 0 0 2.5-2.5V8.958a2.5 2.5 0 0 0-2.5-2.5Z"></path>
+        <path
+          clipRule="evenodd"
+          d="M11.667 3.125c.517 0 .986.21 1.325.55.34.338.55.807.55 1.325v1.458H8.333c-.485 0-.927.185-1.26.487-.343.312-.57.75-.609 1.24l-.005 5.357H5a1.87 1.87 0 0 1-1.326-.55 1.87 1.87 0 0 1-.549-1.325V5c0-.518.21-.987.55-1.326.338-.34.807-.549 1.325-.549h6.667Z"
+        ></path>
+      </g>
+    </svg>
+  );
+}
+
+export function DeleteIcon() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 20 20"
+      fill="none"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path
+        strokeWidth="1.25"
+        d="M3.333 5.833h13.334M8.333 9.167v5M11.667 9.167v5M4.167 5.833l.833 10c0 .92.746 1.667 1.667 1.667h6.666c.92 0 1.667-.746 1.667-1.667l.833-10M7.5 5.833v-2.5c0-.46.373-.833.833-.833h3.334c.46 0 .833.373.833.833v2.5"
+      ></path>
+    </svg>
+  );
+}
+
+export function GroupIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 182 182">
+      <path d="M25 26H111V111H25" fill="currentColor"></path>
+      <path
+        d="M25 111C25 80.2068 25 49.4135 25 26M25 26C48.6174 26 72.2348 26 111 26H25ZM25 26C53.3671 26 81.7343 26 111 26H25ZM111 26C111 52.303 111 78.606 111 111V26ZM111 26C111 51.2947 111 76.5893 111 111V26ZM111 111C87.0792 111 63.1585 111 25 111H111ZM111 111C87.4646 111 63.9293 111 25 111H111ZM25 111C25 81.1514 25 51.3028 25 26V111Z"
+        stroke="currentColor"
+        strokeWidth="2"
+      ></path>
+      <path d="M100 100H160V160H100" fill="currentColor"></path>
+      <path
+        d="M100 160C100 144.106 100 128.211 100 100M100 100C117.706 100 135.412 100 160 100H100ZM100 100C114.214 100 128.428 100 160 100H100ZM160 100C160 120.184 160 140.369 160 160V100ZM160 100C160 113.219 160 126.437 160 160V100ZM160 160C145.534 160 131.068 160 100 160H160ZM160 160C143.467 160 126.934 160 100 160H160ZM100 160C100 143.661 100 127.321 100 100V160Z"
+        stroke="currentColor"
+        strokeWidth="2"
+      ></path>
+      <g fill="#ffffff" stroke="currentColor" strokeWidth="6">
+        <rect x="2.5" y="2.5" width="30" height="30"></rect>
+        <rect x="2.5" y="149.5" width="30" height="30"></rect>
+        <rect x="147.5" y="149.5" width="30" height="30"></rect>
+        <rect x="147.5" y="2.5" width="30" height="30"></rect>
+      </g>
+    </svg>
+  );
+}
+
+export function UnGroupIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 182 182">
+      <path d="M25 26H111V111H25" fill="currentColor"></path>
+      <path
+        d="M25 111C25 80.2068 25 49.4135 25 26M25 26C48.6174 26 72.2348 26 111 26H25ZM25 26C53.3671 26 81.7343 26 111 26H25ZM111 26C111 52.303 111 78.606 111 111V26ZM111 26C111 51.2947 111 76.5893 111 111V26ZM111 111C87.0792 111 63.1585 111 25 111H111ZM111 111C87.4646 111 63.9293 111 25 111H111ZM25 111C25 81.1514 25 51.3028 25 26V111Z"
+        stroke="currentColor"
+        strokeWidth="2"
+      ></path>
+      <path d="M100 100H160V160H100" fill="currentColor"></path>
+      <path
+        d="M100 160C100 144.106 100 128.211 100 100M100 100C117.706 100 135.412 100 160 100H100ZM100 100C114.214 100 128.428 100 160 100H100ZM160 100C160 120.184 160 140.369 160 160V100ZM160 100C160 113.219 160 126.437 160 160V100ZM160 160C145.534 160 131.068 160 100 160H160ZM160 160C143.467 160 126.934 160 100 160H160ZM100 160C100 143.661 100 127.321 100 100V160Z"
+        stroke="currentColor"
+        strokeWidth="2"
+      ></path>
+      <g fill="#ffffff" stroke="currentColor" strokeWidth="6">
+        <rect x="2.5" y="2.5" width="30" height="30"></rect>
+        <rect x="78.5" y="149.5" width="30" height="30"></rect>
+        <rect x="147.5" y="149.5" width="30" height="30"></rect>
+        <rect x="147.5" y="78.5" width="30" height="30"></rect>
+        <rect x="105.5" y="2.5" width="30" height="30"></rect>
+        <rect x="2.5" y="102.5" width="30" height="30"></rect>
+      </g>
     </svg>
   );
 }

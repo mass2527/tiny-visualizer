@@ -571,8 +571,10 @@ export const calculateElementOptionValue = ({
   //  selectedElements.length > 1
   // 1. have same value A:x, B:x, C:x
 
-  const selectedElementsOptions = selectedElements.map(
-    (element) => element.options[option as keyof VisualizerElement["options"]]
+  const selectedElementsOptions = selectedElements.map((element) =>
+    JSON.stringify(
+      element.options[option as keyof VisualizerElement["options"]]
+    )
   );
   if (
     selectedElementsOptions.every(

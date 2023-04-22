@@ -62,10 +62,13 @@ import {
   BorderSolidIcon,
   CartoonistRoughnessIcon,
   CircleIcon,
+  CopyIcon,
   CrossHatchIcon,
   CursorArrowIcon,
   DashedLineIcon,
+  DeleteIcon,
   DottedLineIcon,
+  GroupIcon,
   HachureIcon,
   HandIcon,
   ImageIcon,
@@ -83,13 +86,14 @@ import {
   SquareIcon,
   TextIcon,
   ThinLineIcon,
+  UnGroupIcon,
   UndoIcon,
   XLargeSizeIcon,
 } from "./components/Icons";
 import Fieldset from "./components/Fieldset";
 
-import Button from "./components/Button";
 import { blue } from "@radix-ui/colors";
+import { Button } from "./components/Button";
 
 export const TOOL_LABELS = {
   hand: {
@@ -1262,6 +1266,72 @@ function App() {
                       </RadioCardGroup.Root>
                     </Fieldset>
                   )}
+
+                {selectedElements.length !== 0 && (
+                  <Fieldset legend="Actions">
+                    <div className="flex gap-1">
+                      <Button
+                        variant="primary"
+                        onClick={() => {
+                          send("SELECTED_ELEMENTS.COPY");
+                        }}
+                        aria-label="copy"
+                      >
+                        <CopyIcon />
+                      </Button>
+                      <Button
+                        variant="primary"
+                        onClick={() => {
+                          send("SELECTED_ELEMENTS.DELETE");
+                        }}
+                        aria-label="delete"
+                      >
+                        <DeleteIcon />
+                      </Button>
+
+                      {selectedElements.length > 1 && (
+                        <>
+                          {isSameGroup(selectedElements) ? (
+                            <Button
+                              variant="primary"
+                              onClick={() => {
+                                send("SELECTED_ELEMENTS.UNGROUP");
+                              }}
+                              aria-label="ungroup"
+                            >
+                              <UnGroupIcon />
+                            </Button>
+                          ) : (
+                            <Button
+                              variant="primary"
+                              onClick={() => {
+                                send("SELECTED_ELEMENTS.GROUP");
+                              }}
+                              aria-label="group"
+                            >
+                              <GroupIcon />
+                            </Button>
+                          )}
+
+                          {!isSameGroup(selectedElements) &&
+                            selectedElements.some(
+                              (element) => element.groupIds.length !== 0
+                            ) && (
+                              <Button
+                                variant="primary"
+                                onClick={() => {
+                                  send("SELECTED_ELEMENTS.UNGROUP");
+                                }}
+                                aria-label="ungroup"
+                              >
+                                <UnGroupIcon />
+                              </Button>
+                            )}
+                        </>
+                      )}
+                    </div>
+                  </Fieldset>
+                )}
               </div>
             </div>
           )}
@@ -1273,7 +1343,7 @@ function App() {
           >
             <div className="flex">
               <Button
-                className="rounded-l-lg"
+                className="rounded-r-none"
                 onClick={() => updateZoom(-10)}
                 disabled={zoom === ZOOM.MIN}
               >
@@ -1281,6 +1351,7 @@ function App() {
               </Button>
 
               <Button
+                className="rounded-none"
                 onClick={() => {
                   const canvasElement = canvasRef.current;
                   invariant(canvasElement);
@@ -1297,7 +1368,7 @@ function App() {
               </Button>
 
               <Button
-                className="rounded-r-lg"
+                className="rounded-l-none"
                 onClick={() => updateZoom(10)}
                 disabled={zoom === ZOOM.MAX}
               >
@@ -1307,7 +1378,7 @@ function App() {
 
             <div className="flex">
               <Button
-                className="rounded-l-lg"
+                className="rounded-r-none"
                 onClick={() =>
                   send({
                     type: "HISTORY_UPDATE",
@@ -1319,7 +1390,7 @@ function App() {
                 <UndoIcon />
               </Button>
               <Button
-                className="rounded-r-lg"
+                className="rounded-l-none"
                 onClick={() => {
                   send({
                     type: "HISTORY_UPDATE",
