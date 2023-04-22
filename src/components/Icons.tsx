@@ -55,15 +55,12 @@ export function CircleIcon() {
   );
 }
 
-export function CrossHatchIcon({
-  className = "w-4 h-4",
-}: {
-  className?: string;
-}) {
+export function CrossHatchIcon() {
   return (
     <svg
+      width="16"
+      height="16"
       viewBox="0 0 20 20"
-      className={className}
       fill="none"
       stroke="currentColor"
       strokeLinecap="round"
@@ -146,15 +143,16 @@ export function DividerVerticalIcon() {
   );
 }
 
-export function HachureIcon({ className = "w-4 h-4" }: { className?: string }) {
+export function HachureIcon() {
   return (
     <svg
+      width="16"
+      height="16"
       viewBox="0 0 20 20"
       fill="none"
       stroke="currentColor"
       strokeLinecap="round"
       strokeLinejoin="round"
-      className={className}
     >
       <g strokeWidth="1.25">
         <path d="M5.879 2.625h8.242a3.27 3.27 0 0 1 3.254 3.254v8.242a3.27 3.27 0 0 1-3.254 3.254H5.88a3.27 3.27 0 0 1-3.254-3.254V5.88A3.27 3.27 0 0 1 5.88 2.626l-.001-.001ZM4.518 16.118l7.608-12.83m.198 13.934 5.051-9.897M2.778 9.675l9.348-6.387m-7.608 12.83 12.857-8.793"></path>
@@ -258,10 +256,11 @@ export function PencilIcon() {
   );
 }
 
-export function SolidIcon({ className = "w-4 h-4" }: { className?: string }) {
+export function SolidIcon() {
   return (
     <svg
-      className={className}
+      width="16"
+      height="16"
       viewBox="0 0 20 20"
       fill="currentColor"
       stroke="currentColor"
@@ -323,14 +322,11 @@ export function TextIcon() {
   );
 }
 
-export function ThinLineIcon({
-  className = "w-4 h-4",
-}: {
-  className?: string;
-}) {
+export function ThinLineIcon() {
   return (
     <svg
-      className={className}
+      width="16"
+      height="16"
       viewBox="0 0 20 20"
       fill="none"
       stroke="currentColor"
@@ -348,14 +344,11 @@ export function ThinLineIcon({
   );
 }
 
-export function RegularLineIcon({
-  className = "w-4 h-4",
-}: {
-  className?: string;
-}) {
+export function RegularLineIcon() {
   return (
     <svg
-      className={className}
+      width="16"
+      height="16"
       viewBox="0 0 20 20"
       fill="none"
       stroke="currentColor"
@@ -373,14 +366,11 @@ export function RegularLineIcon({
   );
 }
 
-export function BoldLineIcon({
-  className = "w-4 h-4",
-}: {
-  className?: string;
-}) {
+export function BoldLineIcon() {
   return (
     <svg
-      className={className}
+      width="16"
+      height="16"
       viewBox="0 0 20 20"
       fill="none"
       stroke="currentColor"
@@ -398,14 +388,11 @@ export function BoldLineIcon({
   );
 }
 
-export function DashedLineIcon({
-  className = "w-4 h-4",
-}: {
-  className?: string;
-}) {
+export function DashedLineIcon() {
   return (
     <svg
-      className={className}
+      width="16"
+      height="16"
       viewBox="0 0 24 24"
       fill="none"
       strokeWidth="2"
@@ -423,14 +410,11 @@ export function DashedLineIcon({
   );
 }
 
-export function DottedLineIcon({
-  className = "w-4 h-4",
-}: {
-  className?: string;
-}) {
+export function DottedLineIcon() {
   return (
     <svg
-      className={className}
+      width="16"
+      height="16"
       viewBox="0 0 24 24"
       fill="none"
       strokeWidth="2"
@@ -450,14 +434,11 @@ export function DottedLineIcon({
   );
 }
 
-export function ArchitectRoughnessIcon({
-  className = "w-4 h-4",
-}: {
-  className?: string;
-}) {
+export function ArchitectRoughnessIcon() {
   return (
     <svg
-      className={className}
+      width="16"
+      height="16"
       viewBox="0 0 20 20"
       fill="none"
       stroke="currentColor"
@@ -472,14 +453,11 @@ export function ArchitectRoughnessIcon({
   );
 }
 
-export function ArtistRoughnessIcon({
-  className = "w-4 h-4",
-}: {
-  className?: string;
-}) {
+export function ArtistRoughnessIcon() {
   return (
     <svg
-      className={className}
+      width="16"
+      height="16"
       viewBox="0 0 20 20"
       fill="none"
       stroke="currentColor"
@@ -494,14 +472,11 @@ export function ArtistRoughnessIcon({
   );
 }
 
-export function CartoonistRoughnessIcon({
-  className = "w-4 h-4",
-}: {
-  className?: string;
-}) {
+export function CartoonistRoughnessIcon() {
   return (
     <svg
-      className={className}
+      width="16"
+      height="16"
       viewBox="0 0 20 20"
       fill="none"
       stroke="currentColor"
@@ -516,14 +491,11 @@ export function CartoonistRoughnessIcon({
   );
 }
 
-export function SmallSizeIcon({
-  className = "w-4 h-4",
-}: {
-  className?: string;
-}) {
+export function SmallSizeIcon() {
   return (
     <svg
-      className={className}
+      width="16"
+      height="16"
       viewBox="0 0 20 20"
       fill="none"
       stroke="currentColor"
@@ -548,14 +520,11 @@ export function SmallSizeIcon({
   );
 }
 
-export function MediumSizeIcon({
-  className = "w-4 h-4",
-}: {
-  className?: string;
-}) {
+export function MediumSizeIcon() {
   return (
     <svg
-      className={className}
+      width="16"
+      height="16"
       viewBox="0 0 20 20"
       fill="none"
       stroke="currentColor"
@@ -580,14 +549,11 @@ export function MediumSizeIcon({
   );
 }
 
-export function LargeSizeIcon({
-  className = "w-4 h-4",
-}: {
-  className?: string;
-}) {
+export function LargeSizeIcon() {
   return (
     <svg
-      className={className}
+      width="16"
+      height="16"
       viewBox="0 0 20 20"
       fill="none"
       stroke="currentColor"
@@ -612,14 +578,11 @@ export function LargeSizeIcon({
   );
 }
 
-export function XLargeSizeIcon({
-  className = "w-4 h-4",
-}: {
-  className?: string;
-}) {
+export function XLargeSizeIcon() {
   return (
     <svg
-      className={className}
+      width="16"
+      height="16"
       viewBox="0 0 20 20"
       fill="none"
       stroke="currentColor"
@@ -637,10 +600,11 @@ export function XLargeSizeIcon({
   );
 }
 
-export function UndoIcon({ className = "w-4 h-4" }: { className?: string }) {
+export function UndoIcon() {
   return (
     <svg
-      className={className}
+      width="16"
+      height="16"
       viewBox="0 0 20 20"
       fill="none"
       stroke="currentColor"
@@ -655,10 +619,11 @@ export function UndoIcon({ className = "w-4 h-4" }: { className?: string }) {
   );
 }
 
-export function RedoIcon({ className = "w-4 h-4" }: { className?: string }) {
+export function RedoIcon() {
   return (
     <svg
-      className={className}
+      width="16"
+      height="16"
       viewBox="0 0 20 20"
       fill="none"
       stroke="currentColor"
