@@ -34,6 +34,8 @@ export const createDraw = (
   const ctx = canvasElement.getContext("2d");
   invariant(ctx);
 
+  ctx.globalAlpha = element.options.opacity;
+
   const roughCanvas = rough.canvas(canvasElement);
   const { generator } = roughCanvas;
 
@@ -210,7 +212,7 @@ export const createDraw = (
       ctx.beginPath();
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       ctx.lineWidth = element.options.strokeWidth!;
-      ctx.strokeStyle = element.options.stroke || "black";
+      ctx.strokeStyle = element.options.stroke;
 
       ctx.moveTo(element.point.x, element.point.y);
       for (let i = 1; i < element.points.length; i++) {

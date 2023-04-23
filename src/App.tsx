@@ -1267,6 +1267,39 @@ function App() {
                     </Fieldset>
                   )}
 
+                {shouldShowElementOptions &&
+                  "opacity" in shouldShowElementOptions &&
+                  shouldShowElementOptions.opacity && (
+                    <Fieldset legend="Opacity">
+                      <input
+                        type="range"
+                        min="0"
+                        max="1"
+                        step="0.1"
+                        value={Number(
+                          calculateElementOptionValue({
+                            selectedElements,
+                            elementOptions,
+                            option: "opacity",
+                          })
+                        )}
+                        onChange={(event) => {
+                          const canvasElement = canvasRef.current;
+                          invariant(canvasElement);
+
+                          send({
+                            type: "CHANGE_ELEMENT_OPTIONS",
+                            elementOptions: {
+                              opacity: Number(event.target.value),
+                            },
+                            canvasElement,
+                            devicePixelRatio,
+                          });
+                        }}
+                      />
+                    </Fieldset>
+                  )}
+
                 {selectedElements.length !== 0 && (
                   <Fieldset legend="Actions">
                     <div className="flex gap-1">
@@ -1486,6 +1519,7 @@ function App() {
                   TEXTAREA_UNIT_LESS_LINE_HEIGHT
                 ) / 2
               }px)`,
+              opacity: drawingElement.options.opacity,
             }}
             onBlur={() => {
               send("WRITE_END");
