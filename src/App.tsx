@@ -13,7 +13,6 @@ import {
 } from "react";
 import invariant from "tiny-invariant";
 import { assign } from "xstate";
-import ColorPicker from "./components/ColorPicker";
 
 import { useDevicePixelRatio, useWindowSize } from "./hooks";
 
@@ -94,6 +93,7 @@ import Fieldset from "./components/Fieldset";
 
 import { blue } from "@radix-ui/colors";
 import { Button } from "./components/Button";
+import ColorPicker from "./components/ColorPicker";
 
 export const TOOL_LABELS = {
   hand: {
@@ -495,6 +495,14 @@ function App() {
     invariant(fileInputElement);
 
     const handleKeyDown = (event: KeyboardEvent) => {
+      const focusedElement = document.activeElement;
+      const isInputFieldFocused =
+        focusedElement instanceof HTMLInputElement ||
+        focusedElement instanceof HTMLTextAreaElement;
+      if (isInputFieldFocused) {
+        return;
+      }
+
       if (event.key === "Backspace") {
         send("SELECTED_ELEMENTS.DELETE");
         return;
@@ -933,7 +941,7 @@ function App() {
             tool !== "image") ||
             (selectedElements.length >= 1 && tool === "selection")) && (
             <div
-              className={`w-[156px] ${
+              className={`w-[180px] ${
                 state.matches("idle") && "pointer-events-auto"
               }`}
             >
@@ -941,52 +949,54 @@ function App() {
                 {shouldShowElementOptions &&
                   "stroke" in shouldShowElementOptions &&
                   shouldShowElementOptions.stroke && (
-                    <ColorPicker
-                      label="Stroke Color"
-                      value={String(
-                        calculateElementOptionValue({
-                          selectedElements,
-                          elementOptions,
-                          option: "stroke",
-                        })
-                      )}
-                      onChange={(event) => {
-                        const canvasElement = canvasRef.current;
-                        invariant(canvasElement);
+                    <Fieldset legend="Stroke Color">
+                      <ColorPicker
+                        value={String(
+                          calculateElementOptionValue({
+                            selectedElements,
+                            elementOptions,
+                            option: "stroke",
+                          }) ?? ""
+                        )}
+                        onColorChange={(color) => {
+                          const canvasElement = canvasRef.current;
+                          invariant(canvasElement);
 
-                        send({
-                          type: "CHANGE_ELEMENT_OPTIONS",
-                          elementOptions: {
-                            stroke: event.currentTarget.value,
-                          },
-                          canvasElement,
-                          devicePixelRatio,
-                        });
-                      }}
-                    />
+                          send({
+                            type: "CHANGE_ELEMENT_OPTIONS",
+                            elementOptions: {
+                              stroke: color,
+                            },
+                            canvasElement,
+                            devicePixelRatio,
+                          });
+                        }}
+                      />
+                    </Fieldset>
                   )}
 
                 {shouldShowElementOptions &&
                   "fill" in shouldShowElementOptions &&
                   shouldShowElementOptions.fill && (
-                    <ColorPicker
-                      label="Fill Color"
-                      value={String(
-                        calculateElementOptionValue({
-                          selectedElements,
-                          elementOptions,
-                          option: "fill",
-                        })
-                      )}
-                      onChange={(event) => {
-                        send({
-                          type: "CHANGE_ELEMENT_OPTIONS",
-                          elementOptions: {
-                            fill: event.currentTarget.value,
-                          },
-                        });
-                      }}
-                    />
+                    <Fieldset legend="Fill Color">
+                      <ColorPicker
+                        value={String(
+                          calculateElementOptionValue({
+                            selectedElements,
+                            elementOptions,
+                            option: "fill",
+                          }) ?? ""
+                        )}
+                        onColorChange={(color) => {
+                          send({
+                            type: "CHANGE_ELEMENT_OPTIONS",
+                            elementOptions: {
+                              fill: color,
+                            },
+                          });
+                        }}
+                      />
+                    </Fieldset>
                   )}
 
                 {shouldShowElementOptions &&
@@ -1267,6 +1277,39 @@ function App() {
                     </Fieldset>
                   )}
 
+                {shouldShowElementOptions &&
+                  "opacity" in shouldShowElementOptions &&
+                  shouldShowElementOptions.opacity && (
+                    <Fieldset legend="Opacity">
+                      <input
+                        type="range"
+                        min="0"
+                        max="1"
+                        step="0.1"
+                        value={Number(
+                          calculateElementOptionValue({
+                            selectedElements,
+                            elementOptions,
+                            option: "opacity",
+                          })
+                        )}
+                        onChange={(event) => {
+                          const canvasElement = canvasRef.current;
+                          invariant(canvasElement);
+
+                          send({
+                            type: "CHANGE_ELEMENT_OPTIONS",
+                            elementOptions: {
+                              opacity: Number(event.target.value),
+                            },
+                            canvasElement,
+                            devicePixelRatio,
+                          });
+                        }}
+                      />
+                    </Fieldset>
+                  )}
+
                 {selectedElements.length !== 0 && (
                   <Fieldset legend="Actions">
                     <div className="flex gap-1">
@@ -1486,6 +1529,7 @@ function App() {
                   TEXTAREA_UNIT_LESS_LINE_HEIGHT
                 ) / 2
               }px)`,
+              opacity: drawingElement.options.opacity,
             }}
             onBlur={() => {
               send("WRITE_END");

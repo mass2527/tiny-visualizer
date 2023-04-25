@@ -4,7 +4,7 @@ import { centeredSquare } from "../utils/style";
 type ButtonProps = {
   className?: string;
   onClick: VoidFunction;
-  children: ReactNode;
+  children?: ReactNode;
   variant?: "primary" | "secondary";
 } & ButtonHTMLAttributes<HTMLButtonElement>;
 

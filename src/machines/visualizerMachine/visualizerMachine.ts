@@ -1003,6 +1003,8 @@ export const visualizerMachine =
                         ...element.options,
                         fontSize: updatedFontSize,
                         stroke: elementOptions.stroke ?? element.options.stroke,
+                        opacity:
+                          elementOptions.opacity ?? element.options.opacity,
                       },
                       point: {
                         ...element.point,
@@ -1043,11 +1045,12 @@ export const visualizerMachine =
                     const freedrawElement: VisualizerFreeDrawElement = {
                       ...element,
                       options: {
-                        ...element.options,
                         stroke: elementOptions.stroke ?? element.options.stroke,
                         strokeWidth:
                           elementOptions.strokeWidth ??
                           element.options.strokeWidth,
+                        opacity:
+                          elementOptions.opacity ?? element.options.opacity,
                       },
                     };
 

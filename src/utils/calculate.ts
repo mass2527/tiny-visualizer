@@ -290,7 +290,7 @@ export const createElement = ({
     status: status ?? "idle",
     groupIds: [],
     options: {
-      opacity: 100,
+      opacity: elementOptions.opacity,
     },
   };
   if (isFreeDrawShape(shape)) {
