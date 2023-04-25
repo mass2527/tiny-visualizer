@@ -19,7 +19,11 @@ function ColorPicker({
         }}
         className={`w-8 h-8 flex-none`}
         style={{
-          backgroundColor: value,
+          backgroundColor: color === "transparent" ? "#fff" : color,
+          backgroundImage:
+            color === "transparent"
+              ? "url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAMUlEQVQ4T2NkYGAQYcAP3uCTZhw1gGGYhAGBZIA/nYDCgBDAm9BGDWAAJyRCgLaBCAAgXwixzAS0pgAAAABJRU5ErkJggg==)"
+              : undefined,
         }}
       />
 
