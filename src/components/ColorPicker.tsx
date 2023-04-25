@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Button } from "./Button";
+import { usePrevious } from "../hooks";
 
 function ColorPicker({
   value,
@@ -10,6 +11,13 @@ function ColorPicker({
 }) {
   // support only hex or named color
   const [color, setColor] = useState(value);
+  const previousColor = usePrevious(color);
+
+  if (value !== color && color === previousColor) {
+    setColor(value);
+  }
+
+  const shouldShowTransparentImage = value === "transparent" || value === "";
 
   return (
     <div className="flex gap-1">
@@ -19,11 +27,10 @@ function ColorPicker({
         }}
         className={`w-8 h-8 flex-none`}
         style={{
-          backgroundColor: color === "transparent" ? "#fff" : color,
-          backgroundImage:
-            color === "transparent"
-              ? "url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAMUlEQVQ4T2NkYGAQYcAP3uCTZhw1gGGYhAGBZIA/nYDCgBDAm9BGDWAAJyRCgLaBCAAgXwixzAS0pgAAAABJRU5ErkJggg==)"
-              : undefined,
+          backgroundColor: shouldShowTransparentImage ? "#fff" : value,
+          backgroundImage: shouldShowTransparentImage
+            ? "url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAMUlEQVQ4T2NkYGAQYcAP3uCTZhw1gGGYhAGBZIA/nYDCgBDAm9BGDWAAJyRCgLaBCAAgXwixzAS0pgAAAABJRU5ErkJggg==)"
+            : undefined,
         }}
       />
 

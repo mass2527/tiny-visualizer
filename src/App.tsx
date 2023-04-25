@@ -956,7 +956,7 @@ function App() {
                             selectedElements,
                             elementOptions,
                             option: "stroke",
-                          })
+                          }) ?? ""
                         )}
                         onColorChange={(color) => {
                           const canvasElement = canvasRef.current;
@@ -984,7 +984,7 @@ function App() {
                           selectedElements,
                           elementOptions,
                           option: "fill",
-                        })
+                        }) ?? ""
                       )}
                       onColorChange={(color) => {
                         send({
