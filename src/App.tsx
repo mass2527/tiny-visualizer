@@ -941,7 +941,7 @@ function App() {
             tool !== "image") ||
             (selectedElements.length >= 1 && tool === "selection")) && (
             <div
-              className={`w-[156px] ${
+              className={`w-[180px] ${
                 state.matches("idle") && "pointer-events-auto"
               }`}
             >
@@ -978,23 +978,25 @@ function App() {
                 {shouldShowElementOptions &&
                   "fill" in shouldShowElementOptions &&
                   shouldShowElementOptions.fill && (
-                    <ColorPicker
-                      value={String(
-                        calculateElementOptionValue({
-                          selectedElements,
-                          elementOptions,
-                          option: "fill",
-                        }) ?? ""
-                      )}
-                      onColorChange={(color) => {
-                        send({
-                          type: "CHANGE_ELEMENT_OPTIONS",
-                          elementOptions: {
-                            fill: color,
-                          },
-                        });
-                      }}
-                    />
+                    <Fieldset legend="Fill Color">
+                      <ColorPicker
+                        value={String(
+                          calculateElementOptionValue({
+                            selectedElements,
+                            elementOptions,
+                            option: "fill",
+                          }) ?? ""
+                        )}
+                        onColorChange={(color) => {
+                          send({
+                            type: "CHANGE_ELEMENT_OPTIONS",
+                            elementOptions: {
+                              fill: color,
+                            },
+                          });
+                        }}
+                      />
+                    </Fieldset>
                   )}
 
                 {shouldShowElementOptions &&

@@ -34,7 +34,7 @@ function ColorPicker({
         }}
       />
 
-      <div className="flex items-center rounded-lg bg-gray12 px-4">
+      <div className="flex items-center gap-1 rounded-lg bg-gray12 px-2">
         <span>#</span>
         <input
           className="bg-transparent w-full"
