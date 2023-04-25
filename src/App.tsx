@@ -13,7 +13,6 @@ import {
 } from "react";
 import invariant from "tiny-invariant";
 import { assign } from "xstate";
-import ColorPicker from "./components/ColorPicker";
 
 import { useDevicePixelRatio, useWindowSize } from "./hooks";
 
@@ -94,6 +93,7 @@ import Fieldset from "./components/Fieldset";
 
 import { blue } from "@radix-ui/colors";
 import { Button } from "./components/Button";
+import ColorPicker from "./components/ColorPicker";
 
 export const TOOL_LABELS = {
   hand: {
@@ -941,36 +941,36 @@ function App() {
                 {shouldShowElementOptions &&
                   "stroke" in shouldShowElementOptions &&
                   shouldShowElementOptions.stroke && (
-                    <ColorPicker
-                      label="Stroke Color"
-                      value={String(
-                        calculateElementOptionValue({
-                          selectedElements,
-                          elementOptions,
-                          option: "stroke",
-                        })
-                      )}
-                      onChange={(event) => {
-                        const canvasElement = canvasRef.current;
-                        invariant(canvasElement);
+                    <Fieldset legend="Stroke Color">
+                      <ColorPicker
+                        value={String(
+                          calculateElementOptionValue({
+                            selectedElements,
+                            elementOptions,
+                            option: "stroke",
+                          })
+                        )}
+                        onColorChange={(color) => {
+                          const canvasElement = canvasRef.current;
+                          invariant(canvasElement);
 
-                        send({
-                          type: "CHANGE_ELEMENT_OPTIONS",
-                          elementOptions: {
-                            stroke: event.currentTarget.value,
-                          },
-                          canvasElement,
-                          devicePixelRatio,
-                        });
-                      }}
-                    />
+                          send({
+                            type: "CHANGE_ELEMENT_OPTIONS",
+                            elementOptions: {
+                              stroke: color,
+                            },
+                            canvasElement,
+                            devicePixelRatio,
+                          });
+                        }}
+                      />
+                    </Fieldset>
                   )}
 
                 {shouldShowElementOptions &&
                   "fill" in shouldShowElementOptions &&
                   shouldShowElementOptions.fill && (
                     <ColorPicker
-                      label="Fill Color"
                       value={String(
                         calculateElementOptionValue({
                           selectedElements,
@@ -978,11 +978,11 @@ function App() {
                           option: "fill",
                         })
                       )}
-                      onChange={(event) => {
+                      onColorChange={(color) => {
                         send({
                           type: "CHANGE_ELEMENT_OPTIONS",
                           elementOptions: {
-                            fill: event.currentTarget.value,
+                            fill: color,
                           },
                         });
                       }}
