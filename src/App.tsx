@@ -495,6 +495,14 @@ function App() {
     invariant(fileInputElement);
 
     const handleKeyDown = (event: KeyboardEvent) => {
+      const focusedElement = document.activeElement;
+      const isInputFieldFocused =
+        focusedElement instanceof HTMLInputElement ||
+        focusedElement instanceof HTMLTextAreaElement;
+      if (isInputFieldFocused) {
+        return;
+      }
+
       if (event.key === "Backspace") {
         send("SELECTED_ELEMENTS.DELETE");
         return;
