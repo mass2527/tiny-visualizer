@@ -1,21 +1,24 @@
-import { ButtonHTMLAttributes, ReactNode } from "react";
+import { ButtonHTMLAttributes, ReactNode, forwardRef } from "react";
 import { centeredSquare } from "../utils/style";
 
 type ButtonProps = {
   className?: string;
-  onClick: VoidFunction;
+  onClick?: VoidFunction;
   children?: ReactNode;
   variant?: "primary" | "secondary";
 } & ButtonHTMLAttributes<HTMLButtonElement>;
 
-export function Button({
-  className,
-  variant = "secondary",
-  onClick,
-  type = "button",
-  children,
-  ...props
-}: ButtonProps) {
+export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function (
+  {
+    className,
+    variant = "secondary",
+    onClick,
+    type = "button",
+    children,
+    ...props
+  },
+  ref
+) {
   const baseClassName = (
     {
       primary: "bg-gray12 text-gray11 hover:text-white hover:bg-blue9",
@@ -28,9 +31,10 @@ export function Button({
       type={type}
       className={`${centeredSquare} rounded-lg ${baseClassName} ${className}`}
       onClick={onClick}
+      ref={ref}
       {...props}
     >
       {children}
     </button>
   );
-}
+});
