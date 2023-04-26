@@ -951,6 +951,7 @@ function App() {
                   shouldShowElementOptions.stroke && (
                     <Fieldset legend="Stroke Color">
                       <ColorPicker
+                        scale={11}
                         value={String(
                           calculateElementOptionValue({
                             selectedElements,
@@ -980,6 +981,7 @@ function App() {
                   shouldShowElementOptions.fill && (
                     <Fieldset legend="Fill Color">
                       <ColorPicker
+                        scale={9}
                         value={String(
                           calculateElementOptionValue({
                             selectedElements,
