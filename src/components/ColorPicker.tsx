@@ -11,7 +11,7 @@ import {
   yellow,
   pink,
   indigo,
-  gray,
+  slate,
 } from "@radix-ui/colors";
 
 import { convertHslToHex } from "../utils";
@@ -56,35 +56,52 @@ function ColorPicker({
             side="right"
             align="start"
           >
-            {[red, orange, yellow, green, blue, indigo, purple, pink, gray].map(
-              (color) => {
-                const regex = new RegExp(`.*${scale}$`);
-                const colorKey = Object.keys(color).find((key) => {
-                  return regex.test(key);
-                });
+            {[
+              red,
+              orange,
+              yellow,
+              green,
+              blue,
+              indigo,
+              purple,
+              pink,
+              slate,
+            ].map((color) => {
+              const regex = new RegExp(`.*${scale}$`);
+              const colorKey = Object.keys(color).find((key) => {
+                return regex.test(key);
+              });
+              const updatedColor = convertHslToHex(
+                color[colorKey as keyof typeof color]
+              );
 
-                return (
-                  <Button
-                    key={colorKey}
-                    className={`w-8 h-8 flex-none`}
+              return (
+                <Button
+                  key={updatedColor}
+                  className={`w-8 h-8 flex-none 
+                  ${
+                    updatedColor === value ? "bg-slate12" : "hover:bg-slate12"
+                  }`}
+                  onClick={() => {
+                    onColorChange(updatedColor);
+                  }}
+                  autoFocus={updatedColor === value}
+                >
+                  <div
+                    className="w-4 h-4 rounded-full"
                     style={{
-                      backgroundColor: color[colorKey as keyof typeof color],
+                      backgroundColor: updatedColor,
                     }}
-                    onClick={() => {
-                      onColorChange(
-                        convertHslToHex(color[colorKey as keyof typeof color])
-                      );
-                    }}
-                  />
-                );
-              }
-            )}
+                  ></div>
+                </Button>
+              );
+            })}
             <Popover.Arrow className="fill-black z-10" />
           </Popover.Content>
         </Popover.Portal>
       </Popover.Root>
 
-      <label className="flex items-center gap-1 rounded-lg bg-gray12 px-2 border border-transparent focus-within:border-blue9">
+      <label className="flex items-center gap-1 rounded-lg bg-slate12 px-2 border border-transparent focus-within:border-blue9">
         <span>#</span>
         <input
           className="bg-transparent w-full focus:outline-none"

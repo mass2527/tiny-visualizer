@@ -21,8 +21,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function (
 ) {
   const baseClassName = (
     {
-      primary: "bg-gray12 text-gray11 hover:text-white hover:bg-blue9",
-      secondary: "bg-black text-white disabled:text-gray11 text-xs",
+      primary: "bg-slate12 text-slate11 hover:text-white hover:bg-blue9",
+      secondary: "bg-black text-white disabled:text-slate11 text-xs",
     } satisfies Record<NonNullable<ButtonProps["variant"]>, string>
   )[variant];
 

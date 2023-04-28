@@ -21,9 +21,12 @@ function RadioCardGroupItem({
   return (
     <label aria-label={label}>
       <RadioGroup.Item
-        className={`${centeredSquare} rounded-lg text-gray11 ${className}
-        ${checked && "bg-blue9 text-white"}
-        ${!checked && "hover:bg-blue10 hover:text-white"}`}
+        className={`${centeredSquare} rounded-lg ${className}
+        ${
+          checked
+            ? "bg-blue9 text-white"
+            : "text-slate11 hover:bg-blue10 hover:text-white"
+        }`}
         value={value}
       >
         {!checked && icon}

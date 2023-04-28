@@ -943,7 +943,7 @@ function App() {
               className={`w-[180px] cursor-default
               ${state.matches("idle") && "pointer-events-auto"}`}
             >
-              <div className="flex flex-col gap-2 bg-black text-gray11 text-sm p-2 rounded-lg">
+              <div className="flex flex-col gap-2 bg-black text-slate11 text-sm p-2 rounded-lg">
                 {shouldShowElementOptions &&
                   "stroke" in shouldShowElementOptions &&
                   shouldShowElementOptions.stroke && (
@@ -1042,7 +1042,7 @@ function App() {
                                   elementOptions,
                                   option: "fillStyle",
                                 }) !== value
-                                  ? "bg-gray12"
+                                  ? "bg-slate12"
                                   : undefined
                               }
                             />
@@ -1095,7 +1095,7 @@ function App() {
                                   elementOptions,
                                   option: "strokeWidth",
                                 }) !== value
-                                  ? "bg-gray12"
+                                  ? "bg-slate12"
                                   : undefined
                               }
                             />
@@ -1155,7 +1155,7 @@ function App() {
                                       option: "strokeLineDash",
                                     })
                                   ) !== JSON.stringify(value)
-                                    ? "bg-gray12"
+                                    ? "bg-slate12"
                                     : undefined
                                 }
                               />
@@ -1209,7 +1209,7 @@ function App() {
                                   elementOptions,
                                   option: "roughness",
                                 }) !== value
-                                  ? "bg-gray12"
+                                  ? "bg-slate12"
                                   : undefined
                               }
                             />
@@ -1267,7 +1267,7 @@ function App() {
                                   elementOptions,
                                   option: "fontSize",
                                 }) !== value
-                                  ? "bg-gray12"
+                                  ? "bg-slate12"
                                   : undefined
                               }
                             />
