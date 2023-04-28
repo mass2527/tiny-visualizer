@@ -27,7 +27,7 @@ export const PERSISTED_CONTEXT: VisualizerMachinePersistedContext = {
     roughness: 1,
 
     fontSize: 16,
-    fontFamily: "serif",
+    fontFamily: "Virgil",
     opacity: 1,
   },
 

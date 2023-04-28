@@ -85,7 +85,7 @@ export const AVAILABLE_OPTIONS: {
     opacity: true,
   },
   text: {
-    fontFamily: false,
+    fontFamily: true,
     stroke: true,
     fontSize: true,
     opacity: true,

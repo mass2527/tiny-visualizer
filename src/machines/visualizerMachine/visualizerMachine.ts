@@ -982,6 +982,8 @@ export const visualizerMachine =
               elements: context.elements.map((element) => {
                 if (selectedElementsIds.includes(element.id)) {
                   if (isTextElement(element)) {
+                    const updatedFontFamily =
+                      elementOptions.fontFamily ?? element.options.fontFamily;
                     const updatedFontSize =
                       elementOptions.fontSize ?? element.options.fontSize;
 
@@ -990,7 +992,7 @@ export const visualizerMachine =
                     }
 
                     const size = measureText({
-                      fontFamily: element.options.fontFamily,
+                      fontFamily: updatedFontFamily,
                       fontSize: updatedFontSize,
                       lineHeight: TEXTAREA_UNIT_LESS_LINE_HEIGHT,
                       text: element.text,
@@ -1000,7 +1002,7 @@ export const visualizerMachine =
                     const textElement: VisualizerTextElement = {
                       ...element,
                       options: {
-                        ...element.options,
+                        fontFamily: updatedFontFamily,
                         fontSize: updatedFontSize,
                         stroke: elementOptions.stroke ?? element.options.stroke,
                         opacity:

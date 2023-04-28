@@ -18,6 +18,7 @@ import { useDevicePixelRatio, useWindowSize } from "./hooks";
 
 import { HOT_KEYS, TEXTAREA_UNIT_LESS_LINE_HEIGHT } from "./constants";
 import {
+  FontFamily,
   Tool,
   visualizerMachine,
   VisualizerMachineContext,
@@ -61,6 +62,7 @@ import {
   BorderSolidIcon,
   CartoonistRoughnessIcon,
   CircleIcon,
+  CodeIcon,
   CopyIcon,
   CrossHatchIcon,
   CursorArrowIcon,
@@ -76,6 +78,7 @@ import {
   LockOpenIcon,
   MediumSizeIcon,
   MinusIcon,
+  NormalFontIcon,
   PencilIcon,
   PlusIcon,
   RedoIcon,
@@ -217,6 +220,24 @@ const FONT_SIZE_OPTIONS: ElementOption<"fontSize">[] = [
     label: "X-Large",
     value: 24,
     icon: <XLargeSizeIcon />,
+  },
+];
+
+const FONT_FAMILY_OPTIONS: ElementOption<"fontFamily">[] = [
+  {
+    label: "handDrawn",
+    value: "Virgil",
+    icon: <PencilIcon />,
+  },
+  {
+    label: "normal",
+    value: "Helvetica",
+    icon: <NormalFontIcon />,
+  },
+  {
+    label: "code",
+    value: "Cascadia",
+    icon: <CodeIcon />,
   },
 ];
 
@@ -1266,6 +1287,64 @@ function App() {
                                   selectedElements,
                                   elementOptions,
                                   option: "fontSize",
+                                }) !== value
+                                  ? "bg-slate12"
+                                  : undefined
+                              }
+                            />
+                          );
+                        })}
+                      </RadioCardGroup.Root>
+                    </Fieldset>
+                  )}
+
+                {shouldShowElementOptions &&
+                  "stroke" in shouldShowElementOptions &&
+                  shouldShowElementOptions.stroke && (
+                    <Fieldset legend="Font Family">
+                      <RadioCardGroup.Root
+                        aria-label="font family"
+                        className="flex gap-1"
+                        value={String(
+                          calculateElementOptionValue({
+                            selectedElements,
+                            elementOptions,
+                            option: "fontFamily",
+                          })
+                        )}
+                        onValueChange={(fontFamily) => {
+                          const canvasElement = canvasRef.current;
+                          invariant(canvasElement);
+
+                          send({
+                            type: "CHANGE_ELEMENT_OPTIONS",
+                            elementOptions: {
+                              fontFamily: fontFamily as FontFamily,
+                            },
+                            canvasElement,
+                            devicePixelRatio,
+                          });
+                        }}
+                      >
+                        {FONT_FAMILY_OPTIONS.map(({ label, value, icon }) => {
+                          return (
+                            <RadioCardGroup.Item
+                              key={label}
+                              label={label}
+                              value={value}
+                              icon={icon}
+                              checked={
+                                calculateElementOptionValue({
+                                  selectedElements,
+                                  elementOptions,
+                                  option: "fontFamily",
+                                }) === value
+                              }
+                              className={
+                                calculateElementOptionValue({
+                                  selectedElements,
+                                  elementOptions,
+                                  option: "fontFamily",
                                 }) !== value
                                   ? "bg-slate12"
                                   : undefined

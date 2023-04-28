@@ -71,13 +71,13 @@ export type VisualizerFreeDrawElement = VisualizerShapeElementBase & {
     strokeWidth: number;
   };
 };
-
+export type FontFamily = "Virgil" | "Helvetica" | "Cascadia";
 export type VisualizerTextElement = VisualizerShapeElementBase & {
   shape: "text";
   text: string;
   options: {
     stroke: string;
-    fontFamily: "serif";
+    fontFamily: FontFamily;
     fontSize: number;
   };
 };
