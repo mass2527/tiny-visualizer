@@ -883,9 +883,8 @@ function App() {
       <div className="absolute w-full h-full p-4 pointer-events-none z-10">
         <div className="w-full h-full relative flex flex-col gap-4">
           <header
-            className={`flex justify-center items-center gap-1 bg-black rounded-lg ${
-              state.matches("idle") && "pointer-events-auto"
-            }`}
+            className={`flex justify-center items-center gap-1 bg-black rounded-lg cursor-default
+            ${state.matches("idle") && "pointer-events-auto"}`}
           >
             <input
               className="hidden"
@@ -941,9 +940,8 @@ function App() {
             tool !== "image") ||
             (selectedElements.length >= 1 && tool === "selection")) && (
             <div
-              className={`w-[180px] ${
-                state.matches("idle") && "pointer-events-auto"
-              }`}
+              className={`w-[180px] cursor-default
+              ${state.matches("idle") && "pointer-events-auto"}`}
             >
               <div className="flex flex-col gap-2 bg-black text-gray11 text-sm p-2 rounded-lg">
                 {shouldShowElementOptions &&
