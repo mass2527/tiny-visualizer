@@ -524,10 +524,11 @@ function App() {
 
     const handleKeyDown = (event: KeyboardEvent) => {
       const focusedElement = document.activeElement;
-      const isInputFieldFocused =
+      const isInteractiveElementFocused =
         focusedElement instanceof HTMLInputElement ||
-        focusedElement instanceof HTMLTextAreaElement;
-      if (isInputFieldFocused) {
+        focusedElement instanceof HTMLTextAreaElement ||
+        focusedElement instanceof HTMLButtonElement;
+      if (isInteractiveElementFocused) {
         return;
       }
 

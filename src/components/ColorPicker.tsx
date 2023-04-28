@@ -55,6 +55,9 @@ function ColorPicker({
             sideOffset={5}
             side="right"
             align="start"
+            onKeyDown={(event) => {
+              event.stopPropagation();
+            }}
           >
             {[
               red,
