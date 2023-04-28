@@ -51,7 +51,7 @@ function ColorPicker({
         </Popover.Trigger>
         <Popover.Portal>
           <Popover.Content
-            className="flex gap-1 z-10 rounded-lg p-1 bg-black cursor-default"
+            className="grid grid-cols-3 gap-1 z-10 rounded-lg p-1 bg-black cursor-default"
             sideOffset={5}
             side="right"
             align="start"
@@ -76,24 +76,27 @@ function ColorPicker({
               );
 
               return (
-                <Button
-                  key={updatedColor}
-                  className={`w-8 h-8 flex-none 
+                <Popover.Close asChild key={updatedColor}>
+                  <Button
+                    className={`w-8 h-8 flex-none 
                   ${
-                    updatedColor === value ? "bg-slate12" : "hover:bg-slate12"
+                    updatedColor === value
+                      ? "bg-slate12"
+                      : "bg-black hover:bg-slate12"
                   }`}
-                  onClick={() => {
-                    onColorChange(updatedColor);
-                  }}
-                  autoFocus={updatedColor === value}
-                >
-                  <div
-                    className="w-4 h-4 rounded-full"
-                    style={{
-                      backgroundColor: updatedColor,
+                    onClick={() => {
+                      onColorChange(updatedColor);
                     }}
-                  ></div>
-                </Button>
+                    autoFocus={updatedColor === value}
+                  >
+                    <div
+                      className="w-4 h-4 rounded-full"
+                      style={{
+                        backgroundColor: updatedColor,
+                      }}
+                    ></div>
+                  </Button>
+                </Popover.Close>
               );
             })}
             <Popover.Arrow className="fill-black z-10" />
