@@ -51,7 +51,7 @@ function ColorPicker({
         </Popover.Trigger>
         <Popover.Portal>
           <Popover.Content
-            className="flex gap-1 z-10 rounded-lg p-1 bg-white cursor-default shadow-[0_10px_38px_-10px_hsla(206,22%,7%,.35),0_10px_20px_-15px_hsla(206,22%,7%,.2)]"
+            className="flex gap-1 z-10 rounded-lg p-1 bg-black cursor-default"
             sideOffset={5}
             side="right"
             align="start"
@@ -64,32 +64,30 @@ function ColorPicker({
                 });
 
                 return (
-                  <Popover.Close asChild>
-                    <Button
-                      key={colorKey}
-                      className={`w-8 h-8 flex-none`}
-                      style={{
-                        backgroundColor: color[colorKey as keyof typeof color],
-                      }}
-                      onClick={() => {
-                        onColorChange(
-                          convertHslToHex(color[colorKey as keyof typeof color])
-                        );
-                      }}
-                    />
-                  </Popover.Close>
+                  <Button
+                    key={colorKey}
+                    className={`w-8 h-8 flex-none`}
+                    style={{
+                      backgroundColor: color[colorKey as keyof typeof color],
+                    }}
+                    onClick={() => {
+                      onColorChange(
+                        convertHslToHex(color[colorKey as keyof typeof color])
+                      );
+                    }}
+                  />
                 );
               }
             )}
-            <Popover.Arrow className="fill-white z-10" />
+            <Popover.Arrow className="fill-black z-10" />
           </Popover.Content>
         </Popover.Portal>
       </Popover.Root>
 
-      <div className="flex items-center gap-1 rounded-lg bg-gray12 px-2">
+      <label className="flex items-center gap-1 rounded-lg bg-gray12 px-2 border border-transparent focus-within:border-blue9">
         <span>#</span>
         <input
-          className="bg-transparent w-full"
+          className="bg-transparent w-full focus:outline-none"
           type="text"
           value={color.replace(/#/, "")}
           onChange={(event) => {
@@ -121,8 +119,9 @@ function ColorPicker({
           onBlur={() => {
             setColor(value);
           }}
+          spellCheck={false}
         />
-      </div>
+      </label>
     </div>
   );
 }
