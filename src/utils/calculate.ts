@@ -569,34 +569,23 @@ export const calculateElementOptionValue = ({
   }
 
   //  selectedElements.length > 1
-  // 1. have same value A:x, B:x, C:x
 
-  const selectedElementsOptions = selectedElements.map((element) =>
-    JSON.stringify(
-      element.options[option as keyof VisualizerElement["options"]]
-    )
-  );
-  if (
-    selectedElementsOptions.every(
-      (element) => element === selectedElementsOptions[0]
-    )
-  ) {
-    return selectedElements[0].options[
-      option as keyof VisualizerElement["options"]
-    ];
-  }
-
-  // 2. only one have value A:x, B:undefined, C:undefined
-  // 3. have different value A:x, B:y, C:z
   const options = selectedElements
     .map(
       (element) => element.options[option as keyof VisualizerElement["options"]]
     )
     .filter((element) => element !== undefined);
 
+  // 1. have same value A:x, B:x, C:x
+  if (options.every((option) => option === options[0])) {
+    return options[0];
+  }
+
+  // 2. only one have value A:x, B:undefined, C:undefined
   if (options.length === 1) {
     return options[0];
   } else {
+    // 3. have different value A:x, B:y, C:z
     return undefined;
   }
 };
