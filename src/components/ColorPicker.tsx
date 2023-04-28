@@ -16,6 +16,9 @@ import {
 
 import { convertHslToHex } from "../utils";
 
+const TRANSPARENT_IMAGE =
+  "url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAMUlEQVQ4T2NkYGAQYcAP3uCTZhw1gGGYhAGBZIA/nYDCgBDAm9BGDWAAJyRCgLaBCAAgXwixzAS0pgAAAABJRU5ErkJggg==)";
+
 function ColorPicker({
   value,
   onColorChange,
@@ -44,7 +47,7 @@ function ColorPicker({
             style={{
               backgroundColor: shouldShowTransparentImage ? "#fff" : value,
               backgroundImage: shouldShowTransparentImage
-                ? "url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAMUlEQVQ4T2NkYGAQYcAP3uCTZhw1gGGYhAGBZIA/nYDCgBDAm9BGDWAAJyRCgLaBCAAgXwixzAS0pgAAAABJRU5ErkJggg==)"
+                ? TRANSPARENT_IMAGE
                 : undefined,
             }}
           />
@@ -102,6 +105,28 @@ function ColorPicker({
                 </Popover.Close>
               );
             })}
+            <Popover.Close asChild>
+              <Button
+                className={`w-8 h-8 flex-none 
+                  ${
+                    "transparent" === value
+                      ? "bg-slate12"
+                      : "bg-black hover:bg-slate12"
+                  }`}
+                onClick={() => {
+                  onColorChange("transparent");
+                }}
+                autoFocus={"transparent" === value}
+              >
+                <div
+                  className="w-4 h-4 rounded-full"
+                  style={{
+                    backgroundColor: "white",
+                    backgroundImage: TRANSPARENT_IMAGE,
+                  }}
+                ></div>
+              </Button>
+            </Popover.Close>
             <Popover.Arrow className="fill-black z-10" />
           </Popover.Content>
         </Popover.Portal>
