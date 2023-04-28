@@ -1062,8 +1062,8 @@ export const visualizerMachine =
                   const imageElement: VisualizerImageElement = {
                     ...element,
                     options: {
-                      ...element.options,
-                      ...elementOptions,
+                      opacity:
+                        elementOptions.opacity ?? element.options.opacity,
                     },
                   };
 
