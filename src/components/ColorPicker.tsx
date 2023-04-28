@@ -11,7 +11,7 @@ import {
   yellow,
   pink,
   indigo,
-  gray,
+  slate,
 } from "@radix-ui/colors";
 
 import { convertHslToHex } from "../utils";
@@ -51,45 +51,63 @@ function ColorPicker({
         </Popover.Trigger>
         <Popover.Portal>
           <Popover.Content
-            className="flex gap-1 z-10 rounded-lg p-1 bg-white cursor-default shadow-[0_10px_38px_-10px_hsla(206,22%,7%,.35),0_10px_20px_-15px_hsla(206,22%,7%,.2)] focus:shadow-[0_10px_38px_-10px_hsla(206,22%,7%,.35),0_10px_20px_-15px_hsla(206,22%,7%,.2),0_0_0_2px_theme(colors.violet7)] will-change-[transform,opacity] data-[state=open]:data-[side=top]:animate-slideDownAndFade data-[state=open]:data-[side=right]:animate-slideLeftAndFade data-[state=open]:data-[side=bottom]:animate-slideUpAndFade data-[state=open]:data-[side=left]:animate-slideRightAndFade"
+            className="grid grid-cols-3 gap-1 z-10 rounded-lg p-1 bg-black cursor-default"
             sideOffset={5}
             side="right"
             align="start"
           >
-            {[red, orange, yellow, green, blue, indigo, purple, pink, gray].map(
-              (color) => {
-                const regex = new RegExp(`.*${scale}$`);
-                const colorKey = Object.keys(color).find((key) => {
-                  return regex.test(key);
-                });
+            {[
+              red,
+              orange,
+              yellow,
+              green,
+              blue,
+              indigo,
+              purple,
+              pink,
+              slate,
+            ].map((color) => {
+              const regex = new RegExp(`.*${scale}$`);
+              const colorKey = Object.keys(color).find((key) => {
+                return regex.test(key);
+              });
+              const updatedColor = convertHslToHex(
+                color[colorKey as keyof typeof color]
+              );
 
-                return (
-                  <Popover.Close asChild>
-                    <Button
-                      key={colorKey}
-                      className={`w-8 h-8 flex-none`}
+              return (
+                <Popover.Close asChild key={updatedColor}>
+                  <Button
+                    className={`w-8 h-8 flex-none 
+                  ${
+                    updatedColor === value
+                      ? "bg-slate12"
+                      : "bg-black hover:bg-slate12"
+                  }`}
+                    onClick={() => {
+                      onColorChange(updatedColor);
+                    }}
+                    autoFocus={updatedColor === value}
+                  >
+                    <div
+                      className="w-4 h-4 rounded-full"
                       style={{
-                        backgroundColor: color[colorKey as keyof typeof color],
+                        backgroundColor: updatedColor,
                       }}
-                      onClick={() => {
-                        onColorChange(
-                          convertHslToHex(color[colorKey as keyof typeof color])
-                        );
-                      }}
-                    />
-                  </Popover.Close>
-                );
-              }
-            )}
-            <Popover.Arrow className="fill-white z-10" />
+                    ></div>
+                  </Button>
+                </Popover.Close>
+              );
+            })}
+            <Popover.Arrow className="fill-black z-10" />
           </Popover.Content>
         </Popover.Portal>
       </Popover.Root>
 
-      <div className="flex items-center gap-1 rounded-lg bg-gray12 px-2">
+      <label className="flex items-center gap-1 rounded-lg bg-slate12 px-2 border border-transparent focus-within:border-blue9">
         <span>#</span>
         <input
-          className="bg-transparent w-full"
+          className="bg-transparent w-full focus:outline-none"
           type="text"
           value={color.replace(/#/, "")}
           onChange={(event) => {
@@ -121,8 +139,9 @@ function ColorPicker({
           onBlur={() => {
             setColor(value);
           }}
+          spellCheck={false}
         />
-      </div>
+      </label>
     </div>
   );
 }

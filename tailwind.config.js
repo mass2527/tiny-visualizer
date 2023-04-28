@@ -1,4 +1,4 @@
-import { gray, blue } from "@radix-ui/colors";
+import { slate, blue } from "@radix-ui/colors";
 
 /** @type {import('tailwindcss').Config} */
 export default {
@@ -6,7 +6,7 @@ export default {
   theme: {
     extend: {
       colors: {
-        ...gray,
+        ...slate,
         ...blue,
       },
     },

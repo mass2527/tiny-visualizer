@@ -18,6 +18,7 @@ import { useDevicePixelRatio, useWindowSize } from "./hooks";
 
 import { HOT_KEYS, TEXTAREA_UNIT_LESS_LINE_HEIGHT } from "./constants";
 import {
+  FontFamily,
   Tool,
   visualizerMachine,
   VisualizerMachineContext,
@@ -44,7 +45,7 @@ import {
   groupBy,
   isImageElement,
   calculateElementOptionValue,
-  calculateShouldShowElementOptions,
+  calculateShouldShowElementOptions as calculateShowElementOptions,
   strokeRectangle,
   calculateAbsolutePointByElementBase,
 } from "./utils";
@@ -61,6 +62,7 @@ import {
   BorderSolidIcon,
   CartoonistRoughnessIcon,
   CircleIcon,
+  CodeIcon,
   CopyIcon,
   CrossHatchIcon,
   CursorArrowIcon,
@@ -76,6 +78,7 @@ import {
   LockOpenIcon,
   MediumSizeIcon,
   MinusIcon,
+  NormalFontIcon,
   PencilIcon,
   PlusIcon,
   RedoIcon,
@@ -94,6 +97,13 @@ import Fieldset from "./components/Fieldset";
 import { blue } from "@radix-ui/colors";
 import { Button } from "./components/Button";
 import ColorPicker from "./components/ColorPicker";
+
+const canShowElementOption = (
+  obj: Record<string, boolean> | null,
+  key: string
+) => {
+  return obj && key in obj && obj[key];
+};
 
 export const TOOL_LABELS = {
   hand: {
@@ -217,6 +227,24 @@ const FONT_SIZE_OPTIONS: ElementOption<"fontSize">[] = [
     label: "X-Large",
     value: 24,
     icon: <XLargeSizeIcon />,
+  },
+];
+
+const FONT_FAMILY_OPTIONS: ElementOption<"fontFamily">[] = [
+  {
+    label: "handDrawn",
+    value: "Virgil",
+    icon: <PencilIcon />,
+  },
+  {
+    label: "normal",
+    value: "Helvetica",
+    icon: <NormalFontIcon />,
+  },
+  {
+    label: "code",
+    value: "Cascadia",
+    icon: <CodeIcon />,
   },
 ];
 
@@ -873,7 +901,7 @@ function App() {
     []
   );
 
-  const shouldShowElementOptions = calculateShouldShowElementOptions(
+  const showElementOptions = calculateShowElementOptions(
     tool,
     selectedElements
   );
@@ -883,9 +911,8 @@ function App() {
       <div className="absolute w-full h-full p-4 pointer-events-none z-10">
         <div className="w-full h-full relative flex flex-col gap-4">
           <header
-            className={`flex justify-center items-center gap-1 bg-black rounded-lg ${
-              state.matches("idle") && "pointer-events-auto"
-            }`}
+            className={`flex justify-center items-center gap-1 bg-black rounded-lg cursor-default
+            ${state.matches("idle") && "pointer-events-auto"}`}
           >
             <input
               className="hidden"
@@ -941,376 +968,415 @@ function App() {
             tool !== "image") ||
             (selectedElements.length >= 1 && tool === "selection")) && (
             <div
-              className={`w-[180px] ${
-                state.matches("idle") && "pointer-events-auto"
-              }`}
+              className={`w-[180px] cursor-default
+              ${state.matches("idle") && "pointer-events-auto"}`}
             >
-              <div className="flex flex-col gap-2 bg-black text-gray11 text-sm p-2 rounded-lg">
-                {shouldShowElementOptions &&
-                  "stroke" in shouldShowElementOptions &&
-                  shouldShowElementOptions.stroke && (
-                    <Fieldset legend="Stroke Color">
-                      <ColorPicker
-                        scale={11}
-                        value={String(
-                          calculateElementOptionValue({
-                            selectedElements,
-                            elementOptions,
-                            option: "stroke",
-                          }) ?? ""
-                        )}
-                        onColorChange={(color) => {
-                          const canvasElement = canvasRef.current;
-                          invariant(canvasElement);
+              <div className="flex flex-col gap-2 bg-black text-slate11 text-sm p-2 rounded-lg">
+                {canShowElementOption(showElementOptions, "stroke") && (
+                  <Fieldset legend="Stroke Color">
+                    <ColorPicker
+                      scale={11}
+                      value={String(
+                        calculateElementOptionValue({
+                          selectedElements,
+                          elementOptions,
+                          option: "stroke",
+                        }) ?? ""
+                      )}
+                      onColorChange={(color) => {
+                        const canvasElement = canvasRef.current;
+                        invariant(canvasElement);
 
-                          send({
-                            type: "CHANGE_ELEMENT_OPTIONS",
-                            elementOptions: {
-                              stroke: color,
-                            },
-                            canvasElement,
-                            devicePixelRatio,
-                          });
-                        }}
-                      />
-                    </Fieldset>
-                  )}
+                        send({
+                          type: "CHANGE_ELEMENT_OPTIONS",
+                          elementOptions: {
+                            stroke: color,
+                          },
+                          canvasElement,
+                          devicePixelRatio,
+                        });
+                      }}
+                    />
+                  </Fieldset>
+                )}
 
-                {shouldShowElementOptions &&
-                  "fill" in shouldShowElementOptions &&
-                  shouldShowElementOptions.fill && (
-                    <Fieldset legend="Fill Color">
-                      <ColorPicker
-                        scale={9}
-                        value={String(
-                          calculateElementOptionValue({
-                            selectedElements,
-                            elementOptions,
-                            option: "fill",
-                          }) ?? ""
-                        )}
-                        onColorChange={(color) => {
-                          send({
-                            type: "CHANGE_ELEMENT_OPTIONS",
-                            elementOptions: {
-                              fill: color,
-                            },
-                          });
-                        }}
-                      />
-                    </Fieldset>
-                  )}
+                {canShowElementOption(showElementOptions, "fill") && (
+                  <Fieldset legend="Fill Color">
+                    <ColorPicker
+                      scale={9}
+                      value={String(
+                        calculateElementOptionValue({
+                          selectedElements,
+                          elementOptions,
+                          option: "fill",
+                        }) ?? ""
+                      )}
+                      onColorChange={(color) => {
+                        send({
+                          type: "CHANGE_ELEMENT_OPTIONS",
+                          elementOptions: {
+                            fill: color,
+                          },
+                        });
+                      }}
+                    />
+                  </Fieldset>
+                )}
 
-                {shouldShowElementOptions &&
-                  "fillStyle" in shouldShowElementOptions &&
-                  shouldShowElementOptions.fillStyle && (
-                    <Fieldset legend="Fill Style">
-                      <RadioCardGroup.Root
-                        aria-label="fill style"
-                        className="flex gap-1"
-                        value={String(
-                          calculateElementOptionValue({
-                            selectedElements,
-                            elementOptions,
-                            option: "fillStyle",
-                          })
-                        )}
-                        onValueChange={(fillStyle) => {
-                          send({
-                            type: "CHANGE_ELEMENT_OPTIONS",
-                            elementOptions: {
-                              fillStyle,
-                            },
-                          });
-                        }}
-                      >
-                        {Fill_STYLE_OPTIONS.map(({ label, value, icon }) => {
-                          return (
-                            <RadioCardGroup.Item
-                              key={value}
-                              label={label}
-                              value={value}
-                              icon={icon}
-                              checked={
-                                calculateElementOptionValue({
-                                  selectedElements,
-                                  elementOptions,
-                                  option: "fillStyle",
-                                }) === value
-                              }
-                              className={
-                                calculateElementOptionValue({
-                                  selectedElements,
-                                  elementOptions,
-                                  option: "fillStyle",
-                                }) !== value
-                                  ? "bg-gray12"
-                                  : undefined
-                              }
-                            />
-                          );
-                        })}
-                      </RadioCardGroup.Root>
-                    </Fieldset>
-                  )}
+                {canShowElementOption(showElementOptions, "fillStyle") && (
+                  <Fieldset legend="Fill Style">
+                    <RadioCardGroup.Root
+                      aria-label="fill style"
+                      className="flex gap-1"
+                      value={String(
+                        calculateElementOptionValue({
+                          selectedElements,
+                          elementOptions,
+                          option: "fillStyle",
+                        })
+                      )}
+                      onValueChange={(fillStyle) => {
+                        send({
+                          type: "CHANGE_ELEMENT_OPTIONS",
+                          elementOptions: {
+                            fillStyle,
+                          },
+                        });
+                      }}
+                    >
+                      {Fill_STYLE_OPTIONS.map(({ label, value, icon }) => {
+                        return (
+                          <RadioCardGroup.Item
+                            key={value}
+                            label={label}
+                            value={value}
+                            icon={icon}
+                            checked={
+                              calculateElementOptionValue({
+                                selectedElements,
+                                elementOptions,
+                                option: "fillStyle",
+                              }) === value
+                            }
+                            className={
+                              calculateElementOptionValue({
+                                selectedElements,
+                                elementOptions,
+                                option: "fillStyle",
+                              }) !== value
+                                ? "bg-slate12"
+                                : undefined
+                            }
+                          />
+                        );
+                      })}
+                    </RadioCardGroup.Root>
+                  </Fieldset>
+                )}
 
-                {shouldShowElementOptions &&
-                  "strokeWidth" in shouldShowElementOptions &&
-                  shouldShowElementOptions.strokeWidth && (
-                    <Fieldset legend="Stroke Width">
-                      <RadioCardGroup.Root
-                        aria-label="stroke width"
-                        className="flex gap-1"
-                        value={String(
-                          calculateElementOptionValue({
-                            selectedElements,
-                            elementOptions,
-                            option: "strokeWidth",
-                          })
-                        )}
-                        onValueChange={(strokeWidth) => {
-                          send({
-                            type: "CHANGE_ELEMENT_OPTIONS",
-                            elementOptions: {
-                              strokeWidth: Number(strokeWidth),
-                            },
-                          });
-                        }}
-                      >
-                        {STROKE_WIDTH_OPTIONS.map(({ label, value, icon }) => {
-                          return (
-                            <RadioCardGroup.Item
-                              key={value}
-                              label={label}
-                              value={String(value)}
-                              icon={icon}
-                              checked={
-                                calculateElementOptionValue({
-                                  selectedElements,
-                                  elementOptions,
-                                  option: "strokeWidth",
-                                }) === value
-                              }
-                              className={
-                                calculateElementOptionValue({
-                                  selectedElements,
-                                  elementOptions,
-                                  option: "strokeWidth",
-                                }) !== value
-                                  ? "bg-gray12"
-                                  : undefined
-                              }
-                            />
-                          );
-                        })}
-                      </RadioCardGroup.Root>
-                    </Fieldset>
-                  )}
+                {canShowElementOption(showElementOptions, "strokeWidth") && (
+                  <Fieldset legend="Stroke Width">
+                    <RadioCardGroup.Root
+                      aria-label="stroke width"
+                      className="flex gap-1"
+                      value={String(
+                        calculateElementOptionValue({
+                          selectedElements,
+                          elementOptions,
+                          option: "strokeWidth",
+                        })
+                      )}
+                      onValueChange={(strokeWidth) => {
+                        send({
+                          type: "CHANGE_ELEMENT_OPTIONS",
+                          elementOptions: {
+                            strokeWidth: Number(strokeWidth),
+                          },
+                        });
+                      }}
+                    >
+                      {STROKE_WIDTH_OPTIONS.map(({ label, value, icon }) => {
+                        return (
+                          <RadioCardGroup.Item
+                            key={value}
+                            label={label}
+                            value={String(value)}
+                            icon={icon}
+                            checked={
+                              calculateElementOptionValue({
+                                selectedElements,
+                                elementOptions,
+                                option: "strokeWidth",
+                              }) === value
+                            }
+                            className={
+                              calculateElementOptionValue({
+                                selectedElements,
+                                elementOptions,
+                                option: "strokeWidth",
+                              }) !== value
+                                ? "bg-slate12"
+                                : undefined
+                            }
+                          />
+                        );
+                      })}
+                    </RadioCardGroup.Root>
+                  </Fieldset>
+                )}
 
-                {shouldShowElementOptions &&
-                  "strokeLineDash" in shouldShowElementOptions &&
-                  shouldShowElementOptions.strokeLineDash && (
-                    <Fieldset legend="Stroke Line Dash">
-                      <RadioCardGroup.Root
-                        aria-label="stroke line dash"
-                        className="flex gap-1"
-                        value={JSON.stringify(
-                          calculateElementOptionValue({
-                            selectedElements,
-                            elementOptions,
-                            option: "strokeLineDash",
-                          })
-                        )}
-                        onValueChange={(strokeLineDash) => {
-                          send({
-                            type: "CHANGE_ELEMENT_OPTIONS",
-                            elementOptions: {
-                              strokeLineDash: JSON.parse(
-                                strokeLineDash
-                              ) as number[],
-                            },
-                          });
-                        }}
-                      >
-                        {STROKE_LINE_DASH_OPTIONS.map(
-                          ({ label, value, icon }) => {
-                            return (
-                              <RadioCardGroup.Item
-                                key={label}
-                                label={label}
-                                value={JSON.stringify(value)}
-                                icon={icon}
-                                checked={
-                                  JSON.stringify(
-                                    calculateElementOptionValue({
-                                      selectedElements,
-                                      elementOptions,
-                                      option: "strokeLineDash",
-                                    })
-                                  ) === JSON.stringify(value)
-                                }
-                                className={
-                                  JSON.stringify(
-                                    calculateElementOptionValue({
-                                      selectedElements,
-                                      elementOptions,
-                                      option: "strokeLineDash",
-                                    })
-                                  ) !== JSON.stringify(value)
-                                    ? "bg-gray12"
-                                    : undefined
-                                }
-                              />
-                            );
-                          }
-                        )}
-                      </RadioCardGroup.Root>
-                    </Fieldset>
-                  )}
-
-                {shouldShowElementOptions &&
-                  "roughness" in shouldShowElementOptions &&
-                  shouldShowElementOptions.roughness && (
-                    <Fieldset legend="Roughness">
-                      <RadioCardGroup.Root
-                        aria-label="roughness"
-                        className="flex gap-1"
-                        value={String(
-                          calculateElementOptionValue({
-                            selectedElements,
-                            elementOptions,
-                            option: "roughness",
-                          })
-                        )}
-                        onValueChange={(roughness) => {
-                          send({
-                            type: "CHANGE_ELEMENT_OPTIONS",
-                            elementOptions: {
-                              roughness: Number(roughness),
-                            },
-                          });
-                        }}
-                      >
-                        {ROUGHNESS_OPTIONS.map(({ label, value, icon }) => {
+                {canShowElementOption(showElementOptions, "strokeLineDash") && (
+                  <Fieldset legend="Stroke Line Dash">
+                    <RadioCardGroup.Root
+                      aria-label="stroke line dash"
+                      className="flex gap-1"
+                      value={JSON.stringify(
+                        calculateElementOptionValue({
+                          selectedElements,
+                          elementOptions,
+                          option: "strokeLineDash",
+                        })
+                      )}
+                      onValueChange={(strokeLineDash) => {
+                        send({
+                          type: "CHANGE_ELEMENT_OPTIONS",
+                          elementOptions: {
+                            strokeLineDash: JSON.parse(
+                              strokeLineDash
+                            ) as number[],
+                          },
+                        });
+                      }}
+                    >
+                      {STROKE_LINE_DASH_OPTIONS.map(
+                        ({ label, value, icon }) => {
                           return (
                             <RadioCardGroup.Item
                               key={label}
                               label={label}
-                              value={String(value)}
+                              value={JSON.stringify(value)}
                               icon={icon}
                               checked={
-                                calculateElementOptionValue({
-                                  selectedElements,
-                                  elementOptions,
-                                  option: "roughness",
-                                }) === value
+                                JSON.stringify(
+                                  calculateElementOptionValue({
+                                    selectedElements,
+                                    elementOptions,
+                                    option: "strokeLineDash",
+                                  })
+                                ) === JSON.stringify(value)
                               }
                               className={
-                                calculateElementOptionValue({
-                                  selectedElements,
-                                  elementOptions,
-                                  option: "roughness",
-                                }) !== value
-                                  ? "bg-gray12"
+                                JSON.stringify(
+                                  calculateElementOptionValue({
+                                    selectedElements,
+                                    elementOptions,
+                                    option: "strokeLineDash",
+                                  })
+                                ) !== JSON.stringify(value)
+                                  ? "bg-slate12"
                                   : undefined
                               }
                             />
                           );
-                        })}
-                      </RadioCardGroup.Root>
-                    </Fieldset>
-                  )}
+                        }
+                      )}
+                    </RadioCardGroup.Root>
+                  </Fieldset>
+                )}
 
-                {shouldShowElementOptions &&
-                  "fontSize" in shouldShowElementOptions &&
-                  shouldShowElementOptions.fontSize && (
-                    <Fieldset legend="Font Size">
-                      <RadioCardGroup.Root
-                        aria-label="font size"
-                        className="flex gap-1"
-                        value={String(
-                          calculateElementOptionValue({
-                            selectedElements,
-                            elementOptions,
-                            option: "fontSize",
-                          })
-                        )}
-                        onValueChange={(fontSize) => {
-                          const canvasElement = canvasRef.current;
-                          invariant(canvasElement);
+                {canShowElementOption(showElementOptions, "roughness") && (
+                  <Fieldset legend="Roughness">
+                    <RadioCardGroup.Root
+                      aria-label="roughness"
+                      className="flex gap-1"
+                      value={String(
+                        calculateElementOptionValue({
+                          selectedElements,
+                          elementOptions,
+                          option: "roughness",
+                        })
+                      )}
+                      onValueChange={(roughness) => {
+                        send({
+                          type: "CHANGE_ELEMENT_OPTIONS",
+                          elementOptions: {
+                            roughness: Number(roughness),
+                          },
+                        });
+                      }}
+                    >
+                      {ROUGHNESS_OPTIONS.map(({ label, value, icon }) => {
+                        return (
+                          <RadioCardGroup.Item
+                            key={label}
+                            label={label}
+                            value={String(value)}
+                            icon={icon}
+                            checked={
+                              calculateElementOptionValue({
+                                selectedElements,
+                                elementOptions,
+                                option: "roughness",
+                              }) === value
+                            }
+                            className={
+                              calculateElementOptionValue({
+                                selectedElements,
+                                elementOptions,
+                                option: "roughness",
+                              }) !== value
+                                ? "bg-slate12"
+                                : undefined
+                            }
+                          />
+                        );
+                      })}
+                    </RadioCardGroup.Root>
+                  </Fieldset>
+                )}
 
-                          send({
-                            type: "CHANGE_ELEMENT_OPTIONS",
-                            elementOptions: {
-                              fontSize: Number(fontSize),
-                            },
-                            canvasElement,
-                            devicePixelRatio,
-                          });
-                        }}
-                      >
-                        {FONT_SIZE_OPTIONS.map(({ label, value, icon }) => {
-                          return (
-                            <RadioCardGroup.Item
-                              key={label}
-                              label={label}
-                              value={String(value)}
-                              icon={icon}
-                              checked={
-                                calculateElementOptionValue({
-                                  selectedElements,
-                                  elementOptions,
-                                  option: "fontSize",
-                                }) === value
-                              }
-                              className={
-                                calculateElementOptionValue({
-                                  selectedElements,
-                                  elementOptions,
-                                  option: "fontSize",
-                                }) !== value
-                                  ? "bg-gray12"
-                                  : undefined
-                              }
-                            />
-                          );
-                        })}
-                      </RadioCardGroup.Root>
-                    </Fieldset>
-                  )}
+                {canShowElementOption(showElementOptions, "fontSize") && (
+                  <Fieldset legend="Font Size">
+                    <RadioCardGroup.Root
+                      aria-label="font size"
+                      className="flex gap-1"
+                      value={String(
+                        calculateElementOptionValue({
+                          selectedElements,
+                          elementOptions,
+                          option: "fontSize",
+                        })
+                      )}
+                      onValueChange={(fontSize) => {
+                        const canvasElement = canvasRef.current;
+                        invariant(canvasElement);
 
-                {shouldShowElementOptions &&
-                  "opacity" in shouldShowElementOptions &&
-                  shouldShowElementOptions.opacity && (
-                    <Fieldset legend="Opacity">
-                      <input
-                        type="range"
-                        min="0"
-                        max="1"
-                        step="0.1"
-                        value={Number(
-                          calculateElementOptionValue({
-                            selectedElements,
-                            elementOptions,
-                            option: "opacity",
-                          })
-                        )}
-                        onChange={(event) => {
-                          const canvasElement = canvasRef.current;
-                          invariant(canvasElement);
+                        send({
+                          type: "CHANGE_ELEMENT_OPTIONS",
+                          elementOptions: {
+                            fontSize: Number(fontSize),
+                          },
+                          canvasElement,
+                          devicePixelRatio,
+                        });
+                      }}
+                    >
+                      {FONT_SIZE_OPTIONS.map(({ label, value, icon }) => {
+                        return (
+                          <RadioCardGroup.Item
+                            key={label}
+                            label={label}
+                            value={String(value)}
+                            icon={icon}
+                            checked={
+                              calculateElementOptionValue({
+                                selectedElements,
+                                elementOptions,
+                                option: "fontSize",
+                              }) === value
+                            }
+                            className={
+                              calculateElementOptionValue({
+                                selectedElements,
+                                elementOptions,
+                                option: "fontSize",
+                              }) !== value
+                                ? "bg-slate12"
+                                : undefined
+                            }
+                          />
+                        );
+                      })}
+                    </RadioCardGroup.Root>
+                  </Fieldset>
+                )}
 
-                          send({
-                            type: "CHANGE_ELEMENT_OPTIONS",
-                            elementOptions: {
-                              opacity: Number(event.target.value),
-                            },
-                            canvasElement,
-                            devicePixelRatio,
-                          });
-                        }}
-                      />
-                    </Fieldset>
-                  )}
+                {canShowElementOption(showElementOptions, "fontFamily") && (
+                  <Fieldset legend="Font Family">
+                    <RadioCardGroup.Root
+                      aria-label="font family"
+                      className="flex gap-1"
+                      value={String(
+                        calculateElementOptionValue({
+                          selectedElements,
+                          elementOptions,
+                          option: "fontFamily",
+                        })
+                      )}
+                      onValueChange={(fontFamily) => {
+                        const canvasElement = canvasRef.current;
+                        invariant(canvasElement);
+
+                        send({
+                          type: "CHANGE_ELEMENT_OPTIONS",
+                          elementOptions: {
+                            fontFamily: fontFamily as FontFamily,
+                          },
+                          canvasElement,
+                          devicePixelRatio,
+                        });
+                      }}
+                    >
+                      {FONT_FAMILY_OPTIONS.map(({ label, value, icon }) => {
+                        return (
+                          <RadioCardGroup.Item
+                            key={label}
+                            label={label}
+                            value={value}
+                            icon={icon}
+                            checked={
+                              calculateElementOptionValue({
+                                selectedElements,
+                                elementOptions,
+                                option: "fontFamily",
+                              }) === value
+                            }
+                            className={
+                              calculateElementOptionValue({
+                                selectedElements,
+                                elementOptions,
+                                option: "fontFamily",
+                              }) !== value
+                                ? "bg-slate12"
+                                : undefined
+                            }
+                          />
+                        );
+                      })}
+                    </RadioCardGroup.Root>
+                  </Fieldset>
+                )}
+
+                {canShowElementOption(showElementOptions, "opacity") && (
+                  <Fieldset legend="Opacity">
+                    <input
+                      type="range"
+                      min="0"
+                      max="1"
+                      step="0.1"
+                      value={Number(
+                        calculateElementOptionValue({
+                          selectedElements,
+                          elementOptions,
+                          option: "opacity",
+                        })
+                      )}
+                      onChange={(event) => {
+                        const canvasElement = canvasRef.current;
+                        invariant(canvasElement);
+
+                        send({
+                          type: "CHANGE_ELEMENT_OPTIONS",
+                          elementOptions: {
+                            opacity: Number(event.target.value),
+                          },
+                          canvasElement,
+                          devicePixelRatio,
+                        });
+                      }}
+                    />
+                  </Fieldset>
+                )}
 
                 {selectedElements.length !== 0 && (
                   <Fieldset legend="Actions">
