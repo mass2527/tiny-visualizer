@@ -19,6 +19,7 @@ import {
   Point,
   VisualizerElement,
 } from "../machines/visualizerMachine";
+import getStroke from "perfect-freehand";
 
 const ARROW_MAX_SIZE = 50;
 export const createDraw = (
@@ -209,20 +210,21 @@ export const createDraw = (
     return () => {
       ctx.save();
 
+      ctx.fillStyle = element.options.stroke;
       ctx.beginPath();
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      ctx.lineWidth = element.options.strokeWidth!;
-      ctx.strokeStyle = element.options.stroke;
-
       ctx.moveTo(element.point.x, element.point.y);
-      for (let i = 1; i < element.points.length; i++) {
-        const point = element.points[i];
-        invariant(point);
 
-        const { x, y } = point;
-        ctx.lineTo(element.point.x + x, element.point.y + y);
-      }
-      ctx.stroke();
+      const stroke = getStroke(
+        element.points.map((point) => {
+          return [point.x + element.point.x, point.y + element.point.y];
+        }),
+        {
+          size: element.options.strokeWidth * 7,
+        }
+      );
+      const svgPath = getSvgPathFromStroke(stroke);
+      const path2D = new Path2D(svgPath);
+      ctx.fill(path2D);
 
       ctx.restore();
     };
@@ -329,4 +331,46 @@ export const strokeRectangle = ({
   }
 
   ctx.restore();
+};
+
+const calculateAverage = (a: number, b: number) => (a + b) / 2;
+
+const getSvgPathFromStroke = (points: number[][], closed = true) => {
+  const pointsLength = points.length;
+
+  if (pointsLength < 4) {
+    return ``;
+  }
+
+  let a = points[0];
+  let b = points[1];
+  const c = points[2];
+
+  invariant(a && a[0] && a[1]);
+  invariant(b && b[0] && b[1]);
+  invariant(c && c[0] && c[1]);
+
+  let result = `M${a[0].toFixed(2)},${a[1].toFixed(2)} Q${b[0].toFixed(
+    2
+  )},${b[1].toFixed(2)} ${calculateAverage(b[0], c[0]).toFixed(
+    2
+  )},${calculateAverage(b[1], c[1]).toFixed(2)} T`;
+
+  for (let i = 2, max = pointsLength - 1; i < max; i++) {
+    a = points[i];
+    b = points[i + 1];
+    invariant(a && a[0] && a[1]);
+    invariant(b && b[0] && b[1]);
+
+    result += `${calculateAverage(a[0], b[0]).toFixed(2)},${calculateAverage(
+      a[1],
+      b[1]
+    ).toFixed(2)} `;
+  }
+
+  if (closed) {
+    result += "Z";
+  }
+
+  return result;
 };
